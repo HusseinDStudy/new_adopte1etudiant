@@ -1,0 +1,24 @@
+{
+  "name": "adopte1etudiant-mvp",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "turbo test",
+    "db:migrate:dev": "npm run migrate:dev --workspace=apps/api",
+    "db:studio": "npm run studio --workspace=apps/api",
+    "turbosetup": "cp apps/api/.env.example apps/api/.env",
+    "db:seed": "npm run db:seed --workspace=api",
+    "db:clean": "npm run db:clean --workspace=api"
+  },
+  "devDependencies": {
+    "turbo": "^1.10.16",
+    "prettier": "^3.1.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+} 

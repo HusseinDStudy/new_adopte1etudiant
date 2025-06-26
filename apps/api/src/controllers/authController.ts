@@ -1,0 +1,105 @@
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { prisma } from 'db-postgres';
+import { RegisterInput, LoginInput } from 'shared-types';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+export const registerUser = async (
+  request: FastifyRequest<{ Body: RegisterInput }>,
+  reply: FastifyReply
+) => {
+  const { email, password, role } = request.body;
+
+  try {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return reply.code(409).send({ message: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role,
+      },
+    });
+
+    // TODO: Create initial StudentProfile or CompanyProfile
+
+    return reply.code(201).send({ id: user.id, email: user.email, role: user.role });
+  } catch (error) {
+    console.error(error);
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+export const loginUser = async (
+  request: FastifyRequest<{ Body: LoginInput }>,
+  reply: FastifyReply
+) => {
+  const { email, password } = request.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return reply.code(401).send({ message: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return reply.code(401).send({ message: 'Invalid credentials' });
+    }
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+      expiresIn: '7d',
+    });
+
+    reply
+      .setCookie('token', token, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
+      .code(200)
+      .send({ message: 'Logged in successfully' });
+  } catch (error) {
+    console.error(error);
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+export const getMe = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: request.user!.id } });
+    if (!user) return reply.code(404).send({ message: 'User not found' });
+    const { password, ...userData } = user;
+    return reply.send(userData);
+  } catch (error) {
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+export const logoutUser = async (request: FastifyRequest, reply: FastifyReply) => {
+  return reply
+    .clearCookie('token', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+    })
+    .code(200)
+    .send({ message: 'Logged out successfully' });
+}; 

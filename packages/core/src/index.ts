@@ -1,0 +1,1 @@
+export { MatchScoreService } from './services/MatchScoreService'; 

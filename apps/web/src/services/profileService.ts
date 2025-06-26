@@ -1,0 +1,19 @@
+import axios from 'axios';
+import { StudentProfileInput, CompanyProfileInput } from 'shared-types';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+const apiClient = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+export const getProfile = async () => {
+  const { data } = await apiClient.get('/profiles');
+  return data;
+};
+
+export const upsertProfile = async (profileData: StudentProfileInput | CompanyProfileInput) => {
+  const { data } = await apiClient.post('/profiles', profileData);
+  return data;
+}; 
