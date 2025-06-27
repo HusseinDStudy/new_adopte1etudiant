@@ -22,6 +22,7 @@
     "core": "file:../../packages/core",
     "db-postgres": "file:../../packages/db-postgres",
     "fastify": "^4.24.3",
+    "fastify-oauth2": "^4.6.0",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^5.7.1",
     "shared-types": "file:../../packages/shared-types",

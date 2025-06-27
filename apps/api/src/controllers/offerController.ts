@@ -19,21 +19,49 @@ const decodeToken = (request: FastifyRequest) => {
 
 // List all offers (publicly accessible)
 export const listOffers = async (
-  request: FastifyRequest<{ Querystring: { search?: string } }>,
+  request: FastifyRequest<{ Querystring: { search?: string, location?: string, skills?: string, companyName?: string } }>,
   reply: FastifyReply
 ) => {
-  const { search } = request.query;
+  const { search, location, skills: skillsQuery, companyName } = request.query;
   const user = decodeToken(request);
 
   try {
-    const whereClause: any = search
-      ? {
-          OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } },
-          ],
+    const whereClause: any = {};
+
+    if (search) {
+      whereClause.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    
+    if (location) {
+        whereClause.location = {
+            contains: location,
+            mode: 'insensitive',
         }
-      : {};
+    }
+
+    if (companyName) {
+      whereClause.company = {
+        name: {
+          equals: companyName,
+          mode: 'insensitive'
+        }
+      }
+    }
+
+    if (skillsQuery) {
+        const skills = skillsQuery.split(',');
+        whereClause.skills = {
+            some: {
+                name: {
+                    in: skills,
+                    mode: 'insensitive'
+                }
+            }
+        }
+    }
 
     const offers = await prisma.offer.findMany({
       where: whereClause,

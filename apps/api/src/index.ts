@@ -9,6 +9,8 @@ import applicationRoutes from './routes/application';
 import messageRoutes from './routes/message';
 import studentRoutes from './routes/student';
 import adoptionRequestRoutes from './routes/adoptionRequest';
+import skillRoutes from './routes/skill';
+import companyRoutes from './routes/company';
 
 const server = Fastify({
   logger: true,
@@ -32,6 +34,8 @@ server.register(applicationRoutes, { prefix: '/api/applications' });
 server.register(messageRoutes, { prefix: '/api/applications' });
 server.register(studentRoutes, { prefix: '/api/students' });
 server.register(adoptionRequestRoutes, { prefix: '/api/adoption-requests' });
+server.register(skillRoutes, { prefix: '/api/skills' });
+server.register(companyRoutes, { prefix: '/api/companies' });
 // TODO: Register API routes from adapters layer
 // server.register(applicationRoutes, { prefix: '/api/applications' });
 // server.register(messageRoutes, { prefix: '/api/messages' });
