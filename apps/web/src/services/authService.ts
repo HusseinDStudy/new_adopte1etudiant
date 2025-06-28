@@ -28,4 +28,30 @@ export const getMe = async () => {
   return data;
 }
 
+export const completeOauthRegistration = async (token: string, role: 'STUDENT' | 'COMPANY') => {
+  const response = await apiClient.post('/auth/complete-oauth-registration', { role }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const completeLink = async (token: string, choice: 'google_only' | 'keep_both') => {
+  const response = await apiClient.post('/auth/complete-link', { choice }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const deleteAccountWithPassword = async (password: string) => {
+  const { data } = await apiClient.delete('/auth/account', {
+    data: { password },
+  });
+  return data;
+};
+
 // TODO: Add register function 
+
+export const getMyProfile = async () => {
+  const { data } = await apiClient.get('/auth/me');
+  return data;
+} 

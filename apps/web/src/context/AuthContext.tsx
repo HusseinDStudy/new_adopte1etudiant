@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import * as authService from '../services/authService';
 import { getMe } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       console.error('Login failed', error);
       throw error;

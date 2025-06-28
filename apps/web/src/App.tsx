@@ -15,6 +15,8 @@ import ApplicationThreadPage from './pages/ApplicationThreadPage';
 import StudentDirectoryPage from './pages/StudentDirectoryPage';
 import MyAdoptionRequestsPage from './pages/MyAdoptionRequestsPage';
 import SentAdoptionRequestsPage from './pages/company/SentAdoptionRequestsPage';
+import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
+import LinkAccountPage from './pages/LinkAccountPage';
 
 // A simple layout for auth pages to share navigation
 const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?: boolean }) => (
@@ -40,17 +42,6 @@ const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?
   </div>
 );
 
-// A generic dashboard page
-const DashboardPage = () => {
-  const { user } = useAuth();
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p>Welcome, {user?.email}!</p>
-      <p>Your role is: {user?.role}</p>
-    </div>
-  );
-};
 
 // TODO: Create placeholder pages for these routes
 const HomePage = () => <div>Home Page</div>;
@@ -66,7 +57,7 @@ function App() {
     <>
       <nav className="bg-gray-800 p-4 text-white">
         <div className="container mx-auto flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold">Adopte1Etudiant</Link>
+          <Link to="/profile" className="text-xl font-bold">Adopte1Etudiant</Link>
           <div>
             <Link to="/offers" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Offers</Link>
             {isAuthenticated ? (
@@ -102,9 +93,10 @@ function App() {
           <Route path="/offers/:id" element={<OfferDetailsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
+          <Route path="/link-account" element={<LinkAccountPage />} />
           
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/my-applications" element={<MyApplicationsPage />} />
             <Route path="/applications/:id/thread" element={<ApplicationThreadPage />} />

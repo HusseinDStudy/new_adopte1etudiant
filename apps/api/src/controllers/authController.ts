@@ -163,35 +163,4 @@ export const deleteAccount = async (request: FastifyRequest, reply: FastifyReply
         console.error('Account deletion error:', error);
         return reply.code(500).send({ message: 'Internal server error during account deletion.' });
     }
-};
-
-export const disablePasswordLogin = async (request: FastifyRequest, reply: FastifyReply) => {
-    const userId = request.user!.id;
-
-    try {
-        const user = await prisma.user.findUnique({ 
-            where: { id: userId },
-            include: { accounts: true }
-        });
-
-        if (!user) {
-            return reply.code(404).send({ message: 'User not found' });
-        }
-
-        if (user.accounts.length === 0) {
-            return reply.code(400).send({ message: 'You must have another login method (e.g., Google) before disabling password login.' });
-        }
-
-        await prisma.user.update({
-            where: { id: userId },
-            data: {
-                passwordHash: null,
-            },
-        });
-
-        return reply.code(200).send({ message: 'Password login has been disabled.' });
-    } catch (error) {
-        console.error('Disable password login error:', error);
-        return reply.code(500).send({ message: 'Internal server error' });
-    }
 }; 

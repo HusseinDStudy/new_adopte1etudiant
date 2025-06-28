@@ -8,11 +8,15 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-export const listOffers = async (searchTerm?: string) => {
+export const listOffers = async (filters: { search?: string, location?: string, skills?: string[], companyName?: string }) => {
   const params = new URLSearchParams();
-  if (searchTerm) {
-    params.append('search', searchTerm);
+  if (filters.search) params.append('search', filters.search);
+  if (filters.location) params.append('location', filters.location);
+  if (filters.skills && filters.skills.length > 0) {
+    params.append('skills', filters.skills.join(','));
   }
+  if (filters.companyName) params.append('companyName', filters.companyName);
+
   const { data } = await apiClient.get('/offers', { params });
   return data;
 };

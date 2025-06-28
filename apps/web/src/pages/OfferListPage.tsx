@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { listOffers } from '../services/offerService';
+import { getAllSkills } from '../services/skillService';
+import { getCompaniesWithOffers } from '../services/companyService';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useDebounce } from '../hooks/useDebounce';
@@ -12,6 +14,11 @@ interface Company {
 interface Skill {
   id: string;
   name: string;
+}
+
+interface CompanyForFilter {
+    id: string;
+    name: string;
 }
 
 interface Offer {
@@ -28,15 +35,46 @@ const OfferListPage = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Filter states
   const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [allSkills, setAllSkills] = useState<Skill[]>([]);
+  const [allCompanies, setAllCompanies] = useState<CompanyForFilter[]>([]);
+
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedLocationFilter = useDebounce(locationFilter, 500);
+
   const { user } = useAuth();
+
+  // Effect to fetch all skills for the filter dropdown
+  useEffect(() => {
+    const fetchFilterData = async () => {
+        try {
+            const skillsData = await getAllSkills();
+            setAllSkills(skillsData);
+            const companiesData = await getCompaniesWithOffers();
+            setAllCompanies(companiesData);
+        } catch (error) {
+            console.error("Failed to fetch filter data", error);
+        }
+    }
+    fetchFilterData();
+  }, []);
 
   useEffect(() => {
     const fetchOffers = async () => {
       setLoading(true);
       try {
-        const data = await listOffers(debouncedSearchTerm);
+        const filters = { 
+          search: debouncedSearchTerm,
+          location: debouncedLocationFilter,
+          skills: selectedSkills,
+          companyName: selectedCompany,
+        };
+        const data = await listOffers(filters);
         setOffers(data);
       } catch (err) {
         setError('Failed to fetch offers.');
@@ -46,7 +84,15 @@ const OfferListPage = () => {
       }
     };
     fetchOffers();
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, debouncedLocationFilter, selectedSkills, selectedCompany]);
+
+  const handleSkillChange = (skillName: string) => {
+    setSelectedSkills(prev => 
+        prev.includes(skillName) 
+            ? prev.filter(s => s !== skillName)
+            : [...prev, skillName]
+    );
+  }
 
   const getRingColor = (score: number) => {
     if (score > 75) return 'stroke-green-500';
@@ -56,16 +102,55 @@ const OfferListPage = () => {
   
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Explore Opportunities</h1>
-        <div className="w-1/3">
-          <input
-            type="text"
-            placeholder="Search by title or description..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-center mb-8">Explore Opportunities</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
+            {/* Search Input */}
+            <input
+                type="text"
+                placeholder="Search by title or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+            />
+            {/* Location Input */}
+            <input
+                type="text"
+                placeholder="Filter by location..."
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+            />
+            {/* Company Filter */}
+            <select
+                value={selectedCompany}
+                onChange={(e) => setSelectedCompany(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+            >
+                <option value="">All Companies</option>
+                {allCompanies.map(company => (
+                    <option key={company.id} value={company.name}>
+                        {company.name}
+                    </option>
+                ))}
+            </select>
+            {/* Skills Filter */}
+            <div className="md:col-span-3">
+                <h3 className="font-semibold mb-2">Filter by Skills:</h3>
+                <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2 bg-white border rounded-lg">
+                    {allSkills.map(skill => (
+                        <label key={skill.id} className="flex items-center space-x-2 cursor-pointer">
+                            <input 
+                                type="checkbox"
+                                checked={selectedSkills.includes(skill.name)}
+                                onChange={() => handleSkillChange(skill.name)}
+                                className="rounded text-indigo-600 focus:ring-indigo-500"
+                            />
+                            <span>{skill.name}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
         </div>
       </div>
       

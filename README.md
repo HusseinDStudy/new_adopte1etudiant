@@ -83,4 +83,3 @@ docker run -p 8080:8080 adopte1etudiant-api
 - ✅ Application management
 - ✅ In-app messaging
 - ✅ Search and filtering
-- ✅ Dashboards for both user types
