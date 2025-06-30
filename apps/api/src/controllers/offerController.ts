@@ -90,6 +90,10 @@ export const listOffers = async (
           );
           return { ...offer, matchScore: score };
         });
+
+        // Sort by match score descending
+        offersWithScores.sort((a, b) => b.matchScore - a.matchScore);
+        
         return reply.send(offersWithScores);
       }
     }

@@ -1,0 +1,84 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # --- Job d'Intégration Continue ---
+  ci-pipeline:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 3. Install Dependencies
+        run: npm ci
+
+      - name: 4. Run Linter
+        run: npm run lint
+
+      - name: 5. Run Tests & Generate Coverage
+        run: npm test -- --coverage
+
+      - name: 6. Upload Coverage Report
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # Secret à ajouter dans GitHub
+
+      - name: 7. Build Application
+        run: npm run build
+
+  # --- Job de Déploiement Continu ---
+  cd-pipeline:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+    needs: ci-pipeline # Dépend du succès de la CI
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Condition de déclenchement
+
+    steps:
+      - name: 1. Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 2. Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 3. Build and Push API Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/api/Dockerfile # Assurez-vous d'avoir ce Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/adopte1etudiant-api:latest,${{ secrets.DOCKERHUB_USERNAME }}/adopte1etudiant-api:${{ github.sha }}
+
+      - name: 4. Build and Push Web Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/web/Dockerfile # Assurez-vous d'avoir ce Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/adopte1etudiant-web:latest,${{ secrets.DOCKERHUB_USERNAME }}/adopte1etudiant-web:${{ github.sha }}
+
+      - name: 5. Deploy to Production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd ~/adopte1etudiant-mvp
+            docker-compose pull
+            docker-compose up -d --force-recreate
+            docker-compose exec -T api npm run db:migrate:prod
