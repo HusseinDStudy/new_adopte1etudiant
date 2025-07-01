@@ -55,14 +55,17 @@ const MyApplicationsPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="text-center p-8">Loading...</div>;
+  if (loading) return <div className="text-center p-8">Loading applications...</div>;
   if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">My Applications</h1>
       {applications.length === 0 ? (
-        <p>You have not made any applications yet.</p>
+        <div className="text-center bg-white p-12 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold">You have not made any applications yet.</h2>
+          <p className="mt-2 text-gray-500">Once you apply to an offer, you can track its status here.</p>
+        </div>
       ) : (
         <div className="space-y-4">
           {applications.map((app) => (

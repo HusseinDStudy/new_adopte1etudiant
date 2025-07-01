@@ -19,8 +19,8 @@ const ManageOffersPage = () => {
     try {
       const data = await listMyOffers();
       setOffers(data);
-    } catch (err) {
-      setError('Failed to fetch offers.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to fetch offers.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -43,11 +43,16 @@ const ManageOffersPage = () => {
     }
   };
 
-  if (loading) return <div>Loading offers...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return <div className="text-center p-8">Loading offers...</div>;
 
   return (
     <div className="container mx-auto p-4">
+      {error && (
+          <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-red-800">An Error Occurred</h2>
+              <p className="mt-2 text-red-600">{error}</p>
+          </div>
+      )}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Manage Your Offers</h1>
         <Link to="/company/offers/new" className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">

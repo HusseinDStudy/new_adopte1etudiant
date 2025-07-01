@@ -29,8 +29,8 @@ const SentAdoptionRequestsPage: React.FC = () => {
                 setLoading(true);
                 const data = await getSentAdoptionRequests();
                 setRequests(data);
-            } catch (err) {
-                setError('Failed to fetch sent adoption requests.');
+            } catch (err: any) {
+                setError(err.response?.data?.message || 'Failed to fetch sent adoption requests.');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -54,12 +54,17 @@ const SentAdoptionRequestsPage: React.FC = () => {
     }
 
     if (loading) return <div className="text-center p-8">Loading requests...</div>;
-    if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
     return (
         <div className="container mx-auto p-4">
+            {error && (
+                <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
+                    <h2 className="text-xl font-semibold text-red-800">An Error Occurred</h2>
+                    <p className="mt-2 text-red-600">{error}</p>
+                </div>
+            )}
             <h1 className="text-3xl font-bold mb-6">Sent Adoption Requests</h1>
-            {requests.length === 0 ? (
+            {requests.length === 0 && !error ? (
                  <div className="text-center bg-white p-12 rounded-lg shadow-md">
                     <h2 className="text-xl font-semibold">You haven't sent any adoption requests yet.</h2>
                     <p className="mt-2 text-gray-500">Find interesting students in the Student Directory.</p>

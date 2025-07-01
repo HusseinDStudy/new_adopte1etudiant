@@ -1,78 +1,125 @@
 # Database Guide
 
-This document covers everything related to the PostgreSQL database and the application's interaction with it via the **Prisma ORM**.
+This document provides a guide to understanding, managing, and interacting with the database for the "AdopteUnEtudiant" application.
 
-## 1. Prisma Schema
+---
 
-The file `apps/api/prisma/schema.prisma` is the **single source of truth** for your database structure.
+## 1. Overview
 
--   **Model Definitions**: This is where you define your database tables (as `model`), their columns (`field`), data types, and relationships (e.g., `@relation(...)`).
--   **Client Generation**: Whenever you modify the schema and run a Prisma command (like `migrate` or `generate`), Prisma updates its type-safe client (`@prisma/client`). This provides excellent autocompletion and type safety when writing database queries in your application code.
+*   **Database System**: **[PostgreSQL](https://www.postgresql.org/)**, a powerful and reliable open-source relational database.
+*   **ORM**: **[Prisma](https://www.prisma.io/)**, a next-generation ORM that provides a type-safe database client, a declarative schema, and a built-in migration system.
 
-## 2. Key Models Overview
+All database-related files, including the schema, migrations, and seed script, are located in the `apps/api/prisma/` directory.
 
-Here is a brief overview of the core models in the `schema.prisma` file:
+---
 
--   `User`: The central model representing both **Students** and **Companies**. A `role` field distinguishes between them. It holds authentication info and profile data.
--   `StudentProfile` / `CompanyProfile`: These models hold information specific to each role, linked one-to-one with the `User` model.
--   `Skill`: A simple model to store skills (e.g., "React", "Node.js").
--   `StudentSkill`: A join table to create a many-to-many relationship between `StudentProfile` and `Skill`.
--   `Offer`: Represents a job offer created by a `Company`. It has relationships with `Skill`s.
--   `Application`: A record of a `Student` applying to an `Offer`. It includes a `status` field (e.g., PENDING, ACCEPTED).
--   `Message`: A message sent within the context of an `Application`, linking a sender (`User`) to an `Application`.
--   `AdoptionRequest`: A request sent by a `Company` to a `Student`.
+## 2. Prisma Schema
 
-## 3. Migrations
+The **single source of truth** for the database structure is the Prisma schema file, located at:
+`apps/api/prisma/schema.prisma`
 
-Prisma manages the evolution of your database schema via a migration system. You should **never** modify the database schema manually.
+This file defines all database models (tables), their columns (fields), types, and relations.
 
-### How to Create a New Migration
+### Key Models
 
-When you change the `schema.prisma` file (e.g., by adding a new field), you must create a migration to apply this change to the database.
+*   `User`: The central model for any entity that can log in. Contains authentication details and a `role` (`STUDENT` or `COMPANY`).
+*   `StudentProfile` & `CompanyProfile`: One-to-one relations with `User`. These models hold the specific profile information for each user type.
+*   `Skill`: A model to store skills that can be associated with students and required by offers.
+*   `Offer`: Represents a job/internship offer posted by a `COMPANY`.
+*   `Application`: A many-to-many join table representing a `STUDENT`'s application to an `Offer`.
+*   `AdoptionRequest`: Represents a `COMPANY`'s request to connect with a `STUDENT`.
+*   `Conversation` & `Message`: Models for the in-app messaging feature.
+*   `OAuthAccount`: Stores information for users who sign up via third-party providers like Google.
 
-1.  **Ensure your Docker database container is running.**
+---
+
+## 3. Database Migrations
+
+Prisma Migrate is used to manage incremental, reversible changes to the database schema. Migrations are generated automatically by Prisma based on changes you make to the `schema.prisma` file.
+
+### How to Create a Migration
+
+1.  Modify the `apps/api/prisma/schema.prisma` file (e.g., add a new field to a model).
+2.  Run the following command from the root of the monorepo:
+
     ```bash
-    docker-compose up -d
-    ```
-2.  **Run the `migrate dev` command.**
-    This command will:
-    -   Compare `schema.prisma` with the current state of the database.
-    -   Generate a new SQL migration file in the `apps/api/prisma/migrations/` directory.
-    -   Prompt you to name the migration (e.g., `add-user-phone-number`).
-    -   Apply the generated migration to your development database.
-
-    ```bash
-    npm run db:migrate:dev --workspace=api
+    pnpm --filter api exec prisma migrate dev --name your_migration_name
     ```
 
-### Applying Migrations in Production
+    *   `--filter api`: Tells pnpm to run the command within the `api` workspace.
+    *   `prisma migrate dev`: This command compares the current state of the schema file with the last migration, generates a new SQL migration file, and applies it to your development database.
+    *   `--name`: Provides a descriptive name for the migration folder.
 
-In a production environment, you should use the `migrate deploy` command. This non-interactively applies all pending migration files.
+3.  A new directory will be created under `apps/api/prisma/migrations/` containing the SQL migration file.
+4.  **Commit the generated migration files** to version control so that other developers and the CI/CD pipeline can run them.
+
+---
+
+## 4. Database Seeding
+
+The project includes a seed script to populate the database with realistic data for development and testing.
+
+*   **Script Location**: `apps/api/prisma/seed.ts`
+*   **Tooling**: Uses **`@faker-js/faker`** to generate a rich dataset of users, companies, offers, applications, and conversations.
+
+### How to Seed the Database
+
+The seed script is automatically executed whenever you run `prisma migrate dev`.
+
+If you need to re-run the seed script manually on an existing database, use this command:
 
 ```bash
-# This command is typically run as part of a deployment pipeline
-npm run db:migrate:prod --workspace=api
+pnpm --filter api exec prisma db seed
 ```
-*Note: The `db:migrate:prod` script in `package.json` executes `prisma migrate deploy`.*
 
-## 4. Seeding the Database
+---
 
-To facilitate development and testing, a seeding script is available to populate your database with test data (e.g., fake users, offers, applications).
+## 5. Using Prisma Client
 
--   **The Script**: `apps/api/prisma/seed.ts`
--   **How to Run**: The script is designed to be run after migrations. You can also run it manually.
+Prisma Client is a type-safe query builder that is auto-generated from your Prisma schema. It is the primary way the application interacts with the database.
 
-    ```bash
-    npm run db:seed --workspace=api
-    ```
-If you need to add or modify the test data, this is the file to edit.
+It is instantiated once and made available through the application's context.
 
-## 5. Prisma Studio
+### Example Usage (in a controller)
 
-Prisma provides a modern, visual admin tool for your database. It is extremely useful for viewing, browsing, and editing data during development.
+```typescript
+// Example from a controller in apps/api/src/controllers/
 
--   **How to Launch**:
-    ```bash
-    npm run db:studio --workspace=api
-    ```
--   This will open a web interface in your browser (usually at `http://localhost:5555`) where you can see all your tables and their data.
+import prisma from '../path/to/prisma/client'; // Simplified import
+
+// Fetching all offers with their related company and skills
+export const getAllOffers = async (req, reply) => {
+  const offers = await prisma.offer.findMany({
+    include: {
+      company: {
+        include: {
+          profile: true,
+        },
+      },
+      skills: true,
+    },
+  });
+  reply.send(offers);
+};
+```
+
+Because Prisma Client is fully typed, you get autocompletion and compile-time checks for all your database queries, significantly reducing runtime errors.
+
+---
+
+## 6. Fast Prototyping (Non-Migration Workflow)
+
+For rapid prototyping during early development, you may not want to create a migration for every small schema change. In such cases, you can use `db push` to sync your schema with the database directly.
+
+**WARNING**: This command is for **development only**. It does not create migration files and can lead to data loss. Do not use it in production or for collaborative development where migrations are necessary.
+
+```bash
+pnpm --filter api exec prisma db push
+```
+
+If you have existing data and need to force the changes, you can add `--force --accept-data-loss`, but be aware of the consequences. For this project, we have a convenience script:
+
+```bash
+# In package.json for the api app
+"db:force": "prisma db push --force --accept-data-loss"
+```

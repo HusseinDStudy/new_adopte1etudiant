@@ -76,25 +76,32 @@ const StudentDirectoryPage: React.FC = () => {
   };
 
   const handleRequestAdoption = async (studentId: string) => {
+    setError(null); // Clear previous errors
     try {
       await createAdoptionRequest(studentId);
       setRequestedStudentIds(prev => new Set(prev).add(studentId));
-      // Ideally, show a toast notification here
-    } catch (error) {
-      console.error('Failed to send adoption request', error);
-      // Ideally, show an error toast here
-      alert('Failed to send request. The company may have already sent one.');
+      // Ideally, show a toast notification here for success
+    } catch (err: any) {
+      console.error('Failed to send adoption request', err);
+      setError(err.response?.data?.message || 'Failed to send adoption request.');
     }
   }
 
   if (loading) return <div className="text-center p-8">Loading students...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold text-center mb-8">
         Find Your Next Intern
       </h1>
+
+      {error && (
+          <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-red-800">An Error Occurred</h2>
+              <p className="mt-2 text-red-600">{error}</p>
+          </div>
+      )}
+
       <div className="mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
           <input

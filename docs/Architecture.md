@@ -1,80 +1,76 @@
-# Architecture Overview
+# Architecture
 
-This document describes the software architecture of the AdopteUnEtudiant platform, including the key technology choices, structural design, and underlying architectural patterns that ensure scalability and maintainability.
+This document outlines the software architecture of the "AdopteUnEtudiant" application.
 
----
+## Overview
 
-## 1. Technology Choices
+The application is built using a **monorepo architecture**, managed with pnpm workspaces and orchestrated by Turborepo. This structure allows for shared code and configurations, improving maintainability and development speed. The project is divided into two main applications (`apps`) and several shared packages (`packages`).
 
-The technologies for this project were selected to build a modern, robust, and high-performance web application.
+The architecture follows a classic **client-server model**:
 
--   **Backend**: **[Fastify](https://www.fastify.io/)** was chosen for its high performance and low overhead. Its plugin-based architecture makes it extensible and well-suited for building robust APIs.
--   **Frontend**: **[React](https://reactjs.org/)** (with **[Vite](https://vitejs.dev/)**) was selected for its component-based model, which promotes reusability and simplifies complex UI development. Vite provides a fast and modern development experience.
--   **Database**: **[PostgreSQL](https://www.postgresql.org/)** is a powerful, open-source object-relational database system with a strong reputation for reliability, feature robustness, and performance.
--   **ORM**: **[Prisma](https://www.prisma.io/)** serves as the next-generation ORM. It provides a type-safe database client and a declarative schema, which simplifies database interactions and helps prevent common errors like SQL injection.
--   **Language**: **[TypeScript](https://www.typescriptlang.org/)** is used for both the backend and frontend, ensuring type safety across the entire stack. This reduces bugs and improves the developer experience.
--   **Monorepo Tooling**: **[Turborepo](https://turbo.build/)** and **npm Workspaces** are used to manage the project as a monorepo, simplifying dependency management and cross-package integration.
+*   **`apps/web`**: A modern frontend application built with React, Vite, and TypeScript. It is a Single-Page Application (SPA) responsible for the user interface and user experience.
+*   **`apps/api`**: A backend server built with Node.js, Fastify, and TypeScript. It provides a RESTful API for the frontend to consume, handling business logic, database interactions, and authentication.
+*   **Database**: A PostgreSQL database is used for data persistence, with Prisma serving as the Object-Relational Mapper (ORM) for type-safe database access.
 
----
-
-## 2. System Architecture
-
-The project is designed with a classic **Client-Server** model but is housed within a **Monorepo** to streamline development.
-
-```mermaid
-graph TD
-    subgraph Monorepo
-        subgraph "apps"
-            A[Frontend App - React]
-            B[Backend API - Fastify]
-        end
-        subgraph "packages"
-            C[shared-types]
-            D[db-postgres]
-            E[tsconfig]
-        end
-    end
-
-    U[User's Browser] -- HTTP/S Requests --> B
-    A -- Served to --> U
-    B -- Interacts with --> DB[(Database - PostgreSQL)]
-
-    A -- Depends on --> C
-    B -- Depends on --> C
-    B -- Depends on --> D
-```
-
--   **The Client (Browser)**: The React single-page application (`apps/web`) is downloaded and executed in the user's browser. It is responsible for the user interface (UI) and user experience (UX).
--   **The Server (Backend)**: The Fastify API (`apps/api`) runs on a Node.js server. Its responsibilities are to:
-    -   Expose data via a RESTful API.
-    -   Handle all business logic (e.g., creating applications, managing users).
-    -   Authenticate and authorize users.
-    -   Communicate with the PostgreSQL database via Prisma.
+![High-Level Architecture](https://i.imgur.com/example.png)  <-- *Note: Replace with a real diagram link if available.*
 
 ---
 
-## 3. Monorepo Structure
+## Detailed Components
 
-The monorepo contains two main directories: `apps` and `packages`.
+### 1. Frontend (`apps/web`)
 
--   **`apps/`**: Contains the runnable applications.
-    -   `api`: The backend server.
-    -   `web`: The frontend React application.
--   **`packages/`**: Contains shared code and configuration.
-    -   `db-postgres`: The Prisma client, schema, and migration files.
-    -   `shared-types`: Shared TypeScript types and Zod schemas used for validation, ensuring consistency between the frontend and backend.
-    -   `tsconfig`: Shared TypeScript configuration.
+*   **Framework**: [React](https://reactjs.org/) (with hooks and functional components).
+*   **Build Tool**: [Vite](https://vitejs.dev/) for fast development and optimized builds.
+*   **Language**: [TypeScript](https://www.typescriptlang.org/).
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/) for a utility-first CSS workflow.
+*   **State Management**: React Context API (`AuthContext`) is used for managing global state like user authentication.
+*   **Routing**: `react-router-dom` is used for client-side routing.
+*   **Key Responsibilities**:
+    *   Rendering all UI components.
+    *   Handling user input and interactions.
+    *   Communicating with the backend API via `fetch` or `axios` in service modules (`src/services`).
+    *   Managing client-side state.
 
-This structure allows for atomic commits that affect both frontend and backend, while still maintaining a clear separation of concerns.
+### 2. Backend (`apps/api`)
+
+*   **Framework**: [Fastify](https://www.fastify.io/), a high-performance, low-overhead web framework for Node.js.
+*   **Language**: [TypeScript](https://www.typescriptlang.org/).
+*   **Database ORM**: [Prisma](https://www.prisma.io/) for interacting with the PostgreSQL database. Prisma provides type safety and auto-generated queries.
+*   **Authentication**: Implemented using JSON Web Tokens (JWT). The backend handles user registration, login (password-based and OAuth with Google), and session management via tokens.
+*   **Architecture Style**: RESTful API. The API is structured with controllers, services (implicitly), and routes for modularity.
+    *   `src/routes`: Define API endpoints.
+    *   `src/controllers`: Contain the business logic for each route.
+    *   `src/middleware`: Handle cross-cutting concerns like authentication (`authMiddleware`) and authorization (`roleMiddleware`).
+*   **Key Responsibilities**:
+    *   Exposing secure endpoints for data manipulation.
+    *   Validating incoming data.
+    *   Authenticating and authorizing users.
+    *   Executing business logic (e.g., calculating match scores, managing applications).
+    *   Interacting with the database via Prisma.
+
+### 3. Shared Packages (`packages/`)
+
+*   **`shared-types`**: A crucial package for sharing TypeScript type definitions (e.g., `User`, `Offer`, `Application`) between the frontend and backend. This ensures type consistency across the stack.
+*   **`core`**: Contains shared business logic that can be used by any part of the monorepo. The `MatchScoreService` is a key example.
+*   **`tsconfig`**: Provides base `tsconfig.json` configurations to ensure consistent TypeScript settings across all packages and apps.
+
+### 4. Database
+
+*   **Engine**: [PostgreSQL](https://www.postgresql.org/).
+*   **Schema Management**: Prisma Migrate is used to manage database schema changes through declarative migration files located in `apps/api/prisma/migrations`.
+*   **Seeding**: The database is seeded with realistic fake data using `@faker-js/faker` to facilitate development and testing. The seed script is in `apps/api/prisma/seed.ts`.
+
+### 5. Development & Deployment
+
+*   **Containerization**: [Docker](https://www.docker.com/) and `docker-compose.yml` are provided for setting up a consistent local development environment, including the database and application services.
+*   **CI/CD**: The project is configured for Continuous Integration and Continuous Deployment (see `CI-CD.md`). The workflow includes steps for building, testing, and deploying the applications.
 
 ---
 
-## 4. Backend N-Tier Architecture
+## Design Patterns and Principles
 
-The backend (`apps/api`) is organized into logical layers to separate responsibilities.
-
--   **Presentation Layer (Routes & Middlewares)**: This is the entry point of the API. It defines the URL endpoints, validates incoming request shapes, and handles cross-cutting concerns like authentication (`authMiddleware`) and authorization (`roleMiddleware`).
--   **Application Layer (Controllers)**: This layer orchestrates the application's business logic. It receives validated requests from the presentation layer and uses the services of the lower layers to fulfill them.
--   **Data Access Layer (ORM)**: This is the lowest layer, responsible for all communication with the database. The Prisma ORM abstracts away the raw SQL, providing a secure, type-safe interface for data manipulation.
-
-> For a detailed guide on how to add new features within this structure, see the **[Development Guide](Development-Guide.md)**.
+*   **Stateless Server**: The backend API is stateless. All state required to process a request is contained within the request itself (e.g., JWT in the `Authorization` header). This simplifies scalability.
+*   **Role-Based Access Control (RBAC)**: Authorization is managed through roles (`STUDENT`, `COMPANY`). Middleware checks the user's role before granting access to certain endpoints.
+*   **Service Layer Pattern**: API logic is separated into services (e.g., `authService`, `offerService` on the frontend; controllers act as services on the backend) to encapsulate business logic and data access.
+*   **Monorepo**: Centralizes code management, simplifies dependency management, and promotes code sharing.

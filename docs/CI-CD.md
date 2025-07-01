@@ -1,70 +1,95 @@
-# CI/CD Pipeline
+# CI/CD (Continuous Integration & Continuous Deployment)
 
-This document describes the Continuous Integration and Continuous Deployment (CI/CD) pipeline for the project, implemented using **GitHub Actions**.
-
-## 1. Pipeline Objectives
-
--   **Continuous Integration (CI)**: To automatically validate that every code change (on push or pull request) meets quality standards, does not break existing functionality, and is ready to be merged.
--   **Continuous Deployment (CD)**: To automatically deploy every new version of the `main` branch to a production-like environment without manual intervention.
+This document outlines the CI/CD strategy and workflow for the "AdopteUnEtudiant" project, using GitHub Actions as the automation platform.
 
 ---
 
-## 2. CI/CD Workflow Visualization
+## 1. CI/CD Philosophy
 
-```mermaid
-graph TD
-    subgraph "CI: On Pull Request to main"
-        A[Code Pushed] --> B(Lint Code);
-        B --> C(Run Unit & Integration Tests);
-        C --> D(Build Application);
-        D --> E{All Checks Pass?};
-    end
+Our CI/CD pipeline is designed to automate the process of building, testing, and deploying the application. The primary goals are:
 
-    subgraph "CD: On Merge to main"
-        F[PR Merged] --> G(Build & Push Docker Image);
-        G --> H(Run Database Migrations);
-        H --> I(Deploy to Production);
-    end
-
-    E -- Yes --> F;
-    E -- No --> J[Block Merge];
-```
+*   **Improve Code Quality**: Automatically run tests and linters to catch issues early.
+*   **Increase Development Velocity**: Automate repetitive tasks, allowing developers to focus on building features.
+*   **Ensure Stability**: Automate deployments to ensure a consistent and reliable release process.
 
 ---
 
-## 3. Continuous Integration (CI) Protocol
+## 2. The CI/CD Platform: GitHub Actions
 
-This pipeline is triggered on every `push` and `pull_request` targeting the `main` branch. Its purpose is to act as a quality gate.
+We use **[GitHub Actions](https://github.com/features/actions)** to orchestrate our workflows. The main workflow file is located at:
+`.github/workflows/ci-cd.yml`
 
--   **Workflow File**: `.github/workflows/ci-cd.yml`
-
--   **Key Steps**:
-    1.  **Checkout Code**: The workflow checks out the latest version of the source code.
-    2.  **Setup Environment**: It installs Node.js (v20) and caches dependencies for speed.
-    3.  **Install Dependencies**: It runs `npm ci` instead of `npm install`. `ci` uses the `package-lock.json` file to ensure a clean, reproducible, and fast installation of exact dependency versions.
-    4.  **Linting**: It runs `npm run lint`. This step checks the entire codebase for stylistic errors and programming mistakes using ESLint, ensuring code consistency and quality.
-    5.  **Automated Tests (Future Implementation)**: It will run `npm test`. This step executes the full suite of unit and integration tests with Vitest. It verifies that all existing functionality works as expected and prevents regressions. A code coverage report will also be generated.
-    6.  **Build Application**: It runs `npm run build`. This step compiles the frontend and backend applications into their production-ready artifacts. It's a final verification that the code is syntactically correct and can be deployed.
-
-If any of these steps fail, the workflow is marked as "failed," and the pull request is blocked from being merged (assuming branch protection rules are enabled).
+This workflow is triggered on every `push` and `pull_request` to the `main` branch.
 
 ---
 
-## 4. Continuous Deployment (CD) Protocol
+## 3. Continuous Integration (CI) Workflow
 
-This pipeline runs **only** when a change is pushed or merged into the `main` branch, and only if the preceding CI pipeline was successful.
+The CI process runs on every pull request and push to `main`. It validates the code without deploying it.
 
--   **Strategy**: The approach uses **Docker** containers for the backend and a **PaaS (Platform as a Service)** like Render or Heroku for simplified, automated deployments.
+**Trigger**: `on: [pull_request]`
 
--   **Key Steps**:
-    1.  **Login to Container Registry**: The workflow authenticates to a Docker image registry (e.g., GitHub Container Registry or Docker Hub).
-    2.  **Build and Push Docker Image**:
-        -   A production-optimized Docker image for the API (`apps/api`) is built using the `Dockerfile`.
-        -   This image is tagged with a unique identifier (like the Git commit hash) and pushed to the container registry.
-    3.  **Trigger Deployment via Webhook**:
-        -   The workflow sends a secure HTTP POST request to a unique **"Deploy Hook"** URL provided by the hosting platform.
-        -   Upon receiving this webhook, the PaaS automatically pulls the newest Docker image from the registry and restarts the service with the new version.
-    4.  **Run Database Migrations**: The hosting platform's startup command is configured to run the production migration script (`npm run db:migrate:prod`) *before* starting the new application container. This ensures the database schema is compatible with the new code.
-    5.  **Frontend Deployment**: The frontend (`apps/web`) is a static site. Most modern platforms (like Vercel or Netlify) can be configured to automatically watch the `main` branch and trigger a new build and deployment upon every push, independent of the backend's Docker workflow.
+**Key Steps**:
+1.  **Checkout Code**: The workflow checks out the repository's code.
+2.  **Setup Environment**: It sets up the correct Node.js version and installs pnpm.
+3.  **Install Dependencies**: It installs all project dependencies using pnpm, leveraging pnpm's content-addressable store for efficiency. `pnpm install --frozen-lockfile` is used to ensure exact dependency versions are installed.
+4.  **Linting**: It runs the linter across the entire monorepo to check for code style and quality issues.
+    ```yaml
+    - name: Lint
+      run: pnpm lint
+    ```
+5.  **Testing**: It runs all unit and integration tests for all applications and packages.
+    ```yaml
+    - name: Test
+      run: pnpm test
+    ```
+6.  **Build**: It performs a production build of all applications and packages to ensure that the code is syntactically correct and can be compiled. Turborepo caches build outputs to speed up this process.
+    ```yaml
+    - name: Build
+      run: pnpm build
+    ```
 
-For the concrete implementation details, see the workflow file: **[.github/workflows/ci-cd.yml](../.github/workflows/ci-cd.yml)**.
+If any of these steps fail, the workflow fails, and the pull request is blocked from merging (if branch protection rules are enabled).
+
+---
+
+## 4. Continuous Deployment (CD) Workflow
+
+The CD process automatically deploys the `api` and `web` applications to their respective hosting environments.
+
+**Trigger**: `on: push: branches: [ "main" ]` (This means deployment only happens when code is merged into the `main` branch).
+
+**Hosting Platforms**:
+*   **Backend (`api`)**: Deployed to **[Render](https://render.com/)** as a "Web Service".
+*   **Frontend (`web`)**: Deployed to **[Render](https://render.com/)** as a "Static Site".
+
+### Deployment Mechanism: Render Deploy Hooks
+
+Render provides a simple yet effective deployment mechanism via **Deploy Hooks**. A Deploy Hook is a unique URL that, when a `POST` request is sent to it, triggers a new deployment on Render.
+
+**Workflow Steps**:
+1.  **Run CI Steps**: The deployment job depends on the successful completion of all CI steps (lint, test, build).
+2.  **Trigger Backend Deployment**: If the CI steps pass, a `curl` command sends a `POST` request to the Render Deploy Hook for the backend service.
+    ```yaml
+    - name: Deploy API to Render
+      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+    ```
+3.  **Trigger Frontend Deployment**: A similar `curl` command triggers the deployment for the frontend static site.
+    ```yaml
+    - name: Deploy Web to Render
+      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+    ```
+
+### Render Service Configuration
+
+*   **Build Command**: Render is configured to use `pnpm --filter <app-name> build` to build the specific application.
+*   **Start Command** (for API): Render uses `pnpm --filter api start` to run the backend server.
+*   **Environment Variables**: All secrets (like `DATABASE_URL`, `JWT_SECRET`, etc.) are securely stored in Render's environment variable manager, not in the repository. The Deploy Hook URLs are stored as **GitHub Secrets** (`secrets.RENDER_DEPLOY_HOOK_API`).
+
+---
+
+## 5. Future Improvements
+
+*   **Code Coverage Analysis**: Integrate a tool like **SonarCloud** or **Codecov** to track test coverage over time and enforce coverage minimums.
+*   **E2E Testing**: Add an End-to-End testing step using a framework like Cypress or Playwright to simulate real user flows in a browser.
+*   **Preview Environments**: Configure the pipeline to automatically deploy pull requests to temporary "preview environments" for easier review and testing.

@@ -1,73 +1,155 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CompleteOauthInput, completeOauthSchema } from 'shared-types';
 import { useAuth } from '../context/AuthContext';
 import * as authService from '../services/authService';
 
 const CompleteRegistrationPage = () => {
-    const [role, setRole] = useState<'STUDENT' | 'COMPANY'>('STUDENT');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  
+  const token = new URLSearchParams(location.search).get('token');
 
-    const queryParams = new URLSearchParams(location.search);
-    const token = queryParams.get('token');
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<CompleteOauthInput>({
+    resolver: zodResolver(completeOauthSchema),
+    defaultValues: {
+      role: 'STUDENT',
+    },
+  });
 
-    useEffect(() => {
-        if (!token) {
-            setError('No registration token found. Please try signing up again.');
-        }
-    }, [token]);
+  const role = watch('role');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!token) {
-            setError('Registration token is missing.');
-            return;
-        }
-        setLoading(true);
-        setError('');
-        try {
-            const { user, token: authToken } = await authService.completeOauthRegistration(token, role);
-            login(user, authToken);
-            navigate('/');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to complete registration.');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const onSubmit = async (data: CompleteOauthInput) => {
+    if (!token) {
+      setError('root.serverError', {
+        type: 'manual',
+        message: 'Registration token is missing or has expired. Please try signing up again.',
+      });
+      return;
+    }
+    try {
+      const { user, token: authToken } = await authService.completeOauthRegistration(token, data);
+      login(user, authToken);
+      navigate('/');
+    } catch (err: any) {
+      setError('root.serverError', {
+        type: 'manual',
+        message: err.response?.data?.message || 'Failed to complete registration.',
+      });
+    }
+  };
 
+  if (!token) {
     return (
-        <div className="container mx-auto p-4 max-w-md">
-            <h1 className="text-2xl font-bold mb-4">Complete Your Registration</h1>
-            {error && <p className="text-red-500 bg-red-100 p-3 rounded mb-4">{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label htmlFor="role" className="block text-gray-700 font-bold mb-2">
-                        I am a:
-                    </label>
-                    <select
-                        id="role"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value as 'STUDENT' | 'COMPANY')}
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    >
-                        <option value="STUDENT">Student</option>
-                        <option value="COMPANY">Company</option>
-                    </select>
-                </div>
-                <button
-                    type="submit"
-                    disabled={loading || !token}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-gray-400"
-                >
-                    {loading ? 'Completing...' : 'Complete Registration'}
-                </button>
-            </form>
-        </div>
+      <div className="container mx-auto p-4 max-w-md text-center">
+        <h1 className="text-2xl font-bold mb-4">Registration Error</h1>
+        <p className="text-red-500 bg-red-100 p-3 rounded">
+          Registration token is missing or has expired. Please try signing up again.
+        </p>
+      </div>
     );
+  }
+
+  return (
+    <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          Complete Your Registration
+        </h2>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="rounded-lg bg-white py-8 px-4 shadow sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {errors.root?.serverError && (
+              <p className="mb-4 text-center text-sm text-red-500">{errors.root.serverError.message}</p>
+            )}
+
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">I am a</label>
+              <select
+                id="role"
+                {...register('role')}
+                className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="STUDENT">Student</option>
+                <option value="COMPANY">Company</option>
+              </select>
+            </div>
+
+            {role === 'STUDENT' && (
+              <>
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    {...register('firstName')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.firstName && <p className="mt-1 text-sm text-red-500">{errors.firstName.message}</p>}
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    {...register('lastName')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName.message}</p>}
+                </div>
+              </>
+            )}
+
+            {role === 'COMPANY' && (
+              <>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Company Name</label>
+                  <input
+                    id="name"
+                    type="text"
+                    {...register('name')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
+                </div>
+                <div>
+                  <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">Contact Email</label>
+                  <input
+                    id="contactEmail"
+                    type="email"
+                    {...register('contactEmail')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.contactEmail && <p className="mt-1 text-sm text-red-500">{errors.contactEmail.message}</p>}
+                </div>
+              </>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Completing...' : 'Complete Registration'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CompleteRegistrationPage; 

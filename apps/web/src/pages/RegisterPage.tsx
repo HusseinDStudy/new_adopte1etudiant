@@ -1,23 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register } from '../services/authService';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { extendedRegisterSchema, RegisterInput } from 'shared-types';
+import { register as registerUser } from '../services/authService';
+
 
 const RegisterPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'STUDENT' | 'COMPANY'>('STUDENT');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(extendedRegisterSchema),
+    defaultValues: {
+      role: 'STUDENT',
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const role = watch('role');
+
+  const onSubmit = async (data: RegisterInput) => {
     try {
-      await register({ email, password, role });
-      // On successful registration, redirect to login
-      navigate('/login');
+      await registerUser(data);
+      // On successful registration, redirect to login with a success message
+      navigate('/login?status=registered');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError('root.serverError', {
+        type: 'manual',
+        message: err.response?.data?.message || 'Registration failed. Please try again.'
+      });
     }
   };
 
@@ -31,67 +46,102 @@ const RegisterPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="rounded-lg bg-white py-8 px-4 shadow sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <p className="mb-4 text-center text-red-500">{error}</p>
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {errors.root?.serverError && (
+              <p className="mb-4 text-center text-sm text-red-500">{errors.root.serverError.message}</p>
             )}
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700"
-              >
-                I am a
-              </label>
+
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">I am a</label>
               <select
                 id="role"
-                value={role}
-                onChange={(e) =>
-                  setRole(e.target.value as 'STUDENT' | 'COMPANY')
-                }
+                {...register('role')}
                 className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
               >
                 <option value="STUDENT">Student</option>
                 <option value="COMPANY">Company</option>
               </select>
             </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+              <input
+                id="email"
+                type="email"
+                {...register('email')}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+              {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="password"className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                id="password"
+                type="password"
+                {...register('password')}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+              {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
+            </div>
+
+            {role === 'STUDENT' && (
+              <>
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    {...register('firstName')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.firstName && <p className="mt-1 text-sm text-red-500">{errors.firstName.message}</p>}
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    {...register('lastName')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName.message}</p>}
+                </div>
+              </>
+            )}
+
+            {role === 'COMPANY' && (
+              <>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Company Name</label>
+                  <input
+                    id="name"
+                    type="text"
+                    {...register('name')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
+                </div>
+                <div>
+                  <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">Contact Email</label>
+                  <input
+                    id="contactEmail"
+                    type="email"
+                    {...register('contactEmail')}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {errors.contactEmail && <p className="mt-1 text-sm text-red-500">{errors.contactEmail.message}</p>}
+                </div>
+              </>
+            )}
+
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                disabled={isSubmitting}
+                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
               >
-                Sign up
+                {isSubmitting ? 'Signing up...' : 'Sign up'}
               </button>
             </div>
           </form>

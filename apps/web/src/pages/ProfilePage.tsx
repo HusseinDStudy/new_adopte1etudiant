@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StudentProfileForm from '../components/auth/StudentProfileForm';
 import CompanyProfileForm from '../components/auth/CompanyProfileForm';
-import { getMe, deleteAccountWithPassword } from '../services/authService';
+import { getMe, deleteAccountWithPassword, disablePassword } from '../services/authService';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
@@ -16,6 +16,15 @@ const ProfilePage = () => {
   const [password, setPassword] = useState('');
   const location = useLocation();
 
+  const fetchProfile = async () => {
+    try {
+      const data = await getMe();
+      setProfileData(data);
+    } catch (err) {
+      setError('Failed to fetch profile data.');
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const errorParam = params.get('error');
@@ -27,14 +36,6 @@ const ProfilePage = () => {
       setSuccessMessage(decodeURIComponent(messageParam.replace(/\+/g, ' ')));
     }
 
-    const fetchProfile = async () => {
-      try {
-        const data = await getMe();
-        setProfileData(data);
-      } catch (err) {
-        setError('Failed to fetch profile data.');
-      }
-    };
     fetchProfile();
   }, [location]);
   
@@ -47,6 +48,18 @@ const ProfilePage = () => {
         setError(err.response?.data?.message || "Failed to delete account.");
     } finally {
         setShowDeleteModal(false);
+    }
+  };
+
+  const handleDisablePassword = async () => {
+    if (window.confirm('Are you sure you want to disable password login? You will only be able to log in with your linked social accounts.')) {
+        try {
+            await disablePassword();
+            await fetchProfile();
+            setSuccessMessage('Password login disabled successfully.');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to disable password login.');
+        }
     }
   };
 
@@ -80,11 +93,38 @@ const ProfilePage = () => {
 
                   <div className="mt-4">
                       <h3 className="font-bold">Linked Accounts</h3>
-                      {!profileData.linkedProviders.includes('google') && (
+                      {!profileData.linkedProviders.includes('google') && profileData.hasPassword && (
                           <button onClick={() => linkAccount('google')} className="mt-2 mr-2 bg-blue-500 text-white p-2 rounded">Link Google</button>
                       )}
                       {profileData.linkedProviders.length === 0 && !profileData.hasPassword && <p>No accounts linked.</p>}
                       {profileData.linkedProviders.map((p: string) => <span key={p} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2">{p}</span>)}
+                  </div>
+
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold">Login Methods</h3>
+                    <ul className="mt-2 divide-y divide-gray-200">
+                        {profileData.hasPassword && (
+                            <li className="flex justify-between items-center py-2">
+                                <span>Password Login</span>
+                                {profileData.linkedProviders.length > 0 ? (
+                                    <button
+                                        onClick={handleDisablePassword}
+                                        className="text-red-600 hover:text-red-800 font-medium"
+                                    >
+                                        Disable
+                                    </button>
+                                ) : (
+                                    <span className="text-gray-500">Enabled</span>
+                                )}
+                            </li>
+                        )}
+                        {profileData.linkedProviders.includes('google') && (
+                            <li className="flex justify-between items-center py-2">
+                                <span>Google Login</span>
+                                <span className="text-green-600">Enabled</span>
+                            </li>
+                        )}
+                    </ul>
                   </div>
               </div>
           )}

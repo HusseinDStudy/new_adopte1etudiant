@@ -12,6 +12,36 @@ export const registerSchema = z.object({
   role: z.enum(['STUDENT', 'COMPANY']),
 });
 
+export const extendedRegisterSchema = z.discriminatedUnion('role', [
+  z.object({
+    role: z.literal('STUDENT'),
+    email: z.string().email(),
+    password: z.string().min(6),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+  }),
+  z.object({
+    role: z.literal('COMPANY'),
+    email: z.string().email(),
+    password: z.string().min(6),
+    name: z.string().min(1, 'Company name is required'),
+    contactEmail: z.string().email('Invalid contact email'),
+  }),
+]);
+
+export const completeOauthSchema = z.discriminatedUnion('role', [
+  z.object({
+    role: z.literal('STUDENT'),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+  }),
+  z.object({
+    role: z.literal('COMPANY'),
+    name: z.string().min(1, 'Company name is required'),
+    contactEmail: z.string().email('Invalid contact email'),
+  }),
+]);
+
 // Profile schemas
 export const studentProfileSchema = z.object({
   firstName: z.string().min(1),
@@ -59,7 +89,8 @@ export const createMessageSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type RegisterInput = z.infer<typeof extendedRegisterSchema>;
+export type CompleteOauthInput = z.infer<typeof completeOauthSchema>;
 export type StudentProfileInput = z.infer<typeof studentProfileSchema>;
 export type CompanyProfileInput = z.infer<typeof companyProfileSchema>;
 export type CreateOfferInput = z.infer<typeof createOfferSchema>;

@@ -1,6 +1,58 @@
 # Test Plan (Cahier de Recettes)
 
-This document outlines the test scenarios for manual acceptance testing of the AdopteUnEtudiant platform. The goal is to verify that all core functionalities work as expected and meet the user requirements.
+## 1. Introduction
+
+This document outlines the test plan for the "AdopteUnEtudiant" application. Its purpose is to provide a structured set of test cases for performing manual User Acceptance Testing (UAT). This process, often referred to as a "cahier de recettes," ensures that all key features meet the specified requirements and function correctly from an end-user's perspective before a major release.
+
+## 2. Scope
+
+This test plan covers the manual verification of all major user stories and features of the web application (`apps/web`) and their interaction with the backend API (`apps/api`). It focuses on the end-to-end user experience.
+
+## 3. Roles for Testing
+
+*   **Student**: Represents a student user looking for opportunities.
+*   **Company**: Represents a company user looking to hire students.
+
+---
+
+## 4. Test Cases
+
+Each test case below should be executed by a human tester who will record the actual result and status.
+
+### Test Suite: Onboarding & Authentication
+
+| ID | User Story | Role | Test Steps | Expected Result | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **TC-001** | User Registration (Student) | (None) | 1. Go to Register page. <br/> 2. Select "Student" role. <br/> 3. Fill in valid user details. <br/> 4. Click "Register". | User is created and redirected to the "Complete Profile" page. | | |
+| **TC-002** | User Registration (Company) | (None) | 1. Go to Register page. <br/> 2. Select "Company" role. <br/> 3. Fill in valid company details. <br/> 4. Click "Register". | User is created and redirected to the "Complete Profile" page. | | |
+| **TC-003** | User Login | Student | 1. Go to Login page. <br/> 2. Enter valid student credentials. <br/> 3. Click "Login". | User is logged in and redirected to the offers page. The navbar shows the user's name and a "Logout" button. | | |
+| **TC-004** | Invalid Login | Company | 1. Go to Login page. <br/> 2. Enter invalid credentials. <br/> 3. Click "Login". | An error message "Invalid credentials" is displayed. User remains on the login page. | | |
+| **TC-005** | Logout | Student | 1. Log in as a student. <br/> 2. Click the "Logout" button in the navbar. | User is logged out and redirected to the login page. The navbar shows "Login" and "Register" buttons. | | |
+
+### Test Suite: Student Features
+
+| ID | User Story | Role | Test Steps | Expected Result | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **TC-101** | Complete Student Profile | Student | 1. Log in. <br/> 2. Go to the "Profile" page. <br/> 3. Add skills and a bio. <br/> 4. Click "Save". | A success message is shown. When the page is reloaded, the new information is still there. | | |
+| **TC-102** | Search Offers | Student | 1. Log in. <br/> 2. Go to the "Offers" page. <br/> 3. Type "Developer" in the search bar. | The list of offers is filtered to show only those with "Developer" in the title or description. | | |
+| **TC-103** | Apply for an Offer | Student | 1. Log in. <br/> 2. Go to an offer's detail page. <br/> 3. Click the "Apply" button. | A success message is shown. The button changes to "Applied". The application appears on the "My Applications" page with "Pending" status. | | |
+| **TC-104** | View My Applications | Student | 1. Log in. <br/> 2. Apply to at least one offer. <br/> 3. Go to the "My Applications" page. | The page lists all offers the student has applied to, along with their current status. | | |
+| **TC-105** | Accept Adoption Request | Student | 1. A company sends an adoption request. <br/> 2. Go to "My Adoption Requests". <br/> 3. Click "Accept" on the request. | The request status changes to "Accepted". A messaging thread with the company is now available. | | |
+
+### Test Suite: Company Features
+
+| ID | User Story | Role | Test Steps | Expected Result | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **TC-201** | Create a New Offer | Company | 1. Log in. <br/> 2. Go to "Manage Offers". <br/> 3. Click "Create New Offer". <br/> 4. Fill in all required fields. <br/> 5. Click "Publish". | The offer is created and appears in the "Manage Offers" list. It is also visible to students on the main offers page. | | |
+| **TC-202** | Edit an Offer | Company | 1. Log in. <br/> 2. Go to "Manage Offers". <br/> 3. Click "Edit" on an existing offer. <br/> 4. Change the title. <br/> 5. Click "Save". | The offer's title is updated in the list and on the offer detail page. | | |
+| **TC-203** | View Applicants | Company | 1. A student applies to one of your offers. <br/> 2. Go to "Manage Offers". <br/> 3. Click on the offer title to view applicants. | The page shows a list of students who have applied to that specific offer. | | |
+| **TC-204** | Accept an Application | Company | 1. Go to the applicants page for an offer. <br/> 2. Click "Accept" for a student's application. | The application status changes to "Accepted". The student is notified. A messaging thread is now available. | | |
+| **TC-205** | Search for Students | Company | 1. Log in. <br/> 2. Go to the "Student Directory" page. <br/> 3. Filter by the skill "React". | The directory is filtered to show only students who have "React" listed as a skill. | | |
+| **TC-206** | Send Adoption Request | Company | 1. Go to a student's profile page from the directory. <br/> 2. Click "Send Adoption Request". | A success message is shown. The request appears on the "Sent Adoption Requests" page with "Pending" status. | | |
+
+---
+
+## 5. Test Environment
 
 **Testing Environment**:
 - **URL**: `http://localhost:5173`
@@ -9,56 +61,24 @@ This document outlines the test scenarios for manual acceptance testing of the A
 
 ---
 
-## 1. User Authentication
+## 6. Test Execution
 
-| Test ID | Scenario                             | Steps to Reproduce                                                                                                                              | Expected Result                                                                                                  | Status (Pass/Fail) |
-| :------ | :----------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------- | :----------------- |
-| **AUTH-01** | Student Registration (Success)       | 1. Go to Register page. <br> 2. Select "Student" role. <br> 3. Fill in valid details. <br> 4. Click "Register".                                   | User is created and redirected to the "Complete Profile" page.                                                   |                    |
-| **AUTH-02** | Company Registration (Success)       | 1. Go to Register page. <br> 2. Select "Company" role. <br> 3. Fill in valid details. <br> 4. Click "Register".                                   | User is created and redirected to the "Complete Profile" page.                                                   |                    |
-| **AUTH-03** | Registration with Existing Email     | 1. Attempt to register with an email that is already in the database.                                                                           | An error message "Email already in use" is displayed.                                                            |                    |
-| **AUTH-04** | User Login (Success)                 | 1. Go to Login page. <br> 2. Enter valid credentials for a Student. <br> 3. Click "Login".                                                          | User is logged in and redirected to the Offer List page. The navbar shows authenticated user options.          |                    |
-| **AUTH-05** | User Login (Incorrect Password)      | 1. Go to Login page. <br> 2. Enter a valid email but an incorrect password.                                                                     | An error message "Invalid credentials" is displayed.                                                             |                    |
-| **AUTH-06** | User Logout                          | 1. Log in as any user. <br> 2. Click the "Logout" button in the navigation bar.                                                                 | User is logged out and redirected to the homepage. The navbar reverts to the unauthenticated state.            |                    |
+The test cases should be executed in the order they are listed above. Each test case should be executed by a human tester who will record the actual result and status.
 
 ---
 
-## 2. Profile Management
+## 7. Test Results
 
-| Test ID | Scenario                         | Steps to Reproduce                                                                                                   | Expected Result                                                                                     | Status (Pass/Fail) |
-| :------ | :------------------------------- | :------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------- | :----------------- |
-| **PROF-01** | Student Completes Profile      | 1. Log in as a new student. <br> 2. Fill in all fields in the "Complete Profile" form, including comma-separated skills. | Profile is saved successfully. When revisiting the page, the information is correctly pre-filled. |                    |
-| **PROF-02** | Company Completes Profile      | 1. Log in as a new company. <br> 2. Fill in all fields in the "Complete Profile" form.                                   | Profile is saved successfully. When revisiting the page, the information is correctly pre-filled. |                    |
-| **PROF-03** | Student Edits Profile          | 1. Log in as a student with a completed profile. <br> 2. Go to "Profile" page. <br> 3. Update a field. <br> 4. Save.      | The information is updated successfully.                                                            |                    |
+The test results should be recorded in a structured format, such as a spreadsheet or a test management tool. The test results should include the test case ID, user story, role, test steps, expected result, actual result, and status (Pass/Fail).
 
 ---
 
-## 3. Offer & Application Workflow
+## 8. Test Report
 
-| Test ID | Scenario                         | Steps to Reproduce                                                                                                                                        | Expected Result                                                                                                                                  | Status (Pass/Fail) |
-| :------ | :------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- | :----------------- |
-| **OFF-01**  | Company Creates Offer          | 1. Log in as a Company. <br> 2. Go to "Manage Offers" -> "Create Offer". <br> 3. Fill in all fields. <br> 4. Publish.                                           | The new offer appears in the "Manage Offers" list and is visible on the main "Offer List" page for students.                                   |                    |
-| **OFF-02**  | Student Views and Applies      | 1. Log in as a Student. <br> 2. Find the offer created in OFF-01. <br> 3. Click "Apply Now".                                                                  | A success message "Application sent!" is shown. The application appears in the student's "My Applications" page with "Pending" status.       |                    |
-| **OFF-03**  | Company Views Applicants       | 1. Log in as the Company from OFF-01. <br> 2. Go to "Manage Offers" -> "View Applicants" for the relevant offer.                                              | The student from OFF-02 is listed as an applicant. The student's name and profile link are visible.                                            |                    |
-| **OFF-04**  | Company Changes App Status     | 1. On the "Applicants" page, find the student's application. <br> 2. Change the status dropdown to "Accepted".                                               | The status is updated in the UI.                                                                                                                 |                    |
-| **OFF-05**  | Student Sees Updated Status    | 1. Log in as the Student from OFF-02. <br> 2. Go to "My Applications" page.                                                                                  | The status for the application now shows "Accepted".                                                                                             |                    |
+The test report should include a summary of the test results, a discussion of any issues encountered, and recommendations for further testing or improvements.
 
 ---
 
-## 4. Messaging
+## 9. Test Closure
 
-| Test ID | Scenario                             | Steps to Reproduce                                                                                                                            | Expected Result                                                                                                | Status (Pass/Fail) |
-| :------ | :----------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------- | :----------------- |
-| **MSG-01**  | Company Sends Message to Applicant | 1. Log in as a Company. <br> 2. Go to an application thread by clicking on an applicant's name. <br> 3. Type a message and click "Send".            | The message appears instantly in the chat history.                                                             |                    |
-| **MSG-02**  | Student Receives & Replies       | 1. Log in as the Student from MSG-01. <br> 2. Go to "My Applications" and click on the application to view the thread. <br> 3. Type and send a reply. | The company's message is visible. The student's reply appears instantly in the chat history.                 |                    |
-
----
-
-## 5. Student Directory & Adoption
-
-| Test ID | Scenario                           | Steps to Reproduce                                                                                                           | Expected Result                                                                                                | Status (Pass/Fail) |
-| :------ | :--------------------------------- | :--------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------- | :----------------- |
-| **DIR-01**  | Company Searches for Student     | 1. Log in as a Company. <br> 2. Go to "Student Directory". <br> 3. Use the search bar to filter by a skill (e.g., "React").      | The list of students is filtered to only show those who have the "React" skill in their profile.             |                    |
-| **DIR-02**  | Company Sends Adoption Request   | 1. From the filtered directory, click the "Adopt" button on a student's card.                                                | A success message is shown. The request should appear in the company's "Sent Adoption Requests" page.        |                    |
-| **DIR-03**  | Student Receives Adoption Request| 1. Log in as the student from DIR-02. <br> 2. Navigate to the "My Adoption Requests" page.                                      | The request from the company is visible, with options to "Accept" or "Decline".                                |                    |
-
-</rewritten_file> 
+The test closure should include a review of the test results and a decision on whether the test plan was successful or not. If the test plan was not successful, the test closure should include recommendations for further testing or improvements. 

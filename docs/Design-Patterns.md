@@ -1,59 +1,97 @@
-# Guide des Design Patterns du Projet
+# Software Design Patterns
 
-Ce document référence les principaux design patterns utilisés dans le projet "Campus ↔ Entreprise". Comprendre ces patterns est essentiel pour appréhender l'architecture du code et contribuer de manière cohérente.
-
-Le projet utilise ces patterns de manière pragmatique, souvent sans `class` formelles, ce qui est typique du développement moderne en TypeScript/JavaScript.
+This document describes the key software design patterns used in the "AdopteUnEtudiant" project. These patterns provide proven solutions to common problems, helping to ensure the codebase is scalable, maintainable, and robust.
 
 ---
 
-## Patterns de Création
+## 1. Architectural Patterns
 
-_Ces patterns fournissent des mécanismes de création d'objets qui augmentent la flexibilité et la réutilisation du code._
+These patterns define the high-level structure of the application.
 
-### **Singleton**
+### a. Monorepo
 
-- **Objectif :** S'assurer qu'une classe n'a qu'une seule instance et fournir un point d'accès global à cette instance.
-- **Application dans le projet :**
-  - **Le client Prisma (`/packages/db-postgres`) est un Singleton.** Grâce au système de cache des modules Node.js, chaque `import { prisma } from 'db-postgres'` à travers l'application renvoie la **même et unique instance** du client Prisma. C'est crucial pour gérer efficacement le pool de connexions à la base de données.
+The entire project is organized as a **monorepo**, managed by pnpm and Turborepo.
+
+*   **What it is**: A single repository containing multiple distinct projects (the `api` and `web` apps) and shared packages (`packages/*`).
+*   **Why it's used**:
+    *   **Code Sharing**: Simplifies sharing code between the frontend and backend (e.g., `shared-types`).
+    *   **Atomic Commits**: Changes to multiple parts of the system (e.g., an API change and the corresponding frontend update) can be made in a single commit.
+    *   **Simplified Dependency Management**: A single `pnpm-lock.yaml` at the root ensures consistent dependency versions across the project.
+    *   **Streamlined CI/CD**: Turborepo intelligently caches build and test results, speeding up the pipeline.
+
+### b. Client-Server Architecture
+
+This is the fundamental structure of the application.
+
+*   **Client (`apps/web`)**: The React single-page application that runs in the user's browser. It is responsible for the presentation layer.
+*   **Server (`apps/api`)**: The Fastify backend that runs on a server. It is responsible for business logic, data persistence, and authentication.
+*   **Communication**: The client and server communicate over a stateless RESTful API using HTTPS.
+
+### c. Stateless API
+
+The backend API is **stateless**.
+
+*   **What it is**: The server does not store any client session data between requests. Every request from a client must contain all the information needed to be understood and processed (e.g., the JWT for authentication).
+*   **Why it's used**:
+    *   **Scalability**: Any server instance can handle any request, making it easy to scale horizontally by adding more server instances behind a load balancer.
+    *   **Reliability**: If one server instance fails, requests can be seamlessly rerouted to another.
+    *   **Simplicity**: It simplifies the server logic by removing the need to manage session state.
 
 ---
 
-## Patterns de Structure
+## 2. Backend Design Patterns (`apps/api`)
 
-_Ces patterns expliquent comment assembler des objets et des classes dans des structures plus grandes, tout en gardant ces structures flexibles et efficaces._
+### a. MVC-like Structure (Model-View-Controller)
 
-### **Facade**
+While not a strict MVC framework, the backend is organized in a similar, layered pattern:
 
-- **Objectif :** Fournir une interface unifiée et simplifiée à un ensemble d'interfaces dans un sous-système.
-- **Application dans le projet :**
-  - **Les services frontend (`/apps/web/src/services`) sont une Facade.** Un composant React (ex: `OfferListPage`) n'a pas besoin de connaître la complexité de l'API `fetch`, la gestion des headers HTTP, la sérialisation JSON ou les URL exactes des endpoints. Il appelle simplement une fonction simple comme `offerService.getAllOffers()`. Le service agit comme une façade propre qui cache la complexité de la communication réseau.
+*   **Model**: The data layer, represented by the **Prisma Schema** (`schema.prisma`). It defines the structure of our data and the relationships between entities.
+*   **View**: The presentation layer, which in the context of a REST API is the **JSON response** sent back to the client.
+*   **Controller**: The business logic layer. In our application, this is split between:
+    *   **Routes (`src/routes`)**: Define the API endpoints and wire them to controller functions. They handle the raw HTTP request and response.
+    *   **Controllers (`src/controllers`)**: Contain the core business logic. They are called by the routes, interact with the Prisma Client (Model) to fetch or update data, and determine what response to send.
+
+### b. Middleware Pattern
+
+The Middleware pattern is used extensively in Fastify to create a pipeline for processing requests.
+
+*   **What it is**: Functions that have access to the request object, the reply object, and the `next` function in the application's request-response cycle.
+*   **Why it's used**: To handle **cross-cutting concerns** in a clean, modular, and reusable way.
+*   **Examples in our project**:
+    *   `authMiddleware`: Checks for a valid JWT on protected routes.
+    *   `roleMiddleware`: Checks if the authenticated user has the required role for an endpoint.
+    *   Logging, CORS handling, and error handling are also implemented as middleware.
+
+### c. Data Access Object (DAO)
+
+*   **What it is**: A pattern that provides an abstract interface to some type of database or persistence mechanism.
+*   **Our Implementation**: The **Prisma Client** instance serves as our DAO. It completely encapsulates all database access, providing a clean, type-safe API for the rest of the application to use. This decouples our business logic from the raw database queries, making the code easier to test and maintain.
 
 ---
 
-## Patterns de Comportement
+## 3. Frontend Design Patterns (`apps/web`)
 
-_Ces patterns concernent les algorithmes et l'attribution des responsabilités entre les objets._
+### a. Component-Based Architecture
 
-### **Chain of Responsibility**
+This is the core pattern of **React**.
 
-- **Objectif :** Permettre à une requête de passer le long d'une chaîne de "gestionnaires". Chaque gestionnaire décide soit de traiter la requête, soit de la passer au suivant dans la chaîne.
-- **Application dans le projet :**
-  - **Les middlewares Fastify (`/apps/api/src/middleware`) sont une Chain of Responsibility.** Sur une route protégée, la requête HTTP passe d'abord par `authMiddleware` (qui vérifie le JWT). S'il est valide, il passe la main à `roleMiddleware` (qui vérifie les permissions). Chaque maillon de la chaîne peut décider de bloquer la requête ou de la laisser continuer.
+*   **What it is**: The UI is broken down into small, independent, and reusable pieces called **components**. Each component manages its own state and renders a piece of the UI.
+*   **Why it's used**: It makes complex UIs manageable by breaking them into smaller, understandable parts. It also promotes reusability.
 
-### **Observer**
+### b. Provider Pattern
 
-- **Objectif :** Définir une relation de dépendance un-à-plusieurs entre des objets, de sorte que lorsqu'un objet (le "sujet") change d'état, tous ses dépendants (les "observateurs") sont notifiés et mis à jour automatiquement.
-- **Application dans le projet :**
-  - **Le Context API de React (`/apps/web/src/context`) est une implémentation du pattern Observer.**
-    - L'`AuthProvider` est le **sujet** qui détient l'état d'authentification.
-    - Les composants qui utilisent le hook `useAuth()` sont les **observateurs**.
-    - Lorsque la fonction `logout()` est appelée, l'état du sujet change. Tous les composants observateurs sont alors automatiquement "notifiés" et se rendent à nouveau pour refléter ce nouvel état (par exemple, en affichant le bouton "Login" au lieu du "Profil").
+*   **What it is**: A pattern that uses React's **Context API** to pass data through the component tree without having to pass props down manually at every level.
+*   **Our Implementation**: `AuthContext.tsx` creates an `AuthProvider` component. When this component wraps the application, it "provides" the authentication state (like the current user and token) to any child component that needs it. This is a form of **Dependency Injection**.
 
-### **Strategy**
+### c. Hook Pattern
 
-- **Objectif :** Définir une famille d'algorithmes, mettre chacun d'eux dans une classe distincte et rendre leurs objets interchangeables.
-- **Application dans le projet :**
-  - **La gestion des middlewares d'authentification utilise le pattern Strategy.** Nous avons deux stratégies pour la validation d'une requête :
-    1.  **Stratégie Stricte (`authMiddleware`) :** Rejette systématiquement la requête si l'utilisateur n'est pas authentifié.
-    2.  **Stratégie Optionnelle (`optionalAuthMiddleware`) :** Laisse passer la requête même si l'utilisateur n'est pas authentifié (mais attache l'utilisateur s'il l'est).
-  - L'application choisit la bonne stratégie à appliquer en fonction de la route. Par exemple, le callback de Google OAuth a besoin de la stratégie optionnelle pour gérer à la fois les nouveaux utilisateurs et ceux qui lient leur compte.
+*   **What it is**: Hooks are functions that let you "hook into" React state and lifecycle features from function components.
+*   **Why it's used**: They allow for reusing stateful logic between components without changing your component hierarchy.
+*   **Examples in our project**:
+    *   **Standard Hooks**: `useState`, `useEffect`, `useContext` are used extensively.
+    *   **Custom Hooks**: We create our own hooks (e.g., `useDebounce`) to encapsulate and reuse common logic.
+
+### d. Conditional Rendering
+
+*   **What it is**: A fundamental pattern where you render different UI elements or components based on the current state of the application.
+*   **Example**: Displaying a "Loading..." message while data is being fetched, showing user-specific controls if `user` exists in the `AuthContext`, or rendering an error message if an API call fails.

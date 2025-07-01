@@ -1,78 +1,84 @@
 # User Manual
 
-This manual provides a step-by-step guide on how to use the AdopteUnEtudiant platform. It is divided into two main sections: one for **Students** and one for **Companies**.
+Welcome to the AdopteUnEtudiant platform! This guide will walk you through the features of the application and how to use them effectively, whether you are a student looking for opportunities or a company searching for talent.
 
 ---
 
-## For Students
+## 1. Getting Started
 
-This section guides you through creating an account, building your profile, and finding opportunities.
+### a. Registration
 
-### 1. Creating Your Account
+First, you need to create an account.
 
-1.  **Navigate to the Register Page**: From the homepage, click on the "Register" or "Sign Up" button.
-2.  **Select the "Student" Role**: It is crucial to select the correct role to access student-specific features.
-3.  **Complete the Form**: Fill in your first name, last name, email address, and a secure password.
-4.  **Register with Google (Optional)**: You can also register using your Google account for a faster setup.
-5.  **Submit**: Click "Register" to create your account. You will be redirected to complete your profile.
+1.  Navigate to the **Register** page.
+2.  Choose your role: **Student** or **Company**.
+3.  Fill in your details (name, email, and password).
+4.  Alternatively, you can sign up quickly using your **Google account**.
 
-### 2. Completing Your Profile
+After registering, you will be prompted to complete your profile, which is a crucial step to get the most out of the platform.
 
-A complete and polished profile is key to attracting companies.
+### b. Logging In
 
-1.  **Access the Profile Form**: After registering, you will be prompted to complete your profile. You can also access it later from your user dashboard or profile page.
-2.  **Fill in Your Details**: Provide information about your educational background, school, and graduation year.
-3.  **Add Your Skills**: This is a critical step. List all your relevant technical and soft skills, separated by commas (e.g., "JavaScript, React, Node.js, Agile Methodologies"). This helps companies find you.
-4.  **Save Your Profile**: Once complete, save your profile. You can return to edit it at any time.
-
-### 3. Finding and Applying for Offers
-
-1.  **Browse Offers**: Navigate to the "Offers" or "Browse" page to see all available internships and work-study programs.
-2.  **Use Search and Filters**: You can search for specific keywords (like a company name or technology) and filter offers by location or contract type.
-3.  **View Offer Details**: Click on any offer card to view more details, including the company's description, responsibilities, and required qualifications.
-4.  **Apply**: If an offer interests you, click the "Apply Now" button. Your profile information will be sent to the company.
-5.  **Track Your Applications**: Go to the "My Applications" page from your dashboard to see the status of all your applications (Pending, Accepted, Rejected).
-
-### 4. Managing Messages and Adoption Requests
-
--   **Application Messages**: When a company responds to your application, you can communicate with them directly through the messaging thread on the application details page.
--   **Adoption Requests**: Companies can proactively contact you. These requests will appear in your "Adoption Requests" dashboard. You can choose to accept or decline their invitation to connect.
+Once you have an account, you can log in from the **Login** page using your email and password, or by clicking the "Sign in with Google" button.
 
 ---
 
-## For Companies
+## 2. For Students
 
-This section explains how to set up your company profile, post offers, and find the right talent.
+As a student, your goal is to find the perfect internship or job offer.
 
-### 1. Creating Your Account
+### a. Complete Your Profile
 
-1.  **Navigate to the Register Page**: Click on the "Register" button.
-2.  **Select the "Company" Role**: Ensure you select the "Company" role to access company-specific features.
-3.  **Complete the Form**: Provide your company name, contact email, and a password.
-4.  **Submit**: Click "Register". You will be redirected to complete your company profile.
+A complete profile is key to attracting companies.
+*   **Navigate to the Profile page** from the main menu.
+*   Add a **short bio**, your **location**, and your **education details**.
+*   Crucially, **add your skills**. These are used to match you with relevant offers.
+*   Toggle the **"Open to Opportunities"** switch to let companies know you are actively looking.
 
-### 2. Completing Your Company Profile
+### b. Finding and Applying for Offers
 
-1.  **Access the Profile Form**: After registering, you'll be prompted to complete your company's profile.
-2.  **Provide Company Details**: Fill in your company's location, a short description of your mission and culture, and your website URL. A good description helps attract the right candidates.
-3.  **Save Profile**: Save your information. You can edit it later from your company dashboard.
+*   **Offer List (`/offers`)**: This is the main page for browsing all available offers. You can use the search bar to filter offers by title, description, or company name.
+*   **Match Score**: When you are logged in, each offer will display a `matchScore`. This score is calculated based on how well the skills required for the offer match the skills on your profile. Offers are sorted with the highest match score first, helping you see the most relevant opportunities at a glance.
+*   **Applying**: Click on an offer to see the details. If you are interested, click the "Apply" button. Your application will be sent to the company.
 
-### 3. Posting and Managing Job Offers
+### c. Managing Your Activities
 
-1.  **Create an Offer**: From your dashboard, navigate to "Manage Offers" and click "Create New Offer".
-2.  **Fill in Offer Details**:
-    -   Provide a clear and descriptive **Title**.
-    -   Write a detailed **Description** of the role, responsibilities, and what you're looking for.
-    -   Specify the required **Skills**.
-    -   Set the **Location** and **Contract Type** (Internship or Alternance).
-3.  **Publish**: Once you publish the offer, it will be visible to all students on the platform.
-4.  **Manage Offers**: The "Manage Offers" page allows you to view all your active offers. You can edit, unpublish, or delete them at any time.
+*   **My Applications**: On this page, you can track the status of all the applications you have sent. You will see if they are pending, accepted, or rejected by the company.
+*   **My Adoption Requests**: Companies can reach out to you directly. This page shows all the "adoption requests" you have received. You can choose to accept or decline their invitation to connect.
 
-### 4. Reviewing Applications and Finding Students
+---
 
--   **View Applicants**: From the "Manage Offers" page, click on "View Applicants" for any offer to see a list of students who have applied.
--   **Review Profiles**: You can view the full profile of each applicant to assess their skills and experience.
--   **Update Application Status**: Change the status of an application (Pending, Accepted, Rejected) to keep students informed.
--   **Message Applicants**: Open a communication channel directly with promising candidates from the application page.
--   **Search Student Directory**: Use the "Student Directory" to proactively search for students. You can filter by skills to find candidates that match your needs.
--   **Send Adoption Requests**: If you find a student you're interested in, you can send them an "Adoption Request" to initiate a conversation. 
+## 3. For Companies
+
+As a company, your goal is to find the best student talent for your needs.
+
+### a. Complete Your Profile
+
+*   **Navigate to the Profile page**.
+*   Fill in your company's name, a description of your business, your location, and your website. A detailed profile helps attract students.
+
+### b. Posting and Managing Offers
+
+*   **Create an Offer**: From the "Manage Offers" page, click "Create New Offer". Fill in the title, description, location, and, most importantly, the **skills required**. These skills are used to calculate the `matchScore` for students.
+*   **Manage Offers**: This page lists all the offers you have created. You can **edit** or **delete** them.
+*   **View Applicants**: Click on an offer from the "Manage Offers" page to see a list of all the students who have applied. You can review their profiles and decide to **accept** or **reject** their applications.
+
+### c. Finding and Adopting Students
+
+*   **Student Directory**: This page lists all the students on the platform who are open to opportunities.
+*   **Search and Filter**: You can use the search bar to find students by name or bio. You can also **filter the directory by skills** to narrow down the list to students who have the specific qualifications you are looking for.
+*   **Send Adoption Request**: When you find a promising student, you can visit their profile and send them an "adoption request" to express your interest and start a conversation.
+
+### d. Managing Sent Requests
+
+*   **Sent Adoption Requests**: This page shows a list of all the adoption requests you have sent to students and their current status (pending, accepted, or declined).
+
+---
+
+## 4. Messaging
+
+A direct line of communication is opened when:
+*   A company **accepts** a student's application.
+*   A student **accepts** a company's adoption request.
+
+Once a connection is made, a conversation thread will appear in the messaging interface, allowing the student and company to chat directly, schedule interviews, and discuss further details. 

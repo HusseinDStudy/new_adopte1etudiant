@@ -1,68 +1,70 @@
-# Security Measures
+# Security Guide
 
-This document outlines the security measures implemented in the AdopteUnEtudiant platform to protect user data and prevent common vulnerabilities. Our approach is aligned with best practices and aims to address the threats identified in the OWASP Top 10.
-
----
-
-### 1. **Injection** (A03:2021)
-
--   **Description**: Injection flaws, such as SQL injection, occur when untrusted data is sent to an interpreter as part of a command or query.
--   **Our Mitigation**:
-    -   We use **Prisma ORM** for all database interactions. Prisma provides a type-safe database client that automatically generates parameterized queries. This design feature effectively eliminates the risk of SQL injection, as user input is never directly concatenated into raw SQL queries. All data is treated as values, not executable code.
+This document outlines the security measures and best practices implemented in the "AdopteUnEtudiant" application to protect user data and ensure the integrity of the platform.
 
 ---
 
-### 2. **Broken Authentication** (A07:2021)
+## 1. Authentication and Session Management
 
--   **Description**: Flaws in authentication and session management can allow attackers to compromise user accounts or assume other users' identities.
--   **Our Mitigation**:
-    -   **Password Hashing**: User passwords are never stored in plaintext. We use the **`bcrypt`** library to hash and salt all passwords before they are stored in the database.
-    -   **JSON Web Tokens (JWT)**: User sessions are managed via JWTs. These tokens are signed on the server and contain the user's ID and role. The signature ensures that the token cannot be tampered with by the client.
-    -   **Secure Cookie Transport**: The JWT is transmitted to the client via a **`httpOnly`** cookie. This prevents client-side JavaScript from accessing the token, mitigating the risk of Cross-Site Scripting (XSS) attacks stealing the session token. Cookies are also flagged as `Secure` in production, ensuring they are only sent over HTTPS.
-    -   **Google OAuth 2.0**: We offer "Login with Google" as a secure, external authentication method, reducing the attack surface on our own authentication system.
+Secure authentication is the first line of defense. Our approach is detailed in the **[Authentication Guide](./Authentication.md)**.
 
----
+*   **Password Hashing**: User passwords are **never** stored in plaintext. We use the **`bcryptjs`** library to compute a strong, salted hash of user passwords before storing them in the database. This makes it computationally infeasible to reverse the original password even if the database were compromised.
 
-### 3. **Broken Access Control** (A01:2021)
+*   **JSON Web Tokens (JWT)**:
+    *   **Stateless and Signed**: JWTs are signed on the server using a strong secret key (`JWT_SECRET`), ensuring they cannot be tampered with by a client.
+    *   **Short Expiration**: Tokens are issued with a short expiration time (e.g., 24 hours) to limit the window of opportunity for an attacker if a token is compromised.
+    *   **Transmission**: All communication, including the transmission of JWTs, must be enforced over **HTTPS** in production to prevent man-in-the-middle attacks.
 
--   **Description**: This flaw occurs when restrictions on what authenticated users are allowed to do are not properly enforced.
--   **Our Mitigation**:
-    -   **Role-Based Access Control (RBAC)**: The application enforces a strict RBAC system. The user's role (`STUDENT` or `COMPANY`) is embedded in their JWT.
-    -   **Middleware Enforcement**: Critical API endpoints are protected by a custom `roleMiddleware`. This middleware checks the user's role on every request and will reject any action that the user is not authorized to perform (e.g., a student trying to create a job offer, or a company trying to access another company's data).
-    -   **Ownership Checks**: Within controllers, we perform explicit ownership checks to ensure users can only modify resources they own (e.g., a company can only edit its own offers).
+*   **Secure Token Storage (Frontend)**: The JWT is stored in the browser's `localStorage`. While this is standard for SPAs, developers must be vigilant against Cross-Site Scripting (XSS) vulnerabilities, as a successful XSS attack could steal the token.
 
 ---
 
-### 4. **Cryptographic Failures** (A02:2021 - formerly Sensitive Data Exposure)
+## 2. Authorization (Access Control)
 
--   **Description**: Failures related to cryptography (or lack thereof) can expose sensitive data.
--   **Our Mitigation**:
-    -   **HTTPS/TLS**: The application is designed to be deployed behind a reverse proxy (like Nginx) that enforces HTTPS. This encrypts all data in transit between the client and the server, preventing eavesdropping.
-    -   **No Sensitive Data in URLs**: We avoid passing sensitive information, such as session tokens or personal data, in URL parameters.
+Authorization is handled via **Role-Based Access Control (RBAC)**.
 
----
-
-### 5. **Cross-Site Scripting (XSS)** (A03:2021)
-
--   **Description**: XSS flaws occur whenever an application includes untrusted data in a new web page without proper validation or escaping.
--   **Our Mitigation**:
-    -   **React's Auto-Escaping**: We use React for the frontend, which automatically escapes content rendered into the DOM. By default, any data rendered is treated as a string, preventing malicious scripts from being executed. We avoid using the `dangerouslySetInnerHTML` property.
-    -   **`httpOnly` Cookies**: As mentioned above, using `httpOnly` cookies for session tokens prevents XSS attacks from gaining access to user sessions.
+*   **Middleware Protection**: All sensitive API endpoints are protected by a chain of middleware (`authMiddleware`, `roleMiddleware`).
+*   **Principle of Least Privilege**: The `roleMiddleware` ensures that users can only access the resources appropriate for their role (e.g., a `STUDENT` cannot post a job offer). The user's role is stored in the signed JWT, preventing client-side tampering.
 
 ---
 
-### 6. **Security Misconfiguration** (A05:2021)
+## 3. Data Validation
 
--   **Description**: This can result from insecure default configurations, incomplete configurations, or verbose error messages containing sensitive information.
--   **Our Mitigation**:
-    -   **Security Headers**: We use the **`@fastify/helmet`** plugin in our Fastify backend. This automatically sets various HTTP headers (e.g., `X-Content-Type-Options`, `Strict-Transport-Security`, `X-Frame-Options`) to protect against common attacks like clickjacking and MIME-sniffing.
-    -   **Minimal Error Messages**: In production, generic error messages are sent to the client to avoid leaking implementation details (e.g., stack traces). Detailed errors are logged only on the server.
-    -   **Unused Ports Disabled**: The Docker configuration ensures that only the necessary ports are exposed to the outside world.
+All data sent from a client to the backend API is rigorously validated.
+
+*   **Schema Validation**: We use schema validation libraries (like **Zod**) to define the expected shape, types, and constraints of incoming request bodies.
+*   **Benefit**: This is a critical defense against a wide range of attacks, including NoSQL/SQL injection, and prevents malformed data from entering the system and causing unexpected errors. Any request with a payload that does not match the schema is immediately rejected with a `400 Bad Request` error.
 
 ---
 
-### 7. **Server-Side Request Forgery (SSRF)** (A10:2021)
+## 4. Database Security
 
--   **Description**: SSRF flaws occur whenever a web application is fetching a remote resource without validating the user-supplied URL.
--   **Our Mitigation**:
-    -   The application currently does not have any features that make server-side requests to user-supplied URLs. Therefore, the risk of SSRF is minimal by design. Any future feature requiring this functionality would need to implement strict allow-listing of domains and protocols. 
+*   **SQL Injection Prevention**: We use the **Prisma ORM** for all database interactions. Prisma uses parameterized queries under the hood, which is the industry-standard method for preventing SQL injection attacks. Raw SQL queries are avoided entirely.
+
+*   **Secrets Management**:
+    *   **Development**: Sensitive credentials (database connection strings, API keys, JWT secrets) are stored in a `.env` file which is explicitly listed in `.gitignore` and **never** committed to version control.
+    *   **Production**: In production environments like Render, these secrets are stored as secure **environment variables** managed through the hosting platform's dashboard.
+
+---
+
+## 5. Common Vulnerability Prevention (Frontend)
+
+*   **Cross-Site Scripting (XSS)**:
+    *   **React's Auto-Escaping**: React automatically escapes dynamic content rendered in JSX, which mitigates the most common XSS attack vectors.
+    *   **`dangerouslySetInnerHTML`**: Use of this React property is forbidden as it bypasses React's built-in protections. Content should be rendered as text wherever possible.
+
+*   **Cross-Site Request Forgery (CSRF)**:
+    *   Our JWT-based authentication, where the token is sent from `localStorage` in an `Authorization` header, is not inherently vulnerable to traditional CSRF attacks. CSRF relies on the browser automatically including credentials (like session cookies) with a cross-site request. Since we manually attach the token, this attack vector is mitigated.
+
+---
+
+## 6. Dependency Management
+
+*   **Vulnerability Scanning**: We use tools like **`pnpm audit`** and **GitHub Dependabot** to continuously scan our third-party dependencies for known security vulnerabilities.
+*   **Policy**: When a critical vulnerability is detected, the affected package must be updated or patched immediately.
+
+---
+
+## 7. HTTPS Enforcement
+
+In production, the entire application (both frontend and backend) **must** be served over HTTPS. This is typically configured at the hosting provider level (e.g., Render provides free SSL certificates). HTTPS encrypts all data in transit between the client and the server, protecting it from eavesdropping and tampering. 

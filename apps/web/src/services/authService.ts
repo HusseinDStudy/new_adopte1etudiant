@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LoginInput, RegisterInput } from 'shared-types';
+import { LoginInput, RegisterInput, CompleteOauthInput } from 'shared-types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
@@ -28,11 +28,17 @@ export const getMe = async () => {
   return data;
 }
 
-export const completeOauthRegistration = async (token: string, role: 'STUDENT' | 'COMPANY') => {
-  const response = await apiClient.post('/auth/complete-oauth-registration', { role }, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return response.data;
+export const completeOauthRegistration = async (token: string, details: CompleteOauthInput) => {
+  const { data } = await apiClient.post(
+    '/auth/complete-oauth-registration',
+    details,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return data;
 };
 
 export const completeLink = async (token: string, choice: 'google_only' | 'keep_both') => {
@@ -46,6 +52,11 @@ export const deleteAccountWithPassword = async (password: string) => {
   const { data } = await apiClient.delete('/auth/account', {
     data: { password },
   });
+  return data;
+};
+
+export const disablePassword = async () => {
+  const { data } = await apiClient.post('/auth/disable-password');
   return data;
 };
 

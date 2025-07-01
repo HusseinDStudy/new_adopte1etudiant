@@ -8,8 +8,13 @@ import {
   logoutUser,
   deleteAccount,
   deleteUserAndData,
+  disablePasswordLogin,
 } from '../controllers/authController';
-import { registerSchema, loginSchema } from 'shared-types';
+import {
+  extendedRegisterSchema,
+  loginSchema,
+  completeOauthSchema,
+} from 'shared-types';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { optionalAuthMiddleware } from '../middleware/optionalAuthMiddleware';
 import oauthPlugin from 'fastify-oauth2';
@@ -243,67 +248,94 @@ async function authRoutes(server: FastifyInstance) {
     role: z.enum(['STUDENT', 'COMPANY']),
   });
 
-  server.post('/complete-oauth-registration', async (request, reply) => {
-    try {
-        const { role } = completeRegistrationSchema.parse(request.body);
+  server.post(
+    '/complete-oauth-registration',
+    {
+      schema: {
+        body: zodToJsonSchema(completeOauthSchema, 'completeOauthSchema'),
+      },
+    },
+    async (request, reply) => {
+      try {
         const authHeader = request.headers.authorization;
-
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return reply.status(401).send({ message: 'Unauthorized' });
+          return reply.status(401).send({ message: 'Unauthorized' });
         }
         const registrationToken = authHeader.split(' ')[1];
+        const decoded = jwt.verify(
+          registrationToken,
+          process.env.JWT_SECRET!
+        ) as any;
 
-        const decoded = jwt.verify(registrationToken, process.env.JWT_SECRET!) as any;
+        const { role } = request.body as any;
 
-        let user = await prisma.user.findUnique({ where: { email: decoded.email } });
-        if(user) {
-            return reply.status(400).send({ message: 'User already exists.' });
-        }
-
-        user = await prisma.user.create({
-            data: { email: decoded.email, role }
-        });
-
-        await prisma.account.create({
+        const user = await prisma.$transaction(async (tx) => {
+          const newUser = await tx.user.create({
             data: {
-                userId: user.id,
-                type: 'oauth',
-                provider: decoded.provider,
-                providerAccountId: decoded.providerAccountId,
-                access_token: decoded.accessToken,
-                refresh_token: decoded.refreshToken,
-                expires_at: decoded.expiresAt,
-            }
+              email: decoded.email,
+              role,
+              passwordLoginDisabled: true,
+              passwordHash: null,
+              accounts: {
+                create: {
+                  type: 'oauth',
+                  provider: decoded.provider,
+                  providerAccountId: decoded.providerAccountId,
+                  access_token: decoded.accessToken,
+                  refresh_token: decoded.refreshToken,
+                  expires_at: decoded.expiresAt,
+                },
+              },
+            },
+          });
+
+          if (role === 'STUDENT') {
+            const { firstName, lastName } = request.body as any;
+            await tx.studentProfile.create({
+              data: { userId: newUser.id, firstName, lastName },
+            });
+          } else if (role === 'COMPANY') {
+            const { name, contactEmail } = request.body as any;
+            await tx.companyProfile.create({
+              data: { userId: newUser.id, name, contactEmail },
+            });
+          }
+          return newUser;
         });
 
-        const appToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET!);
+        const appToken = jwt.sign(
+          { id: user.id, email: user.email, role: user.role },
+          process.env.JWT_SECRET!
+        );
 
         return reply
-            .setCookie('token', appToken, {
-                path: '/',
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-            })
-            .send({ user });
-
-    } catch (error) {
+          .setCookie('token', appToken, {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+          })
+          .send({ user });
+      } catch (error) {
         server.log.error(error);
         if (error instanceof z.ZodError) {
-            return reply.status(400).send(error.flatten());
+          return reply.status(400).send(error.flatten());
         }
         if (error instanceof jwt.JsonWebTokenError) {
-            return reply.status(401).send({ message: 'Invalid registration token' });
+          return reply
+            .status(401)
+            .send({ message: 'Invalid registration token' });
         }
         return reply.status(500).send({ message: 'Internal Server Error' });
+      }
     }
-  });
+  );
 
   server.post(
     '/register',
     {
       schema: {
-        body: zodToJsonSchema(registerSchema, 'registerSchema'),
+        body: zodToJsonSchema(extendedRegisterSchema, 'registerSchema'),
       },
     },
     registerUser
@@ -335,6 +367,14 @@ async function authRoutes(server: FastifyInstance) {
       onRequest: [authMiddleware],
     },
     deleteAccount
+  );
+
+  server.post(
+    '/disable-password',
+    {
+      onRequest: [authMiddleware],
+    },
+    disablePasswordLogin
   );
 }
 

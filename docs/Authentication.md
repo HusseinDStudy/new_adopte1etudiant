@@ -1,90 +1,95 @@
-# Authentication Flow
+# Authentication and Authorization
 
-The authentication system is a critical component of the platform, designed to be both secure and flexible. This document details the authentication methods, session management, and access control mechanisms.
+This document details the authentication and authorization mechanisms used in the "AdopteUnEtudiant" application.
 
 ---
 
-## 1. Authentication Methods
+## 1. Authentication Strategy
+
+The application uses a **token-based authentication** system with **JSON Web Tokens (JWT)**. This approach ensures that the backend remains stateless, which is crucial for scalability and simplicity.
 
 Users can authenticate in two ways:
+1.  **Email & Password**: The classic credential-based login.
+2.  **OAuth 2.0**: Via third-party providers, starting with Google.
 
-### a. Email & Password
+### Authentication Flow (JWT)
 
--   **Registration**: A user provides an email and password.
--   **Security**: The password is **never** stored in plaintext. It is irreversibly hashed using the **`bcryptjs`** algorithm.
--   **Login**: During login, the provided password is aynchronously hashed and compared to the hash stored in the database.
-
-### b. Google OAuth 2.0
-
--   **Flow**: The authentication process is delegated to Google.
-    1.  The user clicks "Continue with Google".
-    2.  They are redirected to Google to authenticate.
-    3.  Google redirects them back to our API's callback URL (`/api/auth/google/callback`) with an authorization code.
-    4.  Our backend securely exchanges this code with Google for the user's profile information (email, name).
--   **Logic**: The backend checks if a user with this email already exists.
-    -   If yes, it logs them in.
-    -   If no, it creates a new user and then logs them in, prompting them to complete their profile.
-
----
-
-## 2. Session Management with JWT
-
-Once a user is authenticated, the server creates a session for them using a **JSON Web Token (JWT)**.
-
-### a. JWT Creation and Payload
-
-After a successful login, the server generates a signed JWT containing a payload with essential, non-sensitive user information.
-
-**Payload Structure:**
-```json
-{
-  "id": "user_id_from_database",
-  "email": "user@example.com",
-  "role": "STUDENT" or "COMPANY",
-  "iat": 1678886400, // Issued at timestamp
-  "exp": 1678972800  // Expiration timestamp (e.g., 24 hours)
-}
-```
-
-### b. Secure Cookie Storage
-
-The JWT is sent to the client and stored in a secure cookie with the following attributes:
-
--   **`httpOnly`**: This is a critical security measure that prevents the cookie from being accessed by client-side JavaScript. It is the primary defense against **Cross-Site Scripting (XSS)** attacks stealing the session token.
--   **`Secure`**: In production, this flag ensures the cookie is only sent over HTTPS.
--   **`SameSite=Strict`**: Provides protection against Cross-Site Request Forgery (CSRF) attacks.
-
-The browser automatically includes this cookie with every subsequent request to our API.
+1.  **Login**: A user submits their credentials (email/password) or goes through the OAuth flow.
+2.  **Verification**: The backend API verifies the credentials against the database or validates the OAuth token with the provider.
+3.  **Token Generation**: Upon successful verification, the server generates a signed JWT. This token contains a payload with essential, non-sensitive user information, such as:
+    *   `userId`: The unique identifier for the user.
+    *   `role`: The user's role (`STUDENT` or `COMPANY`).
+    *   `iat` (Issued At) and `exp` (Expiration Time) timestamps.
+4.  **Token Transmission**: The JWT is sent back to the client.
+5.  **Token Storage**: The frontend application securely stores the JWT (e.g., in `localStorage` or an `HttpOnly` cookie for better security).
+6.  **Authenticated Requests**: For every subsequent request to a protected API endpoint, the client includes the JWT in the `Authorization` header using the `Bearer` scheme.
+    ```
+    Authorization: Bearer <your_jwt_token>
+    ```
+7.  **Server-side Verification**: The `authMiddleware` on the backend intercepts each request, verifies the JWT's signature and expiration, and if valid, extracts the user information from the payload. This information is then attached to the request object (e.g., `request.user`) for use in downstream controllers.
 
 ---
 
-## 3. Access Control (Authorization)
+## 2. Authentication Scenarios
 
-Authentication confirms _who_ a user is. Authorization determines _what they are allowed to do_.
+### Email & Password
 
-This is handled by a chain of two middlewares on protected routes.
+*   **Registration (`/api/auth/register`)**:
+    1.  A user provides their email, password, role (`STUDENT` or `COMPANY`), and other profile details.
+    2.  The backend hashes the password using a strong algorithm (e.g., bcrypt).
+    3.  A new `User` record is created in the database.
+    4.  The user is then expected to log in.
+*   **Login (`/api/auth/login`)**:
+    1.  A user submits their email and password.
+    2.  The backend finds the user by email and compares the submitted password with the stored hash.
+    3.  On success, a new JWT is generated and returned.
 
-```mermaid
-graph TD
-    A[User Request with JWT Cookie] --> B{authMiddleware};
-    B -- Valid Token --> C{roleMiddleware};
-    B -- Invalid/Missing Token --> D[Reject: 401 Unauthorized];
-    C -- Role Matches --> E[Access Granted: Controller];
-    C -- Role Mismatch --> F[Reject: 403 Forbidden];
+### OAuth 2.0 with Google
+
+*   **Login (`/api/auth/google`, `/api/auth/google/callback`)**:
+    1.  The user clicks the "Sign in with Google" button on the frontend, which redirects them to the `/api/auth/google` endpoint.
+    2.  The backend redirects the user to Google's consent screen.
+    3.  After the user grants permission, Google redirects them back to the `/api/auth/google/callback` endpoint with an authorization code.
+    4.  The backend exchanges this code for an access token and retrieves the user's Google profile information.
+    5.  The system then performs an "upsert":
+        *   If a user with this Google ID already exists, they are logged in.
+        *   If a user with this email exists but doesn't have a Google account linked, the accounts are linked.
+        *   If no such user exists, a new `User` and `OAuthAccount` are created.
+    6.  A JWT is generated and returned to the frontend, typically via a redirect with the token in the URL query parameters.
+
+### Account Linking
+
+A user who originally signed up with an email and password can link their Google account from their profile page. This allows them to log in using either method. They also have the option to disable password-based login for enhanced security, making Google the sole method of authentication for their account.
+
+---
+
+## 3. Authorization (RBAC)
+
+Authorization is managed using **Role-Based Access Control (RBAC)**. The system defines two primary roles:
+
+*   `STUDENT`: Can search for offers, apply to them, and manage their applications.
+*   `COMPANY`: Can post job offers, view applicants, and search for students.
+
+### Implementation
+
+*   **Role in JWT**: The user's role is embedded within the JWT payload. This avoids the need for a database lookup on every request to determine the user's role.
+*   **`roleMiddleware`**: A dedicated middleware is used to protect routes based on roles. It checks the `role` from the decoded JWT against a list of allowed roles for that specific endpoint.
+
+#### Example Usage:
+
+To restrict an endpoint to `COMPANY` users only, the `roleMiddleware` is applied to the route definition:
+
+```typescript
+// Example from a route file in `apps/api/src/routes`
+
+import { roleMiddleware }s from '../middleware/roleMiddleware';
+
+// This route is only accessible to users with the 'COMPANY' role.
+fastify.post(
+  '/offers',
+  { preHandler: [authMiddleware, roleMiddleware(['COMPANY'])] },
+  offerController.createOffer
+);
 ```
 
-### a. `authMiddleware`
-
--   **Purpose**: This is the first gatekeeper for any protected route.
--   **Function**:
-    1.  Checks for the presence of the JWT cookie.
-    2.  Verifies the JWT's signature to ensure it hasn't been tampered with.
-    3.  Checks the token's expiration.
-    4.  If valid, it decodes the payload and attaches it to the Fastify request object as `request.user`.
--   If the token is invalid or missing, the middleware immediately rejects the request with a `401 Unauthorized` error.
-
-### b. `roleMiddleware`
-
--   **Purpose**: This is the second gatekeeper, used to enforce Role-Based Access Control (RBAC).
--   **Function**: This middleware is configured with an array of allowed roles (e.g., `['COMPANY']`). It compares the `role` from the `request.user` object (placed there by `authMiddleware`) against the allowed roles.
--   **Example**: The route to create an offer (`POST /api/offers`) is protected by `roleMiddleware(['COMPANY'])`. If a user with the `STUDENT` role attempts to access it, the middleware will block the request with a `403 Forbidden` error, even if their JWT is perfectly valid.
+If a user without the required role attempts to access the endpoint, the middleware will reject the request with a `403 Forbidden` status code.
