@@ -31,7 +31,7 @@ server.register(authRoutes, { prefix: '/api/auth' });
 server.register(profileRoutes, { prefix: '/api/profiles' });
 server.register(offerRoutes, { prefix: '/api/offers' });
 server.register(applicationRoutes, { prefix: '/api/applications' });
-server.register(messageRoutes, { prefix: '/api/applications' });
+server.register(messageRoutes, { prefix: '/api/messages' });
 server.register(studentRoutes, { prefix: '/api/students' });
 server.register(adoptionRequestRoutes, { prefix: '/api/adoption-requests' });
 server.register(skillRoutes, { prefix: '/api/skills' });

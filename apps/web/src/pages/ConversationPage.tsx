@@ -1,23 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getMessages, sendMessage } from '../services/applicationService';
+import { useParams } from 'react-router-dom';
+import { getMessagesForConversation, createMessageInConversation, Message } from '../services/messageService';
 import { useAuth } from '../context/AuthContext';
 
-interface Sender {
-  id: string;
-  email: string;
-  role: string;
-}
-
-interface Message {
-  id: string;
-  content: string;
-  createdAt: string;
-  sender: Sender;
-}
-
-const ApplicationThreadPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const ConversationPage: React.FC = () => {
+  const { conversationId } = useParams<{ conversationId: string }>();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -30,8 +17,8 @@ const ApplicationThreadPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id) {
-      getMessages(id)
+    if (conversationId) {
+      getMessagesForConversation(conversationId)
         .then((data) => {
           setMessages(data);
           setLoading(false);
@@ -42,7 +29,7 @@ const ApplicationThreadPage: React.FC = () => {
           setLoading(false);
         });
     }
-  }, [id]);
+  }, [conversationId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -50,10 +37,10 @@ const ApplicationThreadPage: React.FC = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id || !newMessage.trim()) return;
+    if (!conversationId || !newMessage.trim()) return;
 
     try {
-      const sentMessage = await sendMessage(id, newMessage);
+      const sentMessage = await createMessageInConversation(conversationId, newMessage);
       setMessages((prevMessages) => [...prevMessages, sentMessage]);
       setNewMessage('');
     } catch (err) {
@@ -111,4 +98,4 @@ const ApplicationThreadPage: React.FC = () => {
   );
 };
 
-export default ApplicationThreadPage; 
+export default ConversationPage; 

@@ -134,6 +134,16 @@ export const updateAdoptionRequestStatus = async (
             where: { id: requestId },
             data: { status: status as any }
         });
+        
+        if (status === 'ACCEPTED' && !requestToUpdate.conversationId) {
+            await prisma.conversation.create({
+                data: {
+                    adoptionRequest: {
+                        connect: { id: requestId }
+                    }
+                }
+            })
+        }
 
         return reply.send(updatedRequest);
     } catch (error) {

@@ -1,7 +1,8 @@
 import { FastifyInstance } from 'fastify';
 import {
-  getMessagesForApplication,
-  createMessage,
+  getMyConversations,
+  getMessagesForConversation,
+  createMessageInConversation,
 } from '../controllers/messageController';
 import { authMiddleware } from '../middleware/authMiddleware';
 
@@ -9,14 +10,16 @@ async function messageRoutes(server: FastifyInstance) {
   // All message routes require authentication
   server.addHook('preHandler', authMiddleware);
 
+  server.get('/conversations', getMyConversations);
+
   server.get(
-    '/:applicationId/messages',
-    getMessagesForApplication
+    '/conversations/:conversationId/messages',
+    getMessagesForConversation
   );
 
   server.post(
-    '/:applicationId/messages',
-    createMessage
+    '/conversations/:conversationId/messages',
+    createMessageInConversation
   );
 }
 

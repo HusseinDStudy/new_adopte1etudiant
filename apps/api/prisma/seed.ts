@@ -15,6 +15,7 @@ async function main() {
   // 1. Clean the database
   console.log('Cleaning database...');
   await prisma.message.deleteMany();
+  await prisma.conversation.deleteMany();
   await prisma.adoptionRequest.deleteMany();
   await prisma.application.deleteMany();
   await prisma.studentSkill.deleteMany();
@@ -48,7 +49,7 @@ async function main() {
     const companyName = faker.company.name();
     const company = await prisma.user.create({
       data: {
-        email: `contact@${companyName.toLowerCase().replace(/[ .]/g, '-')}.com`,
+        email: faker.internet.email(),
         passwordHash,
         role: Role.COMPANY,
         companyProfile: {
@@ -173,11 +174,21 @@ async function main() {
 
     if (appStudent && appOffer) {
       const appCompanyUser = appOffer.company.user;
+
+      // Create a conversation linked to the application
+      const conversation = await prisma.conversation.create({
+        data: {
+          application: {
+            connect: { id: appWithConversation.id },
+          },
+        },
+      });
+
       await prisma.message.createMany({
         data: [
-          { applicationId: appWithConversation.id, senderId: appStudent.id, content: 'Hello, I am very interested in this offer. Is it still available?' },
-          { applicationId: appWithConversation.id, senderId: appCompanyUser.id, content: 'Yes, absolutely. We are reviewing applications this week. Could you tell us more about your experience with React?' },
-          { applicationId: appWithConversation.id, senderId: appStudent.id, content: 'Certainly, I have two years of professional experience...' },
+          { conversationId: conversation.id, senderId: appStudent.id, content: 'Hello, I am very interested in this offer. Is it still available?' },
+          { conversationId: conversation.id, senderId: appCompanyUser.id, content: 'Yes, absolutely. We are reviewing applications this week. Could you tell us more about your experience with React?' },
+          { conversationId: conversation.id, senderId: appStudent.id, content: 'Certainly, I have two years of professional experience...' },
         ]
       });
       console.log('Conversation created.');

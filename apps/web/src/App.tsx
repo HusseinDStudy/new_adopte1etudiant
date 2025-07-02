@@ -11,7 +11,8 @@ import CreateOfferPage from './pages/company/CreateOfferPage';
 import EditOfferPage from './pages/company/EditOfferPage';
 import OfferApplicantsPage from './pages/company/OfferApplicantsPage';
 import MyApplicationsPage from './pages/MyApplicationsPage';
-import ApplicationThreadPage from './pages/ApplicationThreadPage';
+import ConversationPage from './pages/ConversationPage';
+import MyConversationsPage from './pages/MyConversationsPage';
 import StudentDirectoryPage from './pages/StudentDirectoryPage';
 import MyAdoptionRequestsPage from './pages/MyAdoptionRequestsPage';
 import SentAdoptionRequestsPage from './pages/company/SentAdoptionRequestsPage';
@@ -62,6 +63,7 @@ function App() {
             <Link to="/offers" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Offers</Link>
             {isAuthenticated ? (
               <>
+                <Link to="/conversations" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">My Conversations</Link>
                 {user?.role === 'STUDENT' && (
                   <>
                     <Link to="/my-applications" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">My Applications</Link>
@@ -99,7 +101,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/my-applications" element={<MyApplicationsPage />} />
-            <Route path="/applications/:id/thread" element={<ApplicationThreadPage />} />
+            <Route path="/conversations" element={<MyConversationsPage />} />
+            <Route path="/conversations/:conversationId" element={<ConversationPage />} />
             <Route path="/students" element={<StudentDirectoryPage />} />
             <Route path="/my-adoption-requests" element={<MyAdoptionRequestsPage />} />
             <Route path="/company/offers" element={<ManageOffersPage />} />

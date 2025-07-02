@@ -126,21 +126,31 @@ model Application {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 
-  offer   Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
-  student User  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  messages Message[]
+  offer          Offer         @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  student        User          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId String?       @unique
 
   @@unique([studentId, offerId])
 }
 
+model Conversation {
+  id              String           @id @default(cuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  messages        Message[]
+  application     Application?
+  adoptionRequest AdoptionRequest?
+}
+
 model Message {
-  id            String      @id @default(cuid())
-  applicationId String
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  senderId      String
-  sender        User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  content       String
-  createdAt     DateTime    @default(now())
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  createdAt      DateTime     @default(now())
 }
 
 model AdoptionRequest {
@@ -152,6 +162,8 @@ model AdoptionRequest {
   updatedAt   DateTime              @updatedAt
   company     CompanyProfile        @relation("SentAdoptionRequests", fields: [companyId], references: [id], onDelete: Cascade)
   student     User                  @relation("ReceivedAdoptionRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  conversation   Conversation?         @relation(fields: [conversationId], references: [id])
+  conversationId String?               @unique
 
   @@unique([companyId, studentId])
 } 

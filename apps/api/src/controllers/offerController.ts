@@ -91,7 +91,6 @@ export const listOffers = async (
           return { ...offer, matchScore: score };
         });
 
-        // Sort by match score descending
         offersWithScores.sort((a, b) => b.matchScore - a.matchScore);
         
         return reply.send(offersWithScores);
@@ -105,7 +104,6 @@ export const listOffers = async (
   }
 };
 
-// List offers for the currently authenticated company
 export const listMyOffers = async (request: FastifyRequest, reply: FastifyReply) => {
   const userId = request.user!.id;
   try {
@@ -133,7 +131,6 @@ export const listMyOffers = async (request: FastifyRequest, reply: FastifyReply)
   }
 }
 
-// Get a single offer by ID (publicly accessible)
 export const getOfferById = async (
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply
@@ -177,7 +174,6 @@ export const getOfferById = async (
   }
 };
 
-// Create a new offer (company only)
 export const createOffer = async (request: FastifyRequest<{ Body: CreateOfferInput }>, reply: FastifyReply) => {
   const userId = request.user!.id;
 
@@ -214,7 +210,6 @@ export const createOffer = async (request: FastifyRequest<{ Body: CreateOfferInp
   }
 };
 
-// Update an offer (company only)
 export const updateOffer = async (
   request: FastifyRequest<{ Params: { id: string }; Body: UpdateOfferInput }>,
   reply: FastifyReply
@@ -242,7 +237,7 @@ export const updateOffer = async (
         location,
         duration,
         skills: {
-          set: [], // Disconnect old skills
+          set: [], 
           connectOrCreate: skills.map(skill => ({
             where: { name: skill },
             create: { name: skill },
@@ -250,7 +245,6 @@ export const updateOffer = async (
         },
       },
     });
-
     return reply.send(updatedOffer);
   } catch (error) {
     console.error(error);
@@ -258,7 +252,6 @@ export const updateOffer = async (
   }
 };
 
-// Delete an offer (company only)
 export const deleteOffer = async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
   const { id } = request.params;
   const userId = request.user!.id;
@@ -281,7 +274,6 @@ export const deleteOffer = async (request: FastifyRequest<{ Params: { id: string
   }
 };
 
-// List applications for a specific offer (for companies)
 export const getOfferApplications = async (
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply
@@ -290,21 +282,14 @@ export const getOfferApplications = async (
   const { id: companyUserId } = request.user!;
 
   try {
-    // 1. Verify the offer belongs to the company
     const offer = await prisma.offer.findFirst({
-      where: {
-        id: offerId,
-        company: {
-          userId: companyUserId,
-        },
-      },
+      where: { id: offerId, company: { userId: companyUserId } },
     });
 
     if (!offer) {
-      return reply.code(404).send({ message: 'Offer not found or you do not have permission to view it.' });
+      return reply.code(404).send({ message: 'Offer not found or not owned by you.' });
     }
 
-    // 2. Fetch applications for the offer, including student profiles
     const applications = await prisma.application.findMany({
       where: { offerId },
       include: {
@@ -313,12 +298,17 @@ export const getOfferApplications = async (
             studentProfile: true,
           },
         },
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
     return reply.send(applications);
   } catch (error) {
-    console.error('Failed to get offer applications:', error);
+    console.error(error);
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
-}; 
+};

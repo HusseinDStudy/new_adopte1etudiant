@@ -2,57 +2,123 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from 'db-postgres';
 import { createMessageSchema } from 'shared-types';
 
-// Utility function to check if a user is part of an application
-async function isUserPartOfApplication(userId: string, applicationId: string) {
-  const application = await prisma.application.findUnique({
-    where: { id: applicationId },
+async function isUserPartOfConversation(userId: string, conversationId: string) {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: conversationId },
     include: {
-      offer: {
-        select: {
-          company: {
-            select: {
-              userId: true,
-            },
-          },
+      application: {
+        include: {
+          student: true,
+          offer: { include: { company: { include: { user: true } } } },
+        },
+      },
+      adoptionRequest: {
+        include: {
+          student: true,
+          company: { include: { user: true } },
         },
       },
     },
   });
 
-  if (!application) {
+  if (!conversation) {
     return false;
   }
 
-  // User is the student who applied
-  if (application.studentId === userId) {
-    return true;
+  if (conversation.application) {
+    return (
+      userId === conversation.application.studentId ||
+      userId === conversation.application.offer.company.userId
+    );
   }
 
-  // User is the company who posted the offer
-  if (application.offer.company.userId === userId) {
-    return true;
+  if (conversation.adoptionRequest) {
+    return (
+      userId === conversation.adoptionRequest.studentId ||
+      userId === conversation.adoptionRequest.company.userId
+    );
   }
 
   return false;
 }
 
-export const getMessagesForApplication = async (
-  request: FastifyRequest<{ Params: { applicationId: string } }>,
+export const getMyConversations = async (
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { applicationId } = request.params;
   const { id: userId } = request.user!;
 
   try {
-    // 1. Verify user has access to this application's messages
-    const hasAccess = await isUserPartOfApplication(userId, applicationId);
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        OR: [
+          { application: { studentId: userId } },
+          { application: { offer: { company: { userId } } } },
+          { adoptionRequest: { studentId: userId } },
+          { adoptionRequest: { company: { userId } } },
+        ],
+      },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        application: {
+          include: {
+            offer: { select: { title: true } },
+            student: { select: { studentProfile: { select: { firstName: true, lastName: true } } } },
+          }
+        },
+        adoptionRequest: {
+          include: {
+            company: { select: { name: true } },
+            student: { select: { studentProfile: { select: { firstName: true, lastName: true } } } },
+          }
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    // Simplified topic for frontend
+    const formattedConversations = conversations.map(c => {
+      let topic = 'Conversation';
+      if (c.application) {
+        topic = `Application for ${c.application.offer.title}`;
+      } else if (c.adoptionRequest) {
+        topic = `Adoption Request from ${c.adoptionRequest.company.name}`;
+      }
+      return {
+        id: c.id,
+        topic,
+        lastMessage: c.messages[0]?.content || 'No messages yet.',
+        updatedAt: c.updatedAt.toISOString(),
+      }
+    });
+
+    return reply.send(formattedConversations);
+  } catch (error) {
+    console.error('Failed to get conversations:', error);
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export const getMessagesForConversation = async (
+  request: FastifyRequest<{ Params: { conversationId: string } }>,
+  reply: FastifyReply
+) => {
+  const { conversationId } = request.params;
+  const { id: userId } = request.user!;
+
+  try {
+    const hasAccess = await isUserPartOfConversation(userId, conversationId);
     if (!hasAccess) {
       return reply.code(403).send({ message: 'You do not have permission to view these messages.' });
     }
 
-    // 2. Fetch messages
     const messages = await prisma.message.findMany({
-      where: { applicationId },
+      where: { conversationId },
       orderBy: { createdAt: 'asc' },
       include: {
         sender: {
@@ -72,11 +138,11 @@ export const getMessagesForApplication = async (
   }
 };
 
-export const createMessage = async (
-  request: FastifyRequest<{ Params: { applicationId: string } }>,
+export const createMessageInConversation = async (
+  request: FastifyRequest<{ Params: { conversationId: string } }>,
   reply: FastifyReply
 ) => {
-  const { applicationId } = request.params;
+  const { conversationId } = request.params;
   const { id: senderId } = request.user!;
 
   const parseResult = createMessageSchema.safeParse(request.body);
@@ -86,16 +152,14 @@ export const createMessage = async (
   const { content } = parseResult.data;
 
   try {
-    // 1. Verify user has access to this application
-    const hasAccess = await isUserPartOfApplication(senderId, applicationId);
+    const hasAccess = await isUserPartOfConversation(senderId, conversationId);
     if (!hasAccess) {
-      return reply.code(403).send({ message: 'You do not have permission to send messages to this application.' });
+      return reply.code(403).send({ message: 'You do not have permission to send messages to this conversation.' });
     }
 
-    // 2. Create the new message
     const newMessage = await prisma.message.create({
       data: {
-        applicationId,
+        conversationId,
         senderId,
         content,
       },

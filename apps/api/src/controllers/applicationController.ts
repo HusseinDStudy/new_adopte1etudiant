@@ -20,7 +20,6 @@ export const createApplication = async (
   const { offerId } = parseResult.data;
 
   try {
-    // 1. Check if the student has a profile
     const studentProfile = await prisma.studentProfile.findUnique({
       where: { userId: studentId },
     });
@@ -29,7 +28,6 @@ export const createApplication = async (
       return reply.code(403).send({ message: 'You must have a profile to apply.' });
     }
 
-    // 2. Check if the student has already applied to this offer
     const existingApplication = await prisma.application.findUnique({
       where: {
         studentId_offerId: {
@@ -43,11 +41,10 @@ export const createApplication = async (
       return reply.code(409).send({ message: 'You have already applied to this offer.' });
     }
 
-    // 3. Create the new application
     const newApplication = await prisma.application.create({
       data: {
         offerId: offerId,
-        studentId: studentId, // The user's own ID
+        studentId: studentId,
       },
     });
 
@@ -75,6 +72,11 @@ export const getMyApplications = async (
                 name: true,
               },
             },
+          },
+        },
+        conversation: {
+          select: {
+            id: true,
           },
         },
       },
@@ -132,9 +134,19 @@ export const updateApplicationStatus = async (
       data: { status },
     });
 
+    if ((status === 'HIRED' || status === 'INTERVIEW') && !application.conversationId) {
+      await prisma.conversation.create({
+        data: {
+          application: {
+            connect: { id: applicationId },
+          },
+        },
+      });
+    }
+
     return reply.send(updatedApplication);
   } catch (error) {
     console.error('Failed to update application status:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
-}; 
+};

@@ -19,6 +19,9 @@ interface Application {
   id: string;
   student: Student;
   status: string;
+  conversation: {
+    id: string;
+  } | null;
 }
 
 interface Offer {
@@ -56,6 +59,7 @@ const OfferApplicantsPage = () => {
 
   const handleStatusChange = async (applicationId: string, newStatus: string) => {
     const originalApplications = [...applications];
+    // Optimistic update
     setApplications((prevApps) =>
       prevApps.map((app) =>
         app.id === applicationId ? { ...app, status: newStatus } : app
@@ -64,10 +68,14 @@ const OfferApplicantsPage = () => {
 
     try {
       await updateApplicationStatus(applicationId, newStatus);
+      // We might need to refetch to get the conversation ID, or have the update endpoint return the full object
+      if((newStatus === 'HIRED' || newStatus === 'INTERVIEW') && id) {
+        const updatedApps = await getOfferApplications(id);
+        setApplications(updatedApps);
+      }
     } catch (error) {
       console.error('Failed to update status:', error);
-      setApplications(originalApplications);
-      // TODO: Show an error toast to the user
+      setApplications(originalApplications); // Revert on error
     }
   };
 
@@ -108,9 +116,11 @@ const OfferApplicantsPage = () => {
                         </option>
                       ))}
                     </select>
-                    <Link to={`/applications/${app.id}/thread`} className="text-sm font-medium text-indigo-600 hover:text-indigo-500 whitespace-nowrap">
-                      View Conversation
-                    </Link>
+                    {app.conversation && (
+                        <Link to={`/conversations/${app.conversation.id}`} className="text-sm font-medium text-indigo-600 hover:text-indigo-500 whitespace-nowrap">
+                            View Conversation
+                        </Link>
+                    )}
                   </div>
                 </div>
               </li>

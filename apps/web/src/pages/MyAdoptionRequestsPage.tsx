@@ -18,27 +18,28 @@ const MyAdoptionRequestsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchRequests = async () => {
-            try {
-                setLoading(true);
-                const data = await getMyAdoptionRequests();
-                setRequests(data);
-            } catch (err) {
-                setError('Failed to fetch adoption requests.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchRequests = async () => {
+        try {
+            setLoading(true);
+            const data = await getMyAdoptionRequests();
+            setRequests(data);
+        } catch (err) {
+            setError('Failed to fetch adoption requests.');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchRequests();
     }, []);
 
     const handleStatusUpdate = async (id: string, status: string) => {
         try {
-            const updatedRequest = await updateAdoptionRequestStatus(id, status);
-            setRequests(prev => prev.map(req => req.id === id ? updatedRequest : req));
+            await updateAdoptionRequestStatus(id, status);
+            // Refetch all requests to ensure UI is perfectly in sync
+            fetchRequests(); 
         } catch (err) {
             console.error('Failed to update request status', err);
             alert('Failed to update status. Please try again.');

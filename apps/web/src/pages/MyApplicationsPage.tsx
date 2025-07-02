@@ -14,6 +14,9 @@ interface Application {
       name: string;
     };
   };
+  conversation: {
+    id: string;
+  } | null;
 }
 
 const MyApplicationsPage: React.FC = () => {
@@ -77,15 +80,17 @@ const MyApplicationsPage: React.FC = () => {
                 <p className="text-gray-700 mt-1">{app.offer.company.name}</p>
                 <p className="text-gray-500 text-sm mt-2">Applied on: {new Date(app.createdAt).toLocaleDateString()}</p>
               </div>
-              <div className="text-right space-y-2">
+              <div className="text-right">
                 <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getStatusClasses(app.status)}`}>
                   {app.status.charAt(0).toUpperCase() + app.status.slice(1).toLowerCase()}
                 </span>
-                <div className="mt-2">
-                   <Link to={`/applications/${app.id}/thread`} className="text-sm text-indigo-600 hover:text-indigo-800">
-                    View Conversation
-                  </Link>
-                </div>
+                {app.conversation && (
+                  <div className="mt-2">
+                     <Link to={`/conversations/${app.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
+                      View Conversation
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           ))}
