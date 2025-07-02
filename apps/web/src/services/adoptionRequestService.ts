@@ -7,8 +7,8 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-export const createAdoptionRequest = async (studentId: string) => {
-  const { data } = await apiClient.post('/adoption-requests', { studentId });
+export const createAdoptionRequest = async (studentId: string, message: string) => {
+  const { data } = await apiClient.post('/adoption-requests', { studentId, message });
   return data;
 };
 

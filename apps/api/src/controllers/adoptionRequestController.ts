@@ -3,11 +3,15 @@ import { prisma } from 'db-postgres';
 import { updateAdoptionRequestStatusSchema } from 'shared-types';
 
 export const createAdoptionRequest = async (
-  request: FastifyRequest<{ Body: { studentId: string } }>,
+  request: FastifyRequest<{ Body: { studentId: string; message: string } }>,
   reply: FastifyReply
 ) => {
   const { id: companyUserId } = request.user!;
-  const { studentId } = request.body;
+  const { studentId, message } = request.body;
+
+  if (!message || message.trim().length === 0) {
+    return reply.code(400).send({ message: 'A message is required to send a request.' });
+  }
 
   try {
     const companyProfile = await prisma.companyProfile.findUnique({
@@ -31,11 +35,28 @@ export const createAdoptionRequest = async (
       return reply.code(409).send({ message: 'You have already sent a request to this student.' });
     }
 
-    const newRequest = await prisma.adoptionRequest.create({
-      data: {
-        companyId: companyProfile.id,
-        studentId,
-      },
+    const newRequest = await prisma.$transaction(async (tx) => {
+      const conversation = await tx.conversation.create({
+        data: {},
+      });
+
+      await tx.message.create({
+        data: {
+          conversationId: conversation.id,
+          senderId: companyUserId,
+          content: message,
+        },
+      });
+
+      const adoptionRequest = await tx.adoptionRequest.create({
+        data: {
+          companyId: companyProfile.id,
+          studentId,
+          conversationId: conversation.id,
+        },
+      });
+
+      return adoptionRequest;
     });
 
     return reply.code(201).send(newRequest);
@@ -104,8 +125,13 @@ export const listMyAdoptionRequests = async (
           },
         },
         conversation: {
-          select: {
-            id: true,
+          include: {
+            messages: {
+              take: 1,
+              orderBy: {
+                createdAt: 'asc',
+              },
+            },
           },
         },
       },
@@ -145,16 +171,6 @@ export const updateAdoptionRequestStatus = async (
             data: { status: status as any }
         });
         
-        if (status === 'ACCEPTED' && !requestToUpdate.conversationId) {
-            await prisma.conversation.create({
-                data: {
-                    adoptionRequest: {
-                        connect: { id: requestId }
-                    }
-                }
-            })
-        }
-
         return reply.send(updatedRequest);
     } catch (error) {
         console.error('Failed to update adoption request status:', error);

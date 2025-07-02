@@ -26,6 +26,8 @@ const StudentDirectoryPage: React.FC = () => {
   const [requestedStudentIds, setRequestedStudentIds] = useState<Set<string>>(
     new Set()
   );
+  const [requestingStudentId, setRequestingStudentId] = useState<string | null>(null);
+  const [adoptionMessage, setAdoptionMessage] = useState('');
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,11 +78,16 @@ const StudentDirectoryPage: React.FC = () => {
   };
 
   const handleRequestAdoption = async (studentId: string) => {
-    setError(null); // Clear previous errors
+    if (!adoptionMessage.trim()) {
+      setError('A message is required to send a request.');
+      return;
+    }
+    setError(null);
     try {
-      await createAdoptionRequest(studentId);
+      await createAdoptionRequest(studentId, adoptionMessage);
       setRequestedStudentIds(prev => new Set(prev).add(studentId));
-      // Ideally, show a toast notification here for success
+      setRequestingStudentId(null);
+      setAdoptionMessage('');
     } catch (err: any) {
       console.error('Failed to send adoption request', err);
       setError(err.response?.data?.message || 'Failed to send adoption request.');
@@ -164,13 +171,42 @@ const StudentDirectoryPage: React.FC = () => {
                 </div>
               </div>
               <div className="mt-6 text-right">
-                <button
-                  onClick={() => handleRequestAdoption(student.id)}
-                  disabled={requestedStudentIds.has(student.id)}
-                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:bg-gray-400"
-                >
-                  {requestedStudentIds.has(student.id) ? 'Request Sent' : 'Request Adoption'}
-                </button>
+                {requestingStudentId === student.id ? (
+                  <div className="mt-4">
+                    <textarea
+                      className="w-full p-2 border rounded-lg"
+                      placeholder="Send a message with your request..."
+                      value={adoptionMessage}
+                      onChange={(e) => setAdoptionMessage(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button
+                        onClick={() => setRequestingStudentId(null)}
+                        className="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleRequestAdoption(student.id)}
+                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                      >
+                        Send Request
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setRequestingStudentId(student.id);
+                      setAdoptionMessage('');
+                    }}
+                    disabled={requestedStudentIds.has(student.id)}
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:bg-gray-400"
+                  >
+                    {requestedStudentIds.has(student.id) ? 'Request Sent' : 'Request Adoption'}
+                  </button>
+                )}
               </div>
             </div>
           ))}

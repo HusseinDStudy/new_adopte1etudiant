@@ -131,7 +131,21 @@ export const getMessagesForConversation = async (
       },
     });
 
-    return reply.send(messages);
+    const conversationDetails = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        adoptionRequest: {
+          select: {
+            status: true,
+          }
+        }
+      }
+    });
+
+    return reply.send({
+      messages,
+      adoptionRequestStatus: conversationDetails?.adoptionRequest?.status || null
+    });
   } catch (error) {
     console.error('Failed to get messages:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
@@ -152,6 +166,21 @@ export const createMessageInConversation = async (
   const { content } = parseResult.data;
 
   try {
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        adoptionRequest: true,
+      }
+    });
+
+    if (!conversation) {
+      return reply.code(404).send({ message: 'Conversation not found.' });
+    }
+
+    if (conversation.adoptionRequest && conversation.adoptionRequest.status === 'REJECTED') {
+      return reply.code(403).send({ message: 'This conversation has been ended and is now read-only.' });
+    }
+
     const hasAccess = await isUserPartOfConversation(senderId, conversationId);
     if (!hasAccess) {
       return reply.code(403).send({ message: 'You do not have permission to send messages to this conversation.' });

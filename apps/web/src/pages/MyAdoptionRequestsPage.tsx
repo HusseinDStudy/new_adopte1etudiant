@@ -7,6 +7,11 @@ interface Company {
     logoUrl?: string | null;
 }
 
+interface Message {
+  id: string;
+  content: string;
+}
+
 interface AdoptionRequest {
     id: string;
     company: Company;
@@ -14,6 +19,7 @@ interface AdoptionRequest {
     createdAt: string;
     conversation: {
         id: string;
+        messages: Message[];
     } | null;
 }
 
@@ -66,6 +72,11 @@ const MyAdoptionRequestsPage: React.FC = () => {
                         <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
                             <div>
                                 <h2 className="text-xl font-semibold">{req.company.name}</h2>
+                                {req.conversation && req.conversation.messages.length > 0 && (
+                                    <div className="mt-4 p-4 bg-gray-100 border rounded-md">
+                                        <p className="text-sm italic text-gray-700">"{req.conversation.messages[0].content}"</p>
+                                    </div>
+                                )}
                                 <p className="text-gray-500 text-sm mt-2">Received on: {new Date(req.createdAt).toLocaleDateString()}</p>
                             </div>
                             <div className="flex items-center gap-4">
@@ -81,10 +92,10 @@ const MyAdoptionRequestsPage: React.FC = () => {
                                         }`}>
                                             {req.status}
                                         </span>
-                                        {req.conversation && (
+                                        {req.conversation && (req.status === 'ACCEPTED' || req.status === 'REJECTED') && (
                                             <div className="mt-2">
                                                 <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
-                                                    View Conversation
+                                                    {req.status === 'ACCEPTED' ? 'View Conversation' : 'View Message'}
                                                 </Link>
                                             </div>
                                         )}
