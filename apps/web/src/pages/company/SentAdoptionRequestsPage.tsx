@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getSentAdoptionRequests } from '../../services/adoptionRequestService';
 
 interface StudentProfile {
@@ -16,6 +17,9 @@ interface AdoptionRequest {
     student: Student;
     status: string;
     createdAt: string;
+    conversation: {
+        id: string;
+    } | null;
 }
 
 const SentAdoptionRequestsPage: React.FC = () => {
@@ -79,7 +83,16 @@ const SentAdoptionRequestsPage: React.FC = () => {
                                 </h2>
                                 <p className="text-gray-500 text-sm mt-2">Sent on: {new Date(req.createdAt).toLocaleDateString()}</p>
                             </div>
-                            {getStatusPill(req.status)}
+                             <div className="text-right">
+                                {getStatusPill(req.status)}
+                                {req.conversation && (
+                                    <div className="mt-2">
+                                        <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
+                                            View Conversation
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

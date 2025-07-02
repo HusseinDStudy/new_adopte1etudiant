@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getMyAdoptionRequests, updateAdoptionRequestStatus } from '../services/adoptionRequestService';
 
 interface Company {
@@ -11,6 +12,9 @@ interface AdoptionRequest {
     company: Company;
     status: string;
     createdAt: string;
+    conversation: {
+        id: string;
+    } | null;
 }
 
 const MyAdoptionRequestsPage: React.FC = () => {
@@ -38,7 +42,6 @@ const MyAdoptionRequestsPage: React.FC = () => {
     const handleStatusUpdate = async (id: string, status: string) => {
         try {
             await updateAdoptionRequestStatus(id, status);
-            // Refetch all requests to ensure UI is perfectly in sync
             fetchRequests(); 
         } catch (err) {
             console.error('Failed to update request status', err);
@@ -72,11 +75,20 @@ const MyAdoptionRequestsPage: React.FC = () => {
                                         <button onClick={() => handleStatusUpdate(req.id, 'REJECTED')} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Reject</button>
                                     </>
                                 ) : (
-                                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                                        req.status === 'ACCEPTED' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
-                                    }`}>
-                                        {req.status}
-                                    </span>
+                                    <div className="text-right">
+                                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                                            req.status === 'ACCEPTED' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
+                                        }`}>
+                                            {req.status}
+                                        </span>
+                                        {req.conversation && (
+                                            <div className="mt-2">
+                                                <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
+                                                    View Conversation
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -87,4 +99,4 @@ const MyAdoptionRequestsPage: React.FC = () => {
     );
 };
 
-export default MyAdoptionRequestsPage; 
+export default MyAdoptionRequestsPage;

@@ -69,10 +69,15 @@ export const listSentAdoptionRequests = async (
               select: {
                 firstName: true,
                 lastName: true,
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -96,10 +101,15 @@ export const listMyAdoptionRequests = async (
           select: {
             name: true,
             logoUrl: true,
-          }
-        }
+          },
+        },
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
     return reply.send(requests);
   } catch (error) {
