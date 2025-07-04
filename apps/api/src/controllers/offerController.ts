@@ -6,6 +6,29 @@ import jwt from 'jsonwebtoken';
 
 const matchScoreService = new MatchScoreService();
 
+const normalizeSkillName = (name: string): string => {
+  if (!name) return '';
+  const cleanedName = name.trim().replace(/\s+/g, ' ');
+  return cleanedName
+    .toLowerCase()
+    .split(' ')
+    .filter(word => word.length > 0)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const validateSkillName = (name: string): { isValid: boolean; message?: string } => {
+    const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+    if (validSkillRegex.test(name)) {
+        return { isValid: true };
+    }
+    const invalidChars = [...new Set(name.replace(/[a-zA-Z0-9\s\+#\.\-]/g, ''))];
+    return {
+        isValid: false,
+        message: `Skill name "${name}" contains invalid characters: ${invalidChars.join(', ')}. Only letters, numbers, spaces, and '+', '#', '.', '-' are allowed.`
+    };
+}
+
 // Helper to decode token without middleware to check for user
 const decodeToken = (request: FastifyRequest) => {
   const token = request.cookies.token;
@@ -188,6 +211,13 @@ export const createOffer = async (request: FastifyRequest<{ Body: CreateOfferInp
 
     const { title, description, location, duration, skills } = request.body;
 
+    for (const skillName of skills) {
+      const validation = validateSkillName(skillName);
+      if (!validation.isValid) {
+        return reply.code(400).send({ message: validation.message });
+      }
+    }
+
     const offer = await prisma.offer.create({
       data: {
         title,
@@ -196,10 +226,13 @@ export const createOffer = async (request: FastifyRequest<{ Body: CreateOfferInp
         duration,
         companyId: companyProfile.id,
         skills: {
-          connectOrCreate: skills.map(skill => ({
-            where: { name: skill },
-            create: { name: skill },
-          })),
+          connectOrCreate: skills.map(skill => {
+            const normalizedSkill = normalizeSkillName(skill);
+            return {
+              where: { name: normalizedSkill },
+              create: { name: normalizedSkill },
+            };
+          }),
         },
       },
     });
@@ -229,6 +262,15 @@ export const updateOffer = async (
 
     const { title, description, location, duration, skills } = request.body;
 
+    if (skills) {
+      for (const skillName of skills) {
+        const validation = validateSkillName(skillName);
+        if (!validation.isValid) {
+          return reply.code(400).send({ message: validation.message });
+        }
+      }
+    }
+
     const updatedOffer = await prisma.offer.update({
       where: { id },
       data: {
@@ -237,11 +279,14 @@ export const updateOffer = async (
         location,
         duration,
         skills: {
-          set: [], 
-          connectOrCreate: skills.map(skill => ({
-            where: { name: skill },
-            create: { name: skill },
-          })),
+          set: [],
+          connectOrCreate: skills?.map(skill => {
+            const normalizedSkill = normalizeSkillName(skill);
+            return {
+              where: { name: normalizedSkill },
+              create: { name: normalizedSkill },
+            };
+          }),
         },
       },
     });

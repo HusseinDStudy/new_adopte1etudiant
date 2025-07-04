@@ -3,6 +3,29 @@ import { prisma } from 'db-postgres';
 import { StudentProfileInput, CompanyProfileInput } from 'shared-types';
 import { studentProfileSchema } from 'shared-types';
 
+const normalizeSkillName = (name: string): string => {
+  if (!name) return '';
+  const cleanedName = name.trim().replace(/\s+/g, ' ');
+  return cleanedName
+    .toLowerCase()
+    .split(' ')
+    .filter(word => word.length > 0)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const validateSkillName = (name: string): { isValid: boolean; message?: string } => {
+    const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+    if (validSkillRegex.test(name)) {
+        return { isValid: true };
+    }
+    const invalidChars = [...new Set(name.replace(/[a-zA-Z0-9\s\+#\.\-]/g, ''))];
+    return {
+        isValid: false,
+        message: `Skill name "${name}" contains invalid characters: ${invalidChars.join(', ')}. Only letters, numbers, spaces, and '+', '#', '.', '-' are allowed.`
+    };
+}
+
 export const getProfile = async (
   request: FastifyRequest,
   reply: FastifyReply
@@ -51,13 +74,21 @@ export const upsertProfile = async (
     if (role === 'STUDENT') {
       const studentData = data as StudentProfileInput;
       
-      const skillOps = studentData.skills.map(skillName => 
-        prisma.skill.upsert({
-          where: { name: skillName },
+      for (const skillName of studentData.skills) {
+        const validation = validateSkillName(skillName);
+        if (!validation.isValid) {
+          return reply.code(400).send({ message: validation.message });
+        }
+      }
+
+      const skillOps = studentData.skills.map(skillName => {
+        const normalizedSkillName = normalizeSkillName(skillName);
+        return prisma.skill.upsert({
+          where: { name: normalizedSkillName },
           update: {},
-          create: { name: skillName },
-        })
-      );
+          create: { name: normalizedSkillName },
+        });
+      });
       const createdSkills = await prisma.$transaction(skillOps);
 
       const { firstName, lastName, school, degree, skills, isOpenToOpportunities } =

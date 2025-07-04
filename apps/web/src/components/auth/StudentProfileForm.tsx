@@ -5,9 +5,21 @@ import { studentProfileSchema, StudentProfileInput } from 'shared-types';
 import { getProfile, upsertProfile } from '../../services/profileService';
 import { z } from 'zod';
 
+const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+
+const skillValidation = z.string().refine(
+  (value) => {
+    const skills = value.split(',').map(s => s.trim());
+    return skills.every(skill => validSkillRegex.test(skill) || skill === '');
+  },
+  {
+    message: "Skills can only contain letters, numbers, spaces, and '+', '#', '.', '-'. Please remove any invalid characters.",
+  }
+);
+
 // Zod schema for the form data, where skills is a string
 const studentProfileFormSchema = studentProfileSchema.extend({
-  skills: z.string(),
+  skills: skillValidation,
   isOpenToOpportunities: z.boolean().optional(),
 });
 

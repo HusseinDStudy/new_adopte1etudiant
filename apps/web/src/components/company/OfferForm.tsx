@@ -4,9 +4,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createOfferSchema, CreateOfferInput } from 'shared-types';
 import { z } from 'zod';
 
+const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+
+const skillValidation = z.string()
+  .min(1, 'Please enter at least one skill.')
+  .refine(
+    (value) => {
+      const skills = value.split(',').map(s => s.trim());
+      return skills.every(skill => validSkillRegex.test(skill));
+    },
+    {
+      message: "Skills can only contain letters, numbers, spaces, and '+', '#', '.', '-'. Please remove any invalid characters.",
+    }
+);
+
 // Zod schema for the form data, where skills is a string
 const offerFormSchema = createOfferSchema.extend({
-  skills: z.string().min(1, 'Please enter at least one skill.'),
+  skills: skillValidation,
 });
 
 // Type for the form data
