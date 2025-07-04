@@ -44,12 +44,14 @@ export const completeOauthSchema = z.discriminatedUnion('role', [
 
 // Profile schemas
 export const studentProfileSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   school: z.string().optional(),
   degree: z.string().optional(),
-  skills: z.array(z.string()),
+  skills: z.array(z.string()).optional(),
   isOpenToOpportunities: z.boolean().optional(),
+  cvUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  isCvPublic: z.boolean().optional(),
 });
 
 export const companyProfileSchema = z.object({

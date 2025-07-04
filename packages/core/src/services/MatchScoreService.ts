@@ -2,7 +2,7 @@
 // Can be tested in isolation.
 
 interface Student {
-  skills: string[];
+  skills?: string[];
 }
 
 interface Offer {
@@ -11,7 +11,7 @@ interface Offer {
 
 export class MatchScoreService {
   public calculate(student: Student, offer: Offer): number {
-    const studentSkills = new Set(student.skills);
+    const studentSkills = new Set(student.skills || []);
     const offerSkills = new Set(offer.requiredSkills);
 
     if (offerSkills.size === 0) {

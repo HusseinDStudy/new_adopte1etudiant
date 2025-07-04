@@ -16,7 +16,9 @@ interface Student {
   email: string;
   school?: string;
   degree?: string;
-  skills: { name: string }[];
+  skills?: { name: string }[];
+  cvUrl?: string;
+  isCvPublic?: boolean;
 }
 
 const StudentDirectoryPage: React.FC = () => {
@@ -160,7 +162,7 @@ const StudentDirectoryPage: React.FC = () => {
               <div className="mt-4">
                 <h4 className="font-semibold">Skills:</h4>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {student.skills.map((skill) => (
+                  {(student.skills || []).map((skill) => (
                     <span
                       key={skill.name}
                       className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800"
@@ -170,6 +172,18 @@ const StudentDirectoryPage: React.FC = () => {
                   ))}
                 </div>
               </div>
+              {student.cvUrl && student.isCvPublic && (
+                <div className="mt-6 text-right">
+                  <a
+                    href={student.cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    View CV
+                  </a>
+                </div>
+              )}
               <div className="mt-6 text-right">
                 {requestingStudentId === student.id ? (
                   <div className="mt-4">

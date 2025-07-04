@@ -72,16 +72,28 @@ export const upsertProfile = async (
   try {
     let profile;
     if (role === 'STUDENT') {
+      // Validate the data first with Zod
+      let validatedData;
+      try {
+        validatedData = studentProfileSchema.parse(request.body);
+      } catch (validationError: any) {
+        return reply.code(400).send({ 
+          message: validationError.errors?.[0]?.message || 'Invalid input data' 
+        });
+      }
+
       const studentData = data as StudentProfileInput;
       
-      for (const skillName of studentData.skills) {
-        const validation = validateSkillName(skillName);
-        if (!validation.isValid) {
-          return reply.code(400).send({ message: validation.message });
+      if (studentData.skills) {
+        for (const skillName of studentData.skills) {
+          const validation = validateSkillName(skillName);
+          if (!validation.isValid) {
+            return reply.code(400).send({ message: validation.message });
+          }
         }
       }
 
-      const skillOps = studentData.skills.map(skillName => {
+      const skillOps = (studentData.skills || []).map(skillName => {
         const normalizedSkillName = normalizeSkillName(skillName);
         return prisma.skill.upsert({
           where: { name: normalizedSkillName },
@@ -91,8 +103,7 @@ export const upsertProfile = async (
       });
       const createdSkills = await prisma.$transaction(skillOps);
 
-      const { firstName, lastName, school, degree, skills, isOpenToOpportunities } =
-        studentProfileSchema.parse(request.body);
+      const { firstName, lastName, school, degree, skills, isOpenToOpportunities, cvUrl, isCvPublic } = validatedData;
 
       profile = await prisma.studentProfile.upsert({
         where: { userId },
@@ -102,6 +113,8 @@ export const upsertProfile = async (
           school,
           degree,
           isOpenToOpportunities,
+          cvUrl,
+          isCvPublic,
           skills: {
             deleteMany: {},
             create: createdSkills.map(skill => ({
@@ -116,6 +129,8 @@ export const upsertProfile = async (
           school,
           degree,
           isOpenToOpportunities,
+          cvUrl,
+          isCvPublic,
           skills: {
             create: createdSkills.map(skill => ({
               skill: { connect: { id: skill.id } }

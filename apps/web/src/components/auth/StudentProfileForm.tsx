@@ -21,6 +21,8 @@ const skillValidation = z.string().refine(
 const studentProfileFormSchema = studentProfileSchema.extend({
   skills: skillValidation,
   isOpenToOpportunities: z.boolean().optional(),
+  cvUrl: z.string().url({ message: "Please enter a valid URL for your CV." }).optional().or(z.literal('')),
+  isCvPublic: z.boolean().optional(),
 });
 
 // Type for the form data
@@ -149,6 +151,39 @@ const StudentProfileForm = () => {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
           />
           {errors.skills && <p className="mt-2 text-sm text-red-600">{errors.skills?.message}</p>}
+        </div>
+
+        <div className="sm:col-span-6">
+          <label htmlFor="cvUrl" className="block text-sm font-medium text-gray-700">
+            CV URL (e.g., Google Drive, LinkedIn)
+          </label>
+          <input
+            type="text"
+            id="cvUrl"
+            {...register('cvUrl')}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            placeholder="https://..."
+          />
+          {errors.cvUrl && <p className="mt-2 text-sm text-red-600">{errors.cvUrl?.message}</p>}
+        </div>
+      </div>
+
+      <div className="relative flex items-start mt-6">
+        <div className="flex h-5 items-center">
+          <input
+            id="isCvPublic"
+            {...register('isCvPublic')}
+            type="checkbox"
+            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          />
+        </div>
+        <div className="ml-3 text-sm">
+          <label htmlFor="isCvPublic" className="font-medium text-gray-700">
+            Make CV visible to companies
+          </label>
+          <p className="text-gray-500">
+            If checked, companies will be able to see a link to your CV.
+          </p>
         </div>
       </div>
 

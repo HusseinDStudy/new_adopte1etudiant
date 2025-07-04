@@ -79,6 +79,7 @@ model StudentProfile {
   cvUrl     String?
   skills    StudentSkill[]
   isOpenToOpportunities Boolean @default(false)
+  isCvPublic Boolean @default(false)
 }
 
 model CompanyProfile {

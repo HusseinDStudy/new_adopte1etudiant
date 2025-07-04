@@ -77,6 +77,8 @@ export const listAvailableStudents = async (
       school: profile.school,
       degree: profile.degree,
       skills: profile.skills.map((s) => s.skill),
+      cvUrl: profile.cvUrl,
+      isCvPublic: profile.isCvPublic,
     }));
 
     return reply.send(safeStudentData);
