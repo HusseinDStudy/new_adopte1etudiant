@@ -49,11 +49,11 @@ export const createAdoptionRequest = async (
       });
 
       const adoptionRequest = await tx.adoptionRequest.create({
-        data: {
-          companyId: companyProfile.id,
-          studentId,
+      data: {
+        companyId: companyProfile.id,
+        studentId,
           conversationId: conversation.id,
-        },
+      },
       });
 
       return adoptionRequest;
@@ -170,7 +170,7 @@ export const updateAdoptionRequestStatus = async (
             where: { id: requestId },
             data: { status: status as any }
         });
-        
+
         return reply.send(updatedRequest);
     } catch (error) {
         console.error('Failed to update adoption request status:', error);

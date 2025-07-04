@@ -187,8 +187,8 @@ const StudentDirectoryPage: React.FC = () => {
                       >
                         Cancel
                       </button>
-                      <button
-                        onClick={() => handleRequestAdoption(student.id)}
+                <button
+                  onClick={() => handleRequestAdoption(student.id)}
                         className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
                       >
                         Send Request
@@ -201,11 +201,11 @@ const StudentDirectoryPage: React.FC = () => {
                       setRequestingStudentId(student.id);
                       setAdoptionMessage('');
                     }}
-                    disabled={requestedStudentIds.has(student.id)}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:bg-gray-400"
-                  >
-                    {requestedStudentIds.has(student.id) ? 'Request Sent' : 'Request Adoption'}
-                  </button>
+                  disabled={requestedStudentIds.has(student.id)}
+                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:bg-gray-400"
+                >
+                  {requestedStudentIds.has(student.id) ? 'Request Sent' : 'Request Adoption'}
+                </button>
                 )}
               </div>
             </div>
