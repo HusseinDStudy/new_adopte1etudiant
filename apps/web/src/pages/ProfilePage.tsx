@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import StudentProfileForm from '../components/auth/StudentProfileForm';
 import CompanyProfileForm from '../components/auth/CompanyProfileForm';
 import { getMe, deleteAccountWithPassword, disablePassword } from '../services/authService';
+import TwoFactorAuthSetup from '../components/auth/TwoFactorAuthSetup';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
@@ -126,6 +127,8 @@ const ProfilePage = () => {
                         )}
                     </ul>
                   </div>
+
+                  <TwoFactorAuthSetup />
               </div>
           )}
       </div>

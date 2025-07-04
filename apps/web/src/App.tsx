@@ -18,6 +18,7 @@ import MyAdoptionRequestsPage from './pages/MyAdoptionRequestsPage';
 import SentAdoptionRequestsPage from './pages/company/SentAdoptionRequestsPage';
 import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
 import LinkAccountPage from './pages/LinkAccountPage';
+import Verify2faPage from './pages/Verify2faPage';
 
 // A simple layout for auth pages to share navigation
 const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?: boolean }) => (
@@ -97,6 +98,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
           <Route path="/link-account" element={<LinkAccountPage />} />
+          <Route path="/verify-2fa" element={<Verify2faPage />} />
           
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />} />

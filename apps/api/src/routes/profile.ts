@@ -5,13 +5,18 @@ import { studentProfileSchema, companyProfileSchema } from 'shared-types';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 async function profileRoutes(server: FastifyInstance) {
-  server.addHook('onRequest', authMiddleware);
-
-  server.get('/', getProfile);
+  server.get(
+    '/',
+    {
+      preHandler: [authMiddleware],
+    },
+    getProfile
+  );
 
   server.post(
     '/',
     {
+      preHandler: [authMiddleware],
       schema: {
         // This is tricky because the schema depends on the user's role.
         // For now, we'll skip strict validation on the POST body,

@@ -9,6 +9,7 @@ import {
   deleteAccount,
   deleteUserAndData,
   disablePasswordLogin,
+  verifyTwoFactorLogin,
 } from '../controllers/authController';
 import {
   extendedRegisterSchema,
@@ -110,10 +111,28 @@ async function authRoutes(server: FastifyInstance) {
       return reply.redirect('http://localhost:5173/profile?message=Account+linked+successfully');
     }
 
-    // Check if user exists
-    let user = await prisma.user.findUnique({ where: { email: googleUser.email } });
+    // Check if user exists with this email
+    const user = await prisma.user.findUnique({ where: { email: googleUser.email } });
 
     if (user) {
+        // --- 2FA Check for existing OAuth user ---
+        if (user.isTwoFactorEnabled) {
+            const tempPayload = { id: user.id, email: user.email, '2fa_in_progress': true };
+            const tempToken = jwt.sign(tempPayload, process.env.JWT_SECRET!, { expiresIn: '5m' });
+
+            reply.setCookie('2fa_token', tempToken, {
+                path: '/',
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 5 * 60, // 5 minutes
+            });
+
+            // Redirect to a dedicated 2FA verification page
+            return reply.redirect('http://localhost:5173/verify-2fa');
+        }
+        // --- End 2FA Check ---
+
         // User exists, link account and log them in
         await prisma.account.upsert({
             where: { provider_providerAccountId: { provider: 'google', providerAccountId: googleUser.id } },
@@ -349,6 +368,16 @@ async function authRoutes(server: FastifyInstance) {
       },
     },
     loginUser
+  );
+
+  server.post(
+    '/login/verify-2fa',
+    {
+      schema: {
+        body: zodToJsonSchema(z.object({ token: z.string() })),
+      },
+    },
+    verifyTwoFactorLogin
   );
 
   server.post('/logout', logoutUser);

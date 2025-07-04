@@ -4,6 +4,7 @@ import { RegisterInput, LoginInput } from 'shared-types';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Account, Prisma, PrismaClient } from '.prisma/client';
+import speakeasy from 'speakeasy';
 
 export const registerUser = async (
   request: FastifyRequest<{ Body: RegisterInput }>,
@@ -84,6 +85,29 @@ export const loginUser = async (
       return reply.code(401).send({ message: 'Invalid credentials' });
     }
 
+    // --- 2FA Check ---
+    if (user.isTwoFactorEnabled) {
+      // Don't issue the final token yet.
+      // Issue a temporary token that says this user is in the middle of a 2FA login.
+      const tempPayload = {
+        id: user.id,
+        email: user.email,
+        '2fa_in_progress': true,
+      };
+      const tempToken = jwt.sign(tempPayload, process.env.JWT_SECRET!, { expiresIn: '5m' });
+
+      reply.setCookie('2fa_token', tempToken, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 5 * 60, // 5 minutes
+      });
+
+      return reply.code(200).send({ twoFactorRequired: true });
+    }
+    // --- End 2FA Check ---
+
     const payload = {
       id: user.id,
       email: user.email,
@@ -109,6 +133,98 @@ export const loginUser = async (
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 };
+
+export const verifyTwoFactorLogin = async (
+  request: FastifyRequest<{ Body: { token: string } }>,
+  reply: FastifyReply
+) => {
+  const { token: twoFactorToken } = request.body;
+  const tempAuthToken = request.cookies['2fa_token'];
+
+  if (!tempAuthToken) {
+    return reply.code(401).send({ message: 'No 2FA session found. Please login again.' });
+  }
+
+  try {
+    const tempPayload = jwt.verify(tempAuthToken, process.env.JWT_SECRET!) as { id: string; '2fa_in_progress': boolean };
+    
+    if (!tempPayload['2fa_in_progress']) {
+      return reply.code(400).send({ message: 'Invalid 2FA session token.' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: tempPayload.id } });
+
+    if (!user || !user.isTwoFactorEnabled || !user.twoFactorSecret) {
+      return reply.code(400).send({ message: '2FA is not enabled for this user.' });
+    }
+
+    let isVerified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: 'base32',
+      token: twoFactorToken,
+      window: 1,
+    });
+
+    // If TOTP fails, check recovery codes
+    if (!isVerified) {
+      let usedCodeHash: string | null = null;
+      for (const hashedCode of user.twoFactorRecoveryCodes) {
+        const match = await bcrypt.compare(twoFactorToken, hashedCode);
+        if (match) {
+          isVerified = true;
+          usedCodeHash = hashedCode;
+          break;
+        }
+      }
+
+      if (isVerified && usedCodeHash) {
+        // Invalidate the used recovery code
+        const updatedRecoveryCodes = user.twoFactorRecoveryCodes.filter(c => c !== usedCodeHash);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { twoFactorRecoveryCodes: updatedRecoveryCodes },
+        });
+      }
+    }
+
+    if (!isVerified) {
+      return reply.code(401).send({ message: 'Invalid 2FA token or recovery code.' });
+    }
+    
+    // Clear the temporary 2FA token
+    reply.clearCookie('2fa_token', { path: '/' });
+
+    // --- Issue final JWT ---
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+      expiresIn: '7d',
+    });
+
+    reply
+      .setCookie('token', token, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
+      .code(200)
+      .send({ message: 'Logged in successfully' });
+
+  } catch (error) {
+    reply.clearCookie('2fa_token', { path: '/' });
+    console.error(error);
+    if (error instanceof jwt.JsonWebTokenError) {
+      return reply.code(401).send({ message: '2FA session expired. Please login again.' });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
 
 export const getMe = async (
   request: FastifyRequest,

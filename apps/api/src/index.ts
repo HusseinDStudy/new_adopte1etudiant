@@ -11,6 +11,7 @@ import studentRoutes from './routes/student';
 import adoptionRequestRoutes from './routes/adoptionRequest';
 import skillRoutes from './routes/skill';
 import companyRoutes from './routes/company';
+import twoFactorAuthRoutes from './routes/twoFactorAuth';
 
 const server = Fastify({
   logger: true,
@@ -28,17 +29,15 @@ server.get('/health', async () => {
 
 // Register API routes
 server.register(authRoutes, { prefix: '/api/auth' });
-server.register(profileRoutes, { prefix: '/api/profiles' });
+server.register(profileRoutes, { prefix: '/api/profile' });
+server.register(skillRoutes, { prefix: '/api/skills' });
+server.register(studentRoutes, { prefix: '/api/students' });
+server.register(companyRoutes, { prefix: '/api/companies' });
 server.register(offerRoutes, { prefix: '/api/offers' });
 server.register(applicationRoutes, { prefix: '/api/applications' });
 server.register(messageRoutes, { prefix: '/api/messages' });
-server.register(studentRoutes, { prefix: '/api/students' });
 server.register(adoptionRequestRoutes, { prefix: '/api/adoption-requests' });
-server.register(skillRoutes, { prefix: '/api/skills' });
-server.register(companyRoutes, { prefix: '/api/companies' });
-// TODO: Register API routes from adapters layer
-// server.register(applicationRoutes, { prefix: '/api/applications' });
-// server.register(messageRoutes, { prefix: '/api/messages' });
+server.register(twoFactorAuthRoutes, { prefix: '/api/2fa' });
 
 const start = async () => {
   try {

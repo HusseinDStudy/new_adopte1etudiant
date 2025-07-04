@@ -14,11 +14,17 @@
     "db:clean": "npm run db:clean --workspace=api"
   },
   "devDependencies": {
-    "turbo": "^1.10.16",
-    "prettier": "^3.1.0"
+    "@types/qrcode": "^1.5.5",
+    "dotenv-cli": "^8.0.0",
+    "prettier": "^3.1.0",
+    "turbo": "^1.10.16"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
-} 
+  ],
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
+  }
+}

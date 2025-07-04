@@ -65,4 +65,24 @@ export const disablePassword = async () => {
 export const getMyProfile = async () => {
   const { data } = await apiClient.get('/auth/me');
   return data;
+}
+
+export const login2fa = async (token: string) => {
+  const { data } = await apiClient.post('/auth/login/verify-2fa', { token });
+  return data;
+}
+
+export const generate2faSecret = async () => {
+  const { data } = await apiClient.post('/2fa/generate');
+  return data;
+}
+
+export const verify2fa = async (token: string) => {
+  const { data } = await apiClient.post('/2fa/verify', { token });
+  return data;
+}
+
+export const disable2fa = async (token: string) => {
+  const { data } = await apiClient.post('/2fa/disable', { token });
+  return data;
 } 
