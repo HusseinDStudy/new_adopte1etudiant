@@ -3,8 +3,8 @@ import {
   generateTwoFactorSecret,
   verifyTwoFactorToken,
   disableTwoFactor,
-} from '../controllers/twoFactorAuthController';
-import { authMiddleware } from '../middleware/authMiddleware';
+} from '../controllers/twoFactorAuthController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 

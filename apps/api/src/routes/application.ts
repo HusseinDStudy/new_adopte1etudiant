@@ -3,9 +3,9 @@ import {
   createApplication,
   getMyApplications,
   updateApplicationStatus,
-} from '../controllers/applicationController';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { roleMiddleware } from '../middleware/roleMiddleware';
+} from '../controllers/applicationController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { Role } from '@prisma/client';
 
 async function applicationRoutes(server: FastifyInstance) {
@@ -30,7 +30,7 @@ async function applicationRoutes(server: FastifyInstance) {
     {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
     },
-    updateApplicationStatus
+    updateApplicationStatus as any
   );
 }
 

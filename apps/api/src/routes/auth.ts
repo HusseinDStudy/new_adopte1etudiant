@@ -10,15 +10,15 @@ import {
   deleteUserAndData,
   disablePasswordLogin,
   verifyTwoFactorLogin,
-} from '../controllers/authController';
+} from '../controllers/authController.js';
 import {
   extendedRegisterSchema,
   loginSchema,
   completeOauthSchema,
 } from 'shared-types';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { optionalAuthMiddleware } from '../middleware/optionalAuthMiddleware';
-import oauthPlugin from 'fastify-oauth2';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { optionalAuthMiddleware } from '../middleware/optionalAuthMiddleware.js';
+import oauthPlugin from '@fastify/oauth2';
 import { prisma } from 'db-postgres';
 import jwt from 'jsonwebtoken';
 

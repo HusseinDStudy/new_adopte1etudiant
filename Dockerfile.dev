@@ -1,0 +1,43 @@
+# Development Dockerfile for local development with hot reloading
+
+FROM node:20-slim as base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+# Install dependencies needed for development
+RUN apt-get update -y && apt-get install -y openssl ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+WORKDIR /app
+
+# --- API Development Stage ---
+FROM base as api-dev
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY turbo.json ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/core/package.json ./packages/core/
+COPY packages/db-postgres/package.json ./packages/db-postgres/
+COPY packages/shared-types/package.json ./packages/shared-types/
+RUN npm install
+COPY . .
+# Generate Prisma client for development
+WORKDIR /app/apps/api
+RUN npx prisma generate
+WORKDIR /app
+EXPOSE 8080
+# Default command (can be overridden in docker-compose)
+CMD ["npm", "run", "dev", "--workspace=apps/api"]
+
+# --- Web Development Stage ---
+FROM base as web-dev
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY turbo.json ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/shared-types/package.json ./packages/shared-types/
+RUN npm install
+COPY . .
+EXPOSE 5173
+# Default command (can be overridden in docker-compose)
+CMD ["npm", "run", "dev", "--workspace=apps/web"] 

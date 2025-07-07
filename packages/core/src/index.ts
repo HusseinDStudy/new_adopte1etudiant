@@ -1,1 +1,1 @@
-export { MatchScoreService } from './services/MatchScoreService'; 
+export { MatchScoreService } from './services/MatchScoreService.js'; 

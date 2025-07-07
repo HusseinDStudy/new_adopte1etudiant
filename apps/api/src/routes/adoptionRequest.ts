@@ -4,9 +4,9 @@ import {
   listMyAdoptionRequests,
   updateAdoptionRequestStatus,
   listSentAdoptionRequests
-} from '../controllers/adoptionRequestController';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { roleMiddleware } from '../middleware/roleMiddleware';
+} from '../controllers/adoptionRequestController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { Role } from '@prisma/client';
 
 async function adoptionRequestRoutes(server: FastifyInstance) {
@@ -17,7 +17,7 @@ async function adoptionRequestRoutes(server: FastifyInstance) {
     {
       preHandler: [roleMiddleware([Role.COMPANY])],
     },
-    createAdoptionRequest
+    createAdoptionRequest as any
   );
 
   server.get(
@@ -41,7 +41,7 @@ async function adoptionRequestRoutes(server: FastifyInstance) {
     {
         preHandler: [roleMiddleware([Role.STUDENT])]
     },
-    updateAdoptionRequestStatus
+    updateAdoptionRequestStatus as any
   )
 }
 

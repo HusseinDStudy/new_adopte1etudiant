@@ -7,9 +7,9 @@ import {
   deleteOffer,
   listMyOffers,
   getOfferApplications,
-} from '../controllers/offerController';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { roleMiddleware } from '../middleware/roleMiddleware';
+} from '../controllers/offerController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { createOfferSchema, updateOfferSchema } from 'shared-types';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { Role } from '@prisma/client';
@@ -33,7 +33,7 @@ async function offerRoutes(server: FastifyInstance) {
     {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
     },
-    getOfferApplications
+    getOfferApplications as any
   );
 
   server.post(
@@ -42,7 +42,7 @@ async function offerRoutes(server: FastifyInstance) {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
       schema: { body: zodToJsonSchema(createOfferSchema) },
     },
-    createOffer
+    createOffer as any
   );
 
   server.put(
@@ -51,7 +51,7 @@ async function offerRoutes(server: FastifyInstance) {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
       schema: { body: zodToJsonSchema(updateOfferSchema) },
     },
-    updateOffer
+    updateOffer as any
   );
 
   server.delete(
@@ -59,7 +59,7 @@ async function offerRoutes(server: FastifyInstance) {
     {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
     },
-    deleteOffer
+    deleteOffer as any
   );
 }
 

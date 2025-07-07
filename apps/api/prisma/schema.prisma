@@ -105,8 +105,8 @@ model Skill {
 model StudentSkill {
   studentProfileId String
   skillId          String
-  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id])
-  skill            Skill          @relation(fields: [skillId], references: [id])
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  skill            Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([studentProfileId, skillId])
 }

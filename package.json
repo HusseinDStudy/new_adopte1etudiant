@@ -11,7 +11,11 @@
     "db:studio": "npm run studio --workspace=apps/api",
     "turbosetup": "cp apps/api/.env.example apps/api/.env",
     "db:seed": "npm run db:seed --workspace=api",
-    "db:clean": "npm run db:clean --workspace=api"
+    "db:clean": "npm run db:clean --workspace=api",
+    "docker:dev": "docker compose up --build",
+    "docker:dev:down": "docker compose down",
+    "docker:dev:clean": "docker compose down -v && docker system prune -f",
+    "setup": "npm install && cp apps/api/.env.example apps/api/.env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: npm run docker:dev'"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.5",

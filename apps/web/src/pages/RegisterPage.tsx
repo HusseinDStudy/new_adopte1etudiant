@@ -95,7 +95,7 @@ const RegisterPage = () => {
                     {...register('firstName')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
-                  {errors.firstName && <p className="mt-1 text-sm text-red-500">{errors.firstName.message}</p>}
+                  {(errors as any).firstName && <p className="mt-1 text-sm text-red-500">{(errors as any).firstName.message}</p>}
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
@@ -105,7 +105,7 @@ const RegisterPage = () => {
                     {...register('lastName')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
-                  {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName.message}</p>}
+                  {(errors as any).lastName && <p className="mt-1 text-sm text-red-500">{(errors as any).lastName.message}</p>}
                 </div>
               </>
             )}
@@ -120,7 +120,7 @@ const RegisterPage = () => {
                     {...register('name')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
-                  {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
+                  {(errors as any).name && <p className="mt-1 text-sm text-red-500">{(errors as any).name.message}</p>}
                 </div>
                 <div>
                   <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">Contact Email</label>
@@ -130,7 +130,7 @@ const RegisterPage = () => {
                     {...register('contactEmail')}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
-                  {errors.contactEmail && <p className="mt-1 text-sm text-red-500">{errors.contactEmail.message}</p>}
+                  {(errors as any).contactEmail && <p className="mt-1 text-sm text-red-500">{(errors as any).contactEmail.message}</p>}
                 </div>
               </>
             )}

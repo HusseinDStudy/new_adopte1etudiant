@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { listAvailableStudents } from '../controllers/studentController';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { roleMiddleware } from '../middleware/roleMiddleware';
+import { listAvailableStudents } from '../controllers/studentController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { Role } from '@prisma/client';
 
 async function studentRoutes(server: FastifyInstance) {
@@ -10,7 +10,7 @@ async function studentRoutes(server: FastifyInstance) {
     {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
     },
-    listAvailableStudents
+    listAvailableStudents as any
   );
 }
 

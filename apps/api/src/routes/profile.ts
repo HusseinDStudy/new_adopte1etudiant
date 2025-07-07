@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { getProfile, upsertProfile } from '../controllers/profileController';
-import { authMiddleware } from '../middleware/authMiddleware';
+import { getProfile, upsertProfile } from '../controllers/profileController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 import { studentProfileSchema, companyProfileSchema } from 'shared-types';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
@@ -24,7 +24,7 @@ async function profileRoutes(server: FastifyInstance) {
         // A more advanced solution might involve a custom validation hook.
       },
     },
-    upsertProfile
+    upsertProfile as any
   );
 }
 

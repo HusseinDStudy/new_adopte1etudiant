@@ -61,7 +61,7 @@ export const verifyTwoFactorToken = async (request: FastifyRequest, reply: Fasti
       return reply.code(400).send({ message: '2FA not requested or secret not found' });
     }
 
-    const isVerified = speakeasy.totp.verify({
+    let isVerified = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: 'base32',
       token: token,

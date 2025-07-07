@@ -30,7 +30,12 @@ export const getMyConversations = async (): Promise<Conversation[]> => {
     return response.data;
 };
 
-export const getMessagesForConversation = async (conversationId: string): Promise<Message[]> => {
+export interface ConversationWithMessages {
+  messages: Message[];
+  adoptionRequestStatus: string | null;
+}
+
+export const getMessagesForConversation = async (conversationId: string): Promise<ConversationWithMessages> => {
   const response = await apiClient.get(`/messages/conversations/${conversationId}/messages`);
   return response.data;
 };

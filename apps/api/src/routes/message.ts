@@ -3,8 +3,8 @@ import {
   getMyConversations,
   getMessagesForConversation,
   createMessageInConversation,
-} from '../controllers/messageController';
-import { authMiddleware } from '../middleware/authMiddleware';
+} from '../controllers/messageController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 async function messageRoutes(server: FastifyInstance) {
   // All message routes require authentication
