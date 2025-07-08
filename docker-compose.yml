@@ -38,8 +38,6 @@ services:
       - NODE_ENV=development
       - GOOGLE_CLIENT_ID=your-google-client-id
       - GOOGLE_CLIENT_SECRET=your-google-client-secret
-      - LINKEDIN_CLIENT_ID=your-linkedin-client-id
-      - LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
     volumes:
       - ./apps/api:/app/apps/api
       - ./packages:/app/packages

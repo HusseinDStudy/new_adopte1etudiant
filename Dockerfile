@@ -31,9 +31,9 @@ COPY packages/db-postgres/package.json ./packages/db-postgres/
 COPY packages/shared-types/package.json ./packages/shared-types/
 RUN npm install --ignore-scripts && npm cache clean --force
 COPY . .
-# DO NOT generate Prisma client here - will be done in Alpine stage
-# ENV OPENSSL_CONF=/etc/ssl/
-# RUN cd apps/api && npx prisma generate
+# Generate prisma client for build stage, specifying the schema path
+RUN npx prisma generate --schema=./apps/api/prisma/schema.prisma
+# Build the application
 RUN npx turbo build --filter=api
 
 # --- Stage 4: Production Web Server ---

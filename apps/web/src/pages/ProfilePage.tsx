@@ -64,11 +64,11 @@ const ProfilePage = () => {
     }
   };
 
-  const linkAccount = (provider: 'google' | 'linkedin') => {
+  const linkAccount = (provider: 'google') => {
     window.location.href = `${API_URL}/auth/${provider}`;
   };
 
-  const deleteOAuthAccount = (provider: 'google' | 'linkedin') => {
+  const deleteOAuthAccount = (provider: 'google') => {
     const confirmed = window.confirm(`Are you sure you want to delete your account? You will be asked to re-authenticate with ${provider}.`);
     if (confirmed) {
         window.location.href = `${API_URL}/auth/${provider}/delete`;
