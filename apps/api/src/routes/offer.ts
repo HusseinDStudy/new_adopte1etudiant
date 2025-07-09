@@ -10,6 +10,7 @@ import {
 } from '../controllers/offerController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
+import { sanitizationMiddleware } from '../middleware/sanitizationMiddleware.js';
 import { createOfferSchema, updateOfferSchema } from 'shared-types';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { Role } from '@prisma/client';
@@ -39,7 +40,7 @@ async function offerRoutes(server: FastifyInstance) {
   server.post(
     '/',
     {
-      preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
+      preHandler: [authMiddleware, roleMiddleware([Role.COMPANY]), sanitizationMiddleware],
       schema: { body: zodToJsonSchema(createOfferSchema) },
     },
     createOffer as any
@@ -48,7 +49,16 @@ async function offerRoutes(server: FastifyInstance) {
   server.put(
     '/:id',
     {
-      preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
+      preHandler: [authMiddleware, roleMiddleware([Role.COMPANY]), sanitizationMiddleware],
+      schema: { body: zodToJsonSchema(updateOfferSchema) },
+    },
+    updateOffer as any
+  );
+
+  server.patch(
+    '/:id',
+    {
+      preHandler: [authMiddleware, roleMiddleware([Role.COMPANY]), sanitizationMiddleware],
       schema: { body: zodToJsonSchema(updateOfferSchema) },
     },
     updateOffer as any

@@ -21,7 +21,7 @@ export const optionalAuthMiddleware = (
   reply: FastifyReply,
   done: (err?: Error) => void
 ) => {
-  const token = request.cookies.token;
+  const token = request.cookies?.token;
 
   if (!token) {
     // If no token, just continue without a user object

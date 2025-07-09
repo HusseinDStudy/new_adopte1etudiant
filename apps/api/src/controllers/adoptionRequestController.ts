@@ -9,6 +9,10 @@ export const createAdoptionRequest = async (
   const { id: companyUserId } = request.user!;
   const { studentId, message } = request.body;
 
+  if (!studentId || typeof studentId !== 'string') {
+    return reply.code(400).send({ message: 'A valid studentId is required.' });
+  }
+
   if (!message || message.trim().length === 0) {
     return reply.code(400).send({ message: 'A message is required to send a request.' });
   }
@@ -90,6 +94,16 @@ export const listSentAdoptionRequests = async (
               select: {
                 firstName: true,
                 lastName: true,
+                school: true,
+                degree: true,
+                isOpenToOpportunities: true,
+                cvUrl: true,
+                isCvPublic: true,
+                skills: {
+                  include: {
+                    skill: true,
+                  },
+                },
               },
             },
           },
@@ -102,7 +116,23 @@ export const listSentAdoptionRequests = async (
       },
       orderBy: { createdAt: 'desc' },
     });
-    return reply.send(requests);
+    
+    // Flatten student profile data for API consistency
+    const formattedRequests = requests.map(req => ({
+      ...req,
+      student: req.student.studentProfile ? {
+        firstName: req.student.studentProfile.firstName,
+        lastName: req.student.studentProfile.lastName,
+        school: req.student.studentProfile.school || null,
+        degree: req.student.studentProfile.degree || null,
+        isOpenToOpportunities: req.student.studentProfile.isOpenToOpportunities,
+        cvUrl: req.student.studentProfile.cvUrl || null,
+        isCvPublic: req.student.studentProfile.isCvPublic,
+        skills: req.student.studentProfile.skills || [],
+      } : null,
+    }));
+    
+    return reply.send(formattedRequests);
   } catch (error) {
     console.error('Failed to list sent adoption requests:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
@@ -122,6 +152,9 @@ export const listMyAdoptionRequests = async (
           select: {
             name: true,
             logoUrl: true,
+            contactEmail: true,
+            sector: true,
+            size: true,
           },
         },
         conversation: {

@@ -5,6 +5,7 @@ import {
   createMessageInConversation,
 } from '../controllers/messageController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { sanitizationMiddleware } from '../middleware/sanitizationMiddleware.js';
 
 async function messageRoutes(server: FastifyInstance) {
   // All message routes require authentication
@@ -19,6 +20,9 @@ async function messageRoutes(server: FastifyInstance) {
 
   server.post(
     '/conversations/:conversationId/messages',
+    {
+      preHandler: [sanitizationMiddleware],
+    },
     createMessageInConversation
   );
 }

@@ -10,6 +10,7 @@ import {
   deleteUserAndData,
   disablePasswordLogin,
   verifyTwoFactorLogin,
+  changePassword,
 } from '../controllers/authController.js';
 import {
   extendedRegisterSchema,
@@ -18,6 +19,7 @@ import {
 } from 'shared-types';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { optionalAuthMiddleware } from '../middleware/optionalAuthMiddleware.js';
+import { authSanitizationMiddleware } from '../middleware/sanitizationMiddleware.js';
 import oauthPlugin from '@fastify/oauth2';
 import { prisma } from 'db-postgres';
 import jwt from 'jsonwebtoken';
@@ -270,6 +272,7 @@ async function authRoutes(server: FastifyInstance) {
   server.post(
     '/complete-oauth-registration',
     {
+      preHandler: [authSanitizationMiddleware],
       schema: {
         body: zodToJsonSchema(completeOauthSchema, 'completeOauthSchema'),
       },
@@ -353,6 +356,7 @@ async function authRoutes(server: FastifyInstance) {
   server.post(
     '/register',
     {
+      preHandler: [authSanitizationMiddleware],
       schema: {
         body: zodToJsonSchema(extendedRegisterSchema, 'registerSchema'),
       },
@@ -404,6 +408,24 @@ async function authRoutes(server: FastifyInstance) {
       onRequest: [authMiddleware],
     },
     disablePasswordLogin
+  );
+
+  server.patch(
+    '/change-password',
+    {
+      onRequest: [authMiddleware],
+      schema: {
+        body: {
+          type: 'object',
+          required: ['currentPassword', 'newPassword'],
+          properties: {
+            currentPassword: { type: 'string' },
+            newPassword: { type: 'string', minLength: 8 }
+          }
+        }
+      }
+    },
+    changePassword
   );
 }
 

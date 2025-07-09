@@ -7,6 +7,7 @@ import {
 } from '../controllers/adoptionRequestController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
+import { sanitizationMiddleware } from '../middleware/sanitizationMiddleware.js';
 import { Role } from '@prisma/client';
 
 async function adoptionRequestRoutes(server: FastifyInstance) {
@@ -15,7 +16,7 @@ async function adoptionRequestRoutes(server: FastifyInstance) {
   server.post(
     '/',
     {
-      preHandler: [roleMiddleware([Role.COMPANY])],
+      preHandler: [roleMiddleware([Role.COMPANY]), sanitizationMiddleware],
     },
     createAdoptionRequest as any
   );

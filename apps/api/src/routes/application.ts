@@ -3,6 +3,7 @@ import {
   createApplication,
   getMyApplications,
   updateApplicationStatus,
+  deleteApplication,
 } from '../controllers/applicationController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
@@ -31,6 +32,14 @@ async function applicationRoutes(server: FastifyInstance) {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
     },
     updateApplicationStatus as any
+  );
+
+  server.delete(
+    '/:id',
+    {
+      preHandler: [authMiddleware, roleMiddleware([Role.STUDENT])],
+    },
+    deleteApplication
   );
 }
 

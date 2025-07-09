@@ -6,6 +6,21 @@ import jwt from 'jsonwebtoken';
 import { Account, Prisma, PrismaClient } from '.prisma/client';
 import speakeasy from 'speakeasy';
 
+// Store invalidated JWT tokens (in production, use Redis or a proper cache)
+const invalidatedTokens = new Set<string>();
+
+export const isTokenInvalidated = (token: string): boolean => {
+  return invalidatedTokens.has(token);
+};
+
+const invalidateToken = (token: string): void => {
+  invalidatedTokens.add(token);
+  // Clean up old tokens after 7 days to prevent memory leaks
+  setTimeout(() => {
+    invalidatedTokens.delete(token);
+  }, 7 * 24 * 60 * 60 * 1000);
+};
+
 export const registerUser = async (
   request: FastifyRequest<{ Body: RegisterInput }>,
   reply: FastifyReply
@@ -348,4 +363,61 @@ export const disablePasswordLogin = async (
       console.error(error);
       return reply.code(500).send({ message: 'Internal Server Error' });
     }
-  }; 
+  };
+
+export const changePassword = async (
+  request: FastifyRequest<{ Body: { currentPassword: string; newPassword: string } }>,
+  reply: FastifyReply
+) => {
+  const userId = request.user!.id;
+  const { currentPassword, newPassword } = request.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return reply.code(404).send({ message: 'User not found' });
+    }
+
+    if (!user.passwordHash) {
+      return reply.code(400).send({ message: 'This account does not have a password set' });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      return reply.code(401).send({ message: 'Current password is incorrect' });
+    }
+
+    // Validate new password
+    if (newPassword.length < 8) {
+      return reply.code(400).send({ message: 'New password must be at least 8 characters long' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+    // Update password in database
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newPasswordHash },
+    });
+
+    // Invalidate current session
+    const token = request.cookies.token;
+    if (token) {
+      invalidateToken(token);
+    }
+
+    // Clear the current token cookie
+    reply.clearCookie('token', { path: '/' });
+
+    return reply.code(200).send({ 
+      message: 'Password changed successfully. Please log in again.' 
+    });
+  } catch (error) {
+    console.error(error);
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}; 

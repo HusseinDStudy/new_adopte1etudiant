@@ -105,6 +105,7 @@ export const listOffers = async (
 
       if (studentProfile) {
         const studentSkills = studentProfile.skills.map((s) => s.skill.name);
+
         const offersWithScores = offers.map((offer) => {
           const offerSkills = offer.skills.map((s) => s.name);
           const score = matchScoreService.calculate(
@@ -114,7 +115,12 @@ export const listOffers = async (
           return { ...offer, matchScore: score };
         });
 
-        offersWithScores.sort((a, b) => b.matchScore - a.matchScore);
+        offersWithScores.sort((a, b) => {
+          if (a.matchScore !== b.matchScore) {
+            return b.matchScore - a.matchScore;
+          }
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
         
         return reply.send(offersWithScores);
       }
@@ -340,7 +346,15 @@ export const getOfferApplications = async (
       include: {
         student: {
           include: {
-            studentProfile: true,
+            studentProfile: {
+              include: {
+                skills: {
+                  include: {
+                    skill: true,
+                  },
+                },
+              },
+            },
           },
         },
         conversation: {
@@ -351,7 +365,23 @@ export const getOfferApplications = async (
       },
     });
 
-    return reply.send(applications);
+    // Flatten student profile data for API consistency
+    const formattedApplications = applications.map(app => ({
+      ...app,
+      student: app.student.studentProfile ? {
+        userId: app.student.id, // Include user ID for adoption requests
+        firstName: app.student.studentProfile.firstName,
+        lastName: app.student.studentProfile.lastName,
+        school: app.student.studentProfile.school || null,
+        degree: app.student.studentProfile.degree || null,
+        skills: app.student.studentProfile.skills,
+        cvUrl: app.student.studentProfile.cvUrl || null,
+        isCvPublic: app.student.studentProfile.isCvPublic,
+        isOpenToOpportunities: app.student.studentProfile.isOpenToOpportunities,
+      } : null,
+    }));
+
+    return reply.send(formattedApplications);
   } catch (error) {
     console.error(error);
     return reply.code(500).send({ message: 'Internal Server Error' });

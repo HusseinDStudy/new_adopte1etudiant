@@ -20,6 +20,11 @@ export const createApplication = async (
   const { offerId } = parseResult.data;
 
   try {
+    const offer = await prisma.offer.findUnique({ where: { id: offerId }});
+    if (!offer) {
+        return reply.code(404).send({ message: 'Offer not found.' });
+    }
+
     const studentProfile = await prisma.studentProfile.findUnique({
       where: { userId: studentId },
     });
@@ -150,3 +155,32 @@ export const updateApplicationStatus = async (
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 };
+
+export const deleteApplication = async (
+    request: FastifyRequest<{ Params: { id: string } }>,
+    reply: FastifyReply
+) => {
+    const { id: applicationId } = request.params;
+    const { id: studentId } = request.user!;
+
+    try {
+        const application = await prisma.application.findUnique({
+            where: { id: applicationId },
+        });
+
+        if (!application) {
+            return reply.code(404).send({ message: 'Application not found.' });
+        }
+
+        if (application.studentId !== studentId) {
+            return reply.code(403).send({ message: 'You do not have permission to delete this application.' });
+        }
+
+        await prisma.application.delete({ where: { id: applicationId } });
+
+        return reply.code(204).send();
+    } catch (error) {
+        console.error('Failed to delete application:', error);
+        return reply.code(500).send({ message: 'Internal Server Error' });
+    }
+}

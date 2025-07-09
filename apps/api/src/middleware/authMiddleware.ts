@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
+import { isTokenInvalidated } from '../controllers/authController.js';
 
 interface UserPayload {
   id: string;
@@ -23,6 +24,11 @@ export const authMiddleware = (
 
   if (!token) {
     return reply.code(401).send({ message: 'Authentication required' });
+  }
+
+  // Check if token has been invalidated
+  if (isTokenInvalidated(token)) {
+    return reply.code(401).send({ message: 'Session has been invalidated. Please log in again.' });
   }
 
   try {
