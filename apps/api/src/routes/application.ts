@@ -39,7 +39,7 @@ async function applicationRoutes(server: FastifyInstance) {
     {
       preHandler: [authMiddleware, roleMiddleware([Role.STUDENT])],
     },
-    deleteApplication
+    deleteApplication as any
   );
 }
 

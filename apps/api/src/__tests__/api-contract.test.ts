@@ -225,7 +225,10 @@ describe('API Contract Tests', () => {
             expect(response.body).toHaveProperty('message');
             // Cookie clearing may vary by implementation
             if (response.headers['set-cookie']) {
-                expect(response.headers['set-cookie'].join(';')).toContain('token=');
+                const cookies = Array.isArray(response.headers['set-cookie']) 
+                    ? response.headers['set-cookie'] 
+                    : [response.headers['set-cookie']];
+                expect(cookies.join(';')).toContain('token=');
             }
         });
     });
@@ -407,7 +410,7 @@ describe('API Contract Tests', () => {
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body).toHaveLength(2);
             
-            response.body.forEach(offer => validateOffer(offer, false));
+            response.body.forEach((offer: any) => validateOffer(offer, false));
         });
     });
 
@@ -675,7 +678,7 @@ describe('API Contract Tests', () => {
             
             // Skills endpoint may return empty array if no offers exist
             if (response.body.length > 0) {
-                response.body.forEach(skill => {
+                response.body.forEach((skill: any) => {
                     expect(skill).toHaveProperty('id');
                     expect(skill).toHaveProperty('name');
                     expect(skill).toHaveProperty('_count');
@@ -696,7 +699,7 @@ describe('API Contract Tests', () => {
             
             // Companies endpoint may return empty if no offers exist
             if (response.body.length > 0) {
-                response.body.forEach(company => {
+                response.body.forEach((company: any) => {
                     expect(company).toHaveProperty('id');
                     expect(company).toHaveProperty('name');
                     expect(company).toHaveProperty('_count');
@@ -718,7 +721,7 @@ describe('API Contract Tests', () => {
             expect(Array.isArray(response.body)).toBe(true);
             
             if (response.body.length > 0) {
-                response.body.forEach(student => {
+                response.body.forEach((student: any) => {
                     validateStudentProfile(student);
                     expect(student).toHaveProperty('user');
                     expect(student.user).toHaveProperty('email');

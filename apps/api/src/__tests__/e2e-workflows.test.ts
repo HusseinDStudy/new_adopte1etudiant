@@ -436,8 +436,8 @@ describe('End-to-End User Workflows', () => {
             expect(studentsResponse.body.length).toBeGreaterThanOrEqual(1);
 
             // Step 9: Company sends adoption request to best candidate
-            const bestCandidate = applicantsResponse.body.find(app => 
-                app.student.skills.some(s => s.skill.name === 'React')
+            const bestCandidate = applicantsResponse.body.find((app: any) => 
+                app.student.skills.some((s: any) => s.skill.name === 'React')
             );
 
             const adoptionResponse = await supertest(app.server)

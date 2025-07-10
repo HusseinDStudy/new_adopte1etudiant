@@ -282,7 +282,7 @@ describe('Auth Routes', () => {
       const user = await prisma.user.create({
         data: {
           email: userData.email,
-          role: userData.role,
+          role: userData.role as 'STUDENT' | 'COMPANY',
           passwordHash: await bcrypt.hash(userData.password, 10),
           isTwoFactorEnabled: true,
           twoFactorSecret: secret,

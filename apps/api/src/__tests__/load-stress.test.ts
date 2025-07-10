@@ -295,7 +295,7 @@ describe('Load and Stress Testing', () => {
                         break;
                     }
                 } catch (error) {
-                    console.warn('Conversation retrieval failed, retrying...', error.message);
+                    console.warn('Conversation retrieval failed, retrying...', (error as Error).message);
                 }
                 retries--;
                 await new Promise(resolve => setTimeout(resolve, 500));
@@ -669,13 +669,13 @@ describe('Load and Stress Testing', () => {
             const duration = Date.now() - startTime;
 
             expect(response).toBeTruthy();
-            expect(response.status).toBe(200);
-            expect(response.body.length).toBe(successfulOffers);
+            expect(response?.status).toBe(200);
+            expect(response?.body.length).toBe(successfulOffers);
             expect(duration).toBeLessThan(8000); // Should handle payload within 8 seconds
 
             // Verify response structure is correct
-            if (response.body.length > 0) {
-                response.body.forEach(offer => {
+            if (response?.body && response.body.length > 0) {
+                response.body.forEach((offer: any) => {
                     expect(offer).toHaveProperty('title');
                     expect(offer).toHaveProperty('description');
                     expect(offer.description.length).toBeGreaterThan(500);

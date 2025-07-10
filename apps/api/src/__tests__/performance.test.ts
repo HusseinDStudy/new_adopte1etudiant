@@ -112,7 +112,7 @@ describe('API Performance Tests', () => {
                     }
                 } catch (error) {
                     // Continue with remaining requests if one fails
-                    console.warn(`Concurrent request ${i} failed:`, error.message);
+                    console.warn(`Concurrent request ${i} failed:`, (error as Error).message);
                 }
                 
                 // Small delay between requests

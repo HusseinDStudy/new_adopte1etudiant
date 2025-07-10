@@ -15,7 +15,7 @@ async function messageRoutes(server: FastifyInstance) {
 
   server.get(
     '/conversations/:conversationId/messages',
-    getMessagesForConversation
+    getMessagesForConversation as any
   );
 
   server.post(
@@ -23,7 +23,7 @@ async function messageRoutes(server: FastifyInstance) {
     {
       preHandler: [sanitizationMiddleware],
     },
-    createMessageInConversation
+    createMessageInConversation as any
   );
 }
 

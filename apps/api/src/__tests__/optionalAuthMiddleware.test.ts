@@ -30,7 +30,7 @@ describe('OptionalAuthMiddleware', () => {
       return new Promise<void>((resolve) => {
         const mockRequest = {
           cookies: {}
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -54,7 +54,7 @@ describe('OptionalAuthMiddleware', () => {
         
         const mockRequest = {
           cookies: { token }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -75,7 +75,7 @@ describe('OptionalAuthMiddleware', () => {
         
         const mockRequest = {
           cookies: { token: invalidToken }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -110,7 +110,7 @@ describe('OptionalAuthMiddleware', () => {
         
         const mockRequest = {
           cookies: { token: expiredToken }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -145,7 +145,7 @@ describe('OptionalAuthMiddleware', () => {
         
         const mockRequest = {
           cookies: { token: wrongSecretToken }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -231,7 +231,7 @@ describe('OptionalAuthMiddleware', () => {
         
         const mockRequest = {
           cookies: { token: malformedToken }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -256,7 +256,7 @@ describe('OptionalAuthMiddleware', () => {
       return new Promise<void>((resolve) => {
         const mockRequest = {
           cookies: { token: '' }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         
@@ -272,7 +272,7 @@ describe('OptionalAuthMiddleware', () => {
       return new Promise<void>((resolve) => {
         const mockRequest = {
           cookies: { token: null }
-        } as FastifyRequest;
+        } as unknown as FastifyRequest;
         
         const mockReply = {} as FastifyReply;
         

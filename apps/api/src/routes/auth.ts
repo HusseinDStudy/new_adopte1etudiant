@@ -361,7 +361,7 @@ async function authRoutes(server: FastifyInstance) {
         body: zodToJsonSchema(extendedRegisterSchema, 'registerSchema'),
       },
     },
-    registerUser
+    registerUser as any
   );
 
   server.post(
@@ -425,7 +425,7 @@ async function authRoutes(server: FastifyInstance) {
         }
       }
     },
-    changePassword
+    changePassword as any
   );
 }
 
