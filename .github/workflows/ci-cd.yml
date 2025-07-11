@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 env:
-  DATABASE_URL: "postgresql://testuser:testpass@localhost:5432/testdb"
+  # DATABASE_URL: "postgresql://testuser:testpass@localhost:5432/testdb"
   JWT_SECRET: "test-jwt-secret-for-ci"
   GOOGLE_CLIENT_ID: "test-google-client-id"
   GOOGLE_CLIENT_SECRET: "test-google-client-secret"
@@ -26,7 +26,7 @@ jobs:
           POSTGRES_PASSWORD: testpass
           POSTGRES_DB: testdb
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U testuser"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -46,11 +46,28 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Audit and Fix Vulnerabilities
+        run: |
+          npm audit fix || npm audit fix --force
+          npm audit || true
+
+      - name: Security Scan Dependencies
+        run: |
+          # Install Trivy if not available
+          if ! command -v trivy &> /dev/null; then
+            echo "Installing Trivy for security scanning..."
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.0
+          fi
+
+          # Scan for vulnerabilities in dependencies
+          echo "Scanning for security vulnerabilities..."
+          trivy fs --severity HIGH,CRITICAL . || echo "Security scan completed with findings"
+
       - name: Setup Environment Variables
         run: |
           cd apps/api
           cp .env.example .env
-          echo "DATABASE_URL=${{ env.DATABASE_URL }}" > .env
+          echo "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/testdb" > .env
           echo "JWT_SECRET=${{ env.JWT_SECRET }}" >> .env
           echo "GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}" >> .env
           echo "GOOGLE_CLIENT_SECRET=${{ env.GOOGLE_CLIENT_SECRET }}" >> .env
@@ -134,6 +151,31 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
+            # Rollback function
+            rollback() {
+              echo "🔄 Rolling back to previous version..."
+              if [ "$CURRENT_API_TAG" != "none" ] && [ "$CURRENT_WEB_TAG" != "none" ]; then
+                echo "Rolling back API to: $CURRENT_API_TAG"
+                echo "Rolling back Web to: $CURRENT_WEB_TAG"
+                
+                # Update .env with previous tags
+                sed -i "s/API_IMAGE_TAG=.*/API_IMAGE_TAG=$CURRENT_API_TAG/" .env
+                sed -i "s/WEB_IMAGE_TAG=.*/WEB_IMAGE_TAG=$CURRENT_WEB_TAG/" .env
+                
+                # Restart with previous images
+                $DOCKER_COMPOSE -f docker-compose.prod.yml up -d --force-recreate
+                
+                echo "✅ Rollback completed"
+              else
+                echo "❌ Cannot rollback - no previous version available"
+              fi
+              exit 1
+            }
+
+            # Set up error handling
+            set -e
+            trap rollback ERR
+
             echo "🚀 Starting automated deployment..."
 
             # Create project directory if it doesn't exist
@@ -232,10 +274,27 @@ jobs:
             WEB_IMAGE_TAG=${{ github.sha }}
             EOF
 
-            # Stop existing containers gracefully and remove volumes to ensure a clean start
-            echo "🛑 Stopping existing containers and removing volumes..."
-            echo "⚠️ WARNING: This command will delete the existing database volume to prevent state mismatch errors."
-            $DOCKER_COMPOSE -f docker-compose.prod.yml down -v --remove-orphans || true
+            # Create database backup before deployment
+            echo "💾 Creating database backup before deployment..."
+            if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-db.*Up"; then
+              BACKUP_FILE="backup_$(date +%Y%m%d_%H%M%S).sql"
+              $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T postgres pg_dump -U ${{ secrets.PROD_POSTGRES_USER }} ${{ secrets.PROD_POSTGRES_DB }} > ~/adopte1etudiant-mvp/$BACKUP_FILE
+              echo "✅ Database backup created: $BACKUP_FILE"
+            else
+              echo "⚠️ Database container not running, skipping backup"
+            fi
+
+            # Stop existing containers gracefully (preserving volumes to maintain data)
+            echo "🛑 Stopping existing containers..."
+            echo "ℹ️ Preserving database volumes to maintain production data."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml down --remove-orphans || true
+
+            # Store current image tags for potential rollback
+            echo "📋 Storing current image tags for rollback..."
+            CURRENT_API_TAG=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "${{ secrets.DOCKERHUB_USERNAME }}/api" | head -1 | awk '{print $2}' || echo "none")
+            CURRENT_WEB_TAG=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "${{ secrets.DOCKERHUB_USERNAME }}/web" | head -1 | awk '{print $2}' || echo "none")
+            echo "Current API tag: $CURRENT_API_TAG"
+            echo "Current Web tag: $CURRENT_WEB_TAG"
 
             # Log in to Docker Hub
             echo "🔐 Logging into Docker Hub..."
@@ -367,3 +426,8 @@ jobs:
             echo "🎉 Deployment completed successfully!"
             echo "📍 Your app should be available at: ${{ secrets.PROD_WEB_APP_URL }}"
             echo "🔧 API endpoint: http://${{ secrets.PROD_HOST }}:8080"
+
+            # Clean up old backups (keep last 5)
+            echo "🧹 Cleaning up old backups..."
+            ls -t ~/adopte1etudiant-mvp/backup_*.sql 2>/dev/null | tail -n +6 | xargs -r rm
+            echo "✅ Backup cleanup completed"

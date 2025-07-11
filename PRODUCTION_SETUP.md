@@ -9,6 +9,10 @@ This guide will help you set up the Adopte1Etudiant application for production. 
 *   A domain name pointing to your server's IP address (optional but recommended for HTTPS).
 *   A Docker Hub account to store and pull the application images.
 
+## ⚠️ Important Note About Data Persistence
+
+The automated CI/CD pipeline has been updated to preserve database volumes during deployments. However, if you're using an older version of the pipeline, it may delete all production data on each deployment. Always verify that your pipeline preserves data before using it in production.
+
 ---
 
 ## 1. Server Setup
@@ -103,7 +107,18 @@ docker compose -f docker-compose.prod.yml exec -T api npx prisma migrate deploy
 
 ---
 
-## 4. Verifying the Deployment
+## 4. CI/CD Pipeline Features
+
+The automated CI/CD pipeline includes several safety features:
+
+*   **Database Backups**: Automatic backup before each deployment
+*   **Data Preservation**: Database volumes are preserved during deployments
+*   **Rollback Mechanism**: Automatic rollback to previous version if deployment fails
+*   **Security Scanning**: Vulnerability scanning of dependencies
+*   **Health Checks**: Comprehensive health monitoring during deployment
+*   **Backup Cleanup**: Automatic cleanup of old backups (keeps last 5)
+
+## 5. Verifying the Deployment
 
 Check the status of your running containers:
 ```bash
@@ -117,7 +132,7 @@ Your application should now be available at:
 
 ---
 
-## 5. Troubleshooting
+## 6. Troubleshooting
 
 If you encounter issues, here are some commands to help diagnose the problem.
 
@@ -137,6 +152,18 @@ docker compose -f docker-compose.prod.yml logs postgres
 To restart your application:
 ```bash
 docker compose -f docker-compose.prod.yml restart
+```
+
+### Restoring from Backup
+
+If you need to restore the database from a backup:
+
+```bash
+# List available backups
+ls -la ~/adopte1etudiant-mvp/backup_*.sql
+
+# Restore from a specific backup (replace with actual filename)
+docker compose -f docker-compose.prod.yml exec -T postgres psql -U $POSTGRES_USER -d $POSTGRES_DB < ~/adopte1etudiant-mvp/backup_YYYYMMDD_HHMMSS.sql
 ```
 
 ### Updating the Application Manually

@@ -58,7 +58,7 @@ async function authRoutes(server: FastifyInstance) {
 
   server.get('/google/callback', { onRequest: [optionalAuthMiddleware] }, async function (request, reply) {
     // @ts-ignore
-    const token = await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
+    const { token } = await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
     
     // Fetch user profile from Google
     const googleUser = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -183,7 +183,7 @@ async function authRoutes(server: FastifyInstance) {
       return reply.status(401).send({ message: 'You must be logged in to delete your account.' });
     }
     // @ts-ignore
-    const token = await this.googleDelete.getAccessTokenFromAuthorizationCodeFlow(request);
+    const { token } = await this.googleDelete.getAccessTokenFromAuthorizationCodeFlow(request);
     const googleUser = await fetch(
       'https://www.googleapis.com/oauth2/v2/userinfo',
       {

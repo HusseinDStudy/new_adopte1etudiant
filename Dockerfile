@@ -56,6 +56,11 @@ COPY --from=api-builder /app/package.json .
 COPY --from=api-builder /app/apps/api/package.json ./
 COPY --from=api-builder /app/packages ./packages
 
+# Copy package.json files for workspace packages
+COPY --from=api-builder /app/packages/core/package.json ./packages/core/
+COPY --from=api-builder /app/packages/db-postgres/package.json ./packages/db-postgres/
+COPY --from=api-builder /app/packages/shared-types/package.json ./packages/shared-types/
+
 # Install production dependencies in Alpine environment
 RUN npm install --production --ignore-scripts && npm cache clean --force
 
