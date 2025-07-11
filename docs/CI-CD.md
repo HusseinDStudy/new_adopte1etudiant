@@ -1,6 +1,6 @@
 # CI/CD (Continuous Integration & Continuous Deployment)
 
-This document outlines the CI/CD strategy and workflow for the "AdopteUnEtudiant" project, using GitHub Actions as the automation platform.
+This document outlines the CI/CD strategy and workflow for the "AdopteUnEtudiant" project, using GitHub Actions for automation.
 
 ---
 
@@ -19,77 +19,96 @@ Our CI/CD pipeline is designed to automate the process of building, testing, and
 We use **[GitHub Actions](https://github.com/features/actions)** to orchestrate our workflows. The main workflow file is located at:
 `.github/workflows/ci-cd.yml`
 
-This workflow is triggered on every `push` and `pull_request` to the `main` branch.
+This workflow contains three main jobs: `ci`, `build_and_push`, and `deploy`.
 
 ---
 
-## 3. Continuous Integration (CI) Workflow
+## 3. Continuous Integration (CI)
 
-The CI process runs on every pull request and push to `main`. It validates the code without deploying it.
+The CI process runs on every push and pull request to the `main` branch. It validates the code without deploying it.
 
-**Trigger**: `on: [pull_request]`
+**Trigger**: `on: push` (to `main`), `on: pull_request` (to `main`)
+
+**Job**: `ci`
 
 **Key Steps**:
 1.  **Checkout Code**: The workflow checks out the repository's code.
-2.  **Setup Environment**: It sets up the correct Node.js version and installs pnpm.
-3.  **Install Dependencies**: It installs all project dependencies using pnpm, leveraging pnpm's content-addressable store for efficiency. `pnpm install --frozen-lockfile` is used to ensure exact dependency versions are installed.
-4.  **Linting**: It runs the linter across the entire monorepo to check for code style and quality issues.
-    ```yaml
-    - name: Lint
-      run: pnpm lint
-    ```
-5.  **Testing**: It runs all unit and integration tests for all applications and packages.
-    ```yaml
-    - name: Test
-      run: pnpm test
-    ```
-6.  **Build**: It performs a production build of all applications and packages to ensure that the code is syntactically correct and can be compiled. Turborepo caches build outputs to speed up this process.
-    ```yaml
-    - name: Build
-      run: pnpm build
-    ```
-
-If any of these steps fail, the workflow fails, and the pull request is blocked from merging (if branch protection rules are enabled).
+2.  **Setup Node.js**: It sets up Node.js version 20.
+3.  **Setup Database**: A PostgreSQL 15 service is started for the CI job to use for integration testing.
+4.  **Install Dependencies**: It installs all project dependencies using `npm ci` for fast, reliable installs.
+5.  **Setup Environment**: A temporary `.env` file is created for the API using secrets and environment variables available to the runner.
+6.  **Prisma and Migrations**: It generates the Prisma client and runs database migrations (`prisma migrate deploy`) against the test database.
+7.  **Linting**: It runs the linter (`npm run lint`) to check for code style and quality issues.
+8.  **Testing**: It runs the test suite (`npm test`).
+9.  **Build**: It performs a production build (`npm run build`) to ensure the code is valid and compiles correctly.
 
 ---
 
-## 4. Continuous Deployment (CD) Workflow
+## 4. Build and Push Docker Images
 
-The CD process automatically deploys the `api` and `web` applications to their respective hosting environments.
+This job runs after the `ci` job succeeds and only on pushes to the `main` branch. It builds the production Docker images and pushes them to Docker Hub.
 
-**Trigger**: `on: push: branches: [ "main" ]` (This means deployment only happens when code is merged into the `main` branch).
+**Trigger**: `on: push` (to `main`)
 
-**Hosting Platforms**:
-*   **Backend (`api`)**: Deployed to **[Render](https://render.com/)** as a "Web Service".
-*   **Frontend (`web`)**: Deployed to **[Render](https://render.com/)** as a "Static Site".
+**Job**: `build_and_push`
 
-### Deployment Mechanism: Render Deploy Hooks
+**Key Steps**:
+1.  **Checkout Code**: The workflow checks out the repository's code.
+2.  **Setup Docker Buildx**: Sets up Docker Buildx for advanced build capabilities.
+3.  **Login to Docker Hub**: Logs into Docker Hub using secrets.
+4.  **Build and Push API Image**:
+    *   Builds the `api` service using the multi-stage `Dockerfile`.
+    *   Pushes the image to Docker Hub.
+    *   Tags the image with the git commit SHA and `latest`.
+5.  **Build and Push Web Image**:
+    *   Builds the `web` service using the multi-stage `Dockerfile`.
+    *   Pushes the image to Docker Hub.
+    *   Tags the image with the git commit SHA and `latest`.
 
-Render provides a simple yet effective deployment mechanism via **Deploy Hooks**. A Deploy Hook is a unique URL that, when a `POST` request is sent to it, triggers a new deployment on Render.
+---
+
+## 5. Continuous Deployment (CD)
+
+The CD process automatically deploys the `api` and `web` applications to the production server. This job runs after `build_and_push` is successful.
+
+**Trigger**: `on: push` (to `main`)
+
+**Job**: `deploy`
+
+**Deployment Mechanism**:
+The deployment is handled by an SSH script executed on the production server via the `appleboy/ssh-action` action.
 
 **Workflow Steps**:
-1.  **Run CI Steps**: The deployment job depends on the successful completion of all CI steps (lint, test, build).
-2.  **Trigger Backend Deployment**: If the CI steps pass, a `curl` command sends a `POST` request to the Render Deploy Hook for the backend service.
-    ```yaml
-    - name: Deploy API to Render
-      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_API }}
-    ```
-3.  **Trigger Frontend Deployment**: A similar `curl` command triggers the deployment for the frontend static site.
-    ```yaml
-    - name: Deploy Web to Render
-      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
-    ```
-
-### Render Service Configuration
-
-*   **Build Command**: Render is configured to use `pnpm --filter <app-name> build` to build the specific application.
-*   **Start Command** (for API): Render uses `pnpm --filter api start` to run the backend server.
-*   **Environment Variables**: All secrets (like `DATABASE_URL`, `JWT_SECRET`, etc.) are securely stored in Render's environment variable manager, not in the repository. The Deploy Hook URLs are stored as **GitHub Secrets** (`secrets.RENDER_DEPLOY_HOOK_API`).
+1.  **SSH into Server**: The action establishes an SSH connection to the production server.
+2.  **Setup Directory**: It ensures a project directory (`~/adopte1etudiant-mvp`) exists.
+3.  **Create Docker Compose File**: The deployment script writes the contents of the production Docker Compose configuration into `docker-compose.prod.yml` on the server.
+    > **Note**: This file is generated dynamically during deployment. It is important to keep the local `docker-compose.prod.yml` file in sync with the version in the `.github/workflows/ci-cd.yml` file to ensure consistency between local testing and production.
+4.  **Create Environment File**: A `.env` file is created on the server from production secrets stored in GitHub.
+5.  **Deploy Services**:
+    *   It stops any running services using `docker compose down`.
+    *   It logs into Docker Hub to be able to pull private images.
+    *   It pulls the latest Docker images that were just pushed.
+    *   It starts the new containers in detached mode using `docker compose up -d`.
+6.  **Run Database Migrations**: After the services are up, it runs `npx prisma migrate deploy` inside the running `api` container to apply any new database migrations.
+7.  **Health Checks**: The script performs a series of checks to ensure containers are running and the API is responsive.
 
 ---
 
-## 5. Future Improvements
+## 6. Environment and Secrets Management
+
+The CI/CD pipeline relies on **GitHub Secrets** to handle sensitive information. Key secrets include:
+*   `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`: For logging into Docker Hub.
+*   `PROD_HOST`, `PROD_USERNAME`, `PROD_SSH_KEY`: For SSH access to the production server.
+*   `PROD_POSTGRES_USER`, `PROD_POSTGRES_PASSWORD`, `PROD_POSTGRES_DB`: For the production database connection.
+*   `PROD_JWT_SECRET`, `PROD_GOOGLE_CLIENT_ID`, etc.: Application-specific secrets for the production environment.
+
+These are injected into the workflow and used to create the `.env` file on the production server.
+
+---
+
+## 7. Future Improvements
 
 *   **Code Coverage Analysis**: Integrate a tool like **SonarCloud** or **Codecov** to track test coverage over time and enforce coverage minimums.
 *   **E2E Testing**: Add an End-to-End testing step using a framework like Cypress or Playwright to simulate real user flows in a browser.
 *   **Preview Environments**: Configure the pipeline to automatically deploy pull requests to temporary "preview environments" for easier review and testing.
+*   **Simplify Deployment Script**: Refactor the deployment step to check out the repository on the server and use the committed `docker-compose.prod.yml` file, rather than generating it inside the workflow. This would make the pipeline easier to maintain.

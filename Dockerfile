@@ -1,9 +1,7 @@
 # Dockerfile for building both the API and Web applications
 
-# --- Stage 1: Base image with pnpm for dependency installation ---
+# --- Stage 1: Base image for dependency installation ---
 FROM node:20-slim as base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 # Install OpenSSL and other dependencies needed for Prisma
 RUN apt-get update -y && apt-get install -y openssl ca-certificates && \
@@ -58,8 +56,8 @@ COPY --from=api-builder /app/package.json .
 COPY --from=api-builder /app/apps/api/package.json ./
 COPY --from=api-builder /app/packages ./packages
 
-# Install dependencies in Alpine environment (without Prisma client)
-RUN npm install --ignore-scripts && npm cache clean --force
+# Install production dependencies in Alpine environment
+RUN npm install --production --ignore-scripts && npm cache clean --force
 
 # Copy Prisma schema and migrations for runtime
 COPY --from=api-builder /app/apps/api/prisma ./prisma/
@@ -70,6 +68,9 @@ RUN npx prisma generate
 
 # Copy built application files
 COPY --from=api-builder /app/apps/api/dist ./dist
+COPY --from=api-builder /app/packages/core/dist ./packages/core/dist
+COPY --from=api-builder /app/packages/db-postgres/dist ./packages/db-postgres/dist
+COPY --from=api-builder /app/packages/shared-types/dist ./packages/shared-types/dist
 
 # Expose the port the API runs on
 EXPOSE 8080

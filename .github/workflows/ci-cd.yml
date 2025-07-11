@@ -127,17 +127,12 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
-          source: "docker-compose.prod.yml"
-          target: "~/adopte1etudiant-mvp/"
           script: |
             echo "🚀 Starting automated deployment..."
 
@@ -146,21 +141,65 @@ jobs:
             mkdir -p ~/adopte1etudiant-mvp
             cd ~/adopte1etudiant-mvp
 
-            # Verify docker-compose.prod.yml exists (should be copied by ssh-action)
-            echo "📋 Checking docker-compose.prod.yml is available..."
-            if [ ! -f docker-compose.prod.yml ]; then
-              echo "❌ docker-compose.prod.yml not found in deployment directory"
-              exit 1
-            fi
+                        # Create docker-compose.prod.yml directly
+            echo "📋 Creating docker-compose.prod.yml..."
+            cat > docker-compose.prod.yml << 'EOF'
+            version: "3.8"
 
-            # Verify the file is valid YAML
-            echo "Validating docker-compose.prod.yml..."
-            if ! grep -q "version:" docker-compose.prod.yml; then
-              echo "❌ docker-compose.prod.yml is not valid"
-              echo "File contents:"
-              cat docker-compose.prod.yml
-              exit 1
-            fi
+            services:
+              api:
+                image: ${DOCKERHUB_USERNAME}/api:${API_IMAGE_TAG:-latest}
+                container_name: adopte1etudiant-api
+                restart: always
+                ports:
+                  - "8080:8080"
+                environment:
+                  - DATABASE_URL=${DATABASE_URL}
+                  - JWT_SECRET=${JWT_SECRET}
+                  - WEB_APP_URL=${WEB_APP_URL}
+                  - PORT=8080
+                  - NODE_ENV=production
+                  - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+                  - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+                depends_on:
+                  - postgres
+                healthcheck:
+                  test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 5
+                  start_period: 60s
+
+              web:
+                image: ${DOCKERHUB_USERNAME}/web:${WEB_IMAGE_TAG:-latest}
+                container_name: adopte1etudiant-web
+                restart: always
+                ports:
+                  - "80:80"
+                depends_on:
+                  - api
+
+              postgres:
+                image: postgres:15-alpine
+                container_name: adopte1etudiant-db
+                restart: always
+                environment:
+                  POSTGRES_USER: ${POSTGRES_USER}
+                  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+                  POSTGRES_DB: ${POSTGRES_DB}
+                volumes:
+                  - postgres_data:/var/lib/postgresql/data
+                healthcheck:
+                  test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+                  interval: 5s
+                  timeout: 5s
+                  retries: 5
+
+            volumes:
+              postgres_data:
+            EOF
+
+            echo "✅ docker-compose.prod.yml created successfully"
 
             # Detect Docker Compose command (compatibility with different versions)
             echo "🐳 Detecting Docker Compose version..."
@@ -193,9 +232,10 @@ jobs:
             WEB_IMAGE_TAG=${{ github.sha }}
             EOF
 
-            # Stop existing containers gracefully
-            echo "🛑 Stopping existing containers..."
-            $DOCKER_COMPOSE -f docker-compose.prod.yml down --remove-orphans || true
+            # Stop existing containers gracefully and remove volumes to ensure a clean start
+            echo "🛑 Stopping existing containers and removing volumes..."
+            echo "⚠️ WARNING: This command will delete the existing database volume to prevent state mismatch errors."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml down -v --remove-orphans || true
 
             # Log in to Docker Hub
             echo "🔐 Logging into Docker Hub..."
@@ -209,16 +249,54 @@ jobs:
             echo "🚀 Starting services..."
             $DOCKER_COMPOSE -f docker-compose.prod.yml up -d --force-recreate
 
+            # Give containers a moment to start
+            sleep 15
+
+            # Check immediate startup status
+            echo "Initial container status after startup:"
+            $DOCKER_COMPOSE -f docker-compose.prod.yml ps
+
+            # Check for any immediate failures
+            echo "Checking for container startup issues..."
+            if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "Restarting\|Exit"; then
+              echo "⚠️ Detected container issues. Showing logs..."
+              echo "=== API Startup Logs ==="
+              $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=30 api
+              echo "=== Database Startup Logs ==="
+              $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20 postgres
+            fi
+
             # Wait for API container to be ready
             echo "⏳ Waiting for API container to be ready..."
-            for i in {1..30}; do
-              if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-api.*running"; then
+            for i in {1..10}; do
+              # Check if container is running (not restarting)
+              if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-api.*Up"; then
                 echo "✅ API container is running"
+                # Wait a bit more for internal startup
+                sleep 10
                 break
               fi
-              echo "Waiting... ($i/30)"
-              sleep 2
+              echo "Waiting for container to start... ($i/60)"
+              if [ $((i % 10)) -eq 0 ]; then
+                echo "Current container status:"
+                $DOCKER_COMPOSE -f docker-compose.prod.yml ps
+                echo "Container logs (last 10 lines):"
+                $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=10 api || echo "Could not get logs"
+              fi
+              sleep 3
             done
+
+            # Check if containers actually started successfully
+            echo "🔍 Final container status check before migrations..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml ps
+
+            # Check if API container is really ready
+            if ! $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-api.*Up"; then
+              echo "❌ API container is not running properly. Cannot proceed with migrations."
+              echo "API container logs:"
+              $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=50 api
+              exit 1
+            fi
 
             # Run database migrations
             echo "🗄️ Running database migrations..."
@@ -236,7 +314,11 @@ jobs:
                 if [ $attempt -eq 5 ]; then
                   echo "❌ All migration attempts failed"
                   echo "Checking API container logs for errors:"
-                  $DOCKER_COMPOSE -f docker-compose.prod.yml logs api --tail=50
+                  $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=50 api
+                  echo "Checking database container logs:"
+                  $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20 postgres
+                  echo "Container status:"
+                  $DOCKER_COMPOSE -f docker-compose.prod.yml ps
                   exit 1
                 fi
                 echo "Waiting 10 seconds before retry..."
@@ -255,11 +337,11 @@ jobs:
             # Show container logs for debugging
             echo "Recent container logs:"
             echo "=== API Logs ==="
-            $DOCKER_COMPOSE -f docker-compose.prod.yml logs api --tail=20
+            $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20 api
             echo "=== Web Logs ==="
-            $DOCKER_COMPOSE -f docker-compose.prod.yml logs web --tail=10
+            $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=10 web
             echo "=== Database Logs ==="
-            $DOCKER_COMPOSE -f docker-compose.prod.yml logs postgres --tail=10
+            $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=10 postgres
 
             # Test API health endpoint with more details
             echo "Testing API health endpoint..."
