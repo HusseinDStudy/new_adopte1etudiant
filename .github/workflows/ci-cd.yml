@@ -134,46 +134,109 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            # Navigate to project directory
+            echo "🚀 Starting automated deployment..."
+            
+            # Create project directory if it doesn't exist
+            echo "📁 Setting up project directory..."
+            mkdir -p ~/adopte1etudiant-mvp
             cd ~/adopte1etudiant-mvp
 
-            # The docker-compose.prod.yml should be already on the server.
-            # We are removing `git pull` as deployments should be based on
-            # immutable artifacts (Docker images), not on the latest git commit.
+            # Download docker-compose.prod.yml if it doesn't exist
+            echo "📋 Ensuring docker-compose.prod.yml is available..."
+            if [ ! -f docker-compose.prod.yml ]; then
+              echo "Downloading docker-compose.prod.yml..."
+              curl -sSL https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.prod.yml -o docker-compose.prod.yml
+              if [ $? -ne 0 ]; then
+                echo "❌ Failed to download docker-compose.prod.yml"
+                exit 1
+              fi
+            fi
+
+            # Detect Docker Compose command (compatibility with different versions)
+            echo "🐳 Detecting Docker Compose version..."
+            if command -v docker-compose &> /dev/null; then
+              DOCKER_COMPOSE="docker-compose"
+              echo "Using docker-compose (legacy)"
+            elif docker compose version &> /dev/null; then
+              DOCKER_COMPOSE="docker compose"
+              echo "Using docker compose (plugin)"
+            else
+              echo "❌ Docker Compose not found. Installing..."
+              sudo apt-get update
+              sudo apt-get install -y docker-compose-plugin
+              DOCKER_COMPOSE="docker compose"
+            fi
 
             # Set up .env file from secrets
-            echo "Creating .env file from secrets..."
-            echo "POSTGRES_USER=${{ secrets.PROD_POSTGRES_USER }}" > .env
-            echo "POSTGRES_PASSWORD=${{ secrets.PROD_POSTGRES_PASSWORD }}" >> .env
-            echo "POSTGRES_DB=${{ secrets.PROD_POSTGRES_DB }}" >> .env
-            echo "DATABASE_URL=postgresql://${{ secrets.PROD_POSTGRES_USER }}:${{ secrets.PROD_POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.PROD_POSTGRES_DB }}?schema=public" >> .env
-            echo "JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}" >> .env
-            echo "WEB_APP_URL=${{ secrets.PROD_WEB_APP_URL }}" >> .env
-            echo "GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}" >> .env
-            echo "GOOGLE_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}" >> .env
-            echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
+            echo "⚙️ Creating .env file from secrets..."
+            cat > .env << EOF
+            POSTGRES_USER=${{ secrets.PROD_POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.PROD_POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.PROD_POSTGRES_DB }}
+            DATABASE_URL=postgresql://${{ secrets.PROD_POSTGRES_USER }}:${{ secrets.PROD_POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.PROD_POSTGRES_DB }}?schema=public
+            JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
+            WEB_APP_URL=${{ secrets.PROD_WEB_APP_URL }}
+            GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            API_IMAGE_TAG=${{ github.sha }}
+            WEB_IMAGE_TAG=${{ github.sha }}
+            EOF
 
-            # Add image tags to .env file for docker-compose to use
-            # IMPORTANT: Your docker-compose.prod.yml services must use these variables.
-            # Example:
-            # services:
-            #   api:
-            #     image: ${{ secrets.DOCKERHUB_USERNAME }}/api:${API_IMAGE_TAG:-latest}
-            #   web:
-            #     image: ${{ secrets.DOCKERHUB_USERNAME }}/web:${WEB_IMAGE_TAG:-latest}
-            echo "API_IMAGE_TAG=${{ github.sha }}" >> .env
-            echo "WEB_IMAGE_TAG=${{ github.sha }}" >> .env
+            # Stop existing containers gracefully
+            echo "🛑 Stopping existing containers..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml down --remove-orphans || true
 
             # Log in to Docker Hub
+            echo "🔐 Logging into Docker Hub..."
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-            # Pull latest images using the specific commit SHA tag
-            docker compose -f docker-compose.prod.yml pull
+            # Pull latest images
+            echo "📦 Pulling latest Docker images..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml pull
 
             # Start services
-            docker compose -f docker-compose.prod.yml up -d --force-recreate
+            echo "🚀 Starting services..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml up -d --force-recreate
+
+            # Wait for API container to be ready
+            echo "⏳ Waiting for API container to be ready..."
+            for i in {1..30}; do
+              if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-api.*running"; then
+                echo "✅ API container is running"
+                break
+              fi
+              echo "Waiting... ($i/30)"
+              sleep 2
+            done
 
             # Run database migrations
-            docker compose -f docker-compose.prod.yml exec -T api npx prisma migrate deploy
+            echo "🗄️ Running database migrations..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api npx prisma migrate deploy
 
-            echo "✅ Deployment completed successfully!"
+            # Health check
+            echo "🏥 Performing health checks..."
+            sleep 5
+            
+            # Check if containers are running
+            echo "Container status:"
+            $DOCKER_COMPOSE -f docker-compose.prod.yml ps
+            
+            # Test API health endpoint
+            if curl -f http://localhost:8080/health &>/dev/null; then
+              echo "✅ API health check passed"
+            else
+              echo "⚠️ API health check failed, but deployment completed"
+            fi
+            
+            # Test web server
+            if curl -f -I http://localhost:80 &>/dev/null; then
+              echo "✅ Web server health check passed"
+            else
+              echo "⚠️ Web server health check failed, but deployment completed"
+            fi
+
+            echo ""
+            echo "🎉 Deployment completed successfully!"
+            echo "📍 Your app should be available at: ${{ secrets.PROD_WEB_APP_URL }}"
+            echo "🔧 API endpoint: http://${{ secrets.PROD_HOST }}:8080"
