@@ -127,29 +127,39 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "~/adopte1etudiant-mvp/"
           script: |
             echo "🚀 Starting automated deployment..."
-            
+
             # Create project directory if it doesn't exist
             echo "📁 Setting up project directory..."
             mkdir -p ~/adopte1etudiant-mvp
             cd ~/adopte1etudiant-mvp
 
-            # Download docker-compose.prod.yml if it doesn't exist
-            echo "📋 Ensuring docker-compose.prod.yml is available..."
+            # Verify docker-compose.prod.yml exists (should be copied by ssh-action)
+            echo "📋 Checking docker-compose.prod.yml is available..."
             if [ ! -f docker-compose.prod.yml ]; then
-              echo "Downloading docker-compose.prod.yml..."
-              curl -sSL https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.prod.yml -o docker-compose.prod.yml
-              if [ $? -ne 0 ]; then
-                echo "❌ Failed to download docker-compose.prod.yml"
-                exit 1
-              fi
+              echo "❌ docker-compose.prod.yml not found in deployment directory"
+              exit 1
+            fi
+
+            # Verify the file is valid YAML
+            echo "Validating docker-compose.prod.yml..."
+            if ! grep -q "version:" docker-compose.prod.yml; then
+              echo "❌ docker-compose.prod.yml is not valid"
+              echo "File contents:"
+              cat docker-compose.prod.yml
+              exit 1
             fi
 
             # Detect Docker Compose command (compatibility with different versions)
@@ -212,28 +222,63 @@ jobs:
 
             # Run database migrations
             echo "🗄️ Running database migrations..."
-            $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api npx prisma migrate deploy
+            # Wait a bit more for the database to be fully ready
+            sleep 10
 
-            # Health check
+            # Run migrations with retry logic
+            for attempt in {1..5}; do
+              echo "Migration attempt $attempt/5..."
+              if $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api npx prisma migrate deploy; then
+                echo "✅ Database migrations completed successfully"
+                break
+              else
+                echo "⚠️ Migration attempt $attempt failed"
+                if [ $attempt -eq 5 ]; then
+                  echo "❌ All migration attempts failed"
+                  echo "Checking API container logs for errors:"
+                  $DOCKER_COMPOSE -f docker-compose.prod.yml logs api --tail=50
+                  exit 1
+                fi
+                echo "Waiting 10 seconds before retry..."
+                sleep 10
+              fi
+            done
+
+                        # Health check
             echo "🏥 Performing health checks..."
             sleep 5
-            
+
             # Check if containers are running
             echo "Container status:"
             $DOCKER_COMPOSE -f docker-compose.prod.yml ps
-            
-            # Test API health endpoint
-            if curl -f http://localhost:8080/health &>/dev/null; then
+
+            # Show container logs for debugging
+            echo "Recent container logs:"
+            echo "=== API Logs ==="
+            $DOCKER_COMPOSE -f docker-compose.prod.yml logs api --tail=20
+            echo "=== Web Logs ==="
+            $DOCKER_COMPOSE -f docker-compose.prod.yml logs web --tail=10
+            echo "=== Database Logs ==="
+            $DOCKER_COMPOSE -f docker-compose.prod.yml logs postgres --tail=10
+
+            # Test API health endpoint with more details
+            echo "Testing API health endpoint..."
+            if curl -f http://localhost:8080/health; then
               echo "✅ API health check passed"
             else
-              echo "⚠️ API health check failed, but deployment completed"
+              echo "⚠️ API health check failed"
+              echo "Trying to get more API information..."
+              curl -v http://localhost:8080/health || echo "Cannot connect to API"
             fi
-            
-            # Test web server
-            if curl -f -I http://localhost:80 &>/dev/null; then
+
+            # Test web server with more details
+            echo "Testing web server..."
+            if curl -f -I http://localhost:80; then
               echo "✅ Web server health check passed"
             else
-              echo "⚠️ Web server health check failed, but deployment completed"
+              echo "⚠️ Web server health check failed"
+              echo "Trying to get more web server information..."
+              curl -v -I http://localhost:80 || echo "Cannot connect to web server"
             fi
 
             echo ""
