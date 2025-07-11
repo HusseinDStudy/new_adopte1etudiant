@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   api:
-    image: ${DOCKERHUB_USERNAME}/api:latest
+    image: ${DOCKERHUB_USERNAME}/api:${API_IMAGE_TAG:-latest}
     container_name: adopte1etudiant-api
     restart: always
     ports:
@@ -18,13 +18,14 @@ services:
     depends_on:
       - postgres
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
 
   web:
-    image: ${DOCKERHUB_USERNAME}/web:latest
+    image: ${DOCKERHUB_USERNAME}/web:${WEB_IMAGE_TAG:-latest}
     container_name: adopte1etudiant-web
     restart: always
     ports:
