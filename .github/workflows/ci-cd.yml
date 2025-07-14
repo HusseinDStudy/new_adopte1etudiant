@@ -7,16 +7,17 @@ on:
     branches: ["main"]
 
 env:
-  # DATABASE_URL: "postgresql://testuser:testpass@localhost:5432/testdb"
   JWT_SECRET: "test-jwt-secret-for-ci"
   GOOGLE_CLIENT_ID: "test-google-client-id"
   GOOGLE_CLIENT_SECRET: "test-google-client-secret"
+  NATIVE_DEPLOY: ${{ secrets.NATIVE_DEPLOY }}
 
 jobs:
   # --- Continuous Integration Job ---
   ci:
     name: Continuous Integration
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -46,7 +47,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Audit and Fix Vulnerabilities
+      - name: Security Audit
         run: |
           npm audit fix || npm audit fix --force
           npm audit || true
@@ -96,6 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 20
 
     steps:
       - name: Checkout Code
@@ -110,6 +112,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Parallel build for better performance
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
@@ -122,6 +125,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
           cache-from: type=gha,scope=api
           cache-to: type=gha,scope=api,mode=max
+          platforms: linux/amd64
 
       - name: Build and push Web image
         uses: docker/build-push-action@v5
@@ -135,6 +139,9 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/web:latest
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
+          build-args: |
+            VITE_API_URL=/api
+          platforms: linux/amd64
 
   # --- Deploy to Production Job ---
   deploy:
@@ -142,8 +149,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 30
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Copy compose files to production server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "docker-compose.prod.yml,docker-compose.db.yml"
+          target: "~/adopte1etudiant-mvp/"
+          strip_components: 0
+
+      - name: Upload source code for native deploy
+        if: env.NATIVE_DEPLOY == 'true'
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "./"
+          target: "~/adopte1etudiant-mvp/source"
+          strip_components: 0
+
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:
@@ -151,23 +183,27 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            # Rollback function
+            # Enhanced rollback function with better error handling
             rollback() {
               echo "🔄 Rolling back to previous version..."
+              # Read current image tags for potential rollback from the .env on the server
+              CURRENT_API_TAG=$(grep "^API_IMAGE_TAG=" .env | cut -d "=" -f2 || echo "none")
+              CURRENT_WEB_TAG=$(grep "^WEB_IMAGE_TAG=" .env | cut -d "=" -f2 || echo "none")
+
               if [ "$CURRENT_API_TAG" != "none" ] && [ "$CURRENT_WEB_TAG" != "none" ]; then
                 echo "Rolling back API to: $CURRENT_API_TAG"
                 echo "Rolling back Web to: $CURRENT_WEB_TAG"
                 
                 # Update .env with previous tags
-                sed -i "s/API_IMAGE_TAG=.*/API_IMAGE_TAG=$CURRENT_API_TAG/" .env
-                sed -i "s/WEB_IMAGE_TAG=.*/WEB_IMAGE_TAG=$CURRENT_WEB_TAG/" .env
+                sed -i "s|API_IMAGE_TAG=.*|API_IMAGE_TAG=$CURRENT_API_TAG|" .env
+                sed -i "s|WEB_IMAGE_TAG=.*|WEB_IMAGE_TAG=$CURRENT_WEB_TAG|" .env
                 
                 # Restart with previous images
                 $DOCKER_COMPOSE -f docker-compose.prod.yml up -d --force-recreate
                 
                 echo "✅ Rollback completed"
               else
-                echo "❌ Cannot rollback - no previous version available"
+                echo "❌ Cannot rollback - no previous version available in .env"
               fi
               exit 1
             }
@@ -176,72 +212,28 @@ jobs:
             set -e
             trap rollback ERR
 
-            echo "🚀 Starting automated deployment..."
+            echo "🚀 Starting optimized deployment..."
 
             # Create project directory if it doesn't exist
             echo "📁 Setting up project directory..."
             mkdir -p ~/adopte1etudiant-mvp
             cd ~/adopte1etudiant-mvp
 
-                        # Create docker-compose.prod.yml directly
-            echo "📋 Creating docker-compose.prod.yml..."
-            cat > docker-compose.prod.yml << 'EOF'
-            version: "3.8"
+            if [ "$NATIVE_DEPLOY" = "true" ]; then
+              echo "🛠️ Running native deployment (no Docker for API and web)..."
+              cd source
+              $DOCKER_COMPOSE -f ../docker-compose.db.yml up -d
+              npm ci
+              npm run build --workspace=apps/api
+              npm run build --workspace=apps/web
+              nohup npm start --workspace=apps/api >/tmp/api.log 2>&1 &
+              nohup npx serve -s apps/web/dist -l 80 >/tmp/web.log 2>&1 &
+              exit 0
+            fi
 
-            services:
-              api:
-                image: ${DOCKERHUB_USERNAME}/api:${API_IMAGE_TAG:-latest}
-                container_name: adopte1etudiant-api
-                restart: always
-                ports:
-                  - "8080:8080"
-                environment:
-                  - DATABASE_URL=${DATABASE_URL}
-                  - JWT_SECRET=${JWT_SECRET}
-                  - WEB_APP_URL=${WEB_APP_URL}
-                  - PORT=8080
-                  - NODE_ENV=production
-                  - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-                  - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-                depends_on:
-                  - postgres
-                healthcheck:
-                  test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
-                  interval: 30s
-                  timeout: 10s
-                  retries: 5
-                  start_period: 60s
-
-              web:
-                image: ${DOCKERHUB_USERNAME}/web:${WEB_IMAGE_TAG:-latest}
-                container_name: adopte1etudiant-web
-                restart: always
-                ports:
-                  - "80:80"
-                depends_on:
-                  - api
-
-              postgres:
-                image: postgres:15-alpine
-                container_name: adopte1etudiant-db
-                restart: always
-                environment:
-                  POSTGRES_USER: ${POSTGRES_USER}
-                  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-                  POSTGRES_DB: ${POSTGRES_DB}
-                volumes:
-                  - postgres_data:/var/lib/postgresql/data
-                healthcheck:
-                  test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-                  interval: 5s
-                  timeout: 5s
-                  retries: 5
-
-            volumes:
-              postgres_data:
-            EOF
-
-            echo "✅ docker-compose.prod.yml created successfully"
+            # Use the committed docker-compose.prod.yml instead of generating it
+            echo "📋 Using committed docker-compose.prod.yml..."
+            # The docker-compose.prod.yml file is now copied by the scp-action.
 
             # Detect Docker Compose command (compatibility with different versions)
             echo "🐳 Detecting Docker Compose version..."
@@ -272,7 +264,18 @@ jobs:
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             API_IMAGE_TAG=${{ github.sha }}
             WEB_IMAGE_TAG=${{ github.sha }}
+            VITE_API_URL=/api
             EOF
+
+            # Debug: Show environment variables (without sensitive data)
+            echo "🔍 Environment variables check (non-sensitive):"
+            echo "POSTGRES_USER: ${{ secrets.PROD_POSTGRES_USER }}"
+            echo "POSTGRES_DB: ${{ secrets.PROD_POSTGRES_DB }}"
+            echo "DATABASE_URL: postgresql://${{ secrets.PROD_POSTGRES_USER }}:***@postgres:5432/${{ secrets.PROD_POSTGRES_DB }}?schema=public"
+            echo "WEB_APP_URL: ${{ secrets.PROD_WEB_APP_URL }}"
+            echo "DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}"
+            echo "API_IMAGE_TAG: ${{ github.sha }}"
+            echo "WEB_IMAGE_TAG: ${{ github.sha }}"
 
             # Create database backup before deployment
             echo "💾 Creating database backup before deployment..."
@@ -289,13 +292,6 @@ jobs:
             echo "ℹ️ Preserving database volumes to maintain production data."
             $DOCKER_COMPOSE -f docker-compose.prod.yml down --remove-orphans || true
 
-            # Store current image tags for potential rollback
-            echo "📋 Storing current image tags for rollback..."
-            CURRENT_API_TAG=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "${{ secrets.DOCKERHUB_USERNAME }}/api" | head -1 | awk '{print $2}' || echo "none")
-            CURRENT_WEB_TAG=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "${{ secrets.DOCKERHUB_USERNAME }}/web" | head -1 | awk '{print $2}' || echo "none")
-            echo "Current API tag: $CURRENT_API_TAG"
-            echo "Current Web tag: $CURRENT_WEB_TAG"
-
             # Log in to Docker Hub
             echo "🔐 Logging into Docker Hub..."
             echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -308,118 +304,103 @@ jobs:
             echo "🚀 Starting services..."
             $DOCKER_COMPOSE -f docker-compose.prod.yml up -d --force-recreate
 
-            # Give containers a moment to start
-            sleep 15
+            # Enhanced health check with better timing
+            echo "⏳ Waiting for services to start..."
+            sleep 20
 
-            # Check immediate startup status
-            echo "Initial container status after startup:"
+            # Check container status
+            echo "🔍 Checking container status..."
             $DOCKER_COMPOSE -f docker-compose.prod.yml ps
 
-            # Check for any immediate failures
-            echo "Checking for container startup issues..."
-            if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "Restarting\|Exit"; then
-              echo "⚠️ Detected container issues. Showing logs..."
-              echo "=== API Startup Logs ==="
-              $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=30 api
-              echo "=== Database Startup Logs ==="
-              $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20 postgres
-            fi
-
-            # Wait for API container to be ready
+            # Wait for API container to be ready with improved logic
             echo "⏳ Waiting for API container to be ready..."
-            for i in {1..10}; do
-              # Check if container is running (not restarting)
+            for i in {1..15}; do
               if $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-api.*Up"; then
                 echo "✅ API container is running"
-                # Wait a bit more for internal startup
                 sleep 10
                 break
               fi
-              echo "Waiting for container to start... ($i/60)"
-              if [ $((i % 10)) -eq 0 ]; then
+              echo "Waiting for container to start... ($i/15)"
+              if [ $((i % 5)) -eq 0 ]; then
                 echo "Current container status:"
                 $DOCKER_COMPOSE -f docker-compose.prod.yml ps
-                echo "Container logs (last 10 lines):"
-                $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=10 api || echo "Could not get logs"
               fi
-              sleep 3
+              sleep 5
             done
 
-            # Check if containers actually started successfully
-            echo "🔍 Final container status check before migrations..."
-            $DOCKER_COMPOSE -f docker-compose.prod.yml ps
-
-            # Check if API container is really ready
+            # Final container status check
             if ! $DOCKER_COMPOSE -f docker-compose.prod.yml ps | grep -q "adopte1etudiant-api.*Up"; then
-              echo "❌ API container is not running properly. Cannot proceed with migrations."
+              echo "❌ API container is not running properly."
               echo "API container logs:"
               $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=50 api
               exit 1
             fi
 
-            # Run database migrations
+            # Debug: Check environment variables in API container
+            echo "🔍 Checking environment variables in API container..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api env | grep -E "(DATABASE_URL|JWT_SECRET|NODE_ENV)" || echo "Could not check environment variables"
+
+            # Run database migrations with improved retry logic
             echo "🗄️ Running database migrations..."
-            # Wait a bit more for the database to be fully ready
             sleep 10
 
-            # Run migrations with retry logic
             for attempt in {1..5}; do
               echo "Migration attempt $attempt/5..."
-              if $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api npx prisma migrate deploy; then
+              if $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api sh -c "cd apps/api && npx prisma migrate deploy"; then
                 echo "✅ Database migrations completed successfully"
                 break
               else
                 echo "⚠️ Migration attempt $attempt failed"
                 if [ $attempt -eq 5 ]; then
                   echo "❌ All migration attempts failed"
-                  echo "Checking API container logs for errors:"
+                  echo "API container logs:"
                   $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=50 api
-                  echo "Checking database container logs:"
+                  echo "Database container logs:"
                   $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20 postgres
-                  echo "Container status:"
-                  $DOCKER_COMPOSE -f docker-compose.prod.yml ps
                   exit 1
                 fi
-                echo "Waiting 10 seconds before retry..."
-                sleep 10
+                echo "Waiting 15 seconds before retry..."
+                sleep 15
               fi
             done
 
-                        # Health check
-            echo "🏥 Performing health checks..."
-            sleep 5
+            # Run database seeding
+            echo "🌱 Running database seeding..."
+            if $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T api sh -c "cd apps/api && npx prisma db seed"; then
+              echo "✅ Database seeding completed successfully"
+            else
+              echo "❌ Database seeding failed"
+              echo "API container logs:"
+              $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=50 api
+              exit 1
+            fi
 
-            # Check if containers are running
+            # Enhanced health checks
+            echo "🏥 Performing comprehensive health checks..."
+            sleep 10
+
+            # Check container status
             echo "Container status:"
             $DOCKER_COMPOSE -f docker-compose.prod.yml ps
 
-            # Show container logs for debugging
-            echo "Recent container logs:"
-            echo "=== API Logs ==="
-            $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=20 api
-            echo "=== Web Logs ==="
-            $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=10 web
-            echo "=== Database Logs ==="
-            $DOCKER_COMPOSE -f docker-compose.prod.yml logs --tail=10 postgres
-
-            # Test API health endpoint with more details
+            # Test API health endpoint
             echo "Testing API health endpoint..."
-            if curl -f http://localhost:8080/health; then
+            if curl -f -m 30 http://localhost:8080/health; then
               echo "✅ API health check passed"
             else
-              echo "⚠️ API health check failed"
-              echo "Trying to get more API information..."
+              echo "❌ API health check failed"
               curl -v http://localhost:8080/health || echo "Cannot connect to API"
+              exit 1
             fi
 
-            # Test web server with more details
+            # Test web server
             echo "Testing web server..."
-            if curl -f -I http://localhost:80; then
+            if curl -f -m 30 -I http://localhost:80; then
               echo "✅ Web server health check passed"
             else
-              echo "⚠️ Web server health check failed"
-              echo "Trying to get more web server information..."
+              echo "❌ Web server health check failed"
               curl -v -I http://localhost:80 || echo "Cannot connect to web server"
+              exit 1
             fi
 
             echo ""
@@ -431,3 +412,8 @@ jobs:
             echo "🧹 Cleaning up old backups..."
             ls -t ~/adopte1etudiant-mvp/backup_*.sql 2>/dev/null | tail -n +6 | xargs -r rm
             echo "✅ Backup cleanup completed"
+
+            # Clean up old Docker images to save disk space
+            echo "🧹 Cleaning up old Docker images..."
+            docker image prune -f
+            echo "✅ Docker cleanup completed"

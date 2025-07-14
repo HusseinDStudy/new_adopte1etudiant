@@ -9,7 +9,7 @@ import * as authService from '../services/authService';
 const CompleteRegistrationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { setCurrentUser } = useAuth();
   
   const token = new URLSearchParams(location.search).get('token');
 
@@ -38,7 +38,7 @@ const CompleteRegistrationPage = () => {
     }
     try {
       const { user } = await authService.completeOauthRegistration(token, data);
-      login(user);
+      setCurrentUser(user);
       navigate('/');
     } catch (err: any) {
       setError('root.serverError', {

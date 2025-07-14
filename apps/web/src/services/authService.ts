@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { LoginInput, RegisterInput, CompleteOauthInput } from 'shared-types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -40,6 +40,7 @@ export const completeOauthRegistration = async (token: string, details: Complete
   );
   return data;
 };
+
 
 export const completeLink = async (token: string, choice: 'google_only' | 'keep_both') => {
   const response = await apiClient.post('/auth/complete-link', { choice }, {

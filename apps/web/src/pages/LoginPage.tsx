@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginInput } from 'shared-types';
 import * as authService from '../services/authService';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 const LoginPage = () => {
-  const { login } = useAuth();
+  const { setCurrentUser } = useAuth();
+  const navigate = useNavigate();
   const [isTwoFactorStep, setIsTwoFactorStep] = useState(false);
   
   // Form for initial email/password login
@@ -39,7 +40,8 @@ const LoginPage = () => {
         setIsTwoFactorStep(true);
       } else {
         const user = await authService.getMe();
-        login(user); 
+        setCurrentUser(user); 
+        navigate('/');
       }
     } catch (error) {
       setLoginError('root', { message: 'Invalid email or password' });
@@ -50,7 +52,8 @@ const LoginPage = () => {
     try {
       await authService.login2fa(data.token);
       const user = await authService.getMe();
-      login(user);
+      setCurrentUser(user);
+      navigate('/');
     } catch (error) {
       set2faError('root', { message: 'Invalid 2FA token' });
     }
@@ -127,7 +130,7 @@ const LoginPage = () => {
               <div className="mt-6 grid grid-cols-1 gap-3">
                 <div>
                   <a
-                    href={`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/google`}
+                    href={`${import.meta.env.VITE_API_URL}/auth/google`}
                     className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
                   >
                     <span className="sr-only">Sign in with Google</span>

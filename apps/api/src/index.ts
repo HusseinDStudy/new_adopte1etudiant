@@ -19,8 +19,8 @@ const server = Fastify({
 });
 
 // Register plugins
-server.register(cors, { origin: process.env.WEB_APP_URL || 'http://localhost:5173', credentials: true });
-server.register(helmet);
+server.register(cors, { origin: process.env.WEB_APP_URL, credentials: true });
+server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
 server.register(cookie);
 
 // Health check route with database connectivity test

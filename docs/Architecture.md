@@ -4,7 +4,7 @@ This document outlines the software architecture of the "AdopteUnEtudiant" appli
 
 ## Overview
 
-The application is built using a **monorepo architecture**, managed with pnpm workspaces and orchestrated by Turborepo. This structure allows for shared code and configurations, improving maintainability and development speed. The project is divided into two main applications (`apps`) and several shared packages (`packages`).
+The application is built using a **monorepo architecture**, managed with **npm workspaces** and orchestrated by Turborepo. This structure allows for shared code and configurations, improving maintainability and development speed. The project is divided into two main applications (`apps`) and several shared packages (`packages`).
 
 The architecture follows a classic **client-server model**:
 

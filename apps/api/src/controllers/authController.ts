@@ -137,7 +137,7 @@ export const loginUser = async (
       .setCookie('token', token, {
         path: '/',
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // WARNING: Temporarily disabled for testing HTTP environments. NOT recommended for production.
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
       })
@@ -224,7 +224,7 @@ export const verifyTwoFactorLogin = async (
       .setCookie('token', token, {
         path: '/',
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // WARNING: Temporarily disabled for testing HTTP environments. NOT recommended for production.
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
       })
