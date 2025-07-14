@@ -192,10 +192,13 @@ jobs:
 
             # Use the committed docker-compose.prod.yml instead of generating it
             echo "📋 Using committed docker-compose.prod.yml..."
-            if [ ! -f "docker-compose.prod.yml" ]; then
-              echo "❌ docker-compose.prod.yml not found. Please commit this file to your repository."
-              exit 1
-            fi
+            # Ensure the committed docker-compose.prod.yml is in the deployment directory
+            cp ${{ github.workspace }}/docker-compose.prod.yml ./
+
+            # if [ ! -f "docker-compose.prod.yml" ]; then
+            #   echo "❌ docker-compose.prod.yml not found. Please commit this file to your repository."
+            #   exit 1
+            # fi
 
             # Detect Docker Compose command (compatibility with different versions)
             echo "🐳 Detecting Docker Compose version..."
