@@ -63,7 +63,7 @@ npm test
 
 ### Specific Test File
 ```bash
-npm test -- src/__tests__/auth.test.ts
+npm test --workspace=apps/api -- src/__tests__/auth.test.ts
 ```
 
 ### With Coverage Report
@@ -345,13 +345,13 @@ const skills = await createTestSkills(['React', 'Node.js', 'Python']);
 
 ```bash
 # Run specific test with verbose output
-npm test -- src/__tests__/auth.test.ts --reporter=verbose
+npm test --workspace=apps/api -- src/__tests__/auth.test.ts --reporter=verbose
 
 # Run single test case
-npm test -- src/__tests__/auth.test.ts -t "should register a new user"
+npm test --workspace=apps/api -- src/__tests__/auth.test.ts -t "should register a new user"
 
 # Debug with console output
-npm test -- --reporter=verbose --silent=false
+npm test --workspace=apps/api -- --reporter=verbose --silent=false
 ```
 
 ## Test Coverage Analysis

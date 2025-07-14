@@ -89,7 +89,6 @@ describe('End-to-End User Workflows', () => {
                 password: faker.internet.password(),
                 role: 'COMPANY',
                 name: faker.company.name(),
-                firstName: faker.person.firstName(),
                 contactEmail: faker.internet.email(),
             };
 
@@ -308,7 +307,6 @@ describe('End-to-End User Workflows', () => {
                 password: faker.internet.password(),
                 role: 'COMPANY',
                 name: faker.company.name(),
-                firstName: faker.person.firstName(),
                 contactEmail: faker.internet.email(),
             };
 
@@ -478,16 +476,20 @@ describe('End-to-End User Workflows', () => {
 
             // Final verification
             const finalOffers = await prisma.offer.findMany({
-                where: { 
-                    company: { 
-                        user: { email: companyData.email } 
-                    } 
+                where: {
+                    company: {
+                        user: { email: companyData.email }
+                    }
                 },
                 include: {
                     applications: true,
                     _count: { select: { applications: true } }
                 }
             });
+
+            console.log('Final offers:', finalOffers.length);
+            console.log('Applications on first offer:', finalOffers[0]?.applications?.length || 'No first offer');
+            console.log('All offers:', finalOffers.map(o => ({ id: o.id, applicationsCount: o.applications.length })));
 
             expect(finalOffers).toHaveLength(2);
             expect(finalOffers[0].applications).toHaveLength(3);
@@ -539,7 +541,6 @@ describe('End-to-End User Workflows', () => {
                     password: faker.internet.password(),
                     role: 'COMPANY',
                     name: `Company ${i + 1}`,
-                    firstName: faker.person.firstName(),
                     contactEmail: faker.internet.email(),
                 };
 
@@ -634,7 +635,6 @@ describe('End-to-End User Workflows', () => {
             password: faker.internet.password(),
             role: 'COMPANY',
             name: faker.company.name(),
-            firstName: faker.person.firstName(),
             contactEmail: faker.internet.email(),
         };
 

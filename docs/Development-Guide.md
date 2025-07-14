@@ -15,8 +15,8 @@ This guide provides all the necessary information for setting up the project loc
 Clone the repository and install dependencies using npm workspaces:
 
 ```bash
-git clone https://github.com/your-username/adopte-un-etudiant.git
-cd adopte-un-etudiant
+git clone https://github.com/HusseinDStudy/new_adopte1etudiant.git
+cd new_adopte1etudiant
 npm install
 ```
 
@@ -47,14 +47,14 @@ GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET"
 Start the PostgreSQL database service using Docker Compose:
 
 ```bash
-docker compose up -d
+docker compose -f docker-compose.db.yml up -d
 ```
 
 Once the container is running, apply the Prisma schema to create the necessary tables and run the seed script:
 
 ```bash
-npm run db:migrate:dev --workspace=apps/api
-npm run db:seed --workspace=apps/api
+npm run db:migrate:dev
+npm run db:seed
 ```
 
 ## 3. Running the Application
@@ -75,13 +75,14 @@ This project uses a **Turborepo** monorepo structure to manage the backend, fron
 
 ```
 ├── apps/
-│   ├── api/                 # Fastify backend server (See Backend Guide)
-│   └── web/                 # React frontend application (See Frontend Guide)
+│   ├── api/                 # Backend (Fastify)
+│   └── web/                 # Frontend (React)
 ├── packages/
-│   ├── core/                # Shared business logic (e.g., services)
-│   ├── db-postgres/         # Prisma client and schema
-│   ├── shared-types/        # Shared Zod schemas and TypeScript types
-│   └── tsconfig/            # Shared TypeScript configurations
+│   ├── core/                # Shared business logic
+│   ├── db-postgres/         # Database layer (Prisma)
+│   ├── shared-types/        # Shared types (Zod schemas)
+│   └── tsconfig/            # Shared tsconfig
+└── Dockerfile
 ```
 
 ## 5. Backend Development (API)
@@ -132,15 +133,16 @@ Database interactions are handled by **Prisma ORM**.
 - **Schema**: The source of truth for your database structure is `apps/api/prisma/schema.prisma`.
 - **Migrations**: To apply schema changes, run a migration:
   ```bash
-  npm run db:migrate:dev --workspace=apps/api --name <migration-name>
+  cd apps/api
+  npx prisma migrate dev --name <migration-name>
   ```
 - **Seeding**: To populate the database with test data, use the seed script:
   ```bash
-  npm run db:seed --workspace=apps/api
+  npm run db:seed
   ```
 - **Prisma Studio**: To view and edit data in your database, use Prisma Studio:
   ```bash
-  npm run db:studio --workspace=apps/api
+  npm run db:studio
   ```
 
 ## 8. Available Scripts
@@ -148,7 +150,7 @@ Database interactions are handled by **Prisma ORM**.
 - `npm run dev`: Start all apps in development mode.
 - `npm run build`: Build all apps and packages for production.
 - `npm run lint`: Lint all packages.
- - `npm run db:migrate:dev --workspace=apps/api`: Create and apply a new database migration.
- - `npm run db:push --workspace=apps/api`: (For development) Push schema changes directly to the DB without a migration file.
- - `npm run db:seed --workspace=apps/api`: Run the database seed script.
- - `npm run db:studio --workspace=apps/api`: Open Prisma Studio.
+ - `npm run db:migrate:dev`: Create and apply a new database migration.
+ - `cd apps/api && npx prisma db push`: (For development) Push schema changes directly to the DB without a migration file.
+ - `npm run db:seed`: Run the database seed script.
+ - `npm run db:studio`: Open Prisma Studio.

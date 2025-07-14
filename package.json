@@ -1,12 +1,14 @@
 {
   "name": "adopte1etudiant-mvp",
   "private": true,
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "turbo test",
+    "clean": "find . \\( -name 'node_modules' -o -name 'dist' -o -name '.turbo' -o -name 'coverage' -o -name '.next' -o -name '.cache' -o -name '.nyc_output' -o -name 'out' -o -name '.prisma' \\) -type d -prune -exec rm -rf '{}' + && find . \\( -name '*.log' -o -name '*.lcov' \\) -type f -delete",
     "db:migrate:dev": "npm run migrate:dev --workspace=apps/api",
     "db:studio": "npm run studio --workspace=apps/api",
     "turbosetup": "cp apps/api/.env.example apps/api/.env",
@@ -15,19 +17,21 @@
     "docker:dev": "docker compose up --build",
     "docker:dev:down": "docker compose down",
     "docker:dev:clean": "docker compose down -v && docker system prune -f",
-    "setup": "npm install && cp apps/api/.env.example apps/api/.env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: npm run docker:dev'"
+    "setup": "npm install && cp apps/api/.env.example apps/api/.env && cp apps/web/.env.example apps/web/.env && cp .env.example .env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: npm run docker:dev'"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.5",
+    "ajv-formats": "^3.0.1",
     "dotenv-cli": "^8.0.0",
-    "prettier": "^3.1.0",
-    "turbo": "^1.10.16"
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.5"
   },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "dependencies": {
+    "@prisma/client": "^6.12.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
   }

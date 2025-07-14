@@ -100,8 +100,9 @@ dist/
 .env.production.local
 .env.local
 
-# Allow test .env file
+# Allow .env.example files (templates)
 !.env.example
+!**/.env.example
 
 # Turborepo
 .turbo

@@ -28,7 +28,8 @@ export const getMe = async () => {
   return data;
 }
 
-export const completeOauthRegistration = async (token: string, details: CompleteOauthInput) => {
+export const completeOauthRegistration = async (token: string, details: CompleteOauthInput) => 
+{
   const { data } = await apiClient.post(
     '/auth/complete-oauth-registration',
     details,
@@ -60,13 +61,6 @@ export const disablePassword = async () => {
   const { data } = await apiClient.post('/auth/disable-password');
   return data;
 };
-
-// TODO: Add register function 
-
-export const getMyProfile = async () => {
-  const { data } = await apiClient.get('/auth/me');
-  return data;
-}
 
 export const login2fa = async (token: string) => {
   const { data } = await apiClient.post('/auth/login/verify-2fa', { token });

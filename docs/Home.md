@@ -1,4 +1,4 @@
-# Project Wiki: AdopteUnEtudiant
+# Project Wiki: Adopte1Etudiant
 
 Welcome to the project wiki! This documentation provides a comprehensive overview of the project's architecture, features, and development processes.
 

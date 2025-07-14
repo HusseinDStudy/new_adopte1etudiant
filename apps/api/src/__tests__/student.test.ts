@@ -25,14 +25,21 @@ describe('Student Routes', () => {
             password: faker.internet.password(),
             role: 'COMPANY',
             name: faker.company.name(),
-            firstName: faker.person.firstName(),
             contactEmail: faker.internet.email(),
         };
-        await supertest(app.server).post('/api/auth/register').send(companyData);
-        const companyLoginResponse = await supertest(app.server).post('/api/auth/login').send({ 
-            email: companyData.email, 
-            password: companyData.password 
+        const registerResponse = await supertest(app.server).post('/api/auth/register').send(companyData);
+        if (registerResponse.status !== 201) {
+            console.log('Registration failed:', registerResponse.status, registerResponse.body);
+        }
+        expect(registerResponse.status).toBe(201);
+
+        const companyLoginResponse = await supertest(app.server).post('/api/auth/login').send({
+            email: companyData.email,
+            password: companyData.password
         });
+        expect(companyLoginResponse.status).toBe(200);
+        expect(companyLoginResponse.headers['set-cookie']).toBeDefined();
+
         const companyCookie = companyLoginResponse.headers['set-cookie'][0];
         companyAuthToken = companyCookie.split(';')[0].replace('token=', '');
 

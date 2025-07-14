@@ -1,6 +1,6 @@
 # Architecture
 
-This document outlines the software architecture of the "AdopteUnEtudiant" application.
+This document outlines the software architecture of the "Adopte1Etudiant" application.
 
 ## Overview
 
@@ -12,7 +12,7 @@ The architecture follows a classic **client-server model**:
 *   **`apps/api`**: A backend server built with Node.js, Fastify, and TypeScript. It provides a RESTful API for the frontend to consume, handling business logic, database interactions, and authentication.
 *   **Database**: A PostgreSQL database is used for data persistence, with Prisma serving as the Object-Relational Mapper (ORM) for type-safe database access.
 
-![High-Level Architecture](https://i.imgur.com/example.png)  <-- *Note: Replace with a real diagram link if available.*
+*Note: A high-level architecture diagram can be added here if needed.*
 
 ---
 
@@ -53,9 +53,149 @@ The architecture follows a classic **client-server model**:
 
 *   **`shared-types`**: A crucial package for sharing TypeScript type definitions (e.g., `User`, `Offer`, `Application`) between the frontend and backend. This ensures type consistency across the stack.
 *   **`core`**: Contains shared business logic that can be used by any part of the monorepo. The `MatchScoreService` is a key example.
+*   **`db-postgres`**: Centralizes database client configuration and Prisma setup. Exports a configured Prisma client instance that can be imported by other packages.
 *   **`tsconfig`**: Provides base `tsconfig.json` configurations to ensure consistent TypeScript settings across all packages and apps.
 
-### 4. Database
+## 4. Monorepo Project Structure
+
+The project follows a well-organized monorepo structure that promotes code sharing, maintainability, and scalability:
+
+```
+new_adopte1etudiant/
+├── apps/                           # Application packages
+│   ├── api/                        # Backend API (Fastify + TypeScript)
+│   │   ├── src/
+│   │   │   ├── controllers/        # API route controllers
+│   │   │   │   ├── authController.ts
+│   │   │   │   ├── offerController.ts
+│   │   │   │   ├── studentController.ts
+│   │   │   │   ├── companyController.ts
+│   │   │   │   └── ...
+│   │   │   ├── routes/             # API route definitions
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── offer.ts
+│   │   │   │   ├── student.ts
+│   │   │   │   └── ...
+│   │   │   ├── middleware/         # Authentication, validation, etc.
+│   │   │   │   ├── authMiddleware.ts
+│   │   │   │   ├── roleMiddleware.ts
+│   │   │   │   └── sanitizationMiddleware.ts
+│   │   │   ├── helpers/            # Test utilities and helpers
+│   │   │   ├── __tests__/          # Unit, integration, and E2E tests
+│   │   │   └── index.ts            # Application entry point
+│   │   ├── prisma/                 # Database schema and migrations
+│   │   │   ├── schema.prisma       # Database schema definition
+│   │   │   ├── migrations/         # Database migration files
+│   │   │   └── seed.ts             # Database seeding script
+│   │   ├── dist/                   # Compiled TypeScript output
+│   │   ├── package.json            # API dependencies and scripts
+│   │   └── tsconfig.json           # TypeScript configuration
+│   │
+│   └── web/                        # Frontend Web App (React + Vite)
+│       ├── src/
+│       │   ├── components/         # Reusable React components
+│       │   │   ├── auth/           # Authentication components
+│       │   │   ├── company/        # Company-specific components
+│       │   │   ├── OfferCard.tsx
+│       │   │   └── ProtectedRoute.tsx
+│       │   ├── pages/              # Page-level components
+│       │   │   ├── HomePage.tsx
+│       │   │   ├── LoginPage.tsx
+│       │   │   ├── ProfilePage.tsx
+│       │   │   └── ...
+│       │   ├── services/           # API client services
+│       │   │   ├── authService.ts
+│       │   │   ├── offerService.ts
+│       │   │   ├── studentService.ts
+│       │   │   └── ...
+│       │   ├── context/            # React context providers
+│       │   │   └── AuthContext.tsx
+│       │   ├── hooks/              # Custom React hooks
+│       │   │   └── useDebounce.ts
+│       │   └── test/               # Test setup and utilities
+│       ├── dist/                   # Built static assets
+│       ├── package.json            # Web app dependencies
+│       └── vite.config.ts          # Vite build configuration
+│
+├── packages/                       # Shared workspace packages
+│   ├── core/                       # Business logic and utilities
+│   │   ├── src/
+│   │   │   └── services/           # Shared business services
+│   │   │       └── MatchScoreService.ts
+│   │   ├── dist/                   # Compiled output
+│   │   └── package.json            # Core package dependencies
+│   │
+│   ├── db-postgres/                # Database client and configuration
+│   │   ├── src/
+│   │   │   └── index.ts            # Prisma client setup and exports
+│   │   ├── prisma/                 # Symlinked to apps/api/prisma
+│   │   ├── dist/                   # Compiled output
+│   │   └── package.json            # Database package dependencies
+│   │
+│   ├── shared-types/               # TypeScript type definitions
+│   │   ├── src/
+│   │   │   └── index.ts            # Shared type exports (User, Offer, etc.)
+│   │   ├── dist/                   # Compiled output
+│   │   └── package.json            # Types package configuration
+│   │
+│   └── tsconfig/                   # Shared TypeScript configurations
+│       ├── base.json               # Base TypeScript config
+│       └── package.json            # Config package metadata
+│
+├── docs/                           # Project documentation
+│   ├── Home.md                     # Documentation entry point
+│   ├── Architecture.md             # This file - technical architecture
+│   ├── Development-Guide.md        # Setup and development instructions
+│   ├── Database-Guide.md           # Database schema and operations
+│   ├── Authentication.md           # Auth flow and security
+│   ├── CI-CD.md                    # Deployment and pipeline docs
+│   └── ...                         # Additional documentation files
+│
+├── .github/                        # GitHub Actions CI/CD workflows
+│   └── workflows/
+│       └── ci-cd.yml               # Main CI/CD pipeline
+│
+├── docker-compose.db.yml           # Database-only Docker setup
+├── docker-compose.prod.yml         # Production Docker setup
+├── Dockerfile                      # Multi-stage production build
+├── turbo.json                      # Turborepo configuration
+├── package.json                    # Root workspace configuration
+└── README.md                       # Project overview and quick start
+```
+
+### Package Dependencies
+
+The workspace packages have the following dependency relationships:
+
+- **`apps/api`** depends on:
+  - `db-postgres` (database client)
+  - `core` (business logic)
+  - `shared-types` (type definitions)
+
+- **`apps/web`** depends on:
+  - `shared-types` (type definitions)
+
+- **`packages/db-postgres`** depends on:
+  - `@prisma/client` (database ORM)
+
+- **`packages/core`** is standalone (business logic utilities)
+
+- **`packages/shared-types`** is standalone (type definitions)
+
+- **`packages/tsconfig`** provides shared TypeScript configurations
+
+### Benefits of This Structure
+
+This monorepo architecture provides several key advantages:
+
+- **Code Sharing**: Common types, utilities, and business logic are shared between frontend and backend
+- **Type Safety**: Shared TypeScript types ensure consistency across the entire application
+- **Independent Deployment**: API and Web applications can be built and deployed independently
+- **Efficient Builds**: Turborepo's intelligent caching only rebuilds what has changed
+- **Consistent Tooling**: Shared configurations ensure consistent development experience
+- **Simplified Dependency Management**: All dependencies are managed from the root workspace
+
+### 5. Database
 
 *   **Engine**: [PostgreSQL](https://www.postgresql.org/).
 *   **Schema Management**: Prisma Migrate is used to manage database schema changes through declarative migration files located in `apps/api/prisma/migrations`.
@@ -63,7 +203,7 @@ The architecture follows a classic **client-server model**:
 
 ### 5. Development & Deployment
 
-*   **Containerization**: [Docker](https://www.docker.com/) and `docker-compose.yml` are provided for setting up a consistent local development environment, including the database and application services.
+*   **Containerization**: [Docker](https://www.docker.com/) and `docker-compose.db.yml` are provided for setting up a consistent local development environment, including the database. Production deployment uses `docker-compose.prod.yml`.
 *   **CI/CD**: The project is configured for Continuous Integration and Continuous Deployment (see `CI-CD.md`). The workflow includes steps for building, testing, and deploying the applications.
 
 ---

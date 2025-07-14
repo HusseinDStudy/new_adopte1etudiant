@@ -1,6 +1,6 @@
 # Database Guide
 
-This document provides a guide to understanding, managing, and interacting with the database for the "AdopteUnEtudiant" application.
+This document provides a guide to understanding, managing, and interacting with the database for the "Adopte1Etudiant" application.
 
 ---
 

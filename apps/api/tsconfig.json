@@ -2,7 +2,13 @@
   "extends": "../../packages/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "db-postgres": ["../../packages/db-postgres/dist/index.d.ts"],
+      "core": ["../../packages/core/dist/index.d.ts"],
+      "shared-types": ["../../packages/shared-types/dist/index.d.ts"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

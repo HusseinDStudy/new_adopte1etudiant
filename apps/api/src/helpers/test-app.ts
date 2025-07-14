@@ -2,6 +2,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import cookie from '@fastify/cookie';
+import addFormats from 'ajv-formats';
 import authRoutes from '../routes/auth.js';
 import profileRoutes from '../routes/profile.js';
 import offerRoutes from '../routes/offer.js';
@@ -14,7 +15,18 @@ import companyRoutes from '../routes/company.js';
 import twoFactorAuthRoutes from '../routes/twoFactorAuth.js';
 
 export async function buildTestApp(): Promise<FastifyInstance> {
-  const app = Fastify();
+  const app = Fastify({
+    ajv: {
+      customOptions: {
+        addUsedSchema: false,
+        removeAdditional: false,
+        useDefaults: true,
+        coerceTypes: false,
+        allErrors: true,
+      },
+      plugins: [addFormats]
+    }
+  });
 
   await app.register(cors, {
     origin: 'http://localhost:5173',

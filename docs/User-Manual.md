@@ -1,6 +1,6 @@
 # User Manual
 
-Welcome to the AdopteUnEtudiant platform! This guide will walk you through the features of the application and how to use them effectively, whether you are a student looking for opportunities or a company searching for talent.
+Welcome to the Adopte1Etudiant platform! This guide will walk you through the features of the application and how to use them effectively, whether you are a student looking for opportunities or a company searching for talent.
 
 ---
 

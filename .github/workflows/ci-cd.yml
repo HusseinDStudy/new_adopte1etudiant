@@ -49,7 +49,7 @@ jobs:
 
       - name: Security Audit
         run: |
-          npm audit fix || npm audit fix --force
+          npm audit --audit-level=high || echo "Security audit completed with warnings"
           npm audit || true
 
       - name: Security Scan Dependencies
@@ -85,11 +85,11 @@ jobs:
       - name: Run Linter
         run: npm run lint
 
+      - name: Build Workspace Packages
+        run: npm run build
+
       - name: Run Tests
         run: npm test
-
-      - name: Build Application
-        run: npm run build
 
   # --- Build and Push Docker Images Job ---
   build_and_push:

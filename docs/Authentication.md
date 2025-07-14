@@ -1,6 +1,6 @@
 # Authentication and Authorization
 
-This document details the authentication and authorization mechanisms used in the "AdopteUnEtudiant" application.
+This document details the authentication and authorization mechanisms used in the "Adopte1Etudiant" application.
 
 ---
 

@@ -1,6 +1,6 @@
 # CI/CD (Continuous Integration & Continuous Deployment)
 
-This document outlines the CI/CD strategy and workflow for the "AdopteUnEtudiant" project, using GitHub Actions for automation.
+This document outlines the CI/CD strategy and workflow for the "Adopte1Etudiant" project, using GitHub Actions for automation.
 
 ---
 
@@ -36,12 +36,13 @@ The CI process runs on every push and pull request to the `main` branch. It vali
 2.  **Setup Node.js**: It sets up Node.js version 20.
 3.  **Setup Database**: A PostgreSQL 15 service is started for the CI job to use for integration testing.
 4.  **Install Dependencies**: It installs all project dependencies using `npm ci` for fast, reliable installs.
-5.  **Security Audit**: Runs `npm audit fix` to automatically fix security vulnerabilities where possible.
-6.  **Setup Environment**: A temporary `.env` file is created for the API using secrets and environment variables available to the runner.
-7.  **Prisma and Migrations**: It generates the Prisma client and runs database migrations (`prisma migrate deploy`) against the test database.
-8.  **Linting**: It runs the linter (`npm run lint`) to check for code style and quality issues.
-9.  **Testing**: It runs the test suite (`npm test`).
+5.  **Security Audit**: Runs `npm audit` to check for security vulnerabilities.
+6.  **Security Scan Dependencies**: Uses Trivy to scan for HIGH and CRITICAL vulnerabilities in dependencies.
+7.  **Setup Environment**: A temporary `.env` file is created for the API using secrets and environment variables available to the runner.
+8.  **Prisma and Migrations**: It generates the Prisma client and runs database migrations (`prisma migrate deploy`) against the test database.
+9.  **Linting**: It runs the linter (`npm run lint`) to check for code style and quality issues.
 10. **Build**: It performs a production build (`npm run build`) to ensure the code is valid and compiles correctly.
+11. **Testing**: It runs the test suite (`npm test`).
 
 ---
 
@@ -94,7 +95,9 @@ The deployment is handled by an SSH script executed on the production server via
     *   Containers are started in detached mode using `docker compose up -d --force-recreate`.
 6.  **Container Health Monitoring**: The script includes comprehensive health checks and retry logic for container startup.
 7.  **Run Database Migrations**: After the services are up, it runs `npx prisma migrate deploy` inside the running `api` container to apply any new database migrations with retry logic (up to 5 attempts).
-8.  **Health Checks**: The script performs a series of checks to ensure containers are running and the API is responsive.
+8.  **Run Database Seeding**: Executes `npx prisma db seed` to populate the database with initial data.
+9.  **Health Checks**: The script performs comprehensive health checks including API health endpoint and web server availability.
+10. **Cleanup**: Removes old backups (keeps last 5) and cleans up old Docker images to save disk space.
 
 ### Native Deployment Variant
 
