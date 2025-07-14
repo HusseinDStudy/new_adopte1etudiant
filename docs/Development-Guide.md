@@ -53,8 +53,8 @@ docker compose up -d
 Once the container is running, apply the Prisma schema to create the necessary tables and run the seed script:
 
 ```bash
-npm run db:migrate:dev --workspace=api
-npm run db:seed --workspace=api
+npm run db:migrate:dev --workspace=apps/api
+npm run db:seed --workspace=apps/api
 ```
 
 ## 3. Running the Application
@@ -132,15 +132,15 @@ Database interactions are handled by **Prisma ORM**.
 - **Schema**: The source of truth for your database structure is `apps/api/prisma/schema.prisma`.
 - **Migrations**: To apply schema changes, run a migration:
   ```bash
-  npm run db:migrate:dev --workspace=api --name <migration-name>
+  npm run db:migrate:dev --workspace=apps/api --name <migration-name>
   ```
 - **Seeding**: To populate the database with test data, use the seed script:
   ```bash
-  npm run db:seed --workspace=api
+  npm run db:seed --workspace=apps/api
   ```
 - **Prisma Studio**: To view and edit data in your database, use Prisma Studio:
   ```bash
-  npm run db:studio --workspace=api
+  npm run db:studio --workspace=apps/api
   ```
 
 ## 8. Available Scripts
@@ -148,7 +148,7 @@ Database interactions are handled by **Prisma ORM**.
 - `npm run dev`: Start all apps in development mode.
 - `npm run build`: Build all apps and packages for production.
 - `npm run lint`: Lint all packages.
-- `npm run db:migrate:dev --workspace=api`: Create and apply a new database migration.
-- `npm run db:push --workspace=api`: (For development) Push schema changes directly to the DB without a migration file.
-- `npm run db:seed --workspace=api`: Run the database seed script.
-- `npm run db:studio --workspace=api`: Open Prisma Studio. 
+ - `npm run db:migrate:dev --workspace=apps/api`: Create and apply a new database migration.
+ - `npm run db:push --workspace=apps/api`: (For development) Push schema changes directly to the DB without a migration file.
+ - `npm run db:seed --workspace=apps/api`: Run the database seed script.
+ - `npm run db:studio --workspace=apps/api`: Open Prisma Studio.

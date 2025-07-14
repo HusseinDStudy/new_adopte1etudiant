@@ -69,7 +69,7 @@ The seed script is automatically executed whenever you run `prisma migrate dev`.
 If you need to re-run the seed script manually on an existing database, use this command:
 
 ```bash
-npm run db:seed --workspace=api
+npm run db:seed --workspace=apps/api
 ```
 
 ---
@@ -114,7 +114,7 @@ For rapid prototyping during early development, you may not want to create a mig
 **WARNING**: This command is for **development only**. It does not create migration files and can lead to data loss. Do not use it in production or for collaborative development where migrations are necessary.
 
 ```bash
-npm run db:push --workspace=api
+npm run db:push --workspace=apps/api
 ```
 
 If you have existing data and need to force the changes, you can add `--force --accept-data-loss`, but be aware of the consequences. For this project, we have a convenience script:

@@ -13,12 +13,16 @@
     "test:coverage": "vitest run --coverage --reporter=verbose",
     "test:no-coverage": "vitest run --reporter=verbose",
     "seed": "tsx prisma/seed.ts",
+    "db:seed": "prisma db seed",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "db:push": "prisma db push",
     "studio": "prisma studio",
     "generate": "prisma generate",
     "db:clean": "prisma migrate reset --force"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^9.3.1",
