@@ -43,10 +43,10 @@ Prisma Migrate is used to manage incremental, reversible changes to the database
 2.  Run the following command from the root of the monorepo:
 
     ```bash
-    pnpm --filter api exec prisma migrate dev --name your_migration_name
+    cd apps/api
+    npx prisma migrate dev --name your_migration_name
     ```
 
-    *   `--filter api`: Tells pnpm to run the command within the `api` workspace.
     *   `prisma migrate dev`: This command compares the current state of the schema file with the last migration, generates a new SQL migration file, and applies it to your development database.
     *   `--name`: Provides a descriptive name for the migration folder.
 
@@ -69,7 +69,7 @@ The seed script is automatically executed whenever you run `prisma migrate dev`.
 If you need to re-run the seed script manually on an existing database, use this command:
 
 ```bash
-pnpm --filter api exec prisma db seed
+npm run db:seed --workspace=api
 ```
 
 ---
@@ -114,7 +114,7 @@ For rapid prototyping during early development, you may not want to create a mig
 **WARNING**: This command is for **development only**. It does not create migration files and can lead to data loss. Do not use it in production or for collaborative development where migrations are necessary.
 
 ```bash
-pnpm --filter api exec prisma db push
+npm run db:push --workspace=api
 ```
 
 If you have existing data and need to force the changes, you can add `--force --accept-data-loss`, but be aware of the consequences. For this project, we have a convenience script:

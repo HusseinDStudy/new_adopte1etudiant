@@ -15,6 +15,20 @@ The automated CI/CD pipeline has been updated to preserve database volumes durin
 
 ---
 
+## Quick AWS EC2 Setup
+
+If you plan to deploy to an Amazon EC2 instance, follow these additional steps:
+
+1. Launch an **Ubuntu 22.04** instance and open inbound ports **22**, **80**, and **443**.
+2. SSH into the instance using the key pair generated in AWS.
+3. Continue with the [Server Setup](#1-server-setup) section below to install Docker.
+4. Add the contents of your private SSH key to the `PROD_SSH_KEY` secret in GitHub.
+5. Set `PROD_HOST` to the instance's public IP address and `PROD_USERNAME` to your SSH user.
+
+Once these secrets are configured, every push to `main` will automatically build the Docker images and deploy them to your EC2 server via the CI/CD workflow.
+
+---
+
 ## 1. Server Setup
 
 First, connect to your production server:
@@ -104,6 +118,38 @@ After the containers are running, execute the database migrations inside the `ap
 ```bash
 docker compose -f docker-compose.prod.yml exec -T api npx prisma migrate deploy
 ```
+
+---
+
+### 5. Native Deployment with npm (Docker for Database Only)
+
+If you prefer to run the API and web server directly on the host (without Docker), you can still use Docker Compose for PostgreSQL.
+
+#### 1. Start the Database
+
+```bash
+docker compose -f docker-compose.db.yml up -d
+```
+
+#### 2. Install Dependencies and Build
+
+```bash
+npm ci
+npm run build --workspace=apps/api
+npm run build --workspace=apps/web
+```
+
+#### 3. Start the Services
+
+```bash
+# Start the API
+npm start --workspace=apps/api &
+
+# Serve the compiled frontend
+npx serve -s apps/web/dist -l 80 &
+```
+
+With this approach the server processes run directly under Node.js while the database remains containerized.
 
 ---
 
