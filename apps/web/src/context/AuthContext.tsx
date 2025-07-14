@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext, useCallback } fr
 import * as authService from '../services/authService';
 import { getMe } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { LoginInput } from 'shared-types';
 
 interface User {
   id: string;
@@ -13,7 +14,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  login: (userData: User) => Promise<void>;
+  login: (credentials: LoginInput) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -53,8 +54,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     fetchUser();
   }, []);
 
-  const login = async (userData: User) => {
+  const login = async (credentials: LoginInput) => {
     try {
+      const userData = await authService.login(credentials);
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       setIsAuthenticated(true);
