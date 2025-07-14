@@ -96,6 +96,16 @@ The deployment is handled by an SSH script executed on the production server via
 7.  **Run Database Migrations**: After the services are up, it runs `npx prisma migrate deploy` inside the running `api` container to apply any new database migrations with retry logic (up to 5 attempts).
 8.  **Health Checks**: The script performs a series of checks to ensure containers are running and the API is responsive.
 
+### Native Deployment Variant
+
+For smaller servers you can run the API and frontend directly with Node while keeping PostgreSQL in Docker. Set a secret named `NATIVE_DEPLOY` to `true` and adjust the deploy step to:
+
+1.  Start PostgreSQL with `docker compose -f docker-compose.db.yml up -d`.
+2.  Install dependencies and build the apps (`npm ci && npm run build`).
+3.  Launch the API with `npm start --workspace=apps/api` and serve the frontend using `npx serve -s apps/web/dist`.
+
+The provided workflow is ready for container deployments but can be adapted to this native approach if desired.
+
 ---
 
 ## 6. Environment and Secrets Management
