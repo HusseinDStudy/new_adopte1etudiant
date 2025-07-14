@@ -151,6 +151,19 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.prod.yml to production server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "~/adopte1etudiant-mvp/"
+          strip_components: 0
+
       - name: Deploy to Production Server
         uses: appleboy/ssh-action@master
         with:
@@ -161,20 +174,24 @@ jobs:
             # Enhanced rollback function with better error handling
             rollback() {
               echo "🔄 Rolling back to previous version..."
+              # Read current image tags for potential rollback from the .env on the server
+              CURRENT_API_TAG=$(grep "^API_IMAGE_TAG=" .env | cut -d "=" -f2 || echo "none")
+              CURRENT_WEB_TAG=$(grep "^WEB_IMAGE_TAG=" .env | cut -d "=" -f2 || echo "none")
+
               if [ "$CURRENT_API_TAG" != "none" ] && [ "$CURRENT_WEB_TAG" != "none" ]; then
                 echo "Rolling back API to: $CURRENT_API_TAG"
                 echo "Rolling back Web to: $CURRENT_WEB_TAG"
                 
                 # Update .env with previous tags
-                sed -i "s/API_IMAGE_TAG=.*/API_IMAGE_TAG=$CURRENT_API_TAG/" .env
-                sed -i "s/WEB_IMAGE_TAG=.*/WEB_IMAGE_TAG=$CURRENT_WEB_TAG/" .env
+                sed -i "s|API_IMAGE_TAG=.*|API_IMAGE_TAG=$CURRENT_API_TAG|" .env
+                sed -i "s|WEB_IMAGE_TAG=.*|WEB_IMAGE_TAG=$CURRENT_WEB_TAG|" .env
                 
                 # Restart with previous images
                 $DOCKER_COMPOSE -f docker-compose.prod.yml up -d --force-recreate
                 
                 echo "✅ Rollback completed"
               else
-                echo "❌ Cannot rollback - no previous version available"
+                echo "❌ Cannot rollback - no previous version available in .env"
               fi
               exit 1
             }
@@ -192,13 +209,7 @@ jobs:
 
             # Use the committed docker-compose.prod.yml instead of generating it
             echo "📋 Using committed docker-compose.prod.yml..."
-            # Ensure the committed docker-compose.prod.yml is in the deployment directory
-            cp ${{ github.workspace }}/docker-compose.prod.yml ./
-
-            # if [ ! -f "docker-compose.prod.yml" ]; then
-            #   echo "❌ docker-compose.prod.yml not found. Please commit this file to your repository."
-            #   exit 1
-            # fi
+            # The docker-compose.prod.yml file is now copied by the scp-action.
 
             # Detect Docker Compose command (compatibility with different versions)
             echo "🐳 Detecting Docker Compose version..."
@@ -256,13 +267,6 @@ jobs:
             echo "🛑 Stopping existing containers..."
             echo "ℹ️ Preserving database volumes to maintain production data."
             $DOCKER_COMPOSE -f docker-compose.prod.yml down --remove-orphans || true
-
-            # Store current image tags for potential rollback
-            echo "📋 Storing current image tags for rollback..."
-            CURRENT_API_TAG=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "${{ secrets.DOCKERHUB_USERNAME }}/api" | head -1 | awk '{print $2}' || echo "none")
-            CURRENT_WEB_TAG=$(docker images --format "table {{.Repository}}:{{.Tag}}" | grep "${{ secrets.DOCKERHUB_USERNAME }}/web" | head -1 | awk '{print $2}' || echo "none")
-            echo "Current API tag: $CURRENT_API_TAG"
-            echo "Current Web tag: $CURRENT_WEB_TAG"
 
             # Log in to Docker Hub
             echo "🔐 Logging into Docker Hub..."
