@@ -12,6 +12,8 @@ WORKDIR /app
 # --- Stage 2: Webapp Builder ---
 FROM base as web-builder
 WORKDIR /app
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 COPY turbo.json package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/
 COPY packages/shared-types/package.json ./packages/shared-types/
@@ -53,7 +55,7 @@ ENV OPENSSL_CONF=/etc/ssl/openssl.cnf
 
 # Copy package files first for dependency installation
 COPY --from=api-builder /app/package.json .
-COPY --from=api-builder /app/apps/api/package.json ./
+COPY --from=api-builder /app/apps/api/package.json ./apps/api/
 COPY --from=api-builder /app/packages ./packages
 
 # Copy package.json files for workspace packages
@@ -69,13 +71,46 @@ COPY --from=api-builder /app/apps/api/prisma ./prisma/
 
 # Generate Prisma client for Alpine/musl environment
 ENV PRISMA_CLIENT_ENGINE_TYPE=binary
-RUN npx prisma generate
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Copy built application files
 COPY --from=api-builder /app/apps/api/dist ./dist
 COPY --from=api-builder /app/packages/core/dist ./packages/core/dist
 COPY --from=api-builder /app/packages/db-postgres/dist ./packages/db-postgres/dist
 COPY --from=api-builder /app/packages/shared-types/dist ./packages/shared-types/dist
+
+# Create proper package structure for workspace packages
+RUN mkdir -p ./packages/db-postgres && \
+    cp -r ./packages/db-postgres/dist/* ./packages/db-postgres/ && \
+    mkdir -p ./packages/core && \
+    cp -r ./packages/core/dist/* ./packages/core/ && \
+    mkdir -p ./packages/shared-types && \
+    cp -r ./packages/shared-types/dist/* ./packages/shared-types/
+
+# Debug: Check if packages are properly installed and accessible
+RUN ls -la node_modules/ | grep -E "(db-postgres|core|shared-types)" || echo "No workspace packages found in node_modules" && \
+    ls -la node_modules/.prisma/client/ || echo "Prisma client not found in node_modules" && \
+    echo "=== Package structure ===" && \
+    ls -la packages/ && \
+    echo "=== db-postgres package ===" && \
+    ls -la packages/db-postgres/ || echo "db-postgres package not found"
+
+# Ensure packages are properly linked in node_modules
+RUN if [ ! -L "node_modules/db-postgres" ]; then \
+        ln -sf /app/packages/db-postgres node_modules/db-postgres; \
+    fi && \
+    if [ ! -L "node_modules/core" ]; then \
+        ln -sf /app/packages/core node_modules/core; \
+    fi && \
+    if [ ! -L "node_modules/shared-types" ]; then \
+        ln -sf /app/packages/shared-types node_modules/shared-types; \
+    fi
+
+# Final verification
+RUN echo "=== Final verification ===" && \
+    ls -la node_modules/ | grep -E "(db-postgres|core|shared-types)" && \
+    echo "=== Testing package import ===" && \
+    node -e "try { require('db-postgres'); console.log('✅ db-postgres package found'); } catch(e) { console.log('❌ db-postgres package not found:', e.message); }" || echo "Package test failed"
 
 # Expose the port the API runs on
 EXPOSE 8080
