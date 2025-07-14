@@ -47,6 +47,15 @@ src/__tests__/
 
 ## Running Tests
 
+Before running the test suite, a PostgreSQL instance must be available. You can start the local development database using:
+
+```bash
+docker compose -f docker-compose.db.yml up -d
+```
+
+Ensure the `DATABASE_URL` environment variable matches the connection string in `.env.example` before executing `npm test`.
+
+
 ### All Tests
 ```bash
 npm test
