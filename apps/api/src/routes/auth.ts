@@ -37,7 +37,7 @@ async function authRoutes(server: FastifyInstance) {
       auth: oauthPlugin.GOOGLE_CONFIGURATION,
     },
     startRedirectPath: '/google',
-    callbackUri: `http://localhost:${process.env.PORT || 8080}/api/auth/google/callback`,
+    callbackUri: `${process.env.API_URL}:${process.env.PORT}/auth/google/callback`,
   });
 
   server.register(oauthPlugin, {
@@ -51,9 +51,7 @@ async function authRoutes(server: FastifyInstance) {
       auth: oauthPlugin.GOOGLE_CONFIGURATION,
     },
     startRedirectPath: '/google/delete',
-    callbackUri: `http://localhost:${
-      process.env.PORT || 8080
-    }/api/auth/google/delete-callback`,
+    callbackUri: `${process.env.API_URL}:${process.env.PORT}/auth/google/delete-callback`,
   });
 
   server.get('/google/callback', { onRequest: [optionalAuthMiddleware] }, async function (request, reply) {
@@ -70,7 +68,7 @@ async function authRoutes(server: FastifyInstance) {
     // If user is already logged in, link the account
     if (request.user) {
       if (request.user.email !== googleUser.email) {
-        return reply.redirect('http://localhost:5173/profile?error=OAuth+email+does+not+match');
+        return reply.redirect(`${process.env.WEB_APP_URL}/profile?error=OAuth+email+does+not+match`);
       }
 
       // Check if user has a password
@@ -93,7 +91,7 @@ async function authRoutes(server: FastifyInstance) {
           process.env.JWT_SECRET!,
           { expiresIn: '15m' }
         );
-        return reply.redirect(`http://localhost:5173/link-account?token=${linkingToken}`);
+        return reply.redirect(`${process.env.WEB_APP_URL}/link-account?token=${linkingToken}`);
       }
 
       // Link account directly if user has no password (they are an existing OAuth user)
@@ -110,7 +108,7 @@ async function authRoutes(server: FastifyInstance) {
             expires_at: token.expires_in,
         }
       });
-      return reply.redirect('http://localhost:5173/profile?message=Account+linked+successfully');
+      return reply.redirect(`${process.env.WEB_APP_URL}/profile?message=Account+linked+successfully`);
     }
 
     // Check if user exists with this email
@@ -131,7 +129,7 @@ async function authRoutes(server: FastifyInstance) {
             });
 
             // Redirect to a dedicated 2FA verification page
-            return reply.redirect('http://localhost:5173/verify-2fa');
+            return reply.redirect(`${process.env.WEB_APP_URL}/verify-2fa`);
         }
         // --- End 2FA Check ---
 
@@ -158,7 +156,7 @@ async function authRoutes(server: FastifyInstance) {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax'
             })
-            .redirect('http://localhost:5173/profile');
+            .redirect(`${process.env.WEB_APP_URL}/profile`);
     } else {
         // New user, create a temporary registration token
         const registrationToken = jwt.sign(
@@ -174,7 +172,7 @@ async function authRoutes(server: FastifyInstance) {
             { expiresIn: '15m' }
         );
         
-        return reply.redirect(`http://localhost:5173/complete-registration?token=${registrationToken}`);
+        return reply.redirect(`${process.env.WEB_APP_URL}/complete-registration?token=${registrationToken}`);
     }
   });
 
@@ -199,7 +197,7 @@ async function authRoutes(server: FastifyInstance) {
 
     await deleteUserAndData(request.user.id);
 
-    return reply.clearCookie('token', { path: '/' }).redirect('http://localhost:5173/?message=Account deleted');
+    return reply.clearCookie('token', { path: '/' }).redirect(`${process.env.WEB_APP_URL}/?message=Account deleted`);
   });
 
   const completeLinkSchema = z.object({

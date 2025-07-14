@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker';
 import supertest from 'supertest';
 import { prisma } from 'db-postgres';
 import { buildTestApp } from '../helpers/test-app';
+import { sanitizeString } from '../middleware/sanitizationMiddleware';
 import speakeasy from 'speakeasy';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -60,7 +61,7 @@ describe('Auth Routes', () => {
         email: faker.internet.email(),
         password: faker.internet.password(),
         role: 'COMPANY',
-        name: faker.company.name(),
+        name: "O'Conner - Lebsack", // Use a fixed string to guarantee an apostrophe
         contactEmail: faker.internet.email(),
       };
 
@@ -78,7 +79,7 @@ describe('Auth Routes', () => {
       expect(user).not.toBeNull();
       const companyProfile = await prisma.companyProfile.findUnique({ where: { userId: user!.id } });
       expect(companyProfile).not.toBeNull();
-      expect(companyProfile?.name).toBe(companyData.name);
+      expect(companyProfile?.name).toBe("O&#x27;Conner - Lebsack");
     });
 
     it('should return 409 if user with the same email already exists', async () => {

@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext, useCallback } fr
 import * as authService from '../services/authService';
 import { getMe } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { LoginInput } from 'shared-types';
 
 interface User {
   id: string;
@@ -13,7 +14,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  login: (userData: User) => Promise<void>;
+  loginWithCredentials: (credentials: LoginInput) => Promise<void>;
+  setCurrentUser: (user: User) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -22,7 +24,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAuthenticated: false,
-  login: async () => {},
+  loginWithCredentials: async () => {},
+  setCurrentUser: () => {},
   logout: () => {},
   isLoading: true,
 });
@@ -53,16 +56,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     fetchUser();
   }, []);
 
-  const login = async (userData: User) => {
+  const loginWithCredentials = async (credentials: LoginInput) => {
     try {
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
+      await authService.login(credentials);
+      const user = await authService.getMe();
+      setUser(user);
       setIsAuthenticated(true);
       navigate('/');
     } catch (error) {
       console.error('Login failed', error);
       throw error;
     }
+  };
+
+  const setCurrentUser = (user: User) => {
+    setUser(user);
+    setIsAuthenticated(true);
+    // You might want to navigate here as well, e.g., navigate('/dashboard');
+    // For now, I'll keep it simple. The navigation can happen in the page.
   };
 
   const logout = async () => {
@@ -92,7 +103,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user,
         loading,
         isAuthenticated,
-        login,
+        loginWithCredentials,
+        setCurrentUser,
         logout,
         isLoading,
       }}

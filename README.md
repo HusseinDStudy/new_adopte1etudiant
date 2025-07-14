@@ -33,6 +33,25 @@ npm run docker:dev:clean
 npm run db:studio
 ```
 
+### Running Locally Without Docker (API & Web)
+
+If you prefer to run the Node services directly and use Docker only for the database:
+
+```bash
+# 1. Start PostgreSQL using the lightweight compose file
+docker compose -f docker-compose.db.yml up -d
+
+# 2. Build and start the API
+npm run build --workspace=apps/api
+npm start --workspace=apps/api
+
+# 3. Build and serve the frontend
+npm run build --workspace=apps/web
+npx serve -s apps/web/dist -l 5173
+```
+
+This approach mirrors a production setup where only the database runs in a container.
+
 ---
 
 ## About

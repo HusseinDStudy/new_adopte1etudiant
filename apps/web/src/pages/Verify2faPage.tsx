@@ -13,7 +13,7 @@ const twoFactorSchema = z.object({
 type TwoFactorInput = z.infer<typeof twoFactorSchema>;
 
 const Verify2faPage = () => {
-  const { login } = useAuth();
+  const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
   const {
     register,
@@ -28,7 +28,7 @@ const Verify2faPage = () => {
     try {
       await authService.login2fa(data.token);
       const user = await authService.getMe();
-      login(user); // This will set user state and handle navigation
+      setCurrentUser(user);
       navigate('/profile'); // Redirect after successful login
     } catch (error) {
       setError('root', { message: 'Invalid 2FA token' });

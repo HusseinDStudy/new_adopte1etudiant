@@ -10,13 +10,13 @@ These patterns define the high-level structure of the application.
 
 ### a. Monorepo
 
-The entire project is organized as a **monorepo**, managed by pnpm and Turborepo.
+The entire project is organized as a **monorepo**, managed by **npm workspaces** and Turborepo.
 
 *   **What it is**: A single repository containing multiple distinct projects (the `api` and `web` apps) and shared packages (`packages/*`).
 *   **Why it's used**:
     *   **Code Sharing**: Simplifies sharing code between the frontend and backend (e.g., `shared-types`).
     *   **Atomic Commits**: Changes to multiple parts of the system (e.g., an API change and the corresponding frontend update) can be made in a single commit.
-    *   **Simplified Dependency Management**: A single `pnpm-lock.yaml` at the root ensures consistent dependency versions across the project.
+    *   **Simplified Dependency Management**: A single `package-lock.json` at the root ensures consistent dependency versions across the project.
     *   **Streamlined CI/CD**: Turborepo intelligently caches build and test results, speeding up the pipeline.
 
 ### b. Client-Server Architecture
