@@ -121,6 +121,38 @@ docker compose -f docker-compose.prod.yml exec -T api npx prisma migrate deploy
 
 ---
 
+### 5. Native Deployment with npm (Docker for Database Only)
+
+If you prefer to run the API and web server directly on the host (without Docker), you can still use Docker Compose for PostgreSQL.
+
+#### 1. Start the Database
+
+```bash
+docker compose -f docker-compose.db.yml up -d
+```
+
+#### 2. Install Dependencies and Build
+
+```bash
+npm ci
+npm run build --workspace=apps/api
+npm run build --workspace=apps/web
+```
+
+#### 3. Start the Services
+
+```bash
+# Start the API
+npm start --workspace=apps/api &
+
+# Serve the compiled frontend
+npx serve -s apps/web/dist -l 80 &
+```
+
+With this approach the server processes run directly under Node.js while the database remains containerized.
+
+---
+
 ## 4. CI/CD Pipeline Features
 
 The automated CI/CD pipeline includes several safety features:
