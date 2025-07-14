@@ -88,11 +88,10 @@ The deployment is handled by an SSH script executed on the production server via
     > **Note**: This file is generated dynamically during deployment. It is important to keep the local `docker-compose.prod.yml` file in sync with the version in the `.github/workflows/ci-cd.yml` file to ensure consistency between local testing and production.
 4.  **Create Environment File**: A `.env` file is created on the server from production secrets stored in GitHub.
 5.  **Deploy Services**:
-    *   It stops any running services using `docker compose down -v --remove-orphans`.
-    *   **⚠️ CRITICAL WARNING**: The `-v` flag removes all Docker volumes, including the database volume. This means **ALL PRODUCTION DATA IS DELETED** on every deployment.
-    *   It logs into Docker Hub to be able to pull private images.
-    *   It pulls the latest Docker images that were just pushed.
-    *   It starts the new containers in detached mode using `docker compose up -d --force-recreate`.
+    *   A database backup is created before deployment.
+    *   Running services are stopped with `docker compose down --remove-orphans` (volumes are preserved).
+    *   The workflow logs into Docker Hub and pulls the latest images.
+    *   Containers are started in detached mode using `docker compose up -d --force-recreate`.
 6.  **Container Health Monitoring**: The script includes comprehensive health checks and retry logic for container startup.
 7.  **Run Database Migrations**: After the services are up, it runs `npx prisma migrate deploy` inside the running `api` container to apply any new database migrations with retry logic (up to 5 attempts).
 8.  **Health Checks**: The script performs a series of checks to ensure containers are running and the API is responsive.
@@ -111,37 +110,31 @@ These are injected into the workflow and used to create the `.env` file on the p
 
 ---
 
-## 7. Current Limitations and Critical Issues
+## 7. Current Limitations
 
-### ⚠️ Critical Data Loss Issue
-**The current pipeline deletes all production data on every deployment.** This happens because the deployment script uses `docker compose down -v`, which removes the database volume. This is **NOT suitable for production use** where data persistence is required.
-
-### Other Limitations
-*   **No Backup Strategy**: No database backup before deployment.
-*   **No Rollback Mechanism**: If deployment fails, there's no automatic rollback to the previous version.
-*   **Limited Error Handling**: While the script includes some error handling, it could be more robust.
+The pipeline now preserves database volumes and performs automatic backups before deployment. However, there are still some areas for improvement:
+*   **Rollback Mechanism**: If deployment fails, only a basic rollback is available.
+*   **Limited Error Handling**: While the script includes error handling, it could be more robust.
 *   **No Performance Testing**: No performance validation in the pipeline.
-*   **No Security Scanning**: No container security scanning or vulnerability assessment.
+*   **Limited Monitoring**: Only basic health checks are performed.
 
 ---
 
 ## 8. Recommended Improvements
 
-### High Priority (Data Safety)
-1.  **Fix Data Loss Issue**: Remove the `-v` flag from `docker compose down` to preserve database volumes.
-2.  **Implement Database Backups**: Add automated database backup before deployment.
-3.  **Add Rollback Mechanism**: Implement automatic rollback to previous version if deployment fails.
+### High Priority
+1.  **Enhance Rollback Mechanism**: Improve the automatic rollback step when deployment fails.
 
 ### Medium Priority (Security & Quality)
-4.  **Security Scanning**: Integrate container security scanning (e.g., Trivy, Snyk).
-5.  **Code Coverage Analysis**: Integrate a tool like **SonarCloud** or **Codecov** to track test coverage.
-6.  **E2E Testing**: Add End-to-End testing using Cypress or Playwright.
+2.  **Security Scanning**: Integrate container security scanning (e.g., Trivy, Snyk).
+3.  **Code Coverage Analysis**: Integrate a tool like **SonarCloud** or **Codecov** to track test coverage.
+4.  **E2E Testing**: Add End-to-End testing using Cypress or Playwright.
 
 ### Low Priority (Convenience)
-7.  **Preview Environments**: Deploy pull requests to temporary environments for testing.
-8.  **Simplify Deployment Script**: Use committed `docker-compose.prod.yml` instead of generating it.
-9.  **Performance Testing**: Add basic performance validation.
-10. **Monitoring Integration**: Add deployment notifications and monitoring.
+5.  **Preview Environments**: Deploy pull requests to temporary environments for testing.
+6.  **Simplify Deployment Script**: Use committed `docker-compose.prod.yml` instead of generating it.
+7.  **Performance Testing**: Add basic performance validation.
+8.  **Monitoring Integration**: Add deployment notifications and monitoring.
 
 ---
 
@@ -154,8 +147,8 @@ These are injected into the workflow and used to create the `.env` file on the p
 4. If needed, manually rollback by pulling the previous image tag.
 
 ### If Database is Corrupted
-1. Restore from the latest backup (when backup system is implemented).
-2. If no backup exists, the data is lost due to the current volume deletion issue.
+1. Restore from the latest backup created during deployment (stored on the server).
+2. If no backup exists, the data may be unrecoverable.
 
 ---
 

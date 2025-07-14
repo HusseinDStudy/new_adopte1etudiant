@@ -60,7 +60,7 @@ All data sent from a client to the backend API is rigorously validated.
 
 ## 6. Dependency Management
 
-*   **Vulnerability Scanning**: We use tools like **`pnpm audit`** and **GitHub Dependabot** to continuously scan our third-party dependencies for known security vulnerabilities.
+*   **Vulnerability Scanning**: We use tools like **`npm audit`** and **GitHub Dependabot** to continuously scan our third-party dependencies for known security vulnerabilities.
 *   **Policy**: When a critical vulnerability is detected, the affected package must be updated or patched immediately.
 
 ---
