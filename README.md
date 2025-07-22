@@ -14,6 +14,7 @@ This project is fully documented. All documentation is hosted in the `/docs` dir
 - **[Authentication Flow](docs/Authentication.md)**: An explanation of the security and authentication mechanisms.
 - **[CI/CD Pipeline](docs/CI-CD.md)**: The continuous integration and deployment workflow.
 - **[Testing Strategy](docs/Testing-Guide.md)**: Our approach to ensuring code quality and stability.
+- **[Bloc 2 - Récapitulatif](docs/BLOC2-Referentiel.md)**: Synthèse en français du référentiel.
 
 ## 🚀 Getting Started: Local Development
 
