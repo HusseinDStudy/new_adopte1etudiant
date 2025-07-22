@@ -19,6 +19,7 @@ import SentAdoptionRequestsPage from './pages/company/SentAdoptionRequestsPage';
 import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
 import LinkAccountPage from './pages/LinkAccountPage';
 import Verify2faPage from './pages/Verify2faPage';
+import HomePage from './pages/HomePage';
 
 // A simple layout for auth pages to share navigation
 const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?: boolean }) => (
@@ -44,9 +45,6 @@ const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?
   </div>
 );
 
-
-// TODO: Create placeholder pages for these routes
-const HomePage = () => <div>Home Page</div>;
 
 function App() {
   const { isAuthenticated, isLoading, logout, user } = useAuth();
@@ -91,7 +89,7 @@ function App() {
       </nav>
       <main className="container mx-auto p-4">
         <Routes>
-          <Route path="/" element={<Navigate to="/offers" />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/offers" element={<OfferListPage />} />
           <Route path="/offers/:id" element={<OfferDetailsPage />} />
           <Route path="/login" element={<LoginPage />} />

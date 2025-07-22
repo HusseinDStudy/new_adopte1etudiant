@@ -75,13 +75,13 @@ This project uses a **Turborepo** monorepo structure to manage the backend, fron
 
 ```
 ├── apps/
-│   ├── api/                 # Fastify backend server (See Backend Guide)
-│   └── web/                 # React frontend application (See Frontend Guide)
+│   ├── api/                 # Backend (Fastify)
+│   └── web/                 # Frontend (React)
 ├── packages/
-│   ├── core/                # Shared business logic (e.g., services)
-│   ├── db-postgres/         # Prisma client and schema
-│   ├── shared-types/        # Shared Zod schemas and TypeScript types
-│   └── tsconfig/            # Shared TypeScript configurations
+│   ├── core/                # Shared business logic
+│   ├── shared-types/        # Shared types (Zod schemas)
+│   └── tsconfig/            # Shared tsconfig
+└── Dockerfile
 ```
 
 ## 5. Backend Development (API)
