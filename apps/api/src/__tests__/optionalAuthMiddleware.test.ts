@@ -89,7 +89,7 @@ describe('OptionalAuthMiddleware', () => {
         optionalAuthMiddleware(mockRequest, mockReply, (err) => {
           expect(err).toBeUndefined();
           expect(mockRequest.user).toBeUndefined();
-          expect(warnMessage).toContain('Invalid token encountered in optionalAuthMiddleware:');
+          expect(warnMessage).toContain('[OptionalAuth] Invalid token encountered:');
           
           // Restore console.warn
           console.warn = originalWarn;
@@ -124,7 +124,7 @@ describe('OptionalAuthMiddleware', () => {
         optionalAuthMiddleware(mockRequest, mockReply, (err) => {
           expect(err).toBeUndefined();
           expect(mockRequest.user).toBeUndefined();
-          expect(warnMessage).toContain('Invalid token encountered in optionalAuthMiddleware:');
+          expect(warnMessage).toContain('[OptionalAuth] Invalid token encountered:');
           
           // Restore console.warn
           console.warn = originalWarn;
@@ -159,7 +159,7 @@ describe('OptionalAuthMiddleware', () => {
         optionalAuthMiddleware(mockRequest, mockReply, (err) => {
           expect(err).toBeUndefined();
           expect(mockRequest.user).toBeUndefined();
-          expect(warnMessage).toContain('Invalid token encountered in optionalAuthMiddleware:');
+          expect(warnMessage).toContain('[OptionalAuth] Invalid token encountered:');
           
           // Restore console.warn
           console.warn = originalWarn;

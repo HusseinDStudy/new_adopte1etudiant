@@ -31,7 +31,7 @@ export const optionalAuthMiddleware = (
   try {
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
         console.error('[OptionalAuth] JWT_SECRET environment variable is not set');
       }
       return done();
@@ -42,8 +42,8 @@ export const optionalAuthMiddleware = (
     done();
   } catch (error) {
     // If token is invalid or expired, just continue without a user object
-    // Log only in development to prevent production log pollution
-    if (process.env.NODE_ENV === 'development') {
+    // Log in development and test environments, but not in production
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.warn(`[OptionalAuth] Invalid token encountered: ${errorMessage}`);
     }
