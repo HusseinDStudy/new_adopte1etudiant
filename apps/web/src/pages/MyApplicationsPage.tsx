@@ -1,46 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { getMyApplications } from '../services/applicationService';
+import React from 'react';
 import { Link } from 'react-router-dom';
-
-// Type definition based on backend response
-interface Application {
-  id: string;
-  status: string;
-  createdAt: string;
-  offer: {
-    id: string;
-    title: string;
-    company: {
-      name: string;
-    };
-  };
-  conversation: {
-    id: string;
-  } | null;
-}
+import { useApplications } from '../hooks/useApplications';
 
 const MyApplicationsPage: React.FC = () => {
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    applications,
+    loading,
+    error,
+    refetch,
+    deleteApp,
+    deleting,
+  } = useApplications();
 
-  useEffect(() => {
-    const fetchApplications = async () => {
+  const handleDeleteApplication = async (applicationId: string) => {
+    if (window.confirm('Are you sure you want to delete this application?')) {
       try {
-        setLoading(true);
-        const data = await getMyApplications();
-        setApplications(data);
-        setError(null);
+        await deleteApp(applicationId);
       } catch (err) {
-        setError('Failed to fetch your applications.');
-        console.error(err);
-      } finally {
-        setLoading(false);
+        alert('Failed to delete application. Please try again.');
       }
-    };
-
-    fetchApplications();
-  }, []);
+    }
+  };
 
   const getStatusClasses = (status: string) => {
     switch (status.toUpperCase()) {
@@ -91,6 +71,15 @@ const MyApplicationsPage: React.FC = () => {
                     </Link>
                   </div>
                 )}
+                <div className="mt-2">
+                  <button
+                    onClick={() => handleDeleteApplication(app.id)}
+                    disabled={deleting}
+                    className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                  >
+                    {deleting ? 'Deleting...' : 'Delete Application'}
+                  </button>
+                </div>
               </div>
             </div>
           ))}

@@ -30,4 +30,9 @@ export const getMessages = async (applicationId: string) => {
 export const sendMessage = async (applicationId: string, content: string) => {
   const { data } = await apiClient.post(`/applications/${applicationId}/messages`, { content });
   return data;
-} 
+};
+
+export const deleteApplication = async (applicationId: string) => {
+  const { data } = await apiClient.delete(`/applications/${applicationId}`);
+  return data;
+};

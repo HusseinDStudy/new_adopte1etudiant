@@ -1,74 +1,31 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from 'db-postgres';
 import { RegisterInput, LoginInput } from 'shared-types';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Account, Prisma, PrismaClient } from '.prisma/client';
-import speakeasy from 'speakeasy';
+import bcrypt from 'bcryptjs';
+import { AuthService } from '../services/AuthService.js';
 
-// Store invalidated JWT tokens (in production, use Redis or a proper cache)
-const invalidatedTokens = new Set<string>();
+const authService = new AuthService();
 
 export const isTokenInvalidated = (token: string): boolean => {
-  return invalidatedTokens.has(token);
-};
-
-const invalidateToken = (token: string): void => {
-  invalidatedTokens.add(token);
-  // Clean up old tokens after 7 days to prevent memory leaks
-  setTimeout(() => {
-    invalidatedTokens.delete(token);
-  }, 7 * 24 * 60 * 60 * 1000);
+  return authService.isTokenInvalidated(token);
 };
 
 export const registerUser = async (
   request: FastifyRequest<{ Body: RegisterInput }>,
   reply: FastifyReply
 ) => {
-  const { email, password, role } = request.body;
-
   try {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return reply.code(409).send({ message: 'User already exists' });
+    const result = await authService.register(request.body);
+
+    if (!result.success) {
+      if (result.message === 'User with this email already exists') {
+        return reply.code(409).send({ message: 'User already exists' });
+      }
+      return reply.code(400).send({ message: result.message });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    const user = await prisma.$transaction(async (tx) => {
-      const newUser = await tx.user.create({
-        data: {
-          email,
-          passwordHash,
-          role,
-          passwordLoginDisabled: false,
-        },
-      });
-
-      if (role === 'STUDENT') {
-        const { firstName, lastName } = request.body;
-        await tx.studentProfile.create({
-          data: {
-            userId: newUser.id,
-            firstName,
-            lastName,
-          },
-        });
-      } else if (role === 'COMPANY') {
-        const { name, contactEmail } = request.body;
-        await tx.companyProfile.create({
-          data: {
-            userId: newUser.id,
-            name,
-            contactEmail,
-          },
-        });
-      }
-      return newUser;
-    });
-
-    return reply.code(201).send({ id: user.id, email: user.email, role: user.role });
+    return reply.code(201).send(result.user);
   } catch (error) {
     console.error(error);
     return reply.code(500).send({ message: 'Internal Server Error' });
@@ -79,37 +36,31 @@ export const loginUser = async (
   request: FastifyRequest<{ Body: LoginInput }>,
   reply: FastifyReply
 ) => {
-  const { email, password } = request.body;
-
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return reply.code(401).send({ message: 'Invalid credentials' });
-    }
-
-    if (user.passwordLoginDisabled) {
+    // Check for password login disabled first
+    const user = await prisma.user.findUnique({ where: { email: request.body.email } });
+    if (user?.passwordLoginDisabled) {
       return reply.code(403).send({ message: 'Password login is disabled for this account. Please use your social login provider (e.g., Google).' });
     }
-    
-    if (!user.passwordHash) {
+
+    if (user && !user.passwordHash) {
       return reply.code(401).send({ message: 'This account was created with a social login. Please use that method to sign in.' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return reply.code(401).send({ message: 'Invalid credentials' });
+    const result = await authService.login(request.body);
+
+    if (!result.success) {
+      return reply.code(401).send({ message: result.message });
     }
 
-    // --- 2FA Check ---
-    if (user.isTwoFactorEnabled) {
-      // Don't issue the final token yet.
-      // Issue a temporary token that says this user is in the middle of a 2FA login.
+    // Handle 2FA case
+    if (result.twoFactorRequired) {
       const tempPayload = {
-        id: user.id,
-        email: user.email,
+        id: result.user!.id,
+        email: result.user!.email,
         '2fa_in_progress': true,
       };
-      const tempToken = jwt.sign(tempPayload, process.env.JWT_SECRET!, { expiresIn: '5m' });
+      const tempToken = authService.generateTempJWT(tempPayload);
 
       reply.setCookie('2fa_token', tempToken, {
         path: '/',
@@ -121,16 +72,12 @@ export const loginUser = async (
 
       return reply.code(200).send({ twoFactorRequired: true });
     }
-    // --- End 2FA Check ---
 
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-      expiresIn: '7d',
+    // Generate JWT token
+    const token = authService.generateJWT({
+      id: result.user!.id,
+      email: result.user!.email,
+      role: result.user!.role,
     });
 
     reply
@@ -161,29 +108,28 @@ export const verifyTwoFactorLogin = async (
   }
 
   try {
-    const tempPayload = jwt.verify(tempAuthToken, process.env.JWT_SECRET!) as { id: string; '2fa_in_progress': boolean };
-    
+    const tempPayload = authService.verifyJWT(tempAuthToken) as any;
+
+    if (!tempPayload) {
+      return reply.code(401).send({ message: '2FA session expired. Please login again.' });
+    }
+
     if (!tempPayload['2fa_in_progress']) {
       return reply.code(400).send({ message: 'Invalid 2FA session token.' });
     }
 
+    // Handle recovery codes manually since AuthService doesn't handle them yet
     const user = await prisma.user.findUnique({ where: { id: tempPayload.id } });
 
-    if (!user || !user.isTwoFactorEnabled || !user.twoFactorSecret) {
-      return reply.code(400).send({ message: '2FA is not enabled for this user.' });
-    }
+    const result = await authService.verifyTwoFactorLogin(tempPayload.id, twoFactorToken);
 
-    let isVerified = speakeasy.totp.verify({
-      secret: user.twoFactorSecret,
-      encoding: 'base32',
-      token: twoFactorToken,
-      window: 1,
-    });
+    let isVerified = result.success;
 
     // If TOTP fails, check recovery codes
-    if (!isVerified) {
+    if (!isVerified && user) {
       let usedCodeHash: string | null = null;
       for (const hashedCode of user.twoFactorRecoveryCodes) {
+        const bcrypt = await import('bcryptjs');
         const match = await bcrypt.compare(twoFactorToken, hashedCode);
         if (match) {
           isVerified = true;
@@ -205,19 +151,15 @@ export const verifyTwoFactorLogin = async (
     if (!isVerified) {
       return reply.code(401).send({ message: 'Invalid 2FA token or recovery code.' });
     }
-    
+
     // Clear the temporary 2FA token
     reply.clearCookie('2fa_token', { path: '/' });
 
-    // --- Issue final JWT ---
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
-      expiresIn: '7d',
+    // Generate final JWT
+    const token = authService.generateJWT({
+      id: result.user!.id,
+      email: result.user!.email,
+      role: result.user!.role,
     });
 
     reply
@@ -234,9 +176,6 @@ export const verifyTwoFactorLogin = async (
   } catch (error) {
     reply.clearCookie('2fa_token', { path: '/' });
     console.error(error);
-    if (error instanceof jwt.JsonWebTokenError) {
-      return reply.code(401).send({ message: '2FA session expired. Please login again.' });
-    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
@@ -246,19 +185,20 @@ export const getMe = async (
   reply: FastifyReply
 ) => {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await authService.getUserById(request.user!.id);
+    if (!user) return reply.code(404).send({ message: 'User not found' });
+
+    // Get additional account info
+    const fullUser = await prisma.user.findUnique({
       where: { id: request.user!.id },
       include: { accounts: true },
     });
-    if (!user) return reply.code(404).send({ message: 'User not found' });
-    
-    const { passwordHash, ...userData } = user;
-    
-    const linkedProviders = user.accounts.map((acc: Account) => acc.provider);
 
-    return reply.send({ 
-      ...userData,
-      hasPassword: !!passwordHash,
+    const linkedProviders = fullUser?.accounts.map((acc: any) => acc.provider) || [];
+
+    return reply.send({
+      ...user,
+      hasPassword: !!fullUser?.passwordHash,
       linkedProviders,
     });
   } catch (error) {
@@ -267,6 +207,11 @@ export const getMe = async (
 };
 
 export const logoutUser = async (request: FastifyRequest, reply: FastifyReply) => {
+  const token = request.cookies.token;
+  if (token) {
+    await authService.logout(token);
+  }
+
   return reply
     .clearCookie('token', {
       path: '/',
@@ -407,7 +352,7 @@ export const changePassword = async (
     // Invalidate current session
     const token = request.cookies.token;
     if (token) {
-      invalidateToken(token);
+      await authService.logout(token);
     }
 
     // Clear the current token cookie

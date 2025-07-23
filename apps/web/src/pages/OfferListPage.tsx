@@ -1,98 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { listOffers } from '../services/offerService';
-import { getAllSkills } from '../services/skillService';
-import { getCompaniesWithOffers } from '../services/companyService';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useDebounce } from '../hooks/useDebounce';
-
-// We need to define the shape of an offer on the frontend
-interface Company {
-  name: string;
-}
-
-interface Skill {
-  id: string;
-  name: string;
-}
-
-interface CompanyForFilter {
-    id: string;
-    name: string;
-}
-
-interface Offer {
-  id: string;
-  title: string;
-  description: string;
-  location: string | null;
-  company: Company;
-  skills: Skill[];
-  matchScore: number;
-}
+import { useOffers } from '../hooks/useOffers';
+import { useOfferFilters } from '../hooks/useOfferFilters';
 
 const OfferListPage = () => {
-  const [offers, setOffers] = useState<Offer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
-  const [selectedCompany, setSelectedCompany] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [allSkills, setAllSkills] = useState<Skill[]>([]);
-  const [allCompanies, setAllCompanies] = useState<CompanyForFilter[]>([]);
-
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const debouncedLocationFilter = useDebounce(locationFilter, 500);
-
   const { user } = useAuth();
 
-  // Effect to fetch all skills for the filter dropdown
-  useEffect(() => {
-    const fetchFilterData = async () => {
-        try {
-            const skillsData = await getAllSkills();
-            setAllSkills(skillsData);
-            const companiesData = await getCompaniesWithOffers();
-            setAllCompanies(companiesData);
-        } catch (error) {
-            console.error("Failed to fetch filter data", error);
-        }
-    }
-    fetchFilterData();
-  }, []);
+  // Use custom hooks for state management
+  const {
+    filters,
+    debouncedFilters,
+    allSkills,
+    allCompanies,
+    skillsLoading,
+    companiesLoading,
+    setSearchTerm,
+    setLocationFilter,
+    setSelectedCompany,
+    handleSkillChange,
+    clearFilters,
+  } = useOfferFilters();
 
-  useEffect(() => {
-    const fetchOffers = async () => {
-      setLoading(true);
-      try {
-        const filters = { 
-          search: debouncedSearchTerm,
-          location: debouncedLocationFilter,
-          skills: selectedSkills,
-          companyName: selectedCompany,
-        };
-        const data = await listOffers(filters);
-        setOffers(data);
-      } catch (err) {
-        setError('Failed to fetch offers.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOffers();
-  }, [debouncedSearchTerm, debouncedLocationFilter, selectedSkills, selectedCompany]);
+  const {
+    offers,
+    loading,
+    error,
+    refetch,
+  } = useOffers(debouncedFilters);
 
-  const handleSkillChange = (skillName: string) => {
-    setSelectedSkills(prev => 
-        prev.includes(skillName) 
-            ? prev.filter(s => s !== skillName)
-            : [...prev, skillName]
-    );
-  }
+
 
   const getRingColor = (score: number) => {
     if (score > 75) return 'stroke-green-500';
@@ -109,7 +46,7 @@ const OfferListPage = () => {
             <input
                 type="text"
                 placeholder="Search by title or description..."
-                value={searchTerm}
+                value={filters.searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg"
             />
@@ -117,15 +54,16 @@ const OfferListPage = () => {
             <input
                 type="text"
                 placeholder="Filter by location..."
-                value={locationFilter}
+                value={filters.locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg"
             />
             {/* Company Filter */}
             <select
-                value={selectedCompany}
+                value={filters.selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg"
+                disabled={companiesLoading}
             >
                 <option value="">All Companies</option>
                 {allCompanies.map(company => (
@@ -138,18 +76,28 @@ const OfferListPage = () => {
             <div className="md:col-span-3">
                 <h3 className="font-semibold mb-2">Filter by Skills:</h3>
                 <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2 bg-white border rounded-lg">
-                    {allSkills.map(skill => (
-                        <label key={skill.id} className="flex items-center space-x-2 cursor-pointer">
-                            <input 
-                                type="checkbox"
-                                checked={selectedSkills.includes(skill.name)}
-                                onChange={() => handleSkillChange(skill.name)}
-                                className="rounded text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <span>{skill.name}</span>
-                        </label>
-                    ))}
+                    {skillsLoading ? (
+                        <div>Loading skills...</div>
+                    ) : (
+                        allSkills.map(skill => (
+                            <label key={skill.id} className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={filters.selectedSkills.includes(skill.name)}
+                                    onChange={() => handleSkillChange(skill.name)}
+                                    className="rounded text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <span>{skill.name}</span>
+                            </label>
+                        ))
+                    )}
                 </div>
+                <button
+                    onClick={clearFilters}
+                    className="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                    Clear Filters
+                </button>
             </div>
         </div>
       </div>

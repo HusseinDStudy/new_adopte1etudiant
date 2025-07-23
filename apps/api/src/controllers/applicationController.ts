@@ -4,6 +4,9 @@ import {
   createApplicationSchema,
   updateApplicationStatusSchema,
 } from 'shared-types';
+import { ApplicationService } from '../services/ApplicationService.js';
+
+const applicationService = new ApplicationService();
 
 export const createApplication = async (
   request: FastifyRequest,
@@ -20,42 +23,21 @@ export const createApplication = async (
   const { offerId } = parseResult.data;
 
   try {
-    const offer = await prisma.offer.findUnique({ where: { id: offerId }});
-    if (!offer) {
-        return reply.code(404).send({ message: 'Offer not found.' });
-    }
-
-    const studentProfile = await prisma.studentProfile.findUnique({
-      where: { userId: studentId },
-    });
-
-    if (!studentProfile) {
-      return reply.code(403).send({ message: 'You must have a profile to apply.' });
-    }
-
-    const existingApplication = await prisma.application.findUnique({
-      where: {
-        studentId_offerId: {
-          studentId: studentId,
-          offerId: offerId,
-        },
-      },
-    });
-
-    if (existingApplication) {
-      return reply.code(409).send({ message: 'You have already applied to this offer.' });
-    }
-
-    const newApplication = await prisma.application.create({
-      data: {
-        offerId: offerId,
-        studentId: studentId,
-      },
-    });
-
+    const newApplication = await applicationService.createApplication(studentId, { offerId });
     return reply.code(201).send(newApplication);
   } catch (error) {
     console.error('Failed to create application:', error);
+    if (error instanceof Error) {
+      if (error.message === 'Offer not found.') {
+        return reply.code(404).send({ message: error.message });
+      }
+      if (error.message === 'You must have a profile to apply.') {
+        return reply.code(403).send({ message: error.message });
+      }
+      if (error.message === 'You have already applied to this offer.') {
+        return reply.code(409).send({ message: error.message });
+      }
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 };
@@ -67,29 +49,7 @@ export const getMyApplications = async (
   const { id: studentId } = request.user!;
 
   try {
-    const applications = await prisma.application.findMany({
-      where: { studentId },
-      include: {
-        offer: {
-          include: {
-            company: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        conversation: {
-          select: {
-            id: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
+    const applications = await applicationService.getMyApplications(studentId);
     return reply.send(applications);
   } catch (error) {
     console.error('Failed to get my applications:', error);
@@ -113,45 +73,38 @@ export const updateApplicationStatus = async (
   const { status } = parseResult.data;
 
   try {
-    const application = await prisma.application.findUnique({
-      where: { id: applicationId },
-      include: {
-        offer: {
-          include: {
-            company: true,
+    const updatedApplication = await applicationService.updateApplicationStatus(
+      applicationId,
+      companyUserId,
+      { status }
+    );
+
+    // Handle conversation creation for certain statuses
+    if ((status === 'HIRED' || status === 'INTERVIEW')) {
+      // Check if conversation already exists
+      const existingApp = await applicationService.getApplicationById(applicationId, companyUserId);
+      if (!existingApp.conversationId) {
+        await prisma.conversation.create({
+          data: {
+            application: {
+              connect: { id: applicationId },
+            },
           },
-        },
-      },
-    });
-
-    if (!application) {
-      return reply.code(404).send({ message: 'Application not found.' });
-    }
-
-    if (application.offer.company.userId !== companyUserId) {
-      return reply
-        .code(403)
-        .send({ message: 'You do not have permission to update this application.' });
-    }
-
-    const updatedApplication = await prisma.application.update({
-      where: { id: applicationId },
-      data: { status },
-    });
-
-    if ((status === 'HIRED' || status === 'INTERVIEW') && !application.conversationId) {
-      await prisma.conversation.create({
-        data: {
-          application: {
-            connect: { id: applicationId },
-          },
-        },
-      });
+        });
+      }
     }
 
     return reply.send(updatedApplication);
   } catch (error) {
     console.error('Failed to update application status:', error);
+    if (error instanceof Error) {
+      if (error.message === 'Application not found.') {
+        return reply.code(404).send({ message: error.message });
+      }
+      if (error.message === 'You do not have permission to update this application.') {
+        return reply.code(403).send({ message: error.message });
+      }
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 };
@@ -164,23 +117,18 @@ export const deleteApplication = async (
     const { id: studentId } = request.user!;
 
     try {
-        const application = await prisma.application.findUnique({
-            where: { id: applicationId },
-        });
-
-        if (!application) {
-            return reply.code(404).send({ message: 'Application not found.' });
-        }
-
-        if (application.studentId !== studentId) {
-            return reply.code(403).send({ message: 'You do not have permission to delete this application.' });
-        }
-
-        await prisma.application.delete({ where: { id: applicationId } });
-
+        await applicationService.deleteApplication(applicationId, studentId);
         return reply.code(204).send();
     } catch (error) {
         console.error('Failed to delete application:', error);
+        if (error instanceof Error) {
+            if (error.message === 'Application not found.') {
+                return reply.code(404).send({ message: error.message });
+            }
+            if (error.message === 'You do not have permission to delete this application.') {
+                return reply.code(403).send({ message: error.message });
+            }
+        }
         return reply.code(500).send({ message: 'Internal Server Error' });
     }
 }

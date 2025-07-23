@@ -1,98 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { listAvailableStudents } from '../services/studentService';
-import { createAdoptionRequest } from '../services/adoptionRequestService';
-import { getAllSkills } from '../services/skillService';
-import { useDebounce } from '../hooks/useDebounce';
-
-interface Skill {
-  id: string;
-  name: string;
-}
-
-interface Student {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  school?: string;
-  degree?: string;
-  skills?: { name: string }[];
-  cvUrl?: string;
-  isCvPublic?: boolean;
-}
+import React, { useState } from 'react';
+import { useStudents } from '../hooks/useStudents';
 
 const StudentDirectoryPage: React.FC = () => {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [requestedStudentIds, setRequestedStudentIds] = useState<Set<string>>(
     new Set()
   );
   const [requestingStudentId, setRequestingStudentId] = useState<string | null>(null);
   const [adoptionMessage, setAdoptionMessage] = useState('');
 
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [allSkills, setAllSkills] = useState<Skill[]>([]);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const skillsData = await getAllSkills();
-        setAllSkills(skillsData);
-      } catch (error) {
-        console.error('Failed to fetch skills', error);
-      }
-    };
-    fetchSkills();
-  }, []);
-
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setLoading(true);
-        const filters = {
-          search: debouncedSearchTerm,
-          skills: selectedSkills,
-        };
-        const data = await listAvailableStudents(filters);
-        setStudents(data);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch students.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStudents();
-  }, [debouncedSearchTerm, selectedSkills]);
-
-  const handleSkillChange = (skillName: string) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skillName)
-        ? prev.filter((s) => s !== skillName)
-        : [...prev, skillName]
-    );
-  };
+  const {
+    students,
+    loading,
+    error,
+    searchTerm,
+    selectedSkills,
+    allSkills,
+    skillsLoading,
+    setSearchTerm,
+    handleSkillChange,
+    clearFilters,
+    sendAdoptionRequest,
+    adoptionRequestLoading,
+  } = useStudents();
 
   const handleRequestAdoption = async (studentId: string) => {
     if (!adoptionMessage.trim()) {
-      setError('A message is required to send a request.');
+      alert('A message is required to send a request.');
       return;
     }
-    setError(null);
+
     try {
-      await createAdoptionRequest(studentId, adoptionMessage);
+      setRequestingStudentId(studentId);
+      await sendAdoptionRequest(studentId, adoptionMessage);
       setRequestedStudentIds(prev => new Set(prev).add(studentId));
       setRequestingStudentId(null);
       setAdoptionMessage('');
     } catch (err: any) {
       console.error('Failed to send adoption request', err);
-      setError(err.response?.data?.message || 'Failed to send adoption request.');
+      alert(err.response?.data?.message || 'Failed to send adoption request.');
     }
   }
 
@@ -123,21 +68,31 @@ const StudentDirectoryPage: React.FC = () => {
           <div className="md:col-span-3">
             <h3 className="font-semibold mb-2">Filter by Skills:</h3>
             <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2 bg-white border rounded-lg">
-              {allSkills.map((skill) => (
-                <label
-                  key={skill.id}
-                  className="flex items-center space-x-2 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedSkills.includes(skill.name)}
-                    onChange={() => handleSkillChange(skill.name)}
-                    className="rounded text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span>{skill.name}</span>
-                </label>
-              ))}
+              {skillsLoading ? (
+                <div>Loading skills...</div>
+              ) : (
+                allSkills.map((skill) => (
+                  <label
+                    key={skill.id}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedSkills.includes(skill.name)}
+                      onChange={() => handleSkillChange(skill.name)}
+                      className="rounded text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span>{skill.name}</span>
+                  </label>
+                ))
+              )}
             </div>
+            <button
+              onClick={clearFilters}
+              className="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            >
+              Clear Filters
+            </button>
           </div>
         </div>
       </div>
@@ -203,9 +158,10 @@ const StudentDirectoryPage: React.FC = () => {
                       </button>
                 <button
                   onClick={() => handleRequestAdoption(student.id)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                        disabled={adoptionRequestLoading}
                       >
-                        Send Request
+                        {adoptionRequestLoading ? 'Sending...' : 'Send Request'}
                       </button>
                     </div>
                   </div>
