@@ -4,6 +4,8 @@ import { buildTestApp } from '../helpers/test-app';
 import { prisma } from 'db-postgres';
 import { faker } from '@faker-js/faker';
 import { FastifyInstance } from 'fastify';
+import { StudentService } from '../services/StudentService.js';
+import { NotFoundError } from '../errors/AppError.js';
 
 describe('Student Routes', () => {
     let app: FastifyInstance;
@@ -387,4 +389,241 @@ describe('Student Routes', () => {
             expect(response.body[0].firstName).toBe('Alice');
         });
     });
-}); 
+});
+
+describe('StudentService', () => {
+    let studentService: StudentService;
+    let testStudentUserId: string;
+    let testSkillIds: string[];
+
+    beforeAll(async () => {
+        studentService = new StudentService();
+    });
+
+    beforeEach(async () => {
+        // Clean up database in correct order to respect foreign key constraints
+        await prisma.adoptionRequest.deleteMany();
+        await prisma.application.deleteMany();
+        await prisma.offer.deleteMany();
+        await prisma.studentSkill.deleteMany();
+        await prisma.companyProfile.deleteMany();
+        await prisma.studentProfile.deleteMany();
+        await prisma.user.deleteMany();
+        await prisma.skill.deleteMany();
+
+        // Create test skills
+        await prisma.skill.createMany({
+            data: [
+                { name: 'React' },
+                { name: 'Node.js' },
+                { name: 'TypeScript' },
+            ],
+        });
+
+        const createdSkills = await prisma.skill.findMany();
+        testSkillIds = createdSkills.map(skill => skill.id);
+
+        // Create a test student
+        const testUser = await prisma.user.create({
+            data: {
+                email: faker.internet.email(),
+                passwordHash: 'hashedpassword',
+                role: 'STUDENT',
+            },
+        });
+        testStudentUserId = testUser.id;
+
+        await prisma.studentProfile.create({
+            data: {
+                userId: testUser.id,
+                firstName: 'John',
+                lastName: 'Doe',
+                school: 'Test University',
+                degree: 'Computer Science',
+                isOpenToOpportunities: true,
+                isCvPublic: true,
+                cvUrl: 'https://example.com/cv.pdf',
+                skills: {
+                    create: [
+                        { skillId: testSkillIds[0] }, // React
+                        { skillId: testSkillIds[1] }, // Node.js
+                    ],
+                },
+            },
+        });
+    });
+
+    afterEach(async () => {
+        // Clean up after each test in correct order
+        await prisma.adoptionRequest.deleteMany();
+        await prisma.application.deleteMany();
+        await prisma.offer.deleteMany();
+        await prisma.studentSkill.deleteMany();
+        await prisma.companyProfile.deleteMany();
+        await prisma.studentProfile.deleteMany();
+        await prisma.user.deleteMany();
+        await prisma.skill.deleteMany();
+    });
+
+    describe('getStudentProfile', () => {
+        it('should return student profile with user email and skills', async () => {
+            const result = await studentService.getStudentProfile(testStudentUserId);
+
+            expect(result).toHaveProperty('id', testStudentUserId);
+            expect(result).toHaveProperty('firstName', 'John');
+            expect(result).toHaveProperty('lastName', 'Doe');
+            expect(result).toHaveProperty('school', 'Test University');
+            expect(result).toHaveProperty('degree', 'Computer Science');
+            expect(result).toHaveProperty('email');
+            expect(result).toHaveProperty('skills');
+            expect(result).toHaveProperty('cvUrl', 'https://example.com/cv.pdf');
+            expect(result).toHaveProperty('isCvPublic', true);
+            expect(result).toHaveProperty('isOpenToOpportunities', true);
+
+            expect(Array.isArray(result.skills)).toBe(true);
+            expect(result.skills).toHaveLength(2);
+
+            const skillNames = result.skills.map(skill => skill.name);
+            expect(skillNames).toContain('React');
+            expect(skillNames).toContain('Node.js');
+        });
+
+        it('should throw NotFoundError when student profile does not exist', async () => {
+            const nonExistentUserId = 'non-existent-id';
+
+            await expect(studentService.getStudentProfile(nonExistentUserId))
+                .rejects
+                .toThrow(NotFoundError);
+        });
+    });
+
+    describe('updateStudentVisibility', () => {
+        it('should update student visibility to false', async () => {
+            const result = await studentService.updateStudentVisibility(testStudentUserId, false);
+
+            expect(result).toHaveProperty('isOpenToOpportunities', false);
+            expect(result).toHaveProperty('userId', testStudentUserId);
+
+            // Verify the change was persisted
+            const updatedProfile = await prisma.studentProfile.findUnique({
+                where: { userId: testStudentUserId },
+            });
+            expect(updatedProfile?.isOpenToOpportunities).toBe(false);
+        });
+
+        it('should update student visibility to true', async () => {
+            // First set to false
+            await studentService.updateStudentVisibility(testStudentUserId, false);
+
+            // Then update to true
+            const result = await studentService.updateStudentVisibility(testStudentUserId, true);
+
+            expect(result).toHaveProperty('isOpenToOpportunities', true);
+            expect(result).toHaveProperty('userId', testStudentUserId);
+
+            // Verify the change was persisted
+            const updatedProfile = await prisma.studentProfile.findUnique({
+                where: { userId: testStudentUserId },
+            });
+            expect(updatedProfile?.isOpenToOpportunities).toBe(true);
+        });
+
+        it('should throw NotFoundError when student profile does not exist', async () => {
+            const nonExistentUserId = 'non-existent-id';
+
+            await expect(studentService.updateStudentVisibility(nonExistentUserId, true))
+                .rejects
+                .toThrow(NotFoundError);
+        });
+    });
+
+    describe('getStudentStats', () => {
+        it('should return correct student statistics', async () => {
+            // Create test company and offers for applications
+            const testCompanyUser = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'COMPANY',
+                },
+            });
+
+            const testCompanyProfile = await prisma.companyProfile.create({
+                data: {
+                    userId: testCompanyUser.id,
+                    name: 'Test Company',
+                    contactEmail: faker.internet.email(),
+                },
+            });
+
+            const offer1 = await prisma.offer.create({
+                data: {
+                    title: 'Software Engineer',
+                    description: 'Great opportunity',
+                    location: 'Remote',
+                    duration: 'INTERNSHIP',
+                    companyId: testCompanyProfile.id,
+                },
+            });
+
+            const offer2 = await prisma.offer.create({
+                data: {
+                    title: 'Data Scientist',
+                    description: 'Another opportunity',
+                    location: 'On-site',
+                    duration: 'FULL_TIME',
+                    companyId: testCompanyProfile.id,
+                },
+            });
+
+            // Create test applications with different statuses
+            await prisma.application.create({
+                data: {
+                    studentId: testStudentUserId,
+                    offerId: offer1.id,
+                    status: 'NEW',
+                },
+            });
+
+            await prisma.application.create({
+                data: {
+                    studentId: testStudentUserId,
+                    offerId: offer2.id,
+                    status: 'HIRED',
+                },
+            });
+
+            // Create adoption request
+            await prisma.adoptionRequest.create({
+                data: {
+                    companyId: testCompanyProfile.id,
+                    studentId: testStudentUserId,
+                },
+            });
+
+            const result = await studentService.getStudentStats(testStudentUserId);
+
+            expect(result).toHaveProperty('totalApplications', 2);
+            expect(result).toHaveProperty('applicationsByStatus');
+            expect(result.applicationsByStatus).toHaveProperty('NEW', 1);
+            expect(result.applicationsByStatus).toHaveProperty('HIRED', 1);
+            expect(result).toHaveProperty('adoptionRequestsReceived', 1);
+        });
+
+        it('should throw NotFoundError when student profile does not exist', async () => {
+            const nonExistentUserId = 'non-existent-id';
+
+            await expect(studentService.getStudentStats(nonExistentUserId))
+                .rejects
+                .toThrow(NotFoundError);
+        });
+
+        it('should return zero stats for student with no activity', async () => {
+            const result = await studentService.getStudentStats(testStudentUserId);
+
+            expect(result).toHaveProperty('totalApplications', 0);
+            expect(result).toHaveProperty('applicationsByStatus', {});
+            expect(result).toHaveProperty('adoptionRequestsReceived', 0);
+        });
+    });
+});

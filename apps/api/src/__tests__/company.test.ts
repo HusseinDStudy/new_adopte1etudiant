@@ -4,6 +4,8 @@ import { buildTestApp } from '../helpers/test-app';
 import { prisma } from 'db-postgres';
 import { faker } from '@faker-js/faker';
 import { FastifyInstance } from 'fastify';
+import { CompanyService } from '../services/CompanyService.js';
+import { NotFoundError } from '../errors/AppError.js';
 
 describe('Company Routes', () => {
     let app: FastifyInstance;
@@ -292,4 +294,362 @@ describe('Company Routes', () => {
             });
         });
     });
-}); 
+});
+
+describe('CompanyService', () => {
+    let companyService: CompanyService;
+    let testCompanyUserId: string;
+    let testCompanyProfileId: string;
+
+    beforeAll(async () => {
+        companyService = new CompanyService();
+    });
+
+    beforeEach(async () => {
+        // Clean up database
+        await prisma.adoptionRequest.deleteMany();
+        await prisma.application.deleteMany();
+        await prisma.offer.deleteMany();
+        await prisma.companyProfile.deleteMany();
+        await prisma.user.deleteMany();
+
+        // Create a test company
+        const testUser = await prisma.user.create({
+            data: {
+                email: faker.internet.email(),
+                passwordHash: 'hashedpassword',
+                role: 'COMPANY',
+            },
+        });
+        testCompanyUserId = testUser.id;
+
+        const testCompanyProfile = await prisma.companyProfile.create({
+            data: {
+                userId: testUser.id,
+                name: 'Test Company',
+                contactEmail: faker.internet.email(),
+                sector: 'Technology',
+                size: '50-100',
+                logoUrl: 'https://example.com/logo.png',
+            },
+        });
+        testCompanyProfileId = testCompanyProfile.id;
+    });
+
+    afterEach(async () => {
+        // Clean up after each test
+        await prisma.adoptionRequest.deleteMany();
+        await prisma.application.deleteMany();
+        await prisma.offer.deleteMany();
+        await prisma.companyProfile.deleteMany();
+        await prisma.user.deleteMany();
+    });
+
+    describe('getCompanyProfile', () => {
+        it('should return company profile with user email and offers', async () => {
+            // Create some test offers
+            await prisma.offer.create({
+                data: {
+                    title: 'Software Engineer',
+                    description: 'Great opportunity',
+                    location: 'Remote',
+                    duration: 'INTERNSHIP',
+                    companyId: testCompanyProfileId,
+                },
+            });
+
+            const result = await companyService.getCompanyProfile(testCompanyUserId);
+
+            expect(result).toHaveProperty('id', testCompanyProfileId);
+            expect(result).toHaveProperty('name', 'Test Company');
+            expect(result).toHaveProperty('sector', 'Technology');
+            expect(result).toHaveProperty('size', '50-100');
+            expect(result).toHaveProperty('logoUrl', 'https://example.com/logo.png');
+            expect(result).toHaveProperty('email');
+            expect(result).toHaveProperty('offers');
+            expect(Array.isArray(result.offers)).toBe(true);
+            expect(result.offers).toHaveLength(1);
+            expect(result.offers[0]).toHaveProperty('title', 'Software Engineer');
+        });
+
+        it('should throw NotFoundError when company profile does not exist', async () => {
+            const nonExistentUserId = 'non-existent-id';
+
+            await expect(companyService.getCompanyProfile(nonExistentUserId))
+                .rejects
+                .toThrow(NotFoundError);
+        });
+    });
+
+    describe('getCompanyStats', () => {
+        it('should return correct company statistics', async () => {
+            // Create test offers
+            const offer1 = await prisma.offer.create({
+                data: {
+                    title: 'Software Engineer',
+                    description: 'Great opportunity',
+                    location: 'Remote',
+                    duration: 'INTERNSHIP',
+                    companyId: testCompanyProfileId,
+                },
+            });
+
+            const offer2 = await prisma.offer.create({
+                data: {
+                    title: 'Data Scientist',
+                    description: 'Another opportunity',
+                    location: 'On-site',
+                    duration: 'FULL_TIME',
+                    companyId: testCompanyProfileId,
+                },
+            });
+
+            // Create test students for applications
+            const testStudent1 = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'STUDENT',
+                },
+            });
+
+            const testStudent2 = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'STUDENT',
+                },
+            });
+
+            const studentProfile1 = await prisma.studentProfile.create({
+                data: {
+                    userId: testStudent1.id,
+                    firstName: 'John',
+                    lastName: 'Doe',
+                },
+            });
+
+            const studentProfile2 = await prisma.studentProfile.create({
+                data: {
+                    userId: testStudent2.id,
+                    firstName: 'Jane',
+                    lastName: 'Smith',
+                },
+            });
+
+            // Create test applications with different statuses
+            await prisma.application.create({
+                data: {
+                    studentId: testStudent1.id,
+                    offerId: offer1.id,
+                    status: 'NEW',
+                },
+            });
+
+            await prisma.application.create({
+                data: {
+                    studentId: testStudent2.id,
+                    offerId: offer2.id,
+                    status: 'HIRED',
+                },
+            });
+
+            // Create adoption request
+            await prisma.adoptionRequest.create({
+                data: {
+                    companyId: testCompanyProfileId,
+                    studentId: testStudent1.id,
+                },
+            });
+
+            const result = await companyService.getCompanyStats(testCompanyUserId);
+
+            expect(result).toHaveProperty('totalOffers', 2);
+            expect(result).toHaveProperty('totalApplications', 2);
+            expect(result).toHaveProperty('applicationsByStatus');
+            expect(result.applicationsByStatus).toHaveProperty('NEW', 1);
+            expect(result.applicationsByStatus).toHaveProperty('HIRED', 1);
+            expect(result).toHaveProperty('adoptionRequestsSent', 1);
+        });
+
+        it('should throw NotFoundError when company profile does not exist', async () => {
+            const nonExistentUserId = 'non-existent-id';
+
+            await expect(companyService.getCompanyStats(nonExistentUserId))
+                .rejects
+                .toThrow(NotFoundError);
+        });
+
+        it('should return zero stats for company with no activity', async () => {
+            const result = await companyService.getCompanyStats(testCompanyUserId);
+
+            expect(result).toHaveProperty('totalOffers', 0);
+            expect(result).toHaveProperty('totalApplications', 0);
+            expect(result).toHaveProperty('applicationsByStatus', {});
+            expect(result).toHaveProperty('adoptionRequestsSent', 0);
+        });
+    });
+
+    describe('getAllCompanies', () => {
+        it('should return all companies with offer counts', async () => {
+            // Create another company
+            const anotherUser = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'COMPANY',
+                },
+            });
+
+            const anotherCompanyProfile = await prisma.companyProfile.create({
+                data: {
+                    userId: anotherUser.id,
+                    name: 'Another Company',
+                    contactEmail: faker.internet.email(),
+                    sector: 'Finance',
+                    size: '100-250',
+                },
+            });
+
+            // Create offers for both companies
+            await prisma.offer.create({
+                data: {
+                    title: 'Software Engineer',
+                    description: 'Great opportunity',
+                    location: 'Remote',
+                    duration: 'INTERNSHIP',
+                    companyId: testCompanyProfileId,
+                },
+            });
+
+            await prisma.offer.create({
+                data: {
+                    title: 'Financial Analyst',
+                    description: 'Finance role',
+                    location: 'NYC',
+                    duration: 'FULL_TIME',
+                    companyId: anotherCompanyProfile.id,
+                },
+            });
+
+            const result = await companyService.getAllCompanies();
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result).toHaveLength(2);
+
+            // Check that companies are sorted by name
+            expect(result[0].name).toBe('Another Company');
+            expect(result[1].name).toBe('Test Company');
+
+            // Check structure
+            result.forEach(company => {
+                expect(company).toHaveProperty('id');
+                expect(company).toHaveProperty('name');
+                expect(company).toHaveProperty('sector');
+                expect(company).toHaveProperty('size');
+                expect(company).toHaveProperty('contactEmail');
+                expect(company).toHaveProperty('_count');
+                expect(company._count).toHaveProperty('offers');
+                expect(typeof company._count.offers).toBe('number');
+            });
+        });
+
+        it('should return empty array when no companies exist', async () => {
+            // Clean up all companies
+            await prisma.companyProfile.deleteMany();
+            await prisma.user.deleteMany();
+
+            const result = await companyService.getAllCompanies();
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result).toHaveLength(0);
+        });
+    });
+
+    describe('searchCompanies', () => {
+        beforeEach(async () => {
+            // Create additional companies for search testing
+            const user2 = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'COMPANY',
+                },
+            });
+
+            await prisma.companyProfile.create({
+                data: {
+                    userId: user2.id,
+                    name: 'Tech Innovations',
+                    contactEmail: faker.internet.email(),
+                    sector: 'Technology',
+                    size: '10-50',
+                },
+            });
+
+            const user3 = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'COMPANY',
+                },
+            });
+
+            await prisma.companyProfile.create({
+                data: {
+                    userId: user3.id,
+                    name: 'Finance Corp',
+                    contactEmail: faker.internet.email(),
+                    sector: 'Financial Services',
+                    size: '250-500',
+                },
+            });
+        });
+
+        it('should search companies by name', async () => {
+            const result = await companyService.searchCompanies('Tech');
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result).toHaveLength(2); // "Test Company" and "Tech Innovations"
+
+            const companyNames = result.map(c => c.name);
+            expect(companyNames).toContain('Test Company');
+            expect(companyNames).toContain('Tech Innovations');
+        });
+
+        it('should search companies by sector', async () => {
+            const result = await companyService.searchCompanies('Financial');
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result).toHaveLength(1);
+            expect(result[0].name).toBe('Finance Corp');
+            expect(result[0].sector).toBe('Financial Services');
+        });
+
+        it('should be case insensitive', async () => {
+            const result = await companyService.searchCompanies('TECH');
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result.length).toBeGreaterThan(0);
+        });
+
+        it('should return empty array for non-matching search', async () => {
+            const result = await companyService.searchCompanies('NonExistentCompany');
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result).toHaveLength(0);
+        });
+
+        it('should return results sorted by name', async () => {
+            const result = await companyService.searchCompanies('');
+
+            expect(Array.isArray(result)).toBe(true);
+            expect(result.length).toBeGreaterThan(1);
+
+            // Check if sorted alphabetically
+            for (let i = 1; i < result.length; i++) {
+                expect(result[i-1].name.localeCompare(result[i].name)).toBeLessThanOrEqual(0);
+            }
+        });
+    });
+});

@@ -4,6 +4,7 @@ import { buildTestApp } from '../helpers/test-app';
 import { prisma } from 'db-postgres';
 import { faker } from '@faker-js/faker';
 import { FastifyInstance } from 'fastify';
+import { SkillService } from '../services/SkillService.js';
 
 describe('Skill Routes', () => {
     let app: FastifyInstance;
@@ -234,4 +235,274 @@ describe('Skill Routes', () => {
             expect(response.status).toBe(404);
         });
     });
-}); 
+});
+
+describe('SkillService', () => {
+    let skillService: SkillService;
+
+    beforeAll(async () => {
+        skillService = new SkillService();
+    });
+
+    beforeEach(async () => {
+        // Clean up database
+        await prisma.offer.deleteMany();
+        await prisma.skill.deleteMany();
+    });
+
+    afterEach(async () => {
+        // Clean up after each test
+        await prisma.offer.deleteMany();
+        await prisma.skill.deleteMany();
+    });
+
+    describe('normalizeSkillName', () => {
+        it('should normalize skill names correctly', async () => {
+            expect(skillService.normalizeSkillName('react')).toBe('React');
+            expect(skillService.normalizeSkillName('node.js')).toBe('Node.js');
+            expect(skillService.normalizeSkillName('TYPESCRIPT')).toBe('Typescript');
+            expect(skillService.normalizeSkillName('vue.JS')).toBe('Vue.js');
+            expect(skillService.normalizeSkillName('c++')).toBe('C++');
+            expect(skillService.normalizeSkillName('c#')).toBe('C#');
+        });
+
+        it('should handle multiple spaces and trim whitespace', async () => {
+            expect(skillService.normalizeSkillName('  react   native  ')).toBe('React Native');
+            expect(skillService.normalizeSkillName('node    js')).toBe('Node Js');
+            expect(skillService.normalizeSkillName('\t\nreact\t\n')).toBe('React');
+        });
+
+        it('should handle empty and invalid inputs', async () => {
+            expect(skillService.normalizeSkillName('')).toBe('');
+            expect(skillService.normalizeSkillName('   ')).toBe('');
+            expect(skillService.normalizeSkillName('  \t\n  ')).toBe('');
+        });
+
+        it('should handle special characters correctly', async () => {
+            expect(skillService.normalizeSkillName('asp.net')).toBe('Asp.net');
+            expect(skillService.normalizeSkillName('ui/ux')).toBe('Ui/ux');
+            expect(skillService.normalizeSkillName('machine-learning')).toBe('Machine-learning');
+        });
+
+        it('should handle single words', async () => {
+            expect(skillService.normalizeSkillName('python')).toBe('Python');
+            expect(skillService.normalizeSkillName('JAVA')).toBe('Java');
+            expect(skillService.normalizeSkillName('Html')).toBe('Html');
+        });
+    });
+
+    describe('validateSkillName', () => {
+        it('should validate correct skill names', async () => {
+            const validSkills = [
+                'React',
+                'Node.js',
+                'TypeScript',
+                'C++',
+                'C#',
+                'ASP.NET',
+                'Machine Learning',
+                'UI-UX',
+                'Python3',
+                'Vue.js 3',
+                'Angular 2+',
+            ];
+
+            validSkills.forEach(skill => {
+                const result = skillService.validateSkillName(skill);
+                expect(result.isValid).toBe(true);
+                expect(result.message).toBeUndefined();
+            });
+        });
+
+        it('should reject skill names with invalid characters', async () => {
+            const invalidSkills = [
+                'React@',
+                'Node.js!',
+                'Type$cript',
+                'C++&',
+                'Python*',
+                'Java%',
+                'HTML<>',
+                'CSS{}',
+                'SQL[]',
+                'PHP()',
+            ];
+
+            invalidSkills.forEach(skill => {
+                const result = skillService.validateSkillName(skill);
+                expect(result.isValid).toBe(false);
+                expect(result.message).toBeDefined();
+                expect(result.message).toContain('contains invalid characters');
+                expect(result.message).toContain(skill);
+            });
+        });
+
+        it('should handle edge cases', async () => {
+            // Empty string
+            const emptyResult = skillService.validateSkillName('');
+            expect(emptyResult.isValid).toBe(true);
+
+            // Only spaces
+            const spacesResult = skillService.validateSkillName('   ');
+            expect(spacesResult.isValid).toBe(true);
+
+            // Only allowed special characters
+            const specialResult = skillService.validateSkillName('+-#.');
+            expect(specialResult.isValid).toBe(true);
+        });
+
+        it('should provide detailed error messages for multiple invalid characters', async () => {
+            const result = skillService.validateSkillName('React@#$%');
+            expect(result.isValid).toBe(false);
+            expect(result.message).toContain('@');
+            expect(result.message).toContain('$');
+            expect(result.message).toContain('%');
+        });
+    });
+
+    describe('validateSkills', () => {
+        it('should validate array of correct skill names', async () => {
+            const validSkills = ['React', 'Node.js', 'TypeScript', 'Python'];
+
+            await expect(skillService.validateSkills(validSkills)).resolves.not.toThrow();
+        });
+
+        it('should throw error for invalid skill names', async () => {
+            const invalidSkills = ['React', 'Node.js@', 'TypeScript'];
+
+            await expect(skillService.validateSkills(invalidSkills))
+                .rejects
+                .toThrow('contains invalid characters');
+        });
+
+        it('should handle empty array', async () => {
+            await expect(skillService.validateSkills([])).resolves.not.toThrow();
+        });
+
+        it('should stop at first invalid skill', async () => {
+            const mixedSkills = ['React@', 'Node.js$', 'TypeScript'];
+
+            await expect(skillService.validateSkills(mixedSkills))
+                .rejects
+                .toThrow('React@');
+        });
+    });
+
+    describe('normalizeAndCreateSkills', () => {
+        it('should create normalized skill objects for upsert operations', async () => {
+            const skillNames = ['react', 'NODE.JS', '  TypeScript  '];
+
+            const result = await skillService.normalizeAndCreateSkills(skillNames);
+
+            expect(result).toHaveLength(3);
+
+            expect(result[0]).toEqual({
+                where: { name: 'React' },
+                create: { name: 'React' },
+            });
+
+            expect(result[1]).toEqual({
+                where: { name: 'Node.js' },
+                create: { name: 'Node.js' },
+            });
+
+            expect(result[2]).toEqual({
+                where: { name: 'Typescript' },
+                create: { name: 'Typescript' },
+            });
+        });
+
+        it('should handle empty array', async () => {
+            const result = await skillService.normalizeAndCreateSkills([]);
+            expect(result).toHaveLength(0);
+        });
+
+        it('should handle special characters correctly', async () => {
+            const skillNames = ['c++', 'c#', 'asp.net'];
+
+            const result = await skillService.normalizeAndCreateSkills(skillNames);
+
+            expect(result).toHaveLength(3);
+            expect(result[0].where.name).toBe('C++');
+            expect(result[1].where.name).toBe('C#');
+            expect(result[2].where.name).toBe('Asp.net');
+        });
+
+        it('should handle duplicate skill names by normalizing them', async () => {
+            const skillNames = ['react', 'REACT', '  React  ', 'react.js'];
+
+            const result = await skillService.normalizeAndCreateSkills(skillNames);
+
+            expect(result).toHaveLength(4);
+            expect(result[0].where.name).toBe('React');
+            expect(result[1].where.name).toBe('React');
+            expect(result[2].where.name).toBe('React');
+            expect(result[3].where.name).toBe('React.js');
+        });
+    });
+
+    describe('getAllSkills integration', () => {
+        it('should return skills that are connected to offers', async () => {
+            // Create skills
+            const skill1 = await prisma.skill.create({ data: { name: 'React' } });
+            const skill2 = await prisma.skill.create({ data: { name: 'Node.js' } });
+            const skill3 = await prisma.skill.create({ data: { name: 'Unused Skill' } });
+
+            // Create a company and offer to connect skills
+            const user = await prisma.user.create({
+                data: {
+                    email: faker.internet.email(),
+                    passwordHash: 'hashedpassword',
+                    role: 'COMPANY',
+                },
+            });
+
+            const companyProfile = await prisma.companyProfile.create({
+                data: {
+                    userId: user.id,
+                    name: 'Test Company',
+                    contactEmail: faker.internet.email(),
+                },
+            });
+
+            await prisma.offer.create({
+                data: {
+                    title: 'Test Offer',
+                    description: 'Test Description',
+                    location: 'Remote',
+                    duration: 'INTERNSHIP',
+                    companyId: companyProfile.id,
+                    skills: {
+                        connect: [
+                            { id: skill1.id },
+                            { id: skill2.id },
+                        ],
+                    },
+                },
+            });
+
+            const result = await skillService.getAllSkills();
+
+            expect(result).toHaveLength(2);
+            const skillNames = result.map(skill => skill.name);
+            expect(skillNames).toContain('React');
+            expect(skillNames).toContain('Node.js');
+            expect(skillNames).not.toContain('Unused Skill');
+
+            // Clean up
+            await prisma.offer.deleteMany();
+            await prisma.companyProfile.deleteMany();
+            await prisma.user.deleteMany();
+        });
+
+        it('should return empty array when no skills are connected to offers', async () => {
+            // Create skills but don't connect them to any offers
+            await prisma.skill.create({ data: { name: 'Unused Skill 1' } });
+            await prisma.skill.create({ data: { name: 'Unused Skill 2' } });
+
+            const result = await skillService.getAllSkills();
+
+            expect(result).toHaveLength(0);
+        });
+    });
+});

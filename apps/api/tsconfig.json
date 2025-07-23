@@ -5,9 +5,9 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "db-postgres": ["../../packages/db-postgres/dist/index.d.ts"],
-      "core": ["../../packages/core/dist/index.d.ts"],
-      "shared-types": ["../../packages/shared-types/dist/index.d.ts"]
+      "db-postgres": ["../../packages/db-postgres/dist"],
+      "core": ["../../packages/core/dist"],
+      "shared-types": ["../../packages/shared-types/dist"]
     }
   },
   "include": ["src/**/*"],

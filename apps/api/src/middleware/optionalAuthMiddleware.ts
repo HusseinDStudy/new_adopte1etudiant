@@ -29,13 +29,24 @@ export const optionalAuthMiddleware = (
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[OptionalAuth] JWT_SECRET environment variable is not set');
+      }
+      return done();
+    }
+
+    const decoded = jwt.verify(token, jwtSecret) as UserPayload;
     request.user = decoded;
     done();
   } catch (error) {
     // If token is invalid or expired, just continue without a user object
-    // You might want to log this error
-    console.warn('Invalid token encountered in optionalAuthMiddleware:', error);
+    // Log only in development to prevent production log pollution
+    if (process.env.NODE_ENV === 'development') {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.warn(`[OptionalAuth] Invalid token encountered: ${errorMessage}`);
+    }
     done();
   }
 }; 
