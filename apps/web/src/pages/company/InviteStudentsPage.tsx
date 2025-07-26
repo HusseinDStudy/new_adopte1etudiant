@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getOfferById } from '../../services/offerService';
 import { listAvailableStudents } from '../../services/studentService';
-import { createAdoptionRequest } from '../../services/adoptionRequestService';
+import { createAdoptionRequest, getRequestedStudentIds } from '../../services/adoptionRequestService';
 
 interface Student {
   id: string;
@@ -35,20 +35,23 @@ const InviteStudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [invitingStudents, setInvitingStudents] = useState<Set<string>>(new Set());
   const [invitedStudents, setInvitedStudents] = useState<Set<string>>(new Set());
+  const [alreadyRequestedStudents, setAlreadyRequestedStudents] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
-        const [offerData, studentsData] = await Promise.all([
+        const [offerData, studentsData, requestedStudentIds] = await Promise.all([
           getOfferById(id),
-          listAvailableStudents({})
+          listAvailableStudents({}),
+          getRequestedStudentIds()
         ]);
-        
+
         setOffer(offerData);
         setStudents(studentsData);
         setFilteredStudents(studentsData);
+        setAlreadyRequestedStudents(new Set(requestedStudentIds));
       } catch (err) {
         setError('Failed to load data.');
         console.error(err);
@@ -59,6 +62,16 @@ const InviteStudentsPage = () => {
 
     fetchData();
   }, [id]);
+
+  // Function to refresh requested students state
+  const refreshRequestedStudents = async () => {
+    try {
+      const requestedStudentIds = await getRequestedStudentIds();
+      setAlreadyRequestedStudents(new Set(requestedStudentIds));
+    } catch (err) {
+      console.error('Failed to refresh requested students:', err);
+    }
+  };
 
   // Filter students based on search term
   useEffect(() => {
@@ -77,15 +90,28 @@ const InviteStudentsPage = () => {
 
   const handleInviteStudent = async (studentId: string) => {
     if (!offer) return;
-    
+
     setInvitingStudents(prev => new Set(prev).add(studentId));
-    
+    setError(''); // Clear any previous errors
+
     try {
       await createAdoptionRequest(studentId, `Invitation to apply for: ${offer.title}`);
+      // Successfully sent invitation
       setInvitedStudents(prev => new Set(prev).add(studentId));
-    } catch (err) {
+      setAlreadyRequestedStudents(prev => new Set(prev).add(studentId));
+    } catch (err: any) {
       console.error('Failed to invite student:', err);
-      setError('Failed to send invitation. Please try again.');
+
+      // Handle specific error cases
+      if (err.message?.includes('already sent') || err.message?.includes('already')) {
+        // If already sent, update our state to reflect this
+        setAlreadyRequestedStudents(prev => new Set(prev).add(studentId));
+        setInvitedStudents(prev => new Set(prev).add(studentId));
+        // Don't show error for this case - it's expected behavior
+      } else {
+        // For other errors, show a user-friendly message
+        setError(`Failed to send invitation: ${err.message || 'Please try again.'}`);
+      }
     } finally {
       setInvitingStudents(prev => {
         const newSet = new Set(prev);
@@ -140,6 +166,13 @@ const InviteStudentsPage = () => {
           >
             ← Back to Applicants
           </Link>
+          <button
+            onClick={refreshRequestedStudents}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            title="Refresh invitation status"
+          >
+            🔄 Refresh Status
+          </button>
         </div>
         <h1 className="text-3xl font-bold text-gray-900">Invite Students</h1>
         {offer && (
@@ -165,6 +198,21 @@ const InviteStudentsPage = () => {
         )}
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span>{error}</span>
+            <button
+              onClick={() => setError('')}
+              className="text-red-500 hover:text-red-700 font-bold text-lg"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Search */}
       <div className="mb-6">
         <input
@@ -189,8 +237,10 @@ const InviteStudentsPage = () => {
           {sortedStudents.map(student => {
             const matchScore = getMatchScore(student);
             const isInviting = invitingStudents.has(student.id);
-            const isInvited = invitedStudents.has(student.id);
-            
+            const isNewlyInvited = invitedStudents.has(student.id);
+            const wasAlreadyRequested = alreadyRequestedStudents.has(student.id);
+            const showAsInvited = isNewlyInvited || wasAlreadyRequested;
+
             return (
               <div key={student.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -262,9 +312,13 @@ const InviteStudentsPage = () => {
 
                   {/* Actions */}
                   <div className="flex flex-col gap-3 lg:w-48">
-                    {isInvited ? (
+                    {showAsInvited ? (
                       <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-medium text-center">
-                        ✓ Invitation Sent
+                        {wasAlreadyRequested && !isNewlyInvited ? (
+                          <>✓ Already Contacted</>
+                        ) : (
+                          <>✓ Invitation Sent</>
+                        )}
                       </div>
                     ) : (
                       <button
