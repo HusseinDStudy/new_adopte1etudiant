@@ -119,10 +119,10 @@ const StudentDirectoryPage: React.FC = () => {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {(student.skills || []).map((skill, index) => (
                     <span
-                      key={skill.id || `skill-${index}`}
+                      key={`skill-${index}`}
                       className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800"
                     >
-                      {skill.name}
+                      {skill}
                     </span>
                   ))}
                 </div>

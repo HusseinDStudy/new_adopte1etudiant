@@ -11,10 +11,7 @@ export interface Student {
   email: string;
   school: string | null;
   degree: string | null;
-  skills: {
-    id: string;
-    name: string;
-  }[];
+  skills: string[]; // API returns skills as array of strings
   cvUrl: string | null;
   isCvPublic: boolean;
 }
