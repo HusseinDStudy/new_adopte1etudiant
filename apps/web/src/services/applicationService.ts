@@ -42,7 +42,11 @@ export const getAppliedOfferIds = async (): Promise<string[]> => {
   try {
     const applications = await getMyApplications();
     return applications.map((app: any) => app.offer.id);
-  } catch (error) {
+  } catch (error: any) {
+    // Handle 403 errors gracefully (user not authorized - likely not a student)
+    if (error.response?.status === 403) {
+      return [];
+    }
     console.error('Failed to fetch applied offer IDs:', error);
     return [];
   }
