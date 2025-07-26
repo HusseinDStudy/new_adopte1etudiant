@@ -39,14 +39,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      // Check if there's an auth cookie present
+      const hasAuthCookie = document.cookie.includes('token=');
+
+      if (!hasAuthCookie) {
+        // No auth cookie, user is not authenticated
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        // Only make API call if auth cookie exists
         const currentUser = await getMe();
         setUser(currentUser);
         setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Not authenticated', error);
-        setUser(null);
-        setIsAuthenticated(false);
+      } catch (error: any) {
+        // Cookie exists but is invalid/expired, handle silently for 401 errors
+        if (error.response?.status === 401) {
+          // Expected behavior for expired/invalid tokens
+          setUser(null);
+          setIsAuthenticated(false);
+        } else {
+          // Log unexpected errors
+          console.error('Authentication check failed:', error);
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } finally {
         setLoading(false);
         setIsLoading(false);
@@ -83,7 +104,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Logout failed on server:', error);
     } finally {
       setUser(null);
-      localStorage.removeItem('user');
       setIsAuthenticated(false);
       navigate('/login');
     }
