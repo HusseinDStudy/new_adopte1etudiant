@@ -3,24 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { getOfferApplications, getOfferById } from '../../services/offerService';
 import { updateApplicationStatus } from '../../services/applicationService';
 
-interface StudentProfile {
+interface Student {
+  userId: string;
   firstName: string;
   lastName: string;
   school?: string;
   degree?: string;
-  skills?: {
-    skill: {
-      name: string;
-    };
-  }[];
+  skills?: string[];
   cvUrl?: string;
   isCvPublic?: boolean;
-}
-
-interface Student {
-  id: string;
-  email: string;
-  studentProfile: StudentProfile | null;
+  isOpenToOpportunities?: boolean;
 }
 
 interface Application {
@@ -29,7 +21,7 @@ interface Application {
   status: string;
   createdAt: string;
   updatedAt: string;
-  student: Student;
+  student: Student | null;
   conversation: {
     id: string;
   } | null;
@@ -238,9 +230,9 @@ const OfferApplicantsPage = () => {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">
-                        {app.student.studentProfile?.firstName || ''} {app.student.studentProfile?.lastName || ''}
+                        {app.student?.firstName || ''} {app.student?.lastName || ''}
                       </h3>
-                      <p className="text-gray-600">{app.student.email}</p>
+                      <p className="text-gray-600">Student ID: {app.studentId}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[app.status]}`}>
                       {app.status}
@@ -250,10 +242,10 @@ const OfferApplicantsPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <p className="text-sm text-gray-600">
-                        <strong>School:</strong> {app.student.studentProfile?.school || 'N/A'}
+                        <strong>School:</strong> {app.student?.school || 'N/A'}
                       </p>
                       <p className="text-sm text-gray-600">
-                        <strong>Degree:</strong> {app.student.studentProfile?.degree || 'N/A'}
+                        <strong>Degree:</strong> {app.student?.degree || 'N/A'}
                       </p>
                     </div>
                     <div>
@@ -269,16 +261,16 @@ const OfferApplicantsPage = () => {
                   </div>
 
                   {/* Skills */}
-                  {app.student.studentProfile?.skills && app.student.studentProfile.skills.length > 0 && (
+                  {app.student?.skills && app.student.skills.length > 0 && (
                     <div className="mb-4">
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
                       <div className="flex flex-wrap gap-2">
-                        {app.student.studentProfile.skills.map((skillObj, index) => (
+                        {app.student.skills.map((skill, index) => (
                           <span
                             key={`skill-${index}`}
                             className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded"
                           >
-                            {skillObj.skill.name}
+                            {skill}
                           </span>
                         ))}
                       </div>
@@ -286,10 +278,10 @@ const OfferApplicantsPage = () => {
                   )}
 
                   {/* CV Link */}
-                  {app.student.studentProfile?.cvUrl && app.student.studentProfile?.isCvPublic && (
+                  {app.student?.cvUrl && app.student?.isCvPublic && (
                     <div className="mb-4">
                       <a
-                        href={app.student.studentProfile.cvUrl}
+                        href={app.student.cvUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
@@ -329,12 +321,14 @@ const OfferApplicantsPage = () => {
                     </Link>
                   )}
 
-                  <Link
-                    to={`/students`}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium text-center transition-colors"
-                  >
-                    Request Adoption
-                  </Link>
+                  {app.student?.userId && (
+                    <Link
+                      to={`/students?highlight=${app.student.userId}`}
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium text-center transition-colors"
+                    >
+                      Request Adoption
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

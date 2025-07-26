@@ -17,6 +17,7 @@ import MyConversationsPage from './pages/MyConversationsPage';
 import StudentDirectoryPage from './pages/StudentDirectoryPage';
 import MyAdoptionRequestsPage from './pages/MyAdoptionRequestsPage';
 import SentAdoptionRequestsPage from './pages/company/SentAdoptionRequestsPage';
+import InviteStudentsPage from './pages/company/InviteStudentsPage';
 import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
 import LinkAccountPage from './pages/LinkAccountPage';
 import Verify2faPage from './pages/Verify2faPage';
@@ -89,6 +90,7 @@ function App() {
             <Route path="/company/offers/new" element={<CreateOfferPage />} />
             <Route path="/company/offers/edit/:id" element={<EditOfferPage />} />
             <Route path="/company/offers/:id/applications" element={<OfferApplicantsPage />} />
+            <Route path="/company/offers/:id/invite-students" element={<InviteStudentsPage />} />
             <Route path="/company/sent-requests" element={<SentAdoptionRequestsPage />} />
           </Route>
         </Routes>
