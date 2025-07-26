@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { useStudents } from '../hooks/useStudents';
 
 const StudentDirectoryPage: React.FC = () => {
-  const [requestedStudentIds, setRequestedStudentIds] = useState<Set<string>>(
-    new Set()
-  );
   const [requestingStudentId, setRequestingStudentId] = useState<string | null>(null);
   const [adoptionMessage, setAdoptionMessage] = useState('');
 
@@ -21,6 +18,9 @@ const StudentDirectoryPage: React.FC = () => {
     clearFilters,
     sendAdoptionRequest,
     adoptionRequestLoading,
+    requestedStudentIds,
+    setRequestedStudentIds,
+    refreshRequestedStudents,
   } = useStudents();
 
   const handleRequestAdoption = async (studentId: string) => {
@@ -44,13 +44,19 @@ const StudentDirectoryPage: React.FC = () => {
     try {
       setRequestingStudentId(studentId);
       await sendAdoptionRequest(studentId, trimmedMessage);
-      setRequestedStudentIds(prev => new Set(prev).add(studentId));
       setRequestingStudentId(null);
       setAdoptionMessage('');
       alert('Adoption request sent successfully!');
     } catch (err: any) {
       console.error('Failed to send adoption request', err);
-      alert(err.message || 'Failed to send adoption request.');
+
+      // Handle specific error cases
+      if (err.message?.includes('already sent')) {
+        alert('You have already sent an adoption request to this student. Check your sent requests to view the conversation.');
+      } else {
+        alert(err.message || 'Failed to send adoption request.');
+      }
+
       setRequestingStudentId(null);
     }
   }
@@ -59,9 +65,18 @@ const StudentDirectoryPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-8">
-        Find Your Next Intern
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">
+          Find Your Next Intern
+        </h1>
+        <button
+          onClick={refreshRequestedStudents}
+          className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          title="Refresh request status"
+        >
+          🔄 Refresh Status
+        </button>
+      </div>
 
       {error && (
           <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
@@ -204,17 +219,25 @@ const StudentDirectoryPage: React.FC = () => {
                       </button>
                     </div>
                   </div>
+                ) : requestedStudentIds.has(student.id) ? (
+                  <div className="text-center">
+                    <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-medium mb-2">
+                      ✓ Request Sent
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Check your sent requests to view the conversation
+                    </p>
+                  </div>
                 ) : (
                   <button
                     onClick={() => {
                       setRequestingStudentId(student.id);
                       setAdoptionMessage('');
                     }}
-                  disabled={requestedStudentIds.has(student.id)}
-                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:bg-gray-400"
-                >
-                  {requestedStudentIds.has(student.id) ? 'Request Sent' : 'Request Adoption'}
-                </button>
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    Request Adoption
+                  </button>
                 )}
               </div>
             </div>

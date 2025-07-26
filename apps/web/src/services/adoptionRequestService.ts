@@ -32,6 +32,16 @@ export const getSentAdoptionRequests = async () => {
   return data.requests || [];
 }
 
+export const getRequestedStudentIds = async (): Promise<string[]> => {
+  try {
+    const requests = await getSentAdoptionRequests();
+    return requests.map((request: any) => request.studentId);
+  } catch (error) {
+    console.error('Failed to fetch sent adoption requests:', error);
+    return [];
+  }
+}
+
 export const getMyAdoptionRequests = async () => {
     const { data } = await apiClient.get('/adoption-requests/my-requests');
     // API returns { requests: [...], pagination: {...} }
