@@ -27,7 +27,8 @@ export interface Conversation {
 
 export const getMyConversations = async (): Promise<Conversation[]> => {
     const response = await apiClient.get('/messages/conversations');
-    return response.data;
+    // Ensure the response is an array
+    return Array.isArray(response.data) ? response.data : [];
 };
 
 export interface ConversationWithMessages {
@@ -37,7 +38,12 @@ export interface ConversationWithMessages {
 
 export const getMessagesForConversation = async (conversationId: string): Promise<ConversationWithMessages> => {
   const response = await apiClient.get(`/messages/conversations/${conversationId}/messages`);
-  return response.data;
+  // Ensure the response has the expected structure
+  const data = response.data || {};
+  return {
+    messages: Array.isArray(data.messages) ? data.messages : [],
+    adoptionRequestStatus: data.adoptionRequestStatus || null
+  };
 };
 
 export const createMessageInConversation = async (conversationId: string, content: string): Promise<Message> => {
