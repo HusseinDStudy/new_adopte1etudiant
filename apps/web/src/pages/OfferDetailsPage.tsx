@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getOfferById } from '../services/offerService';
 import { useAuth } from '../context/AuthContext';
-import { applyToOffer } from '../services/applicationService';
+import { useOfferApplications } from '../hooks/useOfferApplications';
 
 interface Company {
   name: string;
@@ -28,8 +28,14 @@ const OfferDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [applyMessage, setApplyMessage] = useState('');
-  const [isApplying, setIsApplying] = useState(false);
   const { isAuthenticated, user } = useAuth();
+
+  const {
+    appliedOfferIds,
+    applyToOfferWithTracking,
+    applicationLoading,
+    refreshAppliedOffers,
+  } = useOfferApplications();
 
   useEffect(() => {
     if (!id) return;
@@ -49,15 +55,17 @@ const OfferDetailsPage = () => {
 
   const handleApply = async () => {
     if (!id) return;
-    setIsApplying(true);
     setApplyMessage('');
     try {
-      await applyToOffer(id);
+      await applyToOfferWithTracking(id);
       setApplyMessage('Application successful!');
     } catch (err: any) {
-      setApplyMessage(err.response?.data?.message || 'Failed to apply. Please try again.');
-    } finally {
-      setIsApplying(false);
+      // Handle specific error cases
+      if (err.response?.status === 409 || err.message?.includes('already applied')) {
+        setApplyMessage('You have already applied to this offer. Check your applications to view the status.');
+      } else {
+        setApplyMessage(err.response?.data?.message || 'Failed to apply. Please try again.');
+      }
     }
   };
 
@@ -128,13 +136,33 @@ const OfferDetailsPage = () => {
             )) : null}
           </div>
           {isAuthenticated && user?.role === 'STUDENT' && (
-            <button
-              onClick={handleApply}
-              disabled={isApplying || applyMessage === 'Application successful!'}
-              className="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {isApplying ? 'Submitting...' : applyMessage === 'Application successful!' ? 'Applied' : 'Apply Now'}
-            </button>
+            <div className="flex items-center gap-4">
+              {appliedOfferIds.has(offer.id) ? (
+                <div className="text-center">
+                  <div className="bg-green-100 text-green-800 px-6 py-3 rounded-lg font-medium mb-2">
+                    ✓ Application Submitted
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    Check your applications to view status
+                  </p>
+                </div>
+              ) : (
+                <button
+                  onClick={handleApply}
+                  disabled={applicationLoading}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  {applicationLoading ? 'Submitting...' : 'Apply Now'}
+                </button>
+              )}
+              <button
+                onClick={refreshAppliedOffers}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                title="Refresh application status"
+              >
+                🔄
+              </button>
+            </div>
           )}
         </div>
         {applyMessage && (

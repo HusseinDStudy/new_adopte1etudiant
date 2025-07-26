@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useOffers } from '../hooks/useOffers';
 import { useOfferFilters } from '../hooks/useOfferFilters';
+import { useOfferApplications } from '../hooks/useOfferApplications';
 
 const OfferListPage = () => {
   const { user } = useAuth();
@@ -29,6 +30,11 @@ const OfferListPage = () => {
     refetch,
   } = useOffers(debouncedFilters);
 
+  const {
+    appliedOfferIds,
+    refreshAppliedOffers,
+  } = useOfferApplications();
+
 
 
   const getRingColor = (score: number) => {
@@ -40,7 +46,18 @@ const OfferListPage = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-center mb-8">Explore Opportunities</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Explore Opportunities</h1>
+          {user?.role === 'STUDENT' && (
+            <button
+              onClick={refreshAppliedOffers}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              title="Refresh application status"
+            >
+              🔄 Refresh Status
+            </button>
+          )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
             {/* Search Input */}
             <input
@@ -144,10 +161,15 @@ const OfferListPage = () => {
                   </span>
                 )) : null}
               </div>
-              <div className="mt-6">
+              <div className="mt-6 flex items-center justify-between">
                 <Link to={`/offers/${offer.id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
                   View Details
                 </Link>
+                {user?.role === 'STUDENT' && appliedOfferIds.has(offer.id) && (
+                  <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                    ✓ Applied
+                  </div>
+                )}
               </div>
             </div>
           )) : null}
