@@ -4,13 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginInput } from 'shared-types';
 import * as authService from '../services/authService';
 import { useAuth } from '../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 
 const LoginPage = () => {
   const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isTwoFactorStep, setIsTwoFactorStep] = useState(false);
+
+  // Get the intended destination from location state, or default to home
+  const from = (location.state as any)?.from?.pathname || '/';
   
   // Form for initial email/password login
   const {
@@ -40,8 +44,8 @@ const LoginPage = () => {
         setIsTwoFactorStep(true);
       } else {
         const user = await authService.getMe();
-        setCurrentUser(user); 
-        navigate('/');
+        setCurrentUser(user);
+        navigate(from, { replace: true });
       }
     } catch (error) {
       setLoginError('root', { message: 'Invalid email or password' });
@@ -53,7 +57,7 @@ const LoginPage = () => {
       await authService.login2fa(data.token);
       const user = await authService.getMe();
       setCurrentUser(user);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (error) {
       set2faError('root', { message: 'Invalid 2FA token' });
     }
@@ -67,6 +71,11 @@ const LoginPage = () => {
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Sign in to your account
             </h2>
+            {from !== '/' && (
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Please sign in to access the requested page
+              </p>
+            )}
             <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit(onSubmit)}>
               <input type="hidden" name="remember" value="true" />
               <div className="rounded-md shadow-sm -space-y-px">

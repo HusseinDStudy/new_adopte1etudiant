@@ -1,9 +1,10 @@
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
+import GuestRoute from './components/GuestRoute';
 import OfferListPage from './pages/OfferListPage';
 import OfferDetailsPage from './pages/OfferDetailsPage';
 import ManageOffersPage from './pages/company/ManageOffersPage';
@@ -20,30 +21,6 @@ import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
 import LinkAccountPage from './pages/LinkAccountPage';
 import Verify2faPage from './pages/Verify2faPage';
 import HomePage from './pages/HomePage';
-
-// A simple layout for auth pages to share navigation
-const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?: boolean }) => (
-  <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-    {children}
-    <div className="mt-4 text-center text-sm">
-      {isLogin ? (
-        <p>
-          Don't have an account?{' '}
-          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Sign up
-          </Link>
-        </p>
-      ) : (
-        <p>
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Sign in
-          </Link>
-        </p>
-      )}
-    </div>
-  </div>
-);
 
 
 function App() {
@@ -82,7 +59,10 @@ function App() {
                 </button>
               </>
             ) : (
-              <Link to="/login" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Login</Link>
+              <>
+                <Link to="/login" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Login</Link>
+                <Link to="/register" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Register</Link>
+              </>
             )}
           </div>
         </div>
@@ -92,8 +72,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/offers" element={<OfferListPage />} />
           <Route path="/offers/:id" element={<OfferDetailsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+          <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
           <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
           <Route path="/link-account" element={<LinkAccountPage />} />
           <Route path="/verify-2fa" element={<Verify2faPage />} />
