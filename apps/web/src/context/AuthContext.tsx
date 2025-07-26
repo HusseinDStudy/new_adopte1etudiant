@@ -39,27 +39,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      // Check if there's an auth cookie present
-      const hasAuthCookie = document.cookie.includes('token=');
-
-      if (!hasAuthCookie) {
-        // No auth cookie, user is not authenticated
-        setUser(null);
-        setIsAuthenticated(false);
-        setLoading(false);
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        // Only make API call if auth cookie exists
+        // Always attempt to get user info - the httpOnly cookie will be sent automatically
         const currentUser = await getMe();
         setUser(currentUser);
         setIsAuthenticated(true);
       } catch (error: any) {
-        // Cookie exists but is invalid/expired, handle silently for 401 errors
+        // Handle authentication errors silently for 401 errors (expected when not logged in)
         if (error.response?.status === 401) {
-          // Expected behavior for expired/invalid tokens
+          // Expected behavior for expired/invalid tokens or when not logged in
           setUser(null);
           setIsAuthenticated(false);
         } else {
