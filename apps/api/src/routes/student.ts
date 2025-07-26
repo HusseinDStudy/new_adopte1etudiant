@@ -9,6 +9,61 @@ async function studentRoutes(server: FastifyInstance) {
     '/',
     {
       preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
+      schema: {
+        description: 'Get list of available students (Company only). Only shows students who are open to opportunities and have public profiles.',
+        tags: ['Students'],
+        summary: 'List available students',
+        security: [{ cookieAuth: [] }],
+        querystring: {
+          type: 'object',
+          properties: {
+            page: { type: 'integer', minimum: 1, default: 1 },
+            limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+            search: { type: 'string', description: 'Search in student names, school, or degree' },
+            skills: { type: 'string', description: 'Comma-separated list of skills to filter by' },
+            school: { type: 'string', description: 'Filter by school name' },
+            degree: { type: 'string', description: 'Filter by degree program' },
+            isOpenToOpportunities: { type: 'boolean', description: 'Filter by availability status' }
+          }
+        },
+        response: {
+          200: {
+            description: 'List of available students',
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
+                school: { type: 'string' },
+                degree: { type: 'string' },
+                skills: { type: 'array', items: { type: 'string' } },
+                isOpenToOpportunities: { type: 'boolean' },
+                cvUrl: { type: 'string', format: 'uri', description: 'Only shown if CV is public' },
+                isCvPublic: { type: 'boolean' },
+                user: {
+                  type: 'object',
+                  properties: {
+                    email: { type: 'string', format: 'email' },
+                    createdAt: { type: 'string', format: 'date-time' }
+                  }
+                }
+              }
+            }
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          403: {
+            description: 'Access denied - Company role required',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
+      },
     },
     listAvailableStudents as any
   );

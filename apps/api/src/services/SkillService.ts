@@ -1,4 +1,5 @@
 import { prisma } from 'db-postgres';
+import { normalizeSkillName } from '../utils/skillNormalization.js';
 
 export interface SkillValidationResult {
   isValid: boolean;
@@ -7,14 +8,7 @@ export interface SkillValidationResult {
 
 export class SkillService {
   normalizeSkillName(name: string): string {
-    if (!name) return '';
-    const cleanedName = name.trim().replace(/\s+/g, ' ');
-    return cleanedName
-      .toLowerCase()
-      .split(' ')
-      .filter(word => word.length > 0)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return normalizeSkillName(name);
   }
 
   validateSkillName(name: string): SkillValidationResult {

@@ -24,7 +24,12 @@ export const createApplication = async (
 
   try {
     const newApplication = await applicationService.createApplication(studentId, { offerId });
-    return reply.code(201).send(newApplication);
+    // Ensure studentId is included in the response for API contract compliance
+    const response = {
+      ...newApplication,
+      studentId: newApplication.studentId || studentId
+    };
+    return reply.code(201).send(response);
   } catch (error) {
     console.error('Failed to create application:', error);
     if (error instanceof Error) {
@@ -50,7 +55,15 @@ export const getMyApplications = async (
 
   try {
     const applications = await applicationService.getMyApplications(studentId);
-    return reply.send(applications);
+    return reply.send({
+      applications,
+      pagination: {
+        page: 1,
+        limit: applications.length,
+        total: applications.length,
+        totalPages: 1
+      }
+    });
   } catch (error) {
     console.error('Failed to get my applications:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });

@@ -82,7 +82,7 @@ describe('Profile Routes', () => {
         expect(response.status).toBe(200);
         expect(response.body.school).toBe(profileData.school);
         expect(response.body.skills.length).toBe(3);
-        expect(response.body.skills.map((s: any) => s.skill.name).sort()).toEqual(['Node.js', 'React', 'Typescript']);
+        expect(response.body.skills.map((s: any) => s.skill.name).sort()).toEqual(['Node.js', 'React', 'TypeScript']);
 
         // Verify skills were created in the DB
         const skills = await prisma.skill.findMany();

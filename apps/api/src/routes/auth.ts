@@ -54,7 +54,35 @@ async function authRoutes(server: FastifyInstance) {
     callbackUri: `${process.env.API_URL}:${process.env.PORT}/auth/google/delete-callback`,
   });
 
-  server.get('/google/callback', { onRequest: [optionalAuthMiddleware] }, async function (request, reply) {
+  server.get('/google/callback', {
+    onRequest: [optionalAuthMiddleware],
+    schema: {
+      description: 'Google OAuth callback endpoint. Handles OAuth flow completion and account linking.',
+      tags: ['Authentication'],
+      summary: 'Google OAuth callback',
+      querystring: {
+        type: 'object',
+        properties: {
+          code: { type: 'string', description: 'OAuth authorization code' },
+          state: { type: 'string', description: 'OAuth state parameter' }
+        }
+      },
+      response: {
+        302: {
+          description: 'Redirect to web app with success or error',
+          type: 'object',
+          properties: {
+            location: { type: 'string', description: 'Redirect URL' }
+          }
+        },
+        400: {
+          description: 'OAuth error',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, async function (request, reply) {
     // @ts-ignore
     const { token } = await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
     
@@ -176,7 +204,36 @@ async function authRoutes(server: FastifyInstance) {
     }
   });
 
-  server.get('/google/delete-callback', { onRequest: [authMiddleware] }, async function (request, reply) {
+  server.get('/google/delete-callback', {
+    onRequest: [authMiddleware],
+    schema: {
+      description: 'Google OAuth callback for account deletion. Handles OAuth flow for account deletion confirmation.',
+      tags: ['Authentication'],
+      summary: 'Google OAuth delete callback',
+      security: [{ cookieAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          code: { type: 'string', description: 'OAuth authorization code' },
+          state: { type: 'string', description: 'OAuth state parameter' }
+        }
+      },
+      response: {
+        302: {
+          description: 'Redirect to web app with deletion result',
+          type: 'object',
+          properties: {
+            location: { type: 'string', description: 'Redirect URL' }
+          }
+        },
+        401: {
+          description: 'Not authenticated',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, async function (request, reply) {
     if (!request.user) {
       return reply.status(401).send({ message: 'You must be logged in to delete your account.' });
     }
@@ -204,7 +261,44 @@ async function authRoutes(server: FastifyInstance) {
     choice: z.enum(['google_only', 'keep_both']),
   });
 
-  server.post('/complete-link', async (request, reply) => {
+  server.post('/complete-link', {
+    schema: {
+      description: 'Complete account linking process. Used to link OAuth accounts with existing accounts.',
+      tags: ['Authentication'],
+      summary: 'Complete account linking',
+
+      body: {
+        type: 'object',
+        required: ['choice'],
+        properties: {
+          choice: {
+            type: 'string',
+            enum: ['google_only', 'keep_both'],
+            description: 'User choice for account linking'
+          }
+        }
+      },
+      response: {
+        200: {
+          description: 'Account linking completed successfully',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        },
+        400: {
+          description: 'Invalid choice or linking data',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        401: {
+          description: 'Invalid or expired linking token',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, async (request, reply) => {
     try {
       const { choice } = completeLinkSchema.parse(request.body);
       const authHeader = request.headers.authorization;
@@ -272,7 +366,39 @@ async function authRoutes(server: FastifyInstance) {
     {
       preHandler: [authSanitizationMiddleware],
       schema: {
+        description: 'Complete OAuth registration by selecting user role',
+        tags: ['Authentication'],
+        summary: 'Complete OAuth registration',
         body: zodToJsonSchema(completeOauthSchema, 'completeOauthSchema'),
+        response: {
+          200: {
+            description: 'Registration completed successfully',
+            type: 'object',
+            properties: {
+              user: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  email: { type: 'string', format: 'email' },
+                  role: { type: 'string', enum: ['STUDENT', 'COMPANY'] },
+                  passwordLoginDisabled: { type: 'boolean' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'Bad request',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          401: {
+            description: 'Unauthorized',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
       },
     },
     async (request, reply) => {
@@ -356,7 +482,36 @@ async function authRoutes(server: FastifyInstance) {
     {
       preHandler: [authSanitizationMiddleware],
       schema: {
+        description: 'Register a new user account. Use role "STUDENT" for students or "COMPANY" for companies. The request body structure changes based on the role.',
+        tags: ['Authentication'],
+        summary: 'Register new user',
         body: zodToJsonSchema(extendedRegisterSchema, 'registerSchema'),
+        response: {
+          201: {
+            description: 'User successfully registered',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              email: { type: 'string', format: 'email' },
+              role: { type: 'string', enum: ['STUDENT', 'COMPANY'] },
+              createdAt: { type: 'string', format: 'date-time' }
+            }
+          },
+          400: {
+            description: 'Invalid input data',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          },
+          409: {
+            description: 'User already exists',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          }
+        }
       },
     },
     registerUser as any
@@ -366,7 +521,34 @@ async function authRoutes(server: FastifyInstance) {
     '/login',
     {
       schema: {
+        description: 'Authenticate user and create session',
+        tags: ['Authentication'],
+        summary: 'User login',
         body: zodToJsonSchema(loginSchema, 'loginSchema'),
+        response: {
+          200: {
+            description: 'Login successful or 2FA required',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              twoFactorRequired: { type: 'boolean' }
+            }
+          },
+          401: {
+            description: 'Invalid credentials',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          },
+          403: {
+            description: 'Password login disabled',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          }
+        }
       },
     },
     loginUser
@@ -376,18 +558,93 @@ async function authRoutes(server: FastifyInstance) {
     '/login/verify-2fa',
     {
       schema: {
+        description: 'Verify two-factor authentication code',
+        tags: ['Authentication'],
+        summary: 'Verify 2FA code',
         body: zodToJsonSchema(z.object({ token: z.string() })),
+        response: {
+          200: {
+            description: 'Login successful',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          },
+          400: {
+            description: 'Bad request',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          401: {
+            description: 'Unauthorized',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
       },
     },
     verifyTwoFactorLogin
   );
 
-  server.post('/logout', logoutUser);
+  server.post('/logout', {
+    schema: {
+      description: 'Logout user and clear session',
+      tags: ['Authentication'],
+      summary: 'User logout',
+      response: {
+        200: {
+          description: 'Logout successful',
+          type: 'object',
+          properties: {
+            message: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, logoutUser);
 
   server.get(
     '/me',
     {
       onRequest: [authMiddleware],
+      schema: {
+        description: 'Get current user information',
+        tags: ['Authentication'],
+        summary: 'Get current user',
+        security: [{ cookieAuth: [] }],
+        response: {
+          200: {
+            description: 'Current user information',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              email: { type: 'string', format: 'email' },
+              role: { type: 'string', enum: ['STUDENT', 'COMPANY'] },
+              hasPassword: { type: 'boolean' },
+              linkedProviders: {
+                type: 'array',
+                items: { type: 'string' }
+              },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' }
+            }
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          },
+          404: {
+            description: 'User not found',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          }
+        }
+      },
     },
     getMe
   );
@@ -396,6 +653,31 @@ async function authRoutes(server: FastifyInstance) {
     '/account',
     {
       onRequest: [authMiddleware],
+      schema: {
+        description: 'Delete user account permanently. This action cannot be undone.',
+        tags: ['Authentication'],
+        summary: 'Delete account',
+        security: [{ cookieAuth: [] }],
+        response: {
+          200: {
+            description: 'Account deleted successfully',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          500: {
+            description: 'Error deleting account',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
+      },
     },
     deleteAccount
   );
@@ -404,6 +686,31 @@ async function authRoutes(server: FastifyInstance) {
     '/disable-password',
     {
       onRequest: [authMiddleware],
+      schema: {
+        description: 'Disable password login for the account. User will only be able to login via OAuth.',
+        tags: ['Authentication'],
+        summary: 'Disable password login',
+        security: [{ cookieAuth: [] }],
+        response: {
+          200: {
+            description: 'Password login disabled successfully',
+            type: 'object',
+            properties: {
+              message: { type: 'string' }
+            }
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          400: {
+            description: 'Cannot disable password login',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
+      },
     },
     disablePasswordLogin
   );

@@ -260,7 +260,7 @@ describe('SkillService', () => {
         it('should normalize skill names correctly', async () => {
             expect(skillService.normalizeSkillName('react')).toBe('React');
             expect(skillService.normalizeSkillName('node.js')).toBe('Node.js');
-            expect(skillService.normalizeSkillName('TYPESCRIPT')).toBe('Typescript');
+            expect(skillService.normalizeSkillName('TYPESCRIPT')).toBe('TypeScript');
             expect(skillService.normalizeSkillName('vue.JS')).toBe('Vue.js');
             expect(skillService.normalizeSkillName('c++')).toBe('C++');
             expect(skillService.normalizeSkillName('c#')).toBe('C#');
@@ -407,8 +407,8 @@ describe('SkillService', () => {
             });
 
             expect(result[2]).toEqual({
-                where: { name: 'Typescript' },
-                create: { name: 'Typescript' },
+                where: { name: 'TypeScript' },
+                create: { name: 'TypeScript' },
             });
         });
 

@@ -118,4 +118,25 @@ dist/
 
 # Cursor
 .cursorindexingignore
-.specstory/ 
+.specstory/
+
+# Generated API documentation
+apps/api/docs/api-spec.json
+apps/api/docs/api-spec.yaml
+
+# Monitoring reports and logs
+newman/
+newman-report*.json
+artillery-report*.json
+performance-report*.html
+
+# Temporary files
+git_staged_changes.txt
+*.tmp
+*.bak
+*~
+
+# Cookie files and test artifacts
+cookies.txt
+test_cookies.txt
+*_cookies.txt

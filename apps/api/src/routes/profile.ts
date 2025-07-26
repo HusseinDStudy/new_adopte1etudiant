@@ -10,6 +10,84 @@ async function profileRoutes(server: FastifyInstance) {
     '/',
     {
       preHandler: [authMiddleware],
+      schema: {
+        description: 'Get current user profile information',
+        tags: ['Profile'],
+        summary: 'Get user profile',
+        security: [{ cookieAuth: [] }],
+        response: {
+          200: {
+            description: 'User profile information',
+            anyOf: [
+              { type: 'null' },
+              {
+                type: 'object',
+                oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['STUDENT'] },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  school: { type: ['string', 'null'] },
+                  degree: { type: ['string', 'null'] },
+                  skills: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        skill: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  isOpenToOpportunities: { type: 'boolean' },
+                  cvUrl: { type: ['string', 'null'] },
+                  isCvPublic: { type: 'boolean' },
+                  email: { type: 'string', format: 'email' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' }
+                }
+              },
+              {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['COMPANY'] },
+                  name: { type: 'string' },
+                  size: { type: ['string', 'null'] },
+                  sector: { type: ['string', 'null'] },
+                  contactEmail: { type: 'string', format: 'email' },
+                  logoUrl: { type: ['string', 'null'] },
+                  email: { type: 'string', format: 'email' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' }
+                }
+              }
+            ]
+              }
+            ]
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          404: {
+            description: 'Profile not found',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
+      },
     },
     getProfile
   );
@@ -19,10 +97,113 @@ async function profileRoutes(server: FastifyInstance) {
     {
       preHandler: [authMiddleware, sanitizationMiddleware],
       schema: {
-        // This is tricky because the schema depends on the user's role.
-        // For now, we'll skip strict validation on the POST body,
-        // the controller logic will handle the data correctly.
-        // A more advanced solution might involve a custom validation hook.
+        description: 'Create or update user profile. The request body structure depends on user role (STUDENT or COMPANY)',
+        tags: ['Profile'],
+        summary: 'Create/update profile',
+        security: [{ cookieAuth: [] }],
+        body: {
+          type: 'object',
+          oneOf: [
+            {
+              type: 'object',
+              properties: {
+                firstName: { type: 'string', minLength: 1 },
+                lastName: { type: 'string', minLength: 1 },
+                school: { type: 'string' },
+                degree: { type: 'string' },
+                skills: { type: 'array', items: { type: 'string' } },
+                isOpenToOpportunities: { type: 'boolean' },
+                cvUrl: {
+                  anyOf: [
+                    { type: 'string', format: 'uri' },
+                    { type: 'string', maxLength: 0 }
+                  ]
+                },
+                isCvPublic: { type: 'boolean' }
+              },
+              required: ['firstName', 'lastName'],
+              description: 'Student profile data'
+            },
+            {
+              type: 'object',
+              properties: {
+                name: { type: 'string', minLength: 1 },
+                size: { type: 'string' },
+                sector: { type: 'string' },
+                contactEmail: { type: 'string', format: 'email' }
+              },
+              required: ['name', 'contactEmail'],
+              description: 'Company profile data'
+            }
+          ]
+        },
+        response: {
+          200: {
+            description: 'Profile created/updated successfully',
+            type: 'object',
+            oneOf: [
+              {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['STUDENT'] },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  school: { type: ['string', 'null'] },
+                  degree: { type: ['string', 'null'] },
+                  skills: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        studentProfileId: { type: 'string' },
+                        skillId: { type: 'string' },
+                        skill: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'string' },
+                            name: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  isOpenToOpportunities: { type: 'boolean' },
+                  isCvPublic: { type: 'boolean' },
+                  cvUrl: { type: ['string', 'null'] },
+                  email: { type: 'string', format: 'email' }
+                },
+                description: 'Student profile'
+              },
+              {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['COMPANY'] },
+                  name: { type: 'string' },
+                  size: { type: 'string' },
+                  sector: { type: 'string' },
+                  contactEmail: { type: 'string', format: 'email' },
+                  logoUrl: { type: ['string', 'null'] },
+                  email: { type: 'string', format: 'email' }
+                },
+                description: 'Company profile'
+              }
+            ]
+          },
+          400: {
+            description: 'Invalid input data',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
       },
     },
     upsertProfile as any
@@ -32,6 +213,61 @@ async function profileRoutes(server: FastifyInstance) {
     '/',
     {
       preHandler: [authMiddleware, sanitizationMiddleware],
+      schema: {
+        description: 'Partially update user profile. The request body structure depends on user role (STUDENT or COMPANY)',
+        tags: ['Profile'],
+        summary: 'Update profile (partial)',
+        security: [{ cookieAuth: [] }],
+        body: {
+          type: 'object',
+          oneOf: [
+            {
+              type: 'object',
+              properties: {
+                firstName: { type: 'string', minLength: 1 },
+                lastName: { type: 'string', minLength: 1 },
+                school: { type: 'string' },
+                degree: { type: 'string' },
+                skills: { type: 'array', items: { type: 'string' } },
+                isOpenToOpportunities: { type: 'boolean' },
+                cvUrl: { type: 'string', format: 'uri' },
+                isCvPublic: { type: 'boolean' }
+              },
+              description: 'Student profile data (all fields optional for PATCH)'
+            },
+            {
+              type: 'object',
+              properties: {
+                name: { type: 'string', minLength: 1 },
+                size: { type: 'string' },
+                sector: { type: 'string' },
+                contactEmail: { type: 'string', format: 'email' }
+              },
+              description: 'Company profile data (all fields optional for PATCH)'
+            }
+          ]
+        },
+        response: {
+          200: {
+            description: 'Profile updated successfully',
+            type: 'object',
+            properties: {
+              message: { type: 'string' },
+              profile: { type: 'object' }
+            }
+          },
+          400: {
+            description: 'Invalid input data',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          401: {
+            description: 'Not authenticated',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          }
+        }
+      },
     },
     upsertProfile as any
   );

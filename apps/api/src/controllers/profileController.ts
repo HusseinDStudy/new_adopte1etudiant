@@ -2,17 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from 'db-postgres';
 import { StudentProfileInput, CompanyProfileInput } from 'shared-types';
 import { studentProfileSchema } from 'shared-types';
-
-const normalizeSkillName = (name: string): string => {
-  if (!name) return '';
-  const cleanedName = name.trim().replace(/\s+/g, ' ');
-  return cleanedName
-    .toLowerCase()
-    .split(' ')
-    .filter(word => word.length > 0)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
+import { normalizeSkillName } from '../utils/skillNormalization.js';
 
 const validateSkillName = (name: string): { isValid: boolean; message?: string } => {
     const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
@@ -32,6 +22,7 @@ export const getProfile = async (
 ) => {
   try {
     const { id: userId, role } = request.user!;
+
     let profile;
 
     if (role === 'STUDENT') {
@@ -43,10 +34,26 @@ export const getProfile = async (
               skill: true,
             },
           },
+          user: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
         },
       });
     } else if (role === 'COMPANY') {
-      profile = await prisma.companyProfile.findUnique({ where: { userId } });
+      profile = await prisma.companyProfile.findUnique({
+        where: { userId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+        },
+      });
     }
 
     if (!profile) {
@@ -54,7 +61,31 @@ export const getProfile = async (
       return reply.code(200).send(null);
     }
 
-    return reply.send(profile);
+    // Flatten the user data into the profile for API compatibility
+    const { user, ...profileData } = profile;
+
+    let flattenedProfile: any = {
+      ...profileData,
+      role,
+      email: user?.email,
+    };
+
+    // Handle student-specific fields
+    if (role === 'STUDENT' && 'skills' in profile) {
+      flattenedProfile.skills = (profile.skills as any) || [];
+
+      // Handle cvUrl - only include if it's a valid string
+      if ('cvUrl' in profileData && (profileData as any).cvUrl) {
+        flattenedProfile.cvUrl = (profileData as any).cvUrl;
+      }
+
+      // Remove null fields that have format constraints
+      if (flattenedProfile.cvUrl === null) {
+        delete flattenedProfile.cvUrl;
+      }
+    }
+
+    return reply.send(flattenedProfile);
   } catch (error) {
     console.error('Failed to get profile:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
@@ -69,23 +100,21 @@ export const upsertProfile = async (
   const role = request.user!.role;
   const data = request.body;
 
-  try {
-    let profile;
-    if (role === 'STUDENT') {
-      // Validate the data first with Zod
-      let validatedData;
-      try {
-        validatedData = studentProfileSchema.parse(request.body);
-      } catch (validationError: any) {
-        return reply.code(400).send({ 
-          message: validationError.errors?.[0]?.message || 'Invalid input data' 
-        });
-      }
 
-      const studentData = data as StudentProfileInput;
-      
-      if (studentData.skills) {
-        for (const skillName of studentData.skills) {
+
+  if (!userId) {
+    console.error('No userId found in request.user');
+    return reply.code(401).send({ message: 'User not authenticated' });
+  }
+
+  try {
+    if (role === 'STUDENT') {
+      const validatedData = data as StudentProfileInput;
+      const { firstName, lastName, school, degree, skills, isOpenToOpportunities, cvUrl, isCvPublic } = validatedData;
+
+      // Validate skills if provided
+      if (skills && skills.length > 0) {
+        for (const skillName of skills) {
           const validation = validateSkillName(skillName);
           if (!validation.isValid) {
             return reply.code(400).send({ message: validation.message });
@@ -93,63 +122,138 @@ export const upsertProfile = async (
         }
       }
 
-      const skillOps = (studentData.skills || []).map(skillName => {
-        const normalizedSkillName = normalizeSkillName(skillName);
-        return prisma.skill.upsert({
-          where: { name: normalizedSkillName },
-          update: {},
-          create: { name: normalizedSkillName },
+      // Use transaction to ensure data consistency
+      const profile = await prisma.$transaction(async (tx) => {
+        // Create or update the student profile
+        const studentProfile = await tx.studentProfile.upsert({
+          where: { userId },
+          update: {
+            firstName,
+            lastName,
+            school,
+            degree,
+            isOpenToOpportunities,
+            cvUrl,
+            isCvPublic,
+          },
+          create: {
+            user: { connect: { id: userId } },
+            firstName,
+            lastName,
+            school,
+            degree,
+            isOpenToOpportunities,
+            cvUrl,
+            isCvPublic,
+          },
+        });
+
+        // Handle skills if provided
+        if (skills && skills.length > 0) {
+          // Remove existing skills
+          await tx.studentSkill.deleteMany({
+            where: { studentProfileId: studentProfile.id },
+          });
+
+          // Create or find skills and create relationships
+          for (const skillName of skills) {
+            const normalizedSkillName = normalizeSkillName(skillName);
+            const skill = await tx.skill.upsert({
+              where: { name: normalizedSkillName },
+              update: {},
+              create: { name: normalizedSkillName },
+            });
+
+            await tx.studentSkill.create({
+              data: {
+                studentProfileId: studentProfile.id,
+                skillId: skill.id,
+              },
+            });
+          }
+        } else {
+          // If no skills provided, remove all existing skills
+          await tx.studentSkill.deleteMany({
+            where: { studentProfileId: studentProfile.id },
+          });
+        }
+
+        // Return the complete profile with skills
+        return await tx.studentProfile.findUnique({
+          where: { id: studentProfile.id },
+          include: {
+            skills: {
+              include: {
+                skill: true,
+              },
+            },
+            user: {
+              select: {
+                id: true,
+                email: true,
+              },
+            },
+          },
         });
       });
-      const createdSkills = await prisma.$transaction(skillOps);
 
-      const { firstName, lastName, school, degree, skills, isOpenToOpportunities, cvUrl, isCvPublic } = validatedData;
+      if (!profile) {
+        return reply.code(500).send({ message: 'Failed to create/update profile' });
+      }
 
-      profile = await prisma.studentProfile.upsert({
-        where: { userId },
-        update: {
-          firstName,
-          lastName,
-          school,
-          degree,
-          isOpenToOpportunities,
-          cvUrl,
-          isCvPublic,
-          skills: {
-            deleteMany: {},
-            create: createdSkills.map(skill => ({
-              skill: { connect: { id: skill.id } }
-            })),
-          },
-        },
-        create: {
-          user: { connect: { id: userId } },
-          firstName,
-          lastName,
-          school,
-          degree,
-          isOpenToOpportunities,
-          cvUrl,
-          isCvPublic,
-          skills: {
-            create: createdSkills.map(skill => ({
-              skill: { connect: { id: skill.id } }
-            })),
-          },
-        },
-        include: { skills: { include: { skill: true } } },
-      });
+      // Flatten the user data into the profile for API compatibility
+      const { user, ...profileData } = profile;
+      const flattenedProfile = {
+        ...profileData,
+        role,
+        email: user?.email,
+        skills: profile.skills || [],
+      };
+
+      // Remove null fields that have format constraints
+      if (flattenedProfile.cvUrl === null) {
+        delete (flattenedProfile as any).cvUrl;
+      }
+
+      return reply.send(flattenedProfile);
     } else if (role === 'COMPANY') {
       const companyData = data as CompanyProfileInput;
-      profile = await prisma.companyProfile.upsert({
+
+
+      const profile = await prisma.companyProfile.upsert({
         where: { userId },
         update: companyData,
         create: { ...companyData, userId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+        },
       });
+
+
+
+      if (!profile) {
+        return reply.code(500).send({ message: 'Failed to create/update profile' });
+      }
+
+      // Flatten the user data into the profile for API compatibility
+      const { user, ...profileData } = profile;
+      const flattenedProfile = {
+        ...profileData,
+        role,
+        email: user?.email,
+      };
+
+      return reply.send(flattenedProfile);
     }
-    return reply.send(profile);
+
+    return reply.code(400).send({ message: 'Invalid role' });
   } catch (error) {
-    console.error(error);
+    console.error('Profile upsert error:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }; 

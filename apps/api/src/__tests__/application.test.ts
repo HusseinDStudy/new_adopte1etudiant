@@ -129,7 +129,7 @@ describe('Application Routes', () => {
                 .send({ invalidField: 'invalid' });
             
             expect(response.status).toBe(400);
-            expect(response.body.message).toBe('Invalid request body');
+            expect(response.body.message).toContain('must have required property');
         });
 
         it('should return 403 if student has no profile', async () => {
@@ -155,9 +155,10 @@ describe('Application Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(1);
-            expect(response.body[0].offer.id).toBe(offerId);
+            expect(response.body).toHaveProperty('applications');
+            expect(Array.isArray(response.body.applications)).toBe(true);
+            expect(response.body.applications.length).toBe(1);
+            expect(response.body.applications[0].offer.id).toBe(offerId);
         });
 
         it('should return empty array when student has no applications', async () => {
@@ -166,8 +167,9 @@ describe('Application Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(0);
+            expect(response.body).toHaveProperty('applications');
+            expect(Array.isArray(response.body.applications)).toBe(true);
+            expect(response.body.applications.length).toBe(0);
         });
 
         it('should require authentication', async () => {
@@ -316,7 +318,7 @@ describe('Application Routes', () => {
                 .send({ status: 'INVALID_STATUS' });
 
             expect(response.status).toBe(400);
-            expect(response.body.message).toBe('Invalid status value');
+            expect(response.body.message).toContain('must be equal to one of the allowed values');
         });
 
         it('should require authentication', async () => {

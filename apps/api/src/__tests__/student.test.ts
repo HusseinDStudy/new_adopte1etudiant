@@ -217,7 +217,8 @@ describe('Student Routes', () => {
             expect(alice).toHaveProperty('id');
             expect(alice).toHaveProperty('firstName', 'Alice');
             expect(alice).toHaveProperty('lastName', 'Johnson');
-            expect(alice).toHaveProperty('email');
+            expect(alice).toHaveProperty('user');
+            expect(alice.user).toHaveProperty('email');
             expect(alice).toHaveProperty('school', 'MIT');
             expect(alice).toHaveProperty('degree', 'Computer Science');
             expect(alice).toHaveProperty('skills');
@@ -226,9 +227,8 @@ describe('Student Routes', () => {
             expect(alice.skills).toBeInstanceOf(Array);
             expect(alice.skills).toHaveLength(2);
             
-            const skillNames = alice.skills.map((skill: any) => skill.name);
-            expect(skillNames).toContain('React');
-            expect(skillNames).toContain('Node.js');
+            expect(alice.skills).toContain('React');
+            expect(alice.skills).toContain('Node.js');
         });
 
         it('should filter students by search term in firstName', async () => {

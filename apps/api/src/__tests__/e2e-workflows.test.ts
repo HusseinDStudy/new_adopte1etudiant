@@ -20,7 +20,7 @@ describe('End-to-End User Workflows', () => {
     beforeEach(async () => {
         await cleanupDatabase();
         // Create some test skills that will be used across workflows
-        await createTestSkills(['React', 'Node.js', 'Python', 'Java', 'TypeScript', 'Vue.js']);
+        await createTestSkills(['React', 'Node.Js', 'Python', 'Java', 'TypeScript', 'Vue.Js']);
     });
 
     describe('Complete Student Journey', () => {
@@ -68,7 +68,7 @@ describe('End-to-End User Workflows', () => {
                 lastName: studentData.lastName,
                 school: 'University of Technology',
                 degree: 'Computer Science',
-                skills: ['React', 'Node.js', 'TypeScript'],
+                skills: ['React', 'Node.Js', 'TypeScript'],
                 isOpenToOpportunities: true,
                 cvUrl: 'https://example.com/cv.pdf',
                 isCvPublic: true,
@@ -149,8 +149,8 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(myApplicationsResponse.status).toBe(200);
-            expect(myApplicationsResponse.body).toHaveLength(1);
-            expect(myApplicationsResponse.body[0].offer.title).toBe(offerData.title);
+            expect(myApplicationsResponse.body.applications).toHaveLength(1);
+            expect(myApplicationsResponse.body.applications[0].offer.title).toBe(offerData.title);
 
             // Step 9: Company views applicants
             const applicantsResponse = await supertest(app.server)
@@ -158,8 +158,8 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(applicantsResponse.status).toBe(200);
-            expect(applicantsResponse.body).toHaveLength(1);
-            expect(applicantsResponse.body[0].student.firstName).toBe(studentData.firstName);
+            expect(applicantsResponse.body.applications).toHaveLength(1);
+            expect(applicantsResponse.body.applications[0].student.firstName).toBe(studentData.firstName);
 
             // Step 10: Company sends adoption request
             const studentUser = await prisma.user.findUnique({
@@ -182,7 +182,7 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(myAdoptionRequestsResponse.status).toBe(200);
-            expect(myAdoptionRequestsResponse.body).toHaveLength(1);
+            expect(myAdoptionRequestsResponse.body.requests).toHaveLength(1);
 
             // Step 12: Student views conversations
             const conversationsResponse = await supertest(app.server)
@@ -216,7 +216,7 @@ describe('End-to-End User Workflows', () => {
             expect(replyResponse.body.content).toContain('love to discuss');
 
             // Step 15: Student accepts adoption request
-            const adoptionRequestId = myAdoptionRequestsResponse.body[0].id;
+            const adoptionRequestId = myAdoptionRequestsResponse.body.requests[0].id;
             const acceptResponse = await supertest(app.server)
                 .patch(`/api/adoption-requests/${adoptionRequestId}/status`)
                 .set('Cookie', `token=${studentAuthToken}`)
@@ -273,7 +273,7 @@ describe('End-to-End User Workflows', () => {
                 .get('/api/adoption-requests/my-requests')
                 .set('Cookie', `token=${studentToken}`);
 
-            const adoptionRequestId = adoptionRequestsResponse.body[0].id;
+            const adoptionRequestId = adoptionRequestsResponse.body.requests[0].id;
             
             const rejectResponse = await supertest(app.server)
                 .patch(`/api/adoption-requests/${adoptionRequestId}/status`)
@@ -348,7 +348,7 @@ describe('End-to-End User Workflows', () => {
                     description: 'Work with our API team',
                     location: 'Remote',
                     duration: 'INTERNSHIP',
-                    skills: ['Node.js', 'Python'],
+                    skills: ['Node.Js', 'Python'],
                 },
             ];
 
@@ -404,7 +404,7 @@ describe('End-to-End User Workflows', () => {
                         lastName: studentData.lastName,
                         school: `University ${i + 1}`,
                         degree: 'Computer Science',
-                        skills: i === 0 ? ['React', 'TypeScript'] : ['Node.js', 'Python'],
+                        skills: i === 0 ? ['React', 'TypeScript'] : ['Node.Js', 'Python'],
                         isOpenToOpportunities: true,
                     });
 
@@ -423,7 +423,7 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(applicantsResponse.status).toBe(200);
-            expect(applicantsResponse.body).toHaveLength(3);
+            expect(applicantsResponse.body.applications).toHaveLength(3);
 
             // Step 8: Company searches for students
             const studentsResponse = await supertest(app.server)
@@ -434,8 +434,8 @@ describe('End-to-End User Workflows', () => {
             expect(studentsResponse.body.length).toBeGreaterThanOrEqual(1);
 
             // Step 9: Company sends adoption request to best candidate
-            const bestCandidate = applicantsResponse.body.find((app: any) => 
-                app.student.skills.some((s: any) => s.skill.name === 'React')
+            const bestCandidate = applicantsResponse.body.applications.find((app: any) =>
+                app.student.skills.some((skill: string) => skill === 'React')
             );
 
             const adoptionResponse = await supertest(app.server)
@@ -454,7 +454,7 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(sentRequestsResponse.status).toBe(200);
-            expect(sentRequestsResponse.body).toHaveLength(1);
+            expect(sentRequestsResponse.body.requests).toHaveLength(1);
 
             // Step 11: Company manages conversations
             const conversationsResponse = await supertest(app.server)
@@ -465,7 +465,7 @@ describe('End-to-End User Workflows', () => {
             expect(conversationsResponse.body).toHaveLength(1);
 
             // Step 12: Company updates application status
-            const applicationId = applicantsResponse.body[0].id;
+            const applicationId = applicantsResponse.body.applications[0].id;
             const updateStatusResponse = await supertest(app.server)
                 .patch(`/api/applications/${applicationId}/status`)
                 .set('Cookie', `token=${companyAuthToken}`)
@@ -529,7 +529,7 @@ describe('End-to-End User Workflows', () => {
                     lastName: studentData.lastName,
                     school: 'Top University',
                     degree: 'Computer Science',
-                    skills: ['React', 'Node.js'],
+                    skills: ['React', 'Node.Js'],
                     isOpenToOpportunities: true,
                 });
 
@@ -583,10 +583,10 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${studentToken}`);
 
             expect(adoptionRequestsResponse.status).toBe(200);
-            expect(adoptionRequestsResponse.body).toHaveLength(3);
+            expect(adoptionRequestsResponse.body.requests).toHaveLength(3);
 
             // Student accepts one and rejects others
-            const requests = adoptionRequestsResponse.body;
+            const requests = adoptionRequestsResponse.body.requests;
             
             // Accept first
             await supertest(app.server)

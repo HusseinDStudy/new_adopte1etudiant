@@ -1,0 +1,81 @@
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 10
+      name: "Load test"
+    - duration: 30
+      arrivalRate: 20
+      name: "Stress test"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+
+scenarios:
+  - name: "API Health and Documentation"
+    weight: 30
+    flow:
+      - get:
+          url: "/health"
+          capture:
+            - json: "$.status"
+              as: "healthStatus"
+      - get:
+          url: "/docs"
+      - get:
+          url: "/docs/json"
+
+  - name: "Public API Endpoints"
+    weight: 50
+    flow:
+      - get:
+          url: "/api/offers"
+          qs:
+            page: 1
+            limit: 10
+      - get:
+          url: "/api/companies"
+          qs:
+            page: 1
+            limit: 10
+      - get:
+          url: "/api/skills"
+          qs:
+            limit: 50
+
+  - name: "API Search and Filtering"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/offers"
+          qs:
+            search: "developer"
+            skills: "JavaScript,React"
+      - get:
+          url: "/api/companies"
+          qs:
+            search: "tech"
+            sector: "Technology"
+      - get:
+          url: "/api/skills"
+          qs:
+            search: "java"
+            popular: true
+
+# Performance thresholds
+expect:
+  - statusCode: 200
+  - contentType: json
+  - maxResponseTime: 1000
+
+# Metrics to track
+metrics:
+  - name: "response_time_p95"
+    threshold: 500
+  - name: "response_time_p99"
+    threshold: 1000
+  - name: "error_rate"
+    threshold: 5

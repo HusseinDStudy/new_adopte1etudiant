@@ -170,7 +170,7 @@ describe('Offer Routes', () => {
         lastName: 'Student',
         skills: ['React', 'Node.js']
       });
-      
+
       // Ensure skills exist before creating offers that depend on them
       await prisma.skill.createMany({
         data: [{ name: 'React' }, { name: 'Node.js' }, { name: 'Java' }],

@@ -272,8 +272,9 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(studentRequests.status).toBe(200);
-            expect(studentRequests.body.length).toBe(1);
-            const adoptionRequestId = studentRequests.body[0].id;
+            expect(studentRequests.body.requests).toBeDefined();
+            expect(studentRequests.body.requests.length).toBe(1);
+            const adoptionRequestId = studentRequests.body.requests[0].id;
             
             // Reject the adoption request
             const rejectResponse = await supertest(app.server)
@@ -421,7 +422,7 @@ describe('Message Routes', () => {
                 .send({});
             
             expect(response1.status).toBe(400);
-            expect(response1.body.message).toContain('Invalid message content');
+            expect(response1.body.message).toContain('must have required property');
             
             // Test with empty content
             const response2 = await supertest(app.server)
@@ -430,7 +431,7 @@ describe('Message Routes', () => {
                 .send({ content: '' });
             
             expect(response2.status).toBe(400);
-            expect(response2.body.message).toContain('Invalid message content');
+            expect(response2.body.message).toContain('must NOT have fewer than 1 characters');
         });
 
         it('should require authentication', async () => {

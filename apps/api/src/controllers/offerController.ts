@@ -8,7 +8,7 @@ const offerService = new OfferService();
 
 // Helper to decode token without middleware to check for user
 const decodeToken = (request: FastifyRequest) => {
-  const token = request.cookies.token;
+  const token = request.cookies?.token;
   if (!token) return null;
   try {
     return jwt.verify(token, process.env.JWT_SECRET!) as { id: string; role: string };
@@ -84,18 +84,19 @@ export const getOfferApplications = asyncHandler(async (
   // Flatten student profile data for API consistency
   const formattedApplications = applications.map(app => ({
     ...app,
+    studentId: app.studentId, // Ensure studentId is included for API contract compliance
     student: app.student.studentProfile ? {
       userId: app.student.id, // Include user ID for adoption requests
       firstName: app.student.studentProfile.firstName,
       lastName: app.student.studentProfile.lastName,
       school: app.student.studentProfile.school || null,
       degree: app.student.studentProfile.degree || null,
-      skills: app.student.studentProfile.skills,
+      skills: app.student.studentProfile.skills.map((s: any) => s.skill.name),
       cvUrl: app.student.studentProfile.cvUrl || null,
       isCvPublic: app.student.studentProfile.isCvPublic,
       isOpenToOpportunities: app.student.studentProfile.isOpenToOpportunities,
     } : null,
   }));
 
-  return reply.send(formattedApplications);
+  return reply.send({ applications: formattedApplications });
 });

@@ -2,6 +2,9 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import cookie from '@fastify/cookie';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import { swaggerConfig, swaggerUiConfig } from './config/swagger.js';
 import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
 import offerRoutes from './routes/offer.js';
@@ -18,13 +21,45 @@ const server = Fastify({
   logger: true,
 });
 
+// Register Swagger documentation
+server.register(swagger, swaggerConfig);
+server.register(swaggerUi, swaggerUiConfig);
+
 // Register plugins
 server.register(cors, { origin: process.env.WEB_APP_URL, credentials: true });
 server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
 server.register(cookie);
 
 // Health check route with database connectivity test
-server.get('/health', async (request, reply) => {
+server.get('/health', {
+  schema: {
+    description: 'Health check endpoint to verify API and database connectivity',
+    tags: ['System'],
+    summary: 'Health check',
+    response: {
+      200: {
+        description: 'Service is healthy',
+        type: 'object',
+        properties: {
+          status: { type: 'string', enum: ['ok'] },
+          timestamp: { type: 'string', format: 'date-time' },
+          database: { type: 'string', enum: ['connected'] },
+          uptime: { type: 'number', description: 'Server uptime in seconds' }
+        }
+      },
+      503: {
+        description: 'Service is unhealthy',
+        type: 'object',
+        properties: {
+          status: { type: 'string', enum: ['error'] },
+          timestamp: { type: 'string', format: 'date-time' },
+          database: { type: 'string', enum: ['disconnected'] },
+          error: { type: 'string', description: 'Error details' }
+        }
+      }
+    }
+  }
+}, async (request, reply) => {
   try {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;

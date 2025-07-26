@@ -17,6 +17,13 @@
     "docker:dev": "docker compose up --build",
     "docker:dev:down": "docker compose down",
     "docker:dev:clean": "docker compose down -v && docker system prune -f",
+    "docs:generate": "npm run docs:generate --workspace=apps/api",
+    "docs:serve": "npm run docs:serve --workspace=apps/api",
+    "docs:validate": "npm run docs:validate --workspace=apps/api",
+    "docs:test": "npm run docs:test --workspace=apps/api",
+    "monitor:api": "newman run monitoring/postman-collection.json -e monitoring/environment.json --reporters cli",
+    "monitor:performance": "artillery run monitoring/artillery-config.yml",
+    "monitor:all": "npm run monitor:api && npm run monitor:performance",
     "setup": "npm install && cp apps/api/.env.example apps/api/.env && cp apps/web/.env.example apps/web/.env && cp .env.example .env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: npm run docker:dev'"
   },
   "devDependencies": {

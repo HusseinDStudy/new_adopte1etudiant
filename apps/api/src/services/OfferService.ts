@@ -92,7 +92,20 @@ export class OfferService {
             { skills: studentSkills },
             { requiredSkills: offerSkills }
           );
-          return { ...offer, matchScore: score };
+          const result = {
+            id: offer.id,
+            title: offer.title,
+            description: offer.description,
+            location: offer.location,
+            duration: offer.duration,
+            companyId: offer.companyId,
+            createdAt: offer.createdAt,
+            updatedAt: offer.updatedAt,
+            company: offer.company,
+            skills: offerSkills,
+            matchScore: score
+          };
+          return result;
         });
 
         offersWithScores.sort((a, b) => {
@@ -101,12 +114,24 @@ export class OfferService {
           }
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
-        
+
         return offersWithScores;
+      } else {
+        // Student doesn't have a profile yet, return offers with 0 match score
+        return offers.map(offer => ({
+          ...offer,
+          skills: offer.skills.map((s) => s.name),
+          matchScore: 0
+        }));
       }
     }
 
-    return offers.map(offer => ({ ...offer, matchScore: 0 }));
+    // For non-student users or no user, return offers without match scores
+    return offers.map(offer => ({
+      ...offer,
+      skills: offer.skills.map((s) => s.name),
+      matchScore: null
+    }));
   }
 
   async getOfferById(id: string, user?: UserContext | null) {
@@ -135,11 +160,11 @@ export class OfferService {
           { skills: studentSkills },
           { requiredSkills: offerSkills }
         );
-        return { ...offer, matchScore: score };
+        return { ...offer, skills: offerSkills, matchScore: score };
       }
     }
 
-    return { ...offer, matchScore: 0 };
+    return { ...offer, skills: offer.skills.map((s) => s.name), matchScore: 0 };
   }
 
   async listMyOffers(userId: string) {
@@ -164,7 +189,10 @@ export class OfferService {
       },
     });
 
-    return offers;
+    return offers.map(offer => ({
+      ...offer,
+      skills: offer.skills.map((s) => s.name)
+    }));
   }
 
   async createOffer(userId: string, offerData: CreateOfferInput) {
@@ -280,7 +308,13 @@ export class OfferService {
 
     const applications = await prisma.application.findMany({
       where: { offerId },
-      include: {
+      select: {
+        id: true,
+        studentId: true,
+        offerId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
         student: {
           include: {
             studentProfile: {

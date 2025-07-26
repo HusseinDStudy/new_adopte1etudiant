@@ -325,7 +325,7 @@ describe('API Contract Tests', () => {
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body).toHaveLength(1);
-            
+
             validateOffer(response.body[0], true); // Include match score
         });
 
@@ -409,7 +409,7 @@ describe('API Contract Tests', () => {
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body).toHaveLength(2);
-            
+
             response.body.forEach((offer: any) => validateOffer(offer, false));
         });
     });
@@ -466,10 +466,11 @@ describe('API Contract Tests', () => {
                 .set('Cookie', `token=${student.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
-            
-            const application = response.body[0];
+            expect(response.body).toHaveProperty('applications');
+            expect(Array.isArray(response.body.applications)).toBe(true);
+            expect(response.body.applications).toHaveLength(1);
+
+            const application = response.body.applications[0];
             validateApplication(application);
             expect(application).toHaveProperty('offer');
             validateOffer(application.offer, false);
@@ -501,10 +502,11 @@ describe('API Contract Tests', () => {
                 .set('Cookie', `token=${company.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
-            
-            const application = response.body[0];
+            expect(response.body).toHaveProperty('applications');
+            expect(Array.isArray(response.body.applications)).toBe(true);
+            expect(response.body.applications).toHaveLength(1);
+
+            const application = response.body.applications[0];
             validateApplication(application);
             expect(application).toHaveProperty('student');
             validateStudentProfile(application.student);
@@ -546,10 +548,11 @@ describe('API Contract Tests', () => {
                 .set('Cookie', `token=${student.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
-            
-            const request = response.body[0];
+            expect(response.body).toHaveProperty('requests');
+            expect(Array.isArray(response.body.requests)).toBe(true);
+            expect(response.body.requests).toHaveLength(1);
+
+            const request = response.body.requests[0];
             validateAdoptionRequest(request);
             expect(request).toHaveProperty('company');
             validateCompanyProfile(request.company);
@@ -572,10 +575,11 @@ describe('API Contract Tests', () => {
                 .set('Cookie', `token=${company.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
-            
-            const request = response.body[0];
+            expect(response.body).toHaveProperty('requests');
+            expect(Array.isArray(response.body.requests)).toBe(true);
+            expect(response.body.requests).toHaveLength(1);
+
+            const request = response.body.requests[0];
             validateAdoptionRequest(request);
             expect(request).toHaveProperty('student');
             validateStudentProfile(request.student);
@@ -603,7 +607,7 @@ describe('API Contract Tests', () => {
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
             expect(response.body).toHaveLength(1);
-            
+
             validateConversation(response.body[0]);
         });
 
@@ -675,7 +679,7 @@ describe('API Contract Tests', () => {
 
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
-            
+
             // Skills endpoint may return empty array if no offers exist
             if (response.body.length > 0) {
                 response.body.forEach((skill: any) => {
@@ -696,7 +700,7 @@ describe('API Contract Tests', () => {
 
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
-            
+
             // Companies endpoint may return empty if no offers exist
             if (response.body.length > 0) {
                 response.body.forEach((company: any) => {
@@ -719,7 +723,7 @@ describe('API Contract Tests', () => {
 
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
-            
+
             if (response.body.length > 0) {
                 response.body.forEach((student: any) => {
                     validateStudentProfile(student);

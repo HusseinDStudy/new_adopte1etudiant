@@ -1,0 +1,25 @@
+{
+  "id": "api-monitoring-env",
+  "name": "API Monitoring Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "timeout",
+      "value": "10000",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "retries",
+      "value": "3",
+      "enabled": true,
+      "type": "default"
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

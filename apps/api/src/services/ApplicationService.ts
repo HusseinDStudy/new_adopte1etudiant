@@ -49,6 +49,22 @@ export class ApplicationService {
         offerId: offerId,
         studentId: studentId,
       },
+      include: {
+        offer: {
+          include: {
+            company: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        conversation: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
 
     return newApplication;

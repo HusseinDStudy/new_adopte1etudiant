@@ -22,6 +22,15 @@ describe('Adoption Request Routes', () => {
     let studentId = '';
 
     beforeEach(async () => {
+        // Create skills first
+        await prisma.skill.createMany({
+            data: [
+                { name: 'React' },
+                { name: 'Node.js' }
+            ],
+            skipDuplicates: true,
+        });
+
         // 1. Create Company User and Profile
         const companyData = {
             email: faker.internet.email(),
@@ -52,6 +61,21 @@ describe('Adoption Request Routes', () => {
         studentAuthToken = studentCookie.split(';')[0].replace('token=', '');
         const studentUser = await prisma.user.findUnique({ where: { email: studentData.email } });
         studentId = studentUser!.id;
+
+        // Create student profile
+        await supertest(app.server)
+            .post('/api/profile')
+            .set('Cookie', `token=${studentAuthToken}`)
+            .send({
+                firstName: studentData.firstName,
+                lastName: studentData.lastName,
+                school: 'Test University',
+                degree: 'Computer Science',
+                skills: ['React', 'Node.js'],
+                isOpenToOpportunities: true,
+                cvUrl: '',
+                isCvPublic: false
+            });
     });
 
     afterEach(async () => {
@@ -59,9 +83,11 @@ describe('Adoption Request Routes', () => {
         await prisma.message.deleteMany();
         await prisma.adoptionRequest.deleteMany();
         await prisma.conversation.deleteMany();
+        await prisma.studentSkill.deleteMany();
         await prisma.studentProfile.deleteMany();
         await prisma.companyProfile.deleteMany();
         await prisma.user.deleteMany();
+        await prisma.skill.deleteMany();
     });
 
     describe('POST /api/adoption-requests', () => {
@@ -101,7 +127,7 @@ describe('Adoption Request Routes', () => {
                 .send(requestData);
 
             expect(response.status).toBe(400);
-            expect(response.body.message).toContain('message is required');
+            expect(response.body.message).toContain('must NOT have fewer than 10 characters');
         });
 
         it('should return 409 if company has already sent a request to this student', async () => {
@@ -149,10 +175,12 @@ describe('Adoption Request Routes', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(1);
-            expect(response.body[0].studentId).toBe(studentId);
-            expect(response.body[0].student.firstName).toBeDefined();
+            expect(response.body).toHaveProperty('requests');
+            expect(Array.isArray(response.body.requests)).toBe(true);
+            expect(response.body.requests.length).toBe(1);
+            expect(response.body.requests[0].studentId).toBe(studentId);
+
+            expect(response.body.requests[0].student.firstName).toBeDefined();
         });
     });
 
@@ -169,11 +197,12 @@ describe('Adoption Request Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(1);
-            expect(response.body[0].studentId).toBe(studentId);
-            expect(response.body[0].company.name).toBeDefined();
-            expect(response.body[0].conversation.messages).toHaveLength(1);
+            expect(response.body.requests).toBeDefined();
+            expect(response.body.requests.length).toBe(1);
+
+            expect(response.body.requests[0].studentId).toBe(studentId);
+            expect(response.body.requests[0].company.name).toBeDefined();
+            expect(response.body.requests[0].conversation.messages).toHaveLength(1);
         });
     });
 
@@ -255,7 +284,7 @@ describe('Adoption Request Routes', () => {
                 .send({ status: 'INVALID_STATUS' });
 
             expect(response.status).toBe(400);
-            expect(response.body.message).toContain('Invalid');
+            expect(response.body.message).toContain('must be equal to one of the allowed values');
         });
 
         it('should require authentication', async () => {
@@ -302,7 +331,7 @@ describe('Adoption Request Routes', () => {
                 .send(requestData);
 
             expect(response.status).toBe(400);
-            expect(response.body.message).toContain('studentId is required');
+            expect(response.body.message).toContain('must have required property');
         });
 
         it('should return 400 if studentId is not a string', async () => {
@@ -317,7 +346,7 @@ describe('Adoption Request Routes', () => {
                 .send(requestData);
 
             expect(response.status).toBe(400);
-            expect(response.body.message).toContain('studentId is required');
+            expect(response.body.message).toContain('must be string');
         });
 
         it('should return 400 if message is only whitespace', async () => {
@@ -332,7 +361,7 @@ describe('Adoption Request Routes', () => {
                 .send(requestData);
 
             expect(response.status).toBe(400);
-            expect(response.body.message).toContain('message is required');
+            expect(response.body.message).toContain('must NOT have fewer than 10 characters');
         });
 
         it('should return 403 if company has no profile', async () => {
@@ -374,8 +403,8 @@ describe('Adoption Request Routes', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(0);
+            expect(response.body.requests).toBeDefined();
+            expect(response.body.requests.length).toBe(0);
         });
 
         it('should require authentication', async () => {
@@ -401,8 +430,8 @@ describe('Adoption Request Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(0);
+            expect(response.body.requests).toBeDefined();
+            expect(response.body.requests.length).toBe(0);
         });
 
         it('should require authentication', async () => {

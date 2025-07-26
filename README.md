@@ -4,17 +4,13 @@ This project is a modern web platform designed to bridge the gap between student
 
 ## 📚 Project Documentation
 
-This project is fully documented. All documentation is hosted in the `/docs` directory and serves as the project's official wiki.
+This project is fully documented. All documentation is organized in the `/docs` directory and serves as the project's official wiki.
 
-- **[Home](docs/Home.md)**: Wiki entry point and documentation map.
-- **[User Manual](docs/User-Manual.md)**: How-to guides for students and companies.
-- **[Architecture Overview](docs/Architecture.md)**: A deep dive into the tech stack, infrastructure, and design patterns.
-- **[Development Guide](docs/Development-Guide.md)**: Instructions for setting up the project locally and contributing.
-- **[Database Guide](docs/Database-Guide.md)**: Details on the schema, migrations, and seeding.
-- **[Authentication Flow](docs/Authentication.md)**: An explanation of the security and authentication mechanisms.
-- **[CI/CD Pipeline](docs/CI-CD.md)**: The continuous integration and deployment workflow.
-- **[Testing Strategy](docs/Testing-Guide.md)**: Our approach to ensuring code quality and stability.
-- **[Bloc 2 - Récapitulatif](docs/BLOC2-Referentiel.md)**: Synthèse en français du référentiel.
+- **[📖 Documentation Home](docs/Home.md)**: Complete documentation map and navigation
+- **[👥 User Guides](docs/user-guides/)**: End-user documentation and manuals
+- **[💻 Developer Guides](docs/developer-guides/)**: API documentation, development setup, and contribution guidelines
+- **[🏗️ Technical Guides](docs/technical-guides/)**: Architecture, database, security, and implementation details
+- **[📋 Project Management](docs/project-management/)**: CI/CD, testing strategies, and process documentation
 
 ## 🚀 Getting Started: Local Development
 
@@ -69,6 +65,7 @@ This is the recommended way to run the project locally. You will run the databas
 - **Access the application:**
   - **Web App**: `http://localhost:5173`
   - **API**: `http://localhost:8080`
+  - **API Documentation**: `http://localhost:8080/docs` (Interactive Swagger UI)
 
 ## Project Commands
 
@@ -86,6 +83,8 @@ Here are the most common commands you'll use:
 | `npm run db:migrate:dev`| Runs Prisma database migrations.                                            |
 | `npm run db:seed`       | Seeds the database with initial data.                                       |
 | `npm run db:studio`     | Opens Prisma Studio to view and manage your database.                       |
+| `npm run docs:serve`    | Shows the URL for interactive API documentation (Swagger UI).               |
+| `npm run docs:generate` | Generates OpenAPI specification files (JSON and YAML).                      |
 
 ## 🛠️ Other Ways to Run the Project
 

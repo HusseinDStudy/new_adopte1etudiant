@@ -50,39 +50,29 @@ export class StudentService {
         user: {
           select: {
             email: true,
-          },
+            createdAt: true
+          }
         },
         skills: {
-          select: {
-            skill: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        user: {
-          createdAt: 'desc',
-        },
-      },
+          include: {
+            skill: true
+          }
+        }
+      }
     });
 
-    // Transform the data to a safe format for public consumption
-    const safeStudentData = students.map((profile) => ({
-      id: profile.userId,
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      email: profile.user.email,
-      school: profile.school,
-      degree: profile.degree,
-      skills: profile.skills.map((s) => s.skill),
-      cvUrl: profile.cvUrl,
-      isCvPublic: profile.isCvPublic,
+    return students.map(student => ({
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      school: student.school,
+      degree: student.degree,
+      skills: student.skills.map(s => s.skill.name),
+      cvUrl: student.cvUrl,
+      isCvPublic: student.isCvPublic,
+      isOpenToOpportunities: student.isOpenToOpportunities,
+      user: student.user
     }));
-
-    return safeStudentData;
   }
 
   async getStudentProfile(userId: string) {

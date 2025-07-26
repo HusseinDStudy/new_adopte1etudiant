@@ -21,7 +21,13 @@
     "db:push": "prisma db push",
     "studio": "prisma studio",
     "generate": "prisma generate",
-    "db:clean": "prisma migrate reset --force"
+    "db:clean": "prisma migrate reset --force",
+    "docs:json": "curl -s http://localhost:8080/docs/json > docs/api-spec.json && echo 'OpenAPI JSON spec generated at docs/api-spec.json'",
+    "docs:yaml": "curl -s http://localhost:8080/docs/yaml > docs/api-spec.yaml && echo 'OpenAPI YAML spec generated at docs/api-spec.yaml'",
+    "docs:generate": "mkdir -p docs && npm run docs:json && npm run docs:yaml",
+    "docs:serve": "echo 'API Documentation available at: http://localhost:8080/docs'",
+    "docs:validate": "node scripts/validate-api-docs.js",
+    "docs:test": "npm run docs:validate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -31,6 +37,8 @@
     "@fastify/cors": "^8.4.0",
     "@fastify/helmet": "^11.1.1",
     "@fastify/oauth2": "^7.8.0",
+    "@fastify/swagger": "^8.15.0",
+    "@fastify/swagger-ui": "^4.2.0",
     "@prisma/client": "^6.12.0",
     "ajv-formats": "^3.0.1",
     "bcryptjs": "^2.4.3",
@@ -40,6 +48,7 @@
     "fastify": "^4.24.3",
     "jsdom": "^26.1.0",
     "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
     "qrcode": "^1.5.3",
     "shared-types": "file:../../packages/shared-types",
     "speakeasy": "^2.0.0",

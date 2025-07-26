@@ -116,23 +116,34 @@ export const listSentAdoptionRequests = async (
       },
       orderBy: { createdAt: 'desc' },
     });
-    
-    // Flatten student profile data for API consistency
-    const formattedRequests = requests.map(req => ({
-      ...req,
-      student: req.student.studentProfile ? {
-        firstName: req.student.studentProfile.firstName,
-        lastName: req.student.studentProfile.lastName,
-        school: req.student.studentProfile.school || null,
-        degree: req.student.studentProfile.degree || null,
-        isOpenToOpportunities: req.student.studentProfile.isOpenToOpportunities,
-        cvUrl: req.student.studentProfile.cvUrl || null,
-        isCvPublic: req.student.studentProfile.isCvPublic,
-        skills: req.student.studentProfile.skills || [],
+
+
+
+    // Flatten the student profile data for API consistency
+    const formattedRequests = requests.map(request => ({
+      ...request,
+      student: request.student.studentProfile ? {
+        id: request.student.id,
+        firstName: request.student.studentProfile.firstName,
+        lastName: request.student.studentProfile.lastName,
+        school: request.student.studentProfile.school,
+        degree: request.student.studentProfile.degree,
+        isOpenToOpportunities: request.student.studentProfile.isOpenToOpportunities,
+        cvUrl: request.student.studentProfile.cvUrl,
+        isCvPublic: request.student.studentProfile.isCvPublic,
+        skills: request.student.studentProfile.skills.map((s: any) => s.skill.name),
       } : null,
     }));
-    
-    return reply.send(formattedRequests);
+
+    return reply.send({
+      requests: formattedRequests,
+      pagination: {
+        page: 1,
+        limit: formattedRequests.length,
+        total: formattedRequests.length,
+        totalPages: 1
+      }
+    });
   } catch (error) {
     console.error('Failed to list sent adoption requests:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
@@ -170,7 +181,16 @@ export const listMyAdoptionRequests = async (
       },
       orderBy: { createdAt: 'desc' },
     });
-    return reply.send(requests);
+
+    return reply.send({
+      requests,
+      pagination: {
+        page: 1,
+        limit: requests.length,
+        total: requests.length,
+        totalPages: 1
+      }
+    });
   } catch (error) {
     console.error('Failed to list adoption requests:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
