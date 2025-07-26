@@ -33,9 +33,11 @@ async function studentRoutes(server: FastifyInstance) {
             items: {
               type: 'object',
               properties: {
-                id: { type: 'string' },
+                id: { type: 'string', description: 'User ID for adoption requests' },
+                profileId: { type: 'string', description: 'Student profile ID' },
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
+                email: { type: 'string', format: 'email' },
                 school: { type: 'string' },
                 degree: { type: 'string' },
                 skills: { type: 'array', items: { type: 'string' } },

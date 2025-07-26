@@ -5,7 +5,8 @@ import { getAllSkills } from '../services/skillService';
 import { createAdoptionRequest } from '../services/adoptionRequestService';
 
 export interface Student {
-  id: string;
+  id: string; // User ID for adoption requests
+  profileId: string; // Student profile ID
   firstName: string;
   lastName: string;
   email: string;
@@ -134,9 +135,10 @@ export const useStudents = (): UseStudentsResult => {
     setAdoptionRequestLoading(true);
     try {
       await createAdoptionRequest(studentId, message);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to send adoption request:', err);
-      throw err; // Re-throw so the component can handle it
+      // Re-throw the error with the specific message from the service
+      throw new Error(err.message || 'Failed to send adoption request');
     } finally {
       setAdoptionRequestLoading(false);
     }

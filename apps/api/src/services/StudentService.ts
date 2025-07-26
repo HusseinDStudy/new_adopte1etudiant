@@ -62,9 +62,11 @@ export class StudentService {
     });
 
     return students.map(student => ({
-      id: student.id,
+      id: student.userId, // Use userId for adoption requests
+      profileId: student.id, // Keep profile ID for reference
       firstName: student.firstName,
       lastName: student.lastName,
+      email: student.user.email, // Include email directly
       school: student.school,
       degree: student.degree,
       skills: student.skills.map(s => s.skill.name),

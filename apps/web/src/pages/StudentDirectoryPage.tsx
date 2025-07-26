@@ -24,20 +24,34 @@ const StudentDirectoryPage: React.FC = () => {
   } = useStudents();
 
   const handleRequestAdoption = async (studentId: string) => {
-    if (!adoptionMessage.trim()) {
+    const trimmedMessage = adoptionMessage.trim();
+
+    if (!trimmedMessage) {
       alert('A message is required to send a request.');
+      return;
+    }
+
+    if (trimmedMessage.length < 10) {
+      alert('Message must be at least 10 characters long.');
+      return;
+    }
+
+    if (trimmedMessage.length > 1000) {
+      alert('Message must be no more than 1000 characters long.');
       return;
     }
 
     try {
       setRequestingStudentId(studentId);
-      await sendAdoptionRequest(studentId, adoptionMessage);
+      await sendAdoptionRequest(studentId, trimmedMessage);
       setRequestedStudentIds(prev => new Set(prev).add(studentId));
       setRequestingStudentId(null);
       setAdoptionMessage('');
+      alert('Adoption request sent successfully!');
     } catch (err: any) {
       console.error('Failed to send adoption request', err);
-      alert(err.response?.data?.message || 'Failed to send adoption request.');
+      alert(err.message || 'Failed to send adoption request.');
+      setRequestingStudentId(null);
     }
   }
 
@@ -142,24 +156,49 @@ const StudentDirectoryPage: React.FC = () => {
               <div className="mt-6 text-right">
                 {requestingStudentId === student.id ? (
                   <div className="mt-4">
-                    <textarea
-                      className="w-full p-2 border rounded-lg"
-                      placeholder="Send a message with your request..."
-                      value={adoptionMessage}
-                      onChange={(e) => setAdoptionMessage(e.target.value)}
-                      rows={3}
-                    />
-                    <div className="mt-2 flex justify-end gap-2">
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Message to {student.firstName}
+                      </label>
+                      <textarea
+                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+                          adoptionMessage.trim().length > 0 && adoptionMessage.trim().length < 10
+                            ? 'border-red-300'
+                            : 'border-gray-300'
+                        }`}
+                        placeholder="Explain why you'd like to adopt this student and what opportunities you can offer... (minimum 10 characters)"
+                        value={adoptionMessage}
+                        onChange={(e) => setAdoptionMessage(e.target.value)}
+                        rows={4}
+                        maxLength={1000}
+                      />
+                      <div className="flex justify-between items-center mt-1">
+                        <div className="text-xs text-gray-500">
+                          {adoptionMessage.trim().length < 10 && adoptionMessage.trim().length > 0 && (
+                            <span className="text-red-500">
+                              Minimum 10 characters required
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {adoptionMessage.length}/1000 characters
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
                       <button
-                        onClick={() => setRequestingStudentId(null)}
-                        className="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400"
+                        onClick={() => {
+                          setRequestingStudentId(null);
+                          setAdoptionMessage('');
+                        }}
+                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
                       >
                         Cancel
                       </button>
-                <button
-                  onClick={() => handleRequestAdoption(student.id)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
-                        disabled={adoptionRequestLoading}
+                      <button
+                        onClick={() => handleRequestAdoption(student.id)}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                        disabled={adoptionRequestLoading || adoptionMessage.trim().length < 10}
                       >
                         {adoptionRequestLoading ? 'Sending...' : 'Send Request'}
                       </button>
