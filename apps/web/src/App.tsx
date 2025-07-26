@@ -57,7 +57,7 @@ function App() {
     <>
       <nav className="bg-gray-800 p-4 text-white">
         <div className="container mx-auto flex items-center justify-between">
-          <Link to="/profile" className="text-xl font-bold">Adopte1Etudiant</Link>
+          <Link to="/" className="text-xl font-bold">Adopte1Etudiant</Link>
           <div>
             <Link to="/offers" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Offers</Link>
             {isAuthenticated ? (

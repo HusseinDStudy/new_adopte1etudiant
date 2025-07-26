@@ -38,7 +38,7 @@ export const useApplications = (): UseApplicationsResult => {
     
     try {
       const data = await getMyApplications();
-      setApplications(data);
+      setApplications(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Failed to fetch applications.');
       console.error(err);

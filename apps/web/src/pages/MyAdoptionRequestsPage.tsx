@@ -27,6 +27,7 @@ const MyAdoptionRequestsPage: React.FC = () => {
     const [requests, setRequests] = useState<AdoptionRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [updating, setUpdating] = useState<string | null>(null);
 
     const fetchRequests = async () => {
         try {
@@ -46,17 +47,41 @@ const MyAdoptionRequestsPage: React.FC = () => {
     }, []);
 
     const handleStatusUpdate = async (id: string, status: string) => {
+        setUpdating(id);
         try {
             await updateAdoptionRequestStatus(id, status);
-            fetchRequests(); 
+            await fetchRequests();
         } catch (err) {
             console.error('Failed to update request status', err);
             alert('Failed to update status. Please try again.');
+        } finally {
+            setUpdating(null);
         }
     }
 
-    if (loading) return <div className="text-center p-8">Loading requests...</div>;
-    if (error) return <div className="text-center p-8 text-red-500">{error}</div>;
+    if (loading) return (
+        <div className="container mx-auto p-4">
+            <div className="flex justify-center items-center h-64">
+                <div className="text-lg">Loading adoption requests...</div>
+            </div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="container mx-auto p-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <strong>Error:</strong> {error}
+                <div className="mt-2">
+                    <button
+                        onClick={fetchRequests}
+                        className="text-red-600 hover:text-red-800 underline"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 
     return (
         <div className="container mx-auto p-4">
@@ -68,42 +93,57 @@ const MyAdoptionRequestsPage: React.FC = () => {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {requests.map(req => (
-                        <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
-                            <div>
-                                <h2 className="text-xl font-semibold">{req.company.name}</h2>
-                                {req.conversation && req.conversation.messages.length > 0 && (
-                                    <div className="mt-4 p-4 bg-gray-100 border rounded-md">
-                                        <p className="text-sm italic text-gray-700">"{req.conversation.messages[0].content}"</p>
-                                    </div>
-                                )}
-                                <p className="text-gray-500 text-sm mt-2">Received on: {new Date(req.createdAt).toLocaleDateString()}</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                {req.status === 'PENDING' ? (
-                                    <>
-                                        <button onClick={() => handleStatusUpdate(req.id, 'ACCEPTED')} className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Accept</button>
-                                        <button onClick={() => handleStatusUpdate(req.id, 'REJECTED')} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Reject</button>
-                                    </>
-                                ) : (
-                                    <div className="text-right">
-                                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                                            req.status === 'ACCEPTED' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
-                                        }`}>
-                                            {req.status}
-                                        </span>
-                                        {req.conversation && (req.status === 'ACCEPTED' || req.status === 'REJECTED') && (
-                                            <div className="mt-2">
-                                                <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
-                                                    {req.status === 'ACCEPTED' ? 'View Conversation' : 'View Message'}
-                                                </Link>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                    {Array.isArray(requests) ? requests.map((req, index) => (
+                        <div key={req.id || `request-${index}`} className="bg-white p-6 rounded-lg shadow-md">
+                            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                                <div className="flex-1">
+                                    <h2 className="text-xl font-semibold">{req.company.name}</h2>
+                                    {req.conversation && req.conversation.messages.length > 0 && (
+                                        <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
+                                            <p className="text-sm text-gray-700 font-medium mb-1">Message from {req.company.name}:</p>
+                                            <p className="text-sm text-gray-800">"{req.conversation.messages[0].content}"</p>
+                                        </div>
+                                    )}
+                                    <p className="text-gray-500 text-sm mt-3">Received on: {new Date(req.createdAt).toLocaleDateString()}</p>
+                                </div>
+                                <div className="flex flex-col gap-3 md:items-end">
+                                    {req.status === 'PENDING' ? (
+                                        <div className="flex flex-col sm:flex-row gap-2">
+                                            <button
+                                                onClick={() => handleStatusUpdate(req.id, 'ACCEPTED')}
+                                                disabled={updating === req.id}
+                                                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                                            >
+                                                {updating === req.id ? 'Accepting...' : 'Accept'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(req.id, 'REJECTED')}
+                                                disabled={updating === req.id}
+                                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50"
+                                            >
+                                                {updating === req.id ? 'Rejecting...' : 'Reject'}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center md:text-right">
+                                            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                                                req.status === 'ACCEPTED' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'
+                                            }`}>
+                                                {req.status}
+                                            </span>
+                                            {req.conversation && (req.status === 'ACCEPTED' || req.status === 'REJECTED') && (
+                                                <div className="mt-2">
+                                                    <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
+                                                        {req.status === 'ACCEPTED' ? 'View Conversation' : 'View Message'}
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    ))}
+                    )) : null}
                 </div>
             )}
         </div>

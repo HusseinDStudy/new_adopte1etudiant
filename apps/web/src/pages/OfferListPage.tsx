@@ -66,11 +66,11 @@ const OfferListPage = () => {
                 disabled={companiesLoading}
             >
                 <option value="">All Companies</option>
-                {allCompanies.map(company => (
-                    <option key={company.id} value={company.name}>
+                {Array.isArray(allCompanies) ? allCompanies.map((company, index) => (
+                    <option key={company.id || `company-${index}`} value={company.name}>
                         {company.name}
                     </option>
-                ))}
+                )) : null}
             </select>
             {/* Skills Filter */}
             <div className="md:col-span-3">
@@ -79,8 +79,8 @@ const OfferListPage = () => {
                     {skillsLoading ? (
                         <div>Loading skills...</div>
                     ) : (
-                        allSkills.map(skill => (
-                            <label key={skill.id} className="flex items-center space-x-2 cursor-pointer">
+                        Array.isArray(allSkills) ? allSkills.map((skill, index) => (
+                            <label key={skill.id || `filter-skill-${index}`} className="flex items-center space-x-2 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={filters.selectedSkills.includes(skill.name)}
@@ -89,7 +89,7 @@ const OfferListPage = () => {
                                 />
                                 <span>{skill.name}</span>
                             </label>
-                        ))
+                        )) : null
                     )}
                 </div>
                 <button
@@ -108,9 +108,9 @@ const OfferListPage = () => {
         <div className="text-red-500">{error}</div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {offers.map(offer => (
-            <div key={offer.id} className="relative rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-               {user?.role === 'STUDENT' && (
+          {Array.isArray(offers) ? offers.map((offer, index) => (
+            <div key={offer.id || `offer-${index}`} className="relative rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+               {user?.role === 'STUDENT' && offer.matchScore !== undefined && (
                 <div className="absolute top-4 right-4">
                   <svg className="transform -rotate-90 w-20 h-20">
                     <circle cx="40" cy="40" r="30" stroke="currentColor" strokeWidth="8" className="text-gray-200" />
@@ -122,27 +122,27 @@ const OfferListPage = () => {
                       strokeWidth="8"
                       fill="transparent"
                       strokeDasharray={2 * Math.PI * 30}
-                      strokeDashoffset={(2 * Math.PI * 30) * (1 - offer.matchScore / 100)}
-                      className={`transition-all duration-500 ${getRingColor(offer.matchScore)}`}
+                      strokeDashoffset={(2 * Math.PI * 30) * (1 - (offer.matchScore || 0) / 100)}
+                      className={`transition-all duration-500 ${getRingColor(offer.matchScore || 0)}`}
                     />
                   </svg>
                   <span className="absolute inset-0 flex items-center justify-center text-xl font-bold">
-                    {offer.matchScore}%
+                    {offer.matchScore || 0}%
                   </span>
                 </div>
               )}
-              <div className="pr-24">
+              <div className={user?.role === 'STUDENT' && offer.matchScore !== undefined ? "pr-24" : ""}>
                 <h2 className="text-xl font-semibold">{offer.title}</h2>
                 <p className="mt-1 text-gray-700">{offer.company.name}</p>
                 {offer.location && <p className="mt-1 text-sm text-gray-500">{offer.location}</p>}
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {offer.skills.map(skill => (
-                  <span key={skill.id} className="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-800">
-                    {skill.name}
+                {Array.isArray(offer.skills) ? offer.skills.map((skill, index) => (
+                  <span key={`skill-${index}`} className="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-800">
+                    {skill}
                   </span>
-                ))}
+                )) : null}
               </div>
               <div className="mt-6">
                 <Link to={`/offers/${offer.id}`} className="font-medium text-indigo-600 hover:text-indigo-500">
@@ -150,7 +150,7 @@ const OfferListPage = () => {
                 </Link>
               </div>
             </div>
-          ))}
+          )) : null}
         </div>
       )}
     </div>

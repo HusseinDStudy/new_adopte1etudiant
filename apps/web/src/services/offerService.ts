@@ -33,7 +33,8 @@ export const listMyOffers = async () => {
 
 export const getOfferApplications = async (offerId: string) => {
   const { data } = await apiClient.get(`/offers/${offerId}/applications`);
-  return data;
+  // API returns { applications: [...] }
+  return data.applications || [];
 };
 
 export const createOffer = async (offerData: CreateOfferInput) => {

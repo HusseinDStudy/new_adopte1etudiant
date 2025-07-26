@@ -9,10 +9,7 @@ export interface Offer {
   company: {
     name: string;
   };
-  skills: {
-    id: string;
-    name: string;
-  }[];
+  skills: string[];
   matchScore: number;
 }
 
@@ -48,7 +45,7 @@ export const useOffers = (filters: OfferFilters): UseOffersResult => {
       };
       
       const data = await listOffers(filterParams);
-      setOffers(data);
+      setOffers(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Failed to fetch offers.');
       console.error(err);

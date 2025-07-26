@@ -14,12 +14,14 @@ export const createAdoptionRequest = async (studentId: string, message: string) 
 
 export const getSentAdoptionRequests = async () => {
   const { data } = await apiClient.get('/adoption-requests/sent-requests');
-  return data;
+  // API returns { requests: [...], pagination: {...} }
+  return data.requests || [];
 }
 
 export const getMyAdoptionRequests = async () => {
     const { data } = await apiClient.get('/adoption-requests/my-requests');
-    return data;
+    // API returns { requests: [...], pagination: {...} }
+    return data.requests || [];
 }
 
 export const updateAdoptionRequestStatus = async (id: string, status: string) => {

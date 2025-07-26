@@ -14,7 +14,8 @@ export const applyToOffer = async (offerId: string) => {
 
 export const getMyApplications = async () => {
   const { data } = await apiClient.get('/applications/my-applications');
-  return data;
+  // API returns { applications: [...], pagination: {...} }
+  return data.applications || [];
 };
 
 export const updateApplicationStatus = async (applicationId: string, status: string) => {

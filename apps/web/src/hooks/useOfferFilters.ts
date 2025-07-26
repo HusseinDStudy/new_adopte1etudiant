@@ -76,7 +76,7 @@ export const useOfferFilters = (): UseOfferFiltersResult => {
       try {
         setSkillsLoading(true);
         const skillsData = await getAllSkills();
-        setAllSkills(skillsData);
+        setAllSkills(Array.isArray(skillsData) ? skillsData : []);
       } catch (error) {
         console.error("Failed to fetch skills", error);
       } finally {
@@ -92,7 +92,7 @@ export const useOfferFilters = (): UseOfferFiltersResult => {
       try {
         setCompaniesLoading(true);
         const companiesData = await getCompaniesWithOffers();
-        setAllCompanies(companiesData);
+        setAllCompanies(Array.isArray(companiesData) ? companiesData : []);
       } catch (error) {
         console.error("Failed to fetch companies", error);
       } finally {
