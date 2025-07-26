@@ -117,9 +117,9 @@ const StudentDirectoryPage: React.FC = () => {
               <div className="mt-4">
                 <h4 className="font-semibold">Skills:</h4>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {(student.skills || []).map((skill) => (
+                  {(student.skills || []).map((skill, index) => (
                     <span
-                      key={skill.name}
+                      key={skill.id || `skill-${index}`}
                       className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800"
                     >
                       {skill.name}
