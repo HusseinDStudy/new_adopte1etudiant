@@ -5,6 +5,7 @@ import StudentProfileForm from '../components/auth/StudentProfileForm';
 import CompanyProfileForm from '../components/auth/CompanyProfileForm';
 import { getMe, deleteAccountWithPassword, disablePassword } from '../services/authService';
 import TwoFactorAuthSetup from '../components/auth/TwoFactorAuthSetup';
+import SidebarLayout from '../components/SidebarLayout';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -76,14 +77,15 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold">Manage Your Profile</h1>
-      {error && <p className="mt-4 text-red-500 bg-red-100 p-2 rounded">{error}</p>}
-      {successMessage && <p className="mt-4 text-green-500 bg-green-100 p-2 rounded">{successMessage}</p>}
-      <div className="mt-4">
-        {user?.role === 'STUDENT' && <StudentProfileForm />}
-        {user?.role === 'COMPANY' && <CompanyProfileForm />}
-      </div>
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <h1 className="text-2xl font-bold">Manage Your Profile</h1>
+        {error && <p className="mt-4 text-red-500 bg-red-100 p-2 rounded">{error}</p>}
+        {successMessage && <p className="mt-4 text-green-500 bg-green-100 p-2 rounded">{successMessage}</p>}
+        <div className="mt-4">
+          {user?.role === 'STUDENT' && <StudentProfileForm />}
+          {user?.role === 'COMPANY' && <CompanyProfileForm />}
+        </div>
       
       <div className="mt-8 p-4 border-t border-gray-200">
           <h2 className="text-xl font-semibold">Account Settings</h2>
@@ -170,7 +172,8 @@ const ProfilePage = () => {
               </div>
           </div>
       )}
-    </div>
+      </div>
+    </SidebarLayout>
   );
 };
 

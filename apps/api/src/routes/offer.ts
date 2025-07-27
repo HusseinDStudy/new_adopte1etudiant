@@ -7,6 +7,7 @@ import {
   deleteOffer,
   listMyOffers,
   getOfferApplications,
+  getOfferTypes,
 } from '../controllers/offerController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
@@ -29,7 +30,8 @@ async function offerRoutes(server: FastifyInstance) {
           limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
           search: { type: 'string', description: 'Search in title and description' },
           location: { type: 'string', description: 'Filter by location' },
-          skills: { type: 'string', description: 'Comma-separated list of skills' }
+          skills: { type: 'string', description: 'Comma-separated list of skills' },
+          type: { type: 'string', description: 'Filter by offer type (duration)' }
         }
       },
       response: {
@@ -108,6 +110,24 @@ async function offerRoutes(server: FastifyInstance) {
       }
     }
   }, getOfferById);
+
+  // Get offer types (public route)
+  server.get('/types', {
+    schema: {
+      description: 'Get all available offer types from the database',
+      tags: ['Offers'],
+      summary: 'Get offer types',
+      response: {
+        200: {
+          description: 'List of offer types',
+          type: 'array',
+          items: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }, getOfferTypes);
 
   // Protected routes for Companies only
   server.get(

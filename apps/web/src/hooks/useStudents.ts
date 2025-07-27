@@ -12,6 +12,7 @@ export interface Student {
   email: string;
   school: string | null;
   degree: string | null;
+  location: string | null;
   skills: string[]; // API returns skills as array of strings
   cvUrl: string | null;
   isCvPublic: boolean;
@@ -24,6 +25,8 @@ export interface Skill {
 
 export interface StudentFilters {
   search: string;
+  location: string;
+  school: string;
   skills: string[];
 }
 
@@ -46,6 +49,7 @@ export interface UseStudentsResult {
   setSearchTerm: (value: string) => void;
   setSelectedSkills: (skills: string[]) => void;
   handleSkillChange: (skillName: string) => void;
+  clearAllSkills: () => void;
   clearFilters: () => void;
   refetch: () => void;
 
@@ -84,6 +88,8 @@ export const useStudents = (): UseStudentsResult => {
     try {
       const filters = {
         search: debouncedSearchTerm,
+        location: '',
+        school: '',
         skills: selectedSkills,
       };
       
@@ -139,6 +145,11 @@ export const useStudents = (): UseStudentsResult => {
     );
   };
 
+  // Clear all skills
+  const clearAllSkills = () => {
+    setSelectedSkills([]);
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
@@ -184,6 +195,7 @@ export const useStudents = (): UseStudentsResult => {
     setSearchTerm,
     setSelectedSkills,
     handleSkillChange,
+    clearAllSkills,
     clearFilters,
     refetch,
     sendAdoptionRequest,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSentAdoptionRequests } from '../../services/adoptionRequestService';
+import SidebarLayout from '../../components/SidebarLayout';
 
 interface StudentProfile {
     firstName: string;
@@ -60,44 +61,46 @@ const SentAdoptionRequestsPage: React.FC = () => {
     if (loading) return <div className="text-center p-8">Loading requests...</div>;
 
     return (
-        <div className="container mx-auto p-4">
-            {error && (
-                <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold text-red-800">An Error Occurred</h2>
-                    <p className="mt-2 text-red-600">{error}</p>
-                </div>
-            )}
-            <h1 className="text-3xl font-bold mb-6">Sent Adoption Requests</h1>
-            {requests.length === 0 && !error ? (
-                 <div className="text-center bg-white p-12 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold">You haven't sent any adoption requests yet.</h2>
-                    <p className="mt-2 text-gray-500">Find interesting students in the Student Directory.</p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {requests.map(req => (
-                        <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
-                            <div>
-                                <h2 className="text-xl font-semibold">
-                                    {req.student.studentProfile ? `${req.student.studentProfile.firstName} ${req.student.studentProfile.lastName}` : 'A Student'}
-                                </h2>
-                                <p className="text-gray-500 text-sm mt-2">Sent on: {new Date(req.createdAt).toLocaleDateString()}</p>
+        <SidebarLayout>
+            <div className="container mx-auto">
+                {error && (
+                    <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
+                        <h2 className="text-xl font-semibold text-red-800">An Error Occurred</h2>
+                        <p className="mt-2 text-red-600">{error}</p>
+                    </div>
+                )}
+                <h1 className="text-3xl font-bold mb-6">Sent Adoption Requests</h1>
+                {requests.length === 0 && !error ? (
+                     <div className="text-center bg-white p-12 rounded-lg shadow-md">
+                        <h2 className="text-xl font-semibold">You haven't sent any adoption requests yet.</h2>
+                        <p className="mt-2 text-gray-500">Find interesting students in the Student Directory.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {requests.map(req => (
+                            <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
+                                <div>
+                                    <h2 className="text-xl font-semibold">
+                                        {req.student.studentProfile ? `${req.student.studentProfile.firstName} ${req.student.studentProfile.lastName}` : 'A Student'}
+                                    </h2>
+                                    <p className="text-gray-500 text-sm mt-2">Sent on: {new Date(req.createdAt).toLocaleDateString()}</p>
+                                </div>
+                                 <div className="text-right">
+                                    {getStatusPill(req.status)}
+                                    {req.conversation && (
+                                        <div className="mt-2">
+                                            <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
+                                                View Conversation
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                             <div className="text-right">
-                                {getStatusPill(req.status)}
-                                {req.conversation && (
-                                    <div className="mt-2">
-                                        <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
-                                            View Conversation
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </SidebarLayout>
     );
 };
 

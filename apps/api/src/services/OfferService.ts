@@ -9,6 +9,7 @@ export interface OfferFilters {
   location?: string;
   skills?: string;
   companyName?: string;
+  type?: string;
 }
 
 export interface UserContext {
@@ -26,8 +27,10 @@ export class OfferService {
   }
 
   async listOffers(filters: OfferFilters, user?: UserContext | null) {
-    const { search, location, skills: skillsQuery, companyName } = filters;
-    
+    const { search, location, skills: skillsQuery, companyName, type } = filters;
+
+    console.log('OfferService.listOffers called with filters:', filters);
+
     const whereClause: any = {};
 
     if (search) {
@@ -47,7 +50,7 @@ export class OfferService {
     if (companyName) {
       whereClause.company = {
         name: {
-          equals: companyName,
+          contains: companyName,
           mode: 'insensitive'
         }
       };
@@ -64,6 +67,16 @@ export class OfferService {
         }
       };
     }
+
+    if (type) {
+      console.log('Adding type filter:', type);
+      whereClause.duration = {
+        contains: type,
+        mode: 'insensitive'
+      };
+    }
+
+    console.log('Final whereClause:', JSON.stringify(whereClause, null, 2));
 
     const offers = await prisma.offer.findMany({
       where: whereClause,
@@ -340,5 +353,28 @@ export class OfferService {
     });
 
     return applications;
+  }
+
+  async getOfferTypes() {
+    // Get distinct duration values from offers (these represent offer types)
+    const types = await prisma.offer.findMany({
+      select: {
+        duration: true,
+      },
+      distinct: ['duration'],
+      where: {
+        duration: {
+          not: null,
+        },
+      },
+      orderBy: {
+        duration: 'asc',
+      },
+    });
+
+    // Return array of unique duration values (offer types)
+    return types
+      .map(offer => offer.duration)
+      .filter(duration => duration !== null && duration.trim() !== '');
   }
 }

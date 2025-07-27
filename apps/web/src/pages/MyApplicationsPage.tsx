@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApplications } from '../hooks/useApplications';
+import SidebarLayout from '../components/SidebarLayout';
 
 const MyApplicationsPage: React.FC = () => {
   const {
@@ -39,31 +40,36 @@ const MyApplicationsPage: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading your applications...</div>
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading your applications...</div>
+        </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   if (error) return (
-    <div className="container mx-auto p-4">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        <strong>Error:</strong> {error}
-        <div className="mt-2">
-          <button
-            onClick={refetch}
-            className="text-red-600 hover:text-red-800 underline"
-          >
-            Try Again
-          </button>
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Error:</strong> {error}
+          <div className="mt-2">
+            <button
+              onClick={refetch}
+              className="text-red-600 hover:text-red-800 underline"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   return (
-    <div className="container mx-auto p-4">
+    <SidebarLayout>
+      <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">My Applications</h1>
       {!Array.isArray(applications) || applications.length === 0 ? (
         <div className="text-center bg-white p-12 rounded-lg shadow-md">
@@ -114,7 +120,8 @@ const MyApplicationsPage: React.FC = () => {
           )) : null}
         </div>
       )}
-    </div>
+      </div>
+    </SidebarLayout>
   );
 };
 

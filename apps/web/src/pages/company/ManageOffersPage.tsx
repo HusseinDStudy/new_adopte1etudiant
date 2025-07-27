@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { listMyOffers, deleteOffer } from '../../services/offerService';
 import { Link } from 'react-router-dom';
+import SidebarLayout from '../../components/SidebarLayout';
 
 interface Offer {
   id: string;
@@ -50,15 +51,15 @@ const ManageOffersPage = () => {
   };
 
   if (loading) return (
-    <div className="container mx-auto p-4">
+    <SidebarLayout>
       <div className="flex justify-center items-center h-64">
         <div className="text-lg">Loading your offers...</div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   return (
-    <div className="container mx-auto p-4">
+    <SidebarLayout>
       {error && (
         <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           <strong>Error:</strong> {error}
@@ -82,7 +83,7 @@ const ManageOffersPage = () => {
         </div>
         <Link
           to="/company/offers/new"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
         >
           Create New Offer
         </Link>
@@ -166,19 +167,19 @@ const ManageOffersPage = () => {
                 <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
                   <Link
                     to={`/company/offers/${offer.id}/applications`}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
                   >
                     View Applicants ({offer._count.applications})
                   </Link>
                   <Link
                     to={`/company/offers/edit/${offer.id}`}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
                   >
                     Edit
                   </Link>
                   <button
                     onClick={() => handleDelete(offer.id)}
-                    className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
                   >
                     Delete
                   </button>
@@ -188,7 +189,7 @@ const ManageOffersPage = () => {
           ))}
         </div>
       )}
-    </div>
+    </SidebarLayout>
   );
 };
 

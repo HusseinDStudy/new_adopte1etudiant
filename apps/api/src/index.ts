@@ -26,7 +26,16 @@ server.register(swagger, swaggerConfig);
 server.register(swaggerUi, swaggerUiConfig);
 
 // Register plugins
-server.register(cors, { origin: process.env.WEB_APP_URL, credentials: true });
+const allowedOrigins = [
+  process.env.WEB_APP_URL,
+  'http://localhost:5173',
+  'http://localhost:5174'
+].filter(Boolean);
+
+server.register(cors, {
+  origin: allowedOrigins,
+  credentials: true
+});
 server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
 server.register(cookie);
 

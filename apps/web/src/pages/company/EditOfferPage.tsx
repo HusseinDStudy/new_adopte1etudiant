@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import OfferForm from '../../components/company/OfferForm';
 import { getOfferById, updateOffer } from '../../services/offerService';
 import { CreateOfferInput } from 'shared-types';
+import SidebarLayout from '../../components/SidebarLayout';
 
 const EditOfferPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -43,20 +44,30 @@ const EditOfferPage = () => {
     }
   };
 
-  if (loading) return <div>Loading offer...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return (
+    <SidebarLayout>
+      <div>Loading offer...</div>
+    </SidebarLayout>
+  );
+  if (error) return (
+    <SidebarLayout>
+      <div className="text-red-500">{error}</div>
+    </SidebarLayout>
+  );
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold">Edit Offer</h1>
-      <div className="mt-6">
-        <OfferForm
-          onSubmit={handleUpdateOffer}
-          isSubmitting={isSubmitting}
-          defaultValues={offer!}
-        />
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <h1 className="text-3xl font-bold">Edit Offer</h1>
+        <div className="mt-6">
+          <OfferForm
+            onSubmit={handleUpdateOffer}
+            isSubmitting={isSubmitting}
+            defaultValues={offer!}
+          />
+        </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 };
 

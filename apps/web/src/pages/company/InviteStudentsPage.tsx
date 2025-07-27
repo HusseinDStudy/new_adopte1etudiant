@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getOfferById } from '../../services/offerService';
 import { listAvailableStudents } from '../../services/studentService';
 import { createAdoptionRequest, getRequestedStudentIds } from '../../services/adoptionRequestService';
+import SidebarLayout from '../../components/SidebarLayout';
 
 interface Student {
   id: string;
@@ -140,23 +141,28 @@ const InviteStudentsPage = () => {
   });
 
   if (loading) return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading students...</div>
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading students...</div>
+        </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   if (error) return (
-    <div className="container mx-auto p-4">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        <strong>Error:</strong> {error}
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Error:</strong> {error}
+        </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   return (
-    <div className="container mx-auto p-4">
+    <SidebarLayout>
+      <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -336,7 +342,8 @@ const InviteStudentsPage = () => {
           })}
         </div>
       )}
-    </div>
+      </div>
+    </SidebarLayout>
   );
 };
 

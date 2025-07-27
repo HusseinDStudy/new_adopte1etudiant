@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getOfferApplications, getOfferById } from '../../services/offerService';
 import { updateApplicationStatus } from '../../services/applicationService';
+import SidebarLayout from '../../components/SidebarLayout';
 
 interface Student {
   userId: string;
@@ -121,33 +122,38 @@ const OfferApplicantsPage = () => {
   };
 
   if (loading) return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading applicants...</div>
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading applicants...</div>
+        </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   if (error) return (
-    <div className="container mx-auto p-4">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        <strong>Error:</strong> {error}
-        <div className="mt-2">
-          <button
-            onClick={() => window.location.reload()}
-            className="text-red-600 hover:text-red-800 underline"
-          >
-            Try Again
-          </button>
+    <SidebarLayout>
+      <div className="container mx-auto">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Error:</strong> {error}
+          <div className="mt-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-red-600 hover:text-red-800 underline"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="container mx-auto p-4">
+    <SidebarLayout>
+      <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -335,7 +341,8 @@ const OfferApplicantsPage = () => {
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </SidebarLayout>
   );
 };
 

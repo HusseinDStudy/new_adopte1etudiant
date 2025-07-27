@@ -19,13 +19,13 @@ const decodeToken = (request: FastifyRequest) => {
 
 // List all offers (publicly accessible)
 export const listOffers = asyncHandler(async (
-  request: FastifyRequest<{ Querystring: { search?: string, location?: string, skills?: string, companyName?: string } }>,
+  request: FastifyRequest<{ Querystring: { search?: string, location?: string, skills?: string, companyName?: string, type?: string } }>,
   reply: FastifyReply
 ) => {
-  const { search, location, skills, companyName } = request.query;
+  const { search, location, skills, companyName, type } = request.query;
   const user = decodeToken(request);
 
-  const filters = { search, location, skills, companyName };
+  const filters = { search, location, skills, companyName, type };
   const offers = await offerService.listOffers(filters, user);
   return reply.send(offers);
 });
@@ -99,4 +99,9 @@ export const getOfferApplications = asyncHandler(async (
   }));
 
   return reply.send({ applications: formattedApplications });
+});
+
+export const getOfferTypes = asyncHandler(async (request: FastifyRequest, reply: FastifyReply) => {
+  const types = await offerService.getOfferTypes();
+  return reply.send(types);
 });

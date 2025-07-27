@@ -7,6 +7,8 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
+
+
 export const listAvailableStudents = async (filters: { search?: string, skills?: string[] } = {}) => {
   const { data } = await apiClient.get('/students', {
     params: {

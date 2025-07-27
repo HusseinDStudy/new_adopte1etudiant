@@ -7,7 +7,9 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
+
+
 export const getAllSkills = async () => {
-    const { data } = await apiClient.get('/skills');
-    return data;
-}
+  const { data } = await apiClient.get('/skills');
+  return data;
+};

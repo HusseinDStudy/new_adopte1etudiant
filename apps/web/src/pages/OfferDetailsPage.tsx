@@ -82,7 +82,7 @@ const OfferDetailsPage = () => {
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
         <strong>Error:</strong> {error}
         <div className="mt-2">
-          <Link to="/offers" className="text-red-600 hover:text-red-800 underline">
+          <Link to="/offers" className="text-blue-600 hover:text-blue-800 underline">
             ← Back to Offers
           </Link>
         </div>
@@ -95,7 +95,7 @@ const OfferDetailsPage = () => {
       <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
         <strong>Not Found:</strong> Offer not found.
         <div className="mt-2">
-          <Link to="/offers" className="text-yellow-600 hover:text-yellow-800 underline">
+          <Link to="/offers" className="text-blue-600 hover:text-blue-800 underline">
             ← Back to Offers
           </Link>
         </div>
@@ -107,7 +107,7 @@ const OfferDetailsPage = () => {
     <div className="container mx-auto p-4">
       {/* Back Navigation */}
       <div className="mb-4">
-        <Link to="/offers" className="text-indigo-600 hover:text-indigo-800 flex items-center">
+        <Link to="/offers" className="text-blue-600 hover:text-blue-800 flex items-center">
           ← Back to Offers
         </Link>
       </div>
@@ -115,7 +115,7 @@ const OfferDetailsPage = () => {
       <div className="rounded-lg bg-white p-8 shadow-md">
         {isAuthenticated && user?.role === 'STUDENT' && typeof offer.matchScore === 'number' && (
           <div className="mb-4 text-right">
-            <span className="text-2xl font-bold text-indigo-600">
+            <span className="text-2xl font-bold text-blue-600">
               Your Match Score: {offer.matchScore}%
             </span>
           </div>
@@ -150,7 +150,7 @@ const OfferDetailsPage = () => {
                 <button
                   onClick={handleApply}
                   disabled={applicationLoading}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
                 >
                   {applicationLoading ? 'Submitting...' : 'Apply Now'}
                 </button>
