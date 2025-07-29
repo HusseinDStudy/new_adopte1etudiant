@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 interface RoleBasedRouteProps {
   children: React.ReactNode;
-  allowedRole: 'STUDENT' | 'COMPANY';
+  allowedRole: 'STUDENT' | 'COMPANY' | 'ADMIN';
 }
 
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRole }) => {
@@ -17,7 +17,20 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRole }
 
   // If user role doesn't match allowed role, redirect to their appropriate dashboard
   if (user?.role !== allowedRole) {
-    const redirectPath = user?.role === 'STUDENT' ? '/dashboard-student' : '/dashboard-company';
+    let redirectPath = '/';
+    switch (user?.role) {
+      case 'STUDENT':
+        redirectPath = '/dashboard-student';
+        break;
+      case 'COMPANY':
+        redirectPath = '/dashboard-company';
+        break;
+      case 'ADMIN':
+        redirectPath = '/admin/dashboard';
+        break;
+      default:
+        redirectPath = '/';
+    }
     return <Navigate to={redirectPath} replace />;
   }
 

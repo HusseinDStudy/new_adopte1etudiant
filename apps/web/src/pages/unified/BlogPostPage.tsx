@@ -5,17 +5,31 @@ import {
   UnifiedCard,
   ResponsiveGrid
 } from '../../components/unified/DesignSystem';
-import { blogPosts } from '../../data/blog';
+import { useBlogPost, useRelatedPosts, useBlogCategories } from '../../hooks/useBlog';
 
 const BlogPostPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const post = blogPosts.find(p => p.id === parseInt(id || '0'));
+  const { slug } = useParams<{ slug: string }>();
+  const { post, loading, error } = useBlogPost(slug || '');
+  const { posts: relatedPosts, loading: relatedLoading } = useRelatedPosts(slug || '', 3);
+  const { categories } = useBlogCategories();
 
-  if (!post) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement de l'article...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !post) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Article non trouvé</h1>
+          <p className="text-gray-600 mb-4">{error || "L'article demandé n'existe pas."}</p>
           <Link to="/blog" className="text-blue-600 hover:text-blue-700">
             Retour au blog
           </Link>
@@ -24,22 +38,26 @@ const BlogPostPage = () => {
     );
   }
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (iconName?: string) => {
     const icons: Record<string, JSX.Element> = {
-      "Conseils": <BookOpen className="w-5 h-5" />,
-      "Tendances": <TrendingUp className="w-5 h-5" />,
-      "CV & Lettre": <FileText className="w-5 h-5" />
+      "BookOpen": <BookOpen className="w-5 h-5" />,
+      "TrendingUp": <TrendingUp className="w-5 h-5" />,
+      "FileText": <FileText className="w-5 h-5" />
     };
-    return icons[category] || <BookOpen className="w-5 h-5" />;
+    return icons[iconName || "BookOpen"] || <BookOpen className="w-5 h-5" />;
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      "Conseils": "bg-blue-100 text-blue-800",
-      "Tendances": "bg-purple-100 text-purple-800",
-      "CV & Lettre": "bg-green-100 text-green-800"
+  const getCategoryColorClasses = (color?: string) => {
+    if (!color) return "bg-gray-100 text-gray-800";
+
+    // Convert hex color to Tailwind classes
+    const colorMap: Record<string, string> = {
+      "#3B82F6": "bg-blue-100 text-blue-800",
+      "#8B5CF6": "bg-purple-100 text-purple-800",
+      "#10B981": "bg-green-100 text-green-800"
     };
-    return colors[category] || "bg-gray-100 text-gray-800";
+
+    return colorMap[color] || "bg-gray-100 text-gray-800";
   };
 
   const formatDate = (dateString: string) => {
@@ -51,10 +69,7 @@ const BlogPostPage = () => {
     });
   };
 
-  // Get related posts (same category, excluding current post)
-  const relatedPosts = blogPosts
-    .filter(p => p.category === post.category && p.id !== post.id)
-    .slice(0, 3);
+  // Related posts are fetched via the useRelatedPosts hook
 
   return (
     <div className="min-h-screen bg-white">
@@ -75,10 +90,15 @@ const BlogPostPage = () => {
           {/* Article Header */}
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(post.category)}`}>
-                {getCategoryIcon(post.category)}
-                <span className="ml-2">{post.category}</span>
-              </span>
+              {(() => {
+                const postCategory = post.category;
+                return (
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColorClasses(postCategory?.color)}`}>
+                    {getCategoryIcon(postCategory?.icon)}
+                    <span className="ml-2">{postCategory?.name || 'Aucune catégorie'}</span>
+                  </span>
+                );
+              })()}
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
@@ -88,7 +108,7 @@ const BlogPostPage = () => {
             <div className="flex items-center space-x-6 text-gray-600 mb-8">
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />
-                <span>{formatDate(post.date)}</span>
+                <span>{formatDate(post.publishedAt || post.createdAt)}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <User className="w-5 h-5" />
@@ -101,13 +121,15 @@ const BlogPostPage = () => {
             </div>
 
             {/* Featured Image */}
-            <div className="aspect-video bg-gray-200 rounded-xl overflow-hidden mb-8">
-              <img 
-                src={post.image} 
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {post.image && (
+              <div className="aspect-video bg-gray-200 rounded-xl overflow-hidden mb-8">
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
           </div>
         </div>
       </ContentSection>
@@ -138,20 +160,25 @@ const BlogPostPage = () => {
             <ResponsiveGrid cols={relatedPosts.length === 1 ? 1 : relatedPosts.length === 2 ? 2 : 3}>
               {relatedPosts.map((relatedPost) => (
                 <UnifiedCard key={relatedPost.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group h-full flex flex-col">
-                  <Link to={`/blog/${relatedPost.id}`} className="flex flex-col h-full">
+                  <Link to={`/blog/${relatedPost.slug}`} className="flex flex-col h-full">
                     <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden mb-4">
-                      <img 
-                        src={relatedPost.image} 
+                      <img
+                        src={relatedPost.image || "/api/placeholder/600/400"}
                         alt={relatedPost.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                     <div className="flex flex-col flex-1 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(relatedPost.category)}`}>
-                          {getCategoryIcon(relatedPost.category)}
-                          <span className="ml-1">{relatedPost.category}</span>
-                        </span>
+                        {(() => {
+                          const categoryData = categories.find(cat => cat.name === relatedPost.category);
+                          return (
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColorClasses(categoryData?.color)}`}>
+                              {getCategoryIcon(categoryData?.icon)}
+                              <span className="ml-1">{relatedPost.category}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
                         {relatedPost.title}
@@ -161,7 +188,7 @@ const BlogPostPage = () => {
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
                         <div className="flex items-center space-x-3">
-                          <span>{formatDate(relatedPost.date)}</span>
+                          <span>{formatDate(relatedPost.publishedAt || relatedPost.createdAt)}</span>
                           <span>{relatedPost.readTime}</span>
                         </div>
                         <span className="font-medium">{relatedPost.author}</span>

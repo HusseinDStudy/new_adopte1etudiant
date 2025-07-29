@@ -27,6 +27,13 @@ export const extendedRegisterSchema = z.discriminatedUnion('role', [
     name: z.string().min(1, 'Company name is required'),
     contactEmail: z.string().email('Invalid contact email'),
   }),
+  z.object({
+    role: z.literal('ADMIN'),
+    email: z.string().email(),
+    password: z.string().min(6),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+  }),
 ]);
 
 export const completeOauthSchema = z.discriminatedUnion('role', [

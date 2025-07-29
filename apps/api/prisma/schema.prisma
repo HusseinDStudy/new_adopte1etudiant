@@ -11,6 +11,7 @@ generator client {
 enum Role {
   STUDENT
   COMPANY
+  ADMIN
 }
 
 enum ApplicationStatus {
@@ -173,4 +174,38 @@ model AdoptionRequest {
   conversationId String?               @unique
 
   @@unique([companyId, studentId])
-} 
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  content     String   @db.Text
+  image       String?
+  category    String
+  author      String
+  readTime    String
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+
+  // SEO fields
+  metaTitle       String?
+  metaDescription String?
+
+  @@map("blog_posts")
+}
+
+model BlogCategory {
+  id          String @id @default(cuid())
+  name        String @unique
+  slug        String @unique
+  description String?
+  icon        String?
+  color       String?
+
+  @@map("blog_categories")
+}

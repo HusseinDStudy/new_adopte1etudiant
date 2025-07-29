@@ -15,6 +15,7 @@ import adoptionRequestRoutes from './routes/adoptionRequest.js';
 import skillRoutes from './routes/skill.js';
 import companyRoutes from './routes/company.js';
 import twoFactorAuthRoutes from './routes/twoFactorAuth.js';
+import blogRoutes from './routes/blog.js';
 import { prisma } from 'db-postgres';
 
 const server = Fastify({
@@ -105,6 +106,7 @@ server.register(applicationRoutes, { prefix: '/api/applications' });
 server.register(messageRoutes, { prefix: '/api/messages' });
 server.register(adoptionRequestRoutes, { prefix: '/api/adoption-requests' });
 server.register(twoFactorAuthRoutes, { prefix: '/api/2fa' });
+server.register(blogRoutes, { prefix: '/api/blog' });
 
 // Database connection test with retry logic
 const connectToDatabase = async (retries = 10, delay = 5000) => {

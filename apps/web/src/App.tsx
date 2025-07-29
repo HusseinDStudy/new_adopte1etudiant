@@ -28,6 +28,9 @@ import LinkAccountPage from './pages/LinkAccountPage';
 import Verify2faPage from './pages/Verify2faPage';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import BlogPostList from './pages/admin/BlogPostList';
+import BlogPostForm from './pages/admin/BlogPostForm';
 import DashboardStudentPage from './pages/DashboardStudentPage';
 import DashboardCompanyPage from './pages/DashboardCompanyPage';
 import ContactPage from './pages/ContactPage';
@@ -87,7 +90,7 @@ function App() {
           <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
           <Route path="/rgpd" element={<RGPDPage />} />
           <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:id" element={<BlogPostPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
           <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
@@ -154,6 +157,29 @@ function App() {
                 <SentAdoptionRequestsPage />
               </RoleBasedRoute>
             } />
+
+            {/* Admin Routes */}
+            <Route path="/admin/dashboard" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminDashboard />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog/posts" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogPostList />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog/posts/new" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogPostForm />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog/posts/:id/edit" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogPostForm />
+              </RoleBasedRoute>
+            } />
+
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Routes>

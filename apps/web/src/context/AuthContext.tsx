@@ -7,7 +7,7 @@ import { LoginInput } from 'shared-types';
 interface User {
   id: string;
   email: string;
-  role: 'STUDENT' | 'COMPANY';
+  role: 'STUDENT' | 'COMPANY' | 'ADMIN';
 }
 
 interface AuthContextType {
