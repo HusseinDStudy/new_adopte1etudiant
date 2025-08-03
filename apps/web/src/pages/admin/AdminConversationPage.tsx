@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getMessagesForConversation, createMessageInConversation, Message, ConversationDetails } from '../services/messageService';
-import { useAuth } from '../context/AuthContext';
+import { getMessagesForConversation, createMessageInConversation, Message, ConversationDetails } from '../../services/messageService';
+import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, Lock, Archive, Clock, AlertCircle, Users, Briefcase, Building2, MessageSquare, Send } from 'lucide-react';
-import SidebarLayout from '../components/SidebarLayout';
+import AdminLayout from '../../components/admin/AdminLayout';
 
-const ConversationPage: React.FC = () => {
+const AdminConversationPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -159,19 +159,6 @@ const ConversationPage: React.FC = () => {
             </p>
           </div>
         );
-      case 'broadcast':
-        return (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-orange-900 mb-2">
-              Message de diffusion
-            </h3>
-            <p className="text-orange-700 text-sm">
-              Destiné à: {contextDetails.target === 'ALL' ? 'Tous les utilisateurs' : 
-                          contextDetails.target === 'STUDENTS' ? 'Étudiants uniquement' : 
-                          contextDetails.target === 'COMPANIES' ? 'Entreprises uniquement' : 'Utilisateurs'}
-            </p>
-          </div>
-        );
       default:
         return null;
     }
@@ -179,9 +166,9 @@ const ConversationPage: React.FC = () => {
 
   const canSendMessage = () => {
     if (!conversation) return false;
+    // Admins can always send messages, even in read-only conversations
     if (conversation.status === 'ARCHIVED' || conversation.status === 'EXPIRED') return false;
     if (conversation.expiresAt && new Date() > new Date(conversation.expiresAt)) return false;
-    if (conversation.isReadOnly) return false;
     return true;
   };
 
@@ -227,21 +214,21 @@ const ConversationPage: React.FC = () => {
 
   if (loading) {
     return (
-      <SidebarLayout>
-        <div className="container mx-auto p-6">
+      <AdminLayout title="Conversation" subtitle="Chargement...">
+        <div className="p-6">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Chargement de la conversation...</p>
           </div>
         </div>
-      </SidebarLayout>
+      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <SidebarLayout>
-        <div className="container mx-auto p-6">
+      <AdminLayout title="Erreur" subtitle="Impossible de charger la conversation">
+        <div className="p-6">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <strong>Erreur:</strong> {error}
             <div className="mt-2">
@@ -254,18 +241,21 @@ const ConversationPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </SidebarLayout>
+      </AdminLayout>
     );
   }
 
   return (
-    <SidebarLayout>
-      <div className="container mx-auto p-6 flex flex-col h-[calc(100vh-120px)]">
+    <AdminLayout
+      title="Conversation"
+      subtitle={conversation?.topic || 'Détails de la conversation'}
+    >
+      <div className="p-6 flex flex-col h-[calc(100vh-120px)]">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 border-b pb-4">
           <div className="flex items-center gap-4">
             <Link
-              to="/conversations"
+              to="/admin/messages"
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -348,8 +338,6 @@ const ConversationPage: React.FC = () => {
             <div className="text-center text-gray-500 italic p-4 bg-gray-50 rounded-lg">
               {conversation?.status === 'ARCHIVED' || conversation?.status === 'EXPIRED' 
                 ? 'Cette conversation a été fermée et est maintenant en lecture seule.'
-                : conversation?.isReadOnly 
-                ? 'Cette conversation est en lecture seule.'
                 : 'Vous ne pouvez pas envoyer de messages dans cette conversation.'
               }
             </div>
@@ -375,8 +363,8 @@ const ConversationPage: React.FC = () => {
           )}
         </div>
       </div>
-    </SidebarLayout>
+    </AdminLayout>
   );
 };
 
-export default ConversationPage;
+export default AdminConversationPage; 

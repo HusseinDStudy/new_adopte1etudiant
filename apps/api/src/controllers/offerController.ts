@@ -19,15 +19,32 @@ const decodeToken = (request: FastifyRequest) => {
 
 // List all offers (publicly accessible)
 export const listOffers = asyncHandler(async (
-  request: FastifyRequest<{ Querystring: { search?: string, location?: string, skills?: string, companyName?: string, type?: string } }>,
+  request: FastifyRequest<{ 
+    Querystring: { 
+      search?: string, 
+      location?: string, 
+      skills?: string, 
+      companyName?: string, 
+      type?: string,
+      page?: string,
+      limit?: string,
+      sortBy?: string
+    } 
+  }>,
   reply: FastifyReply
 ) => {
-  const { search, location, skills, companyName, type } = request.query;
+  const { search, location, skills, companyName, type, page = '1', limit = '9', sortBy = 'recent' } = request.query;
   const user = decodeToken(request);
 
   const filters = { search, location, skills, companyName, type };
-  const offers = await offerService.listOffers(filters, user);
-  return reply.send(offers);
+  const paginationParams = { 
+    page: parseInt(page), 
+    limit: parseInt(limit),
+    sortBy
+  };
+  
+  const result = await offerService.listOffers(filters, user, paginationParams);
+  return reply.send(result);
 });
 
 export const listMyOffers = asyncHandler(async (request: FastifyRequest, reply: FastifyReply) => {

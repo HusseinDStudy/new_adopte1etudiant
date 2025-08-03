@@ -3,35 +3,37 @@ import { Link } from 'react-router-dom';
 import { FileText, Users, Building2, Briefcase, TrendingUp, Eye, Plus, Edit } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useBlogPosts } from '../../hooks/useBlog';
+import { useAdminStats } from '../../hooks/useAdmin';
 
 const AdminDashboard: React.FC = () => {
-  const { posts, loading } = useBlogPosts({ limit: 5 });
+  const { posts, loading: postsLoading } = useBlogPosts({ limit: 5 });
+  const { stats, loading: statsLoading } = useAdminStats();
 
-  const stats = [
+  const dashboardStats = [
     {
       name: 'Articles de blog',
-      value: posts.length,
+      value: stats?.totalBlogPosts || 0,
       icon: FileText,
       color: 'bg-blue-500',
       href: '/admin/blog/posts',
     },
     {
       name: 'Utilisateurs',
-      value: '1,234',
+      value: stats?.totalUsers || 0,
       icon: Users,
       color: 'bg-green-500',
       href: '/admin/users',
     },
     {
       name: 'Entreprises',
-      value: '89',
+      value: stats?.totalCompanies || 0,
       icon: Building2,
       color: 'bg-purple-500',
-      href: '/admin/users/companies',
+      href: '/admin/users',
     },
     {
       name: 'Offres actives',
-      value: '156',
+      value: stats?.totalOffers || 0,
       icon: Briefcase,
       color: 'bg-orange-500',
       href: '/admin/offers',
@@ -45,25 +47,34 @@ const AdminDashboard: React.FC = () => {
     >
       <div className="p-6">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat) => (
-            <Link
-              key={stat.name}
-              to={stat.href}
-              className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center">
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <stat.icon className="w-6 h-6 text-white" />
+        {statsLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement des statistiques...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {dashboardStats.map((stat) => (
+              <Link
+                key={stat.name}
+                to={stat.href}
+                className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center">
+                  <div className={`${stat.color} p-3 rounded-lg`}>
+                    <stat.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {typeof stat.value === 'number' ? stat.value.toLocaleString('fr-FR') : stat.value}
+                    </p>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -97,28 +108,43 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistiques récentes</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Articles publiés ce mois</span>
-                <span className="text-sm font-semibold text-gray-900">12</span>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Activité récente</h3>
+            {statsLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p className="text-gray-600 text-sm">Chargement...</p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Vues totales</span>
-                <span className="text-sm font-semibold text-gray-900">2,847</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Nouveaux utilisateurs</span>
-                <span className="text-sm font-semibold text-gray-900">89</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Taux d'engagement</span>
-                <div className="flex items-center">
-                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                  <span className="text-sm font-semibold text-green-600">+12%</span>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Nouveaux utilisateurs aujourd'hui</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {stats?.recentActivity.newUsersToday || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Nouvelles offres aujourd'hui</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {stats?.recentActivity.newOffersToday || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Nouvelles candidatures aujourd'hui</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {stats?.recentActivity.newApplicationsToday || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Total des demandes d'adoption</span>
+                  <div className="flex items-center">
+                    <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                    <span className="text-sm font-semibold text-green-600">
+                      {stats?.totalAdoptionRequests || 0}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -134,7 +160,7 @@ const AdminDashboard: React.FC = () => {
             </Link>
           </div>
 
-          {loading ? (
+          {postsLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
               <p className="text-gray-600 mt-2">Chargement des articles...</p>
@@ -162,9 +188,9 @@ const AdminDashboard: React.FC = () => {
                       <span>Par {post.author}</span>
                       <span>{new Date(post.createdAt).toLocaleDateString('fr-FR')}</span>
                       <span className={`px-2 py-1 rounded-full ${
-                        post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        post.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {post.published ? 'Publié' : 'Brouillon'}
+                        {post.status === 'PUBLISHED' ? 'Publié' : 'Brouillon'}
                       </span>
                       {post.featured && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">

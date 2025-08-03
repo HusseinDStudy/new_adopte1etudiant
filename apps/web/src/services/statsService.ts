@@ -21,11 +21,11 @@ export interface StudentStats {
 }
 
 export const getCompanyStats = async (): Promise<CompanyStats> => {
-  const response = await apiClient.get('/api/companies/stats');
+  const response = await apiClient.get('/companies/stats');
   return response.data;
 };
 
 export const getStudentStats = async (): Promise<StudentStats> => {
-  const response = await apiClient.get('/api/students/stats');
+  const response = await apiClient.get('/students/stats');
   return response.data;
 };

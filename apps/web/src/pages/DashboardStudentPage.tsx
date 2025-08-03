@@ -13,7 +13,6 @@ const DashboardStudentPage: React.FC = () => {
   // Calculate metrics from real data
   const metrics = {
     myApplications: stats?.totalApplications || 0,
-    interviewsScheduled: stats?.applicationsByStatus?.INTERVIEW || 0,
     adoptionRequests: stats?.adoptionRequestsReceived || 0,
     profileViews: 0, // This would need to be tracked separately
   };
@@ -51,7 +50,7 @@ const DashboardStudentPage: React.FC = () => {
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">Candidatures récentes</h3>
-                <a href="/dashboard-student/applications" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                <a href="/my-applications" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                   Voir tout →
                 </a>
               </div>
@@ -104,54 +103,7 @@ const DashboardStudentPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Upcoming Interviews */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Entretiens à venir</h3>
-                <a href="/dashboard-student/interviews" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Voir tout →
-                </a>
-              </div>
-              <div className="space-y-4">
-                {applicationsLoading ? (
-                  [...Array(2)].map((_, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg animate-pulse">
-                      <div className="flex-1">
-                        <div className="h-4 bg-blue-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-blue-200 rounded w-1/2"></div>
-                      </div>
-                      <div className="text-right">
-                        <div className="h-4 bg-blue-200 rounded w-16 mb-1"></div>
-                        <div className="h-3 bg-blue-200 rounded w-12"></div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  applications
-                    .filter(app => app.status === 'INTERVIEW')
-                    .slice(0, 2)
-                    .map((app) => (
-                      <div key={app.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-gray-900">{app.offer.title}</p>
-                          <p className="text-sm text-gray-600">{app.offer.company.name}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-blue-700">
-                            {new Date(app.createdAt).toLocaleDateString('fr-FR')}
-                          </p>
-                          <p className="text-xs text-blue-600">À planifier</p>
-                        </div>
-                      </div>
-                    ))
-                )}
-                {!applicationsLoading && applications.filter(app => app.status === 'INTERVIEW').length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>Aucun entretien planifié</p>
-                  </div>
-                )}
-              </div>
-            </div>
+
           </div>
 
           {/* Quick Actions */}

@@ -52,10 +52,8 @@ interface DashboardMetricsProps {
   metrics: {
     totalOffers?: number;
     newApplications?: number;
-    pendingInterviews?: number;
     activeContracts?: number;
     myApplications?: number;
-    interviewsScheduled?: number;
     adoptionRequests?: number;
     profileViews?: number;
   };
@@ -74,17 +72,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       ),
       color: 'blue' as const,
     },
-    {
-      title: 'Entretiens planifiés',
-      value: metrics.interviewsScheduled || 0,
-      subtitle: 'En cours',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a1 1 0 011-1h4a1 1 0 011 1v1M8 7h8m-9 4a2 2 0 002 2h6a2 2 0 002-2M7 11V9a2 2 0 012-2h6a2 2 0 012 2v2m-9 0h10" />
-        </svg>
-      ),
-      color: 'green' as const,
-    },
+
     {
       title: 'Demandes d\'adoption',
       value: metrics.adoptionRequests || 0,
@@ -133,17 +121,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       ),
       color: 'green' as const,
     },
-    {
-      title: 'Entretiens en cours',
-      value: metrics.pendingInterviews || 0,
-      subtitle: 'À planifier',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      color: 'yellow' as const,
-    },
+
     {
       title: 'Candidats embauchés',
       value: metrics.activeContracts || 0,

@@ -8,7 +8,16 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-export const listOffers = async (filters: { search?: string, location?: string, skills?: string[], companyName?: string, type?: string }) => {
+export const listOffers = async (filters: { 
+  search?: string, 
+  location?: string, 
+  skills?: string[], 
+  companyName?: string, 
+  type?: string,
+  page?: number,
+  limit?: number,
+  sortBy?: string
+}) => {
   const params = new URLSearchParams();
 
   // Add parameters if they exist and are not empty
@@ -27,8 +36,19 @@ export const listOffers = async (filters: { search?: string, location?: string, 
   if (filters.type && filters.type.trim()) {
     params.append('type', filters.type.trim());
   }
+  if (filters.page) {
+    params.append('page', filters.page.toString());
+  }
+  if (filters.limit) {
+    params.append('limit', filters.limit.toString());
+  }
+  if (filters.sortBy) {
+    params.append('sortBy', filters.sortBy);
+  }
 
+  console.log('🔍 Frontend: Fetching offers with params:', Object.fromEntries(params));
   const { data } = await apiClient.get('/offers', { params });
+  console.log('✅ Frontend: Received paginated response:', data);
   return data;
 };
 

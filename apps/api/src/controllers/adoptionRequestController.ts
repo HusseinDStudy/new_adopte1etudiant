@@ -40,24 +40,41 @@ export const createAdoptionRequest = async (
     }
 
     const newRequest = await prisma.$transaction(async (tx) => {
+      // Create conversation with context
       const conversation = await tx.conversation.create({
-        data: {},
-      });
-
-      await tx.message.create({
         data: {
-          conversationId: conversation.id,
-          senderId: companyUserId,
-          content: message,
+          topic: `Demande d'adoption - ${companyProfile.name}`,
+          context: 'ADOPTION_REQUEST',
+          status: 'PENDING_APPROVAL',
+          participants: {
+            create: [
+              { userId: companyUserId },
+              { userId: studentId }
+            ]
+          },
+          messages: {
+            create: {
+              senderId: companyUserId,
+              content: message,
+            }
+          }
         },
       });
 
+      // Create adoption request with conversation link and initial message
       const adoptionRequest = await tx.adoptionRequest.create({
-      data: {
-        companyId: companyProfile.id,
-        studentId,
+        data: {
+          companyId: companyProfile.id,
+          studentId,
+          message: message,
           conversationId: conversation.id,
-      },
+        },
+      });
+
+      // Update conversation with context ID
+      await tx.conversation.update({
+        where: { id: conversation.id },
+        data: { contextId: adoptionRequest.id }
       });
 
       return adoptionRequest;
@@ -212,17 +229,53 @@ export const updateAdoptionRequestStatus = async (
 
     try {
         const requestToUpdate = await prisma.adoptionRequest.findFirst({
-            where: { id: requestId, studentId }
+            where: { id: requestId, studentId },
+            include: {
+                conversation: true
+            }
         });
 
         if (!requestToUpdate) {
             return reply.code(404).send({ message: 'Request not found or you do not have permission to update it.'});
         }
 
+        // Update adoption request status
         const updatedRequest = await prisma.adoptionRequest.update({
             where: { id: requestId },
             data: { status: status as any }
         });
+
+        // Update conversation status based on adoption request status
+        if (requestToUpdate.conversation) {
+            let conversationStatus = 'ACTIVE';
+            let isReadOnly = false;
+
+            switch (status) {
+                case 'ACCEPTED':
+                    conversationStatus = 'ACTIVE';
+                    isReadOnly = false;
+                    break;
+                case 'REJECTED':
+                    conversationStatus = 'ARCHIVED';
+                    isReadOnly = true;
+                    break;
+                case 'PENDING':
+                    conversationStatus = 'PENDING_APPROVAL';
+                    isReadOnly = false;
+                    break;
+                default:
+                    conversationStatus = 'ACTIVE';
+                    isReadOnly = false;
+            }
+
+            await prisma.conversation.update({
+                where: { id: requestToUpdate.conversation.id },
+                data: {
+                    status: conversationStatus as any,
+                    isReadOnly: isReadOnly
+                }
+            });
+        }
 
         return reply.send(updatedRequest);
     } catch (error) {

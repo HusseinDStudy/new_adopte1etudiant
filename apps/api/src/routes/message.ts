@@ -21,35 +21,109 @@ async function messageRoutes(server: FastifyInstance) {
         type: 'object',
         properties: {
           page: { type: 'integer', minimum: 1, default: 1 },
-          limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 }
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          context: { type: 'string', enum: ['ADOPTION_REQUEST', 'OFFER', 'ADMIN_MESSAGE', 'BROADCAST'] },
+          status: { type: 'string', enum: ['ACTIVE', 'PENDING_APPROVAL', 'ARCHIVED', 'EXPIRED'] }
         }
       },
       response: {
         200: {
-          description: 'List of user conversations',
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              topic: { type: 'string' },
-              lastMessage: {
-                oneOf: [
-                  {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'string' },
-                      content: { type: 'string' },
-                      senderId: { type: 'string' },
-                      createdAt: { type: 'string', format: 'date-time' }
+          description: 'List of user conversations with pagination',
+          type: 'object',
+          properties: {
+            conversations: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  topic: { type: ['string', 'null'] },
+                  isReadOnly: { type: 'boolean' },
+                  isBroadcast: { type: 'boolean' },
+                  context: { type: ['string', 'null'] },
+                  status: { type: ['string', 'null'] },
+                  expiresAt: { type: ['string', 'null'], format: 'date-time' },
+                  participants: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        userId: { type: 'string' },
+                        user: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'string' },
+                            email: { type: 'string' },
+                            role: { type: 'string' },
+                            studentProfile: {
+                              type: 'object',
+                              properties: {
+                                firstName: { type: 'string' },
+                                lastName: { type: 'string' }
+                              }
+                            },
+                            companyProfile: {
+                              type: 'object',
+                              properties: {
+                                name: { type: 'string' }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   },
-                  {
-                    type: 'string'
+                  lastMessage: {
+                    oneOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          content: { type: 'string' },
+                          senderId: { type: 'string' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          sender: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'string' },
+                              email: { type: 'string' },
+                              role: { type: 'string' }
+                            }
+                          }
+                        }
+                      },
+                      { type: 'null' }
+                    ]
+                  },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  contextDetails: {
+                    oneOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          type: { type: 'string' },
+                          status: { type: ['string', 'null'] },
+                          companyName: { type: ['string', 'null'] },
+                          offerTitle: { type: ['string', 'null'] },
+                          initialMessage: { type: ['string', 'null'] }
+                        }
+                      },
+                      { type: 'null' }
+                    ]
                   }
-                ]
-              },
-              updatedAt: { type: 'string', format: 'date-time' }
+                }
+              }
+            },
+            pagination: {
+              type: 'object',
+              properties: {
+                page: { type: 'integer' },
+                limit: { type: 'integer' },
+                total: { type: 'integer' },
+                totalPages: { type: 'integer' }
+              }
             }
           }
         },
@@ -57,10 +131,135 @@ async function messageRoutes(server: FastifyInstance) {
           description: 'Not authenticated',
           type: 'object',
           properties: { message: { type: 'string' } }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: { message: { type: 'string' } }
         }
       }
     }
   }, getMyConversations);
+
+  server.get('/conversations/:conversationId', {
+    schema: {
+      description: 'Get conversation details and messages',
+      tags: ['Messages'],
+      summary: 'Get conversation with messages',
+      security: [{ cookieAuth: [] }],
+      params: {
+        type: 'object',
+        properties: {
+          conversationId: { type: 'string', description: 'Conversation ID' }
+        },
+        required: ['conversationId']
+      },
+      response: {
+        200: {
+          description: 'Conversation details with messages',
+          type: 'object',
+          properties: {
+            messages: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  content: { type: 'string' },
+                  senderId: { type: 'string' },
+                  sender: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      email: { type: 'string', format: 'email' },
+                      role: { type: 'string', enum: ['STUDENT', 'COMPANY', 'ADMIN'] }
+                    }
+                  },
+                  conversationId: { type: 'string' },
+                  createdAt: { type: 'string', format: 'date-time' }
+                }
+              }
+            },
+            conversation: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                topic: { type: ['string', 'null'] },
+                isReadOnly: { type: 'boolean' },
+                isBroadcast: { type: 'boolean' },
+                context: { type: ['string', 'null'] },
+                status: { type: ['string', 'null'] },
+                expiresAt: { type: ['string', 'null'], format: 'date-time' },
+                participants: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      userId: { type: 'string' },
+                      user: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          email: { type: 'string' },
+                          role: { type: 'string' },
+                          studentProfile: {
+                            type: 'object',
+                            properties: {
+                              firstName: { type: 'string' },
+                              lastName: { type: 'string' }
+                            }
+                          },
+                          companyProfile: {
+                            type: 'object',
+                            properties: {
+                              name: { type: 'string' }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                adoptionRequestStatus: { type: ['string', 'null'] },
+                applicationStatus: { type: ['string', 'null'] },
+                contextDetails: {
+                  oneOf: [
+                    {
+                      type: 'object',
+                      properties: {
+                        type: { type: 'string' },
+                        status: { type: ['string', 'null'] },
+                        companyName: { type: ['string', 'null'] },
+                        offerTitle: { type: ['string', 'null'] },
+                        initialMessage: { type: ['string', 'null'] }
+                      }
+                    },
+                    { type: 'null' }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        401: {
+          description: 'Not authenticated',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        403: {
+          description: 'Access denied - Not a participant in this conversation',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        404: {
+          description: 'Conversation not found',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, getMessagesForConversation);
 
   server.get(
     '/conversations/:conversationId/messages',
@@ -147,6 +346,76 @@ async function messageRoutes(server: FastifyInstance) {
     },
     getMessagesForConversation as any
   );
+
+  server.post('/conversations/:conversationId', {
+    preHandler: [sanitizationMiddleware],
+    schema: {
+      description: 'Send a new message in a conversation',
+      tags: ['Messages'],
+      summary: 'Send message',
+      security: [{ cookieAuth: [] }],
+      params: {
+        type: 'object',
+        properties: {
+          conversationId: { type: 'string', description: 'Conversation ID' }
+        },
+        required: ['conversationId']
+      },
+      body: {
+        type: 'object',
+        required: ['content'],
+        properties: {
+          content: {
+            type: 'string',
+            minLength: 1,
+            maxLength: 2000,
+            description: 'Message content'
+          }
+        }
+      },
+      response: {
+        201: {
+          description: 'Message sent successfully',
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            content: { type: 'string' },
+            senderId: { type: 'string' },
+            conversationId: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+            sender: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                email: { type: 'string' },
+                role: { type: 'string' }
+              }
+            }
+          }
+        },
+        400: {
+          description: 'Invalid input data',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        401: {
+          description: 'Not authenticated',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        403: {
+          description: 'Access denied - Not a participant in this conversation or conversation is read-only',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        404: {
+          description: 'Conversation not found',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, createMessageInConversation);
 
   server.post(
     '/conversations/:conversationId/messages',

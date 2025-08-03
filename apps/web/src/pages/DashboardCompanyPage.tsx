@@ -14,7 +14,6 @@ const DashboardCompanyPage: React.FC = () => {
   const metrics = {
     totalOffers: stats?.totalOffers || 0,
     newApplications: stats?.applicationsByStatus?.NEW || 0,
-    pendingInterviews: stats?.applicationsByStatus?.INTERVIEW || 0,
     activeContracts: stats?.applicationsByStatus?.HIRED || 0,
   };
 
@@ -95,39 +94,7 @@ const DashboardCompanyPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Upcoming Interviews */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Entretiens planifiés</h3>
-                <a href="/interviews" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Voir tout →
-                </a>
-              </div>
-              <div className="space-y-4">
-                {statsLoading ? (
-                  [...Array(3)].map((_, i) => (
-                    <div key={i} className="p-4 bg-blue-50 rounded-lg animate-pulse">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <div className="w-8 h-8 bg-blue-200 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-blue-200 rounded w-3/4 mb-1"></div>
-                          <div className="h-3 bg-blue-200 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="h-4 bg-blue-200 rounded w-16"></div>
-                        <div className="h-3 bg-blue-200 rounded w-12"></div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>Aucun entretien planifié</p>
-                    <p className="text-sm">Les entretiens programmés apparaîtront ici</p>
-                  </div>
-                )}
-              </div>
-            </div>
+
           </div>
 
           {/* Quick Actions */}

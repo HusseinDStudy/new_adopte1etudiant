@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useOffers } from '../hooks/useOffers';
 import { useOfferFilters } from '../hooks/useOfferFilters';
 import { useOfferApplications } from '../hooks/useOfferApplications';
+import { useUrlSync } from '../hooks/useUrlSync';
 import OfferCard from '../components/OfferCard';
 import OfferFilters from '../components/OfferFilters';
 import DashboardMetrics from '../components/DashboardMetrics';
@@ -14,8 +15,18 @@ type SortOption = 'recent' | 'relevance' | 'location';
 const OfferListPage = () => {
   const { user } = useAuth();
   const [sortBy, setSortBy] = useState<SortOption>('recent');
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // 3x3 grid
+  
+  // URL synchronization
+  const { isInitialized, getPageFromUrl, updatePageInUrl } = useUrlSync();
+  const [currentPage, setCurrentPage] = useState(getPageFromUrl());
+
+  // Update current page when URL changes
+  useEffect(() => {
+    if (isInitialized) {
+      setCurrentPage(getPageFromUrl());
+    }
+  }, [isInitialized, getPageFromUrl]);
 
   // Use custom hooks for state management
   const {
@@ -36,51 +47,26 @@ const OfferListPage = () => {
 
   const {
     offers,
+    pagination,
     loading,
     error,
     refetch,
-  } = useOffers(debouncedFilters);
+  } = useOffers({
+    ...debouncedFilters,
+    page: currentPage,
+    limit: itemsPerPage,
+    sortBy
+  });
 
   const {
     appliedOfferIds,
     refreshAppliedOffers,
   } = useOfferApplications();
 
-  // Sort offers based on selected options (filtering is now done server-side)
-  const filteredAndSortedOffers = useMemo(() => {
-    if (!offers || !Array.isArray(offers)) return [];
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'recent':
-        return offers.sort((a, b) =>
-          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-        );
-      case 'relevance':
-        // Sort by match score for students, or by number of applications for companies
-        return offers.sort((a, b) => {
-          if (user?.role === 'STUDENT') {
-            return (b.matchScore || 0) - (a.matchScore || 0);
-          }
-          return (b._count?.applications || 0) - (a._count?.applications || 0);
-        });
-      case 'location':
-        return offers.sort((a, b) =>
-          (a.location || '').localeCompare(b.location || '')
-        );
-      default:
-        return offers;
-    }
-  }, [offers, sortBy, user?.role]);
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredAndSortedOffers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedOffers = filteredAndSortedOffers.slice(startIndex, endIndex);
-
-
-
+  // Server-side pagination - no need to sort or paginate client-side
+  // The server handles filtering, sorting, and pagination
+  const displayedOffers = offers || [];
+  
   // Reset to page 1 when filters or sort change
   const prevFiltersRef = React.useRef<string>('');
   React.useEffect(() => {
@@ -95,13 +81,15 @@ const OfferListPage = () => {
 
     if (prevFiltersRef.current !== '' && prevFiltersRef.current !== filtersString) {
       setCurrentPage(1);
+      updatePageInUrl(1);
     }
 
     prevFiltersRef.current = filtersString;
-  }, [debouncedFilters.search, debouncedFilters.location, debouncedFilters.companyName, debouncedFilters.type, debouncedFilters.skills, sortBy]);
+  }, [debouncedFilters.search, debouncedFilters.location, debouncedFilters.companyName, debouncedFilters.type, debouncedFilters.skills, sortBy, updatePageInUrl]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    updatePageInUrl(page);
     // Scroll to top when changing pages
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -192,9 +180,9 @@ const OfferListPage = () => {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
-                {filteredAndSortedOffers.length} offre(s) trouvée(s)
+                {pagination?.total || 0} offre(s) trouvée(s)
               </h2>
-              {filteredAndSortedOffers.length > 0 && (
+              {displayedOffers.length > 0 && (
                 <p className="text-sm text-gray-500 mt-1">
                   {getSortDescription()}
                 </p>
@@ -216,7 +204,7 @@ const OfferListPage = () => {
 
           {/* Offers Grid */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {paginatedOffers.map((offer, index) => (
+            {displayedOffers.map((offer, index) => (
               <OfferCard
                 key={offer.id || `offer-${index}`}
                 offer={offer}
@@ -227,18 +215,18 @@ const OfferListPage = () => {
           </div>
 
           {/* Pagination */}
-          {filteredAndSortedOffers.length > 0 && (
+          {pagination && pagination.totalPages > 1 && (
             <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
               onPageChange={handlePageChange}
-              itemsPerPage={itemsPerPage}
-              totalItems={filteredAndSortedOffers.length}
+              itemsPerPage={pagination.limit}
+              totalItems={pagination.total}
             />
           )}
 
           {/* Empty State */}
-          {filteredAndSortedOffers.length === 0 && (
+          {displayedOffers.length === 0 && !loading && (
             <div className="text-center py-12">
               <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />

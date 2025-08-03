@@ -51,15 +51,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ userRole }) => {
         </svg>
       ),
     },
-    {
-      label: 'Entretiens',
-      path: '/interviews',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a1 1 0 011-1h4a1 1 0 011 1v1M8 7h8m-9 4a2 2 0 002 2h6a2 2 0 002-2M7 11V9a2 2 0 012-2h6a2 2 0 012 2v2m-9 0h10" />
-        </svg>
-      ),
-    },
+
     {
       label: 'Messages',
       path: '/conversations',

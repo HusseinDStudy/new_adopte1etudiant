@@ -145,7 +145,7 @@ async function main() {
     data: {
       email: 'admin@adopte1etudiant.com',
       passwordHash: await bcrypt.hash('admin123', 10),
-      role: 'ADMIN',
+      role: Role.ADMIN,
     },
   });
   adminUsers.push(mainAdmin);
@@ -156,7 +156,7 @@ async function main() {
       data: {
         email: faker.internet.email(),
         passwordHash: await bcrypt.hash('admin123', 10),
-        role: 'ADMIN',
+        role: Role.ADMIN,
       },
     });
     adminUsers.push(admin);
@@ -319,7 +319,7 @@ async function main() {
     content: string;
     category: string;
     author: string;
-    readTime: string;
+    readTimeMinutes: number;
     published: boolean;
     featured: boolean;
     image: string;
@@ -344,7 +344,7 @@ async function main() {
   const numberOfPosts = faker.number.int({ min: 8, max: 12 });
 
   for (let i = 0; i < numberOfPosts; i++) {
-    const title = faker.lorem.sentence({ min: 4, max: 8 }).replace('.', '');
+    const title = faker.lorem.words({ min: 4, max: 8 }).slice(0, 130); // Ensure title is under 140 chars
     const category = faker.helpers.arrayElement(categoryNames);
     const author = faker.helpers.arrayElement(authors);
     const isPublished = faker.datatype.boolean(0.8); // 80% chance of being published
@@ -354,6 +354,9 @@ async function main() {
       to: new Date()
     });
 
+    const metaTitle = `${title.slice(0, 40)} | Adopte1Etudiant`.slice(0, 60); // Ensure under 60 chars
+    const metaDescription = faker.lorem.sentence({ min: 8, max: 12 }).slice(0, 160); // Ensure under 160 chars
+
     blogPosts.push({
       title,
       slug: generateSlug(title),
@@ -361,12 +364,12 @@ async function main() {
       content: generateBlogContent(),
       category,
       author,
-      readTime: `${faker.number.int({ min: 3, max: 12 })} min`,
+      readTimeMinutes: faker.number.int({ min: 3, max: 12 }),
       published: isPublished,
       featured: isFeatured,
       image: `https://picsum.photos/800/400?random=${i + 1}`,
-      metaTitle: `${title} | Adopte1Etudiant`,
-      metaDescription: faker.lorem.sentence({ min: 10, max: 20 }),
+      metaTitle,
+      metaDescription,
       publishedAt: isPublished ? createdDate : null,
       createdAt: createdDate,
       updatedAt: createdDate
@@ -374,9 +377,32 @@ async function main() {
   }
 
   const createdPosts = await Promise.all(
-    blogPosts.map(post =>
-      prisma.blogPost.create({ data: post })
-    )
+    blogPosts.map(async (post) => {
+      // Find the category by name and get its ID
+      const category = await prisma.blogCategory.findFirst({
+        where: { name: post.category }
+      });
+      
+      return prisma.blogPost.create({ 
+        data: {
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          content: post.content,
+          author: post.author,
+          readTimeMinutes: post.readTimeMinutes,
+          featured: post.featured,
+          image: post.image,
+          metaTitle: post.metaTitle,
+          metaDescription: post.metaDescription,
+          publishedAt: post.publishedAt,
+          createdAt: post.createdAt,
+          updatedAt: post.updatedAt,
+          categoryId: category?.id || null,
+          status: post.published ? 'PUBLISHED' : 'DRAFT'
+        }
+      });
+    })
   );
   console.log(`${createdPosts.length} blog posts created.`);
 

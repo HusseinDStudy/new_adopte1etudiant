@@ -7,7 +7,7 @@ const TeamPage: React.FC = () => {
       name: "Sophie Durand",
       role: "Directrice Générale",
       description: "Diplômée de l'ESSEC, Sophie a fondé 'Adopte un Étudiant' après avoir constaté les difficultés d'insertion professionnelle des jeunes.",
-      image: "/api/placeholder/300/300",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -18,7 +18,7 @@ const TeamPage: React.FC = () => {
       name: "Thomas Lefebvre",
       role: "Directeur Technique",
       description: "Expert en développement web, Thomas a créé pour plusieurs startups avant de rejoindre notre équipe.",
-      image: "/api/placeholder/300/300",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
         github: "#",
@@ -29,7 +29,7 @@ const TeamPage: React.FC = () => {
       name: "Amina Benali",
       role: "Responsable Relations Écoles",
       description: "Amina développe les partenariats avec les établissements d'enseignement supérieur.",
-      image: "/api/placeholder/300/300",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -40,7 +40,7 @@ const TeamPage: React.FC = () => {
       name: "Lucas Martin",
       role: "Responsable Relations Entreprises",
       description: "Lucas a pour mission de convaincre les entreprises de tous secteurs de rejoindre la plateforme.",
-      image: "/api/placeholder/300/300",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
         twitter: "#",
@@ -83,7 +83,18 @@ const TeamPage: React.FC = () => {
             {teamMembers.map((member, index) => (
               <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 group">
                 <div className="aspect-square bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300">
-                  <div className="w-32 h-32 bg-blue-200 rounded-full flex items-center justify-center group-hover:bg-blue-300 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <img 
+                    src={member.image} 
+                    alt={member.name}
+                    className="w-32 h-32 rounded-full object-cover group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-32 h-32 bg-blue-200 rounded-full flex items-center justify-center group-hover:bg-blue-300 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 hidden">
                     <span className="text-4xl font-bold text-blue-600 group-hover:text-blue-700 transition-colors duration-300">
                       {member.name.split(' ').map(n => n[0]).join('')}
                     </span>

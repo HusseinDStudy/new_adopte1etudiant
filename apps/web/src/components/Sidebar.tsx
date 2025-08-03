@@ -19,7 +19,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     // Dashboard - always first
     {
       label: 'Dashboard',
-      path: '/dashboard',
+      path: (() => {
+        if (user?.role === 'COMPANY') {
+          return '/dashboard-company';
+        } else if (user?.role === 'STUDENT') {
+          return '/dashboard-student';
+        } else {
+          return '/dashboard';
+        }
+      })(),
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
@@ -83,17 +91,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       ),
       show: user?.role === 'COMPANY',
     },
-    // Common items
     {
-      label: 'Entretiens',
-      path: '/interviews',
+      label: 'Trouver des Étudiants',
+      path: '/students',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a1 1 0 011-1h4a1 1 0 011 1v1M8 7h8m-9 4a2 2 0 002 2h6a2 2 0 002-2M7 11V9a2 2 0 012-2h6a2 2 0 012 2v2m-9 0h10" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
         </svg>
       ),
-      show: isAuthenticated,
+      show: user?.role === 'COMPANY',
     },
+    // Common items
     {
       label: 'Messages',
       path: '/conversations',

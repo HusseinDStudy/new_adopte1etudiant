@@ -7,46 +7,97 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
+export interface ConversationContext {
+  type: 'adoption_request' | 'offer' | 'admin_message' | 'broadcast';
+  status?: string;
+  companyName?: string;
+  offerTitle?: string;
+  initialMessage?: string;
+  target?: 'ALL' | 'STUDENTS' | 'COMPANIES';
+}
+
+export interface Conversation {
+  id: string;
+  topic?: string;
+  isReadOnly: boolean;
+  isBroadcast: boolean;
+  broadcastTarget?: 'ALL' | 'STUDENTS' | 'COMPANIES';
+  context?: string;
+  status?: string;
+  expiresAt?: string;
+  participants: any[];
+  lastMessage?: any;
+  updatedAt: string;
+  createdAt: string;
+  contextDetails?: ConversationContext;
+}
+
+export interface ConversationResponse {
+  conversations: Conversation[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface Message {
   id: string;
+  conversationId: string;
+  senderId: string;
   content: string;
   createdAt: string;
   sender: {
     id: string;
-    role: 'STUDENT' | 'COMPANY';
     email: string;
+    role: string;
   };
 }
 
-export interface Conversation {
-    id: string;
-    topic: string; 
-    lastMessage: string;
-    updatedAt: string;
+export interface ConversationDetails {
+  id: string;
+  topic?: string;
+  isReadOnly: boolean;
+  isBroadcast: boolean;
+  broadcastTarget?: 'ALL' | 'STUDENTS' | 'COMPANIES';
+  context?: string;
+  status?: string;
+  expiresAt?: string;
+  participants: any[];
+  adoptionRequestStatus?: string;
+  applicationStatus?: string;
+  contextDetails?: ConversationContext;
 }
 
-export const getMyConversations = async (): Promise<Conversation[]> => {
-    const response = await apiClient.get('/messages/conversations');
-    // Ensure the response is an array
-    return Array.isArray(response.data) ? response.data : [];
+export interface MessagesResponse {
+  messages: Message[];
+  conversation: ConversationDetails;
+}
+
+export const getMyConversations = async (params: {
+  page?: number;
+  limit?: number;
+  context?: string;
+  status?: string;
+} = {}): Promise<ConversationResponse> => {
+  const searchParams = new URLSearchParams();
+  
+  if (params.page) searchParams.append('page', params.page.toString());
+  if (params.limit) searchParams.append('limit', params.limit.toString());
+  if (params.context) searchParams.append('context', params.context);
+  if (params.status) searchParams.append('status', params.status);
+
+  const { data } = await apiClient.get('/messages/conversations', { params: searchParams });
+  return data;
 };
 
-export interface ConversationWithMessages {
-  messages: Message[];
-  adoptionRequestStatus: string | null;
-}
-
-export const getMessagesForConversation = async (conversationId: string): Promise<ConversationWithMessages> => {
-  const response = await apiClient.get(`/messages/conversations/${conversationId}/messages`);
-  // Ensure the response has the expected structure
-  const data = response.data || {};
-  return {
-    messages: Array.isArray(data.messages) ? data.messages : [],
-    adoptionRequestStatus: data.adoptionRequestStatus || null
-  };
+export const getMessagesForConversation = async (conversationId: string): Promise<MessagesResponse> => {
+  const { data } = await apiClient.get(`/messages/conversations/${conversationId}`);
+  return data;
 };
 
 export const createMessageInConversation = async (conversationId: string, content: string): Promise<Message> => {
-  const response = await apiClient.post(`/messages/conversations/${conversationId}/messages`, { content });
-  return response.data;
+  const { data } = await apiClient.post(`/messages/conversations/${conversationId}`, { content });
+  return data;
 }; 

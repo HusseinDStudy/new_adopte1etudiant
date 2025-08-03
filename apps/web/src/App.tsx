@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -31,6 +31,14 @@ import SettingsPage from './pages/SettingsPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import BlogPostList from './pages/admin/BlogPostList';
 import BlogPostForm from './pages/admin/BlogPostForm';
+import BlogCategoriesPage from './pages/admin/BlogCategoriesPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminOffersPage from './pages/admin/AdminOffersPage';
+import AdminMessagesPage from './pages/admin/AdminMessagesPage';
+import AdminConversationPage from './pages/admin/AdminConversationPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+import AdminProfilePage from './pages/admin/AdminProfilePage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import DashboardStudentPage from './pages/DashboardStudentPage';
 import DashboardCompanyPage from './pages/DashboardCompanyPage';
 import ContactPage from './pages/ContactPage';
@@ -109,14 +117,26 @@ function App() {
                 <DashboardCompanyPage />
               </RoleBasedRoute>
             } />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <ProfilePage />
+              </RoleBasedRoute>
+            } />
             <Route path="/my-applications" element={
               <RoleBasedRoute allowedRole="STUDENT">
                 <MyApplicationsPage />
               </RoleBasedRoute>
             } />
-            <Route path="/conversations" element={<MyConversationsPage />} />
-            <Route path="/conversations/:conversationId" element={<ConversationPage />} />
+            <Route path="/conversations" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <MyConversationsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/conversations/:conversationId" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <ConversationPage />
+              </RoleBasedRoute>
+            } />
             <Route path="/students" element={
               <RoleBasedRoute allowedRole="COMPANY">
                 <StudentDirectoryPage />
@@ -164,6 +184,7 @@ function App() {
                 <AdminDashboard />
               </RoleBasedRoute>
             } />
+            <Route path="/admin/blog" element={<Navigate to="/admin/blog/posts" replace />} />
             <Route path="/admin/blog/posts" element={
               <RoleBasedRoute allowedRole="ADMIN">
                 <BlogPostList />
@@ -179,8 +200,52 @@ function App() {
                 <BlogPostForm />
               </RoleBasedRoute>
             } />
+            <Route path="/admin/blog/categories" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogCategoriesPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminUsersPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/offers" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminOffersPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/messages" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminMessagesPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/conversations/:conversationId" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminConversationPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminAnalyticsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/profile" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminProfilePage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminSettingsPage />
+              </RoleBasedRoute>
+            } />
 
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <SettingsPage />
+              </RoleBasedRoute>
+            } />
           </Route>
         </Routes>
       </main>

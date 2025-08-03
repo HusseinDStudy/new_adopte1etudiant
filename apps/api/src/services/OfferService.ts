@@ -26,12 +26,15 @@ export class OfferService {
     this.skillService = new SkillService();
   }
 
-  async listOffers(filters: OfferFilters, user?: UserContext | null) {
+  async listOffers(filters: OfferFilters, user?: UserContext | null, pagination?: { page: number; limit: number; sortBy?: string }) {
     const { search, location, skills: skillsQuery, companyName, type } = filters;
+    const { page = 1, limit = 9, sortBy = 'recent' } = pagination || {};
 
-    console.log('OfferService.listOffers called with filters:', filters);
+    console.log('OfferService.listOffers called with filters:', filters, 'pagination:', pagination);
 
-    const whereClause: any = {};
+    const whereClause: any = {
+      isActive: true // Only show active offers to public
+    };
 
     if (search) {
       whereClause.OR = [
@@ -78,18 +81,35 @@ export class OfferService {
 
     console.log('Final whereClause:', JSON.stringify(whereClause, null, 2));
 
-    const offers = await prisma.offer.findMany({
-      where: whereClause,
-      include: {
-        company: true,
-        skills: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    // Calculate skip for pagination
+    const skip = (page - 1) * limit;
 
-    // If user is a student, calculate match scores and sort by them
+    // Determine orderBy based on sortBy parameter
+    let orderBy: any = { createdAt: 'desc' }; // default
+    
+    if (sortBy === 'location') {
+      orderBy = { location: 'asc' };
+    } else if (sortBy === 'recent') {
+      orderBy = { createdAt: 'desc' };
+    }
+    // For 'relevance', we'll handle it after fetching if user is a student
+
+    // Get offers and total count in parallel
+    const [offers, total] = await Promise.all([
+      prisma.offer.findMany({
+        where: whereClause,
+        include: {
+          company: true,
+          skills: true,
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      prisma.offer.count({ where: whereClause })
+    ]);
+
+    // If user is a student, calculate match scores
     if (user?.role === 'STUDENT') {
       const studentProfile = await prisma.studentProfile.findUnique({
         where: { userId: user.id },
@@ -121,30 +141,77 @@ export class OfferService {
           return result;
         });
 
-        offersWithScores.sort((a, b) => {
-          if (a.matchScore !== b.matchScore) {
-            return b.matchScore - a.matchScore;
-          }
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
+        // Apply sorting based on sortBy parameter
+        if (sortBy === 'relevance') {
+          offersWithScores.sort((a, b) => {
+            if (a.matchScore !== b.matchScore) {
+              return b.matchScore - a.matchScore;
+            }
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+        } else if (sortBy === 'location') {
+          offersWithScores.sort((a, b) => {
+            if (a.location && b.location) {
+              return a.location.localeCompare(b.location);
+            }
+            return 0;
+          });
+        } else if (sortBy === 'recent') {
+          offersWithScores.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+        }
 
-        return offersWithScores;
+        const formattedOffers = offersWithScores.map(offer => ({
+          ...offer,
+          skills: offer.skills.map((s: any) => typeof s === 'string' ? s : s.name)
+        }));
+
+        return {
+          data: formattedOffers,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+          }
+        };
       } else {
         // Student doesn't have a profile yet, return offers with 0 match score
-        return offers.map(offer => ({
+        const formattedOffers = offers.map(offer => ({
           ...offer,
-          skills: offer.skills.map((s) => s.name),
+          skills: offer.skills.map((s: any) => typeof s === 'string' ? s : s.name),
           matchScore: 0
         }));
+
+        return {
+          data: formattedOffers,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+          }
+        };
       }
     }
 
     // For non-student users or no user, return offers without match scores
-    return offers.map(offer => ({
+    const formattedOffers = offers.map(offer => ({
       ...offer,
-      skills: offer.skills.map((s) => s.name),
+      skills: offer.skills.map((s: any) => typeof s === 'string' ? s : s.name),
       matchScore: null
     }));
+
+    return {
+      data: formattedOffers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
   }
 
   async getOfferById(id: string, user?: UserContext | null) {

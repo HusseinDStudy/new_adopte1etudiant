@@ -3,21 +3,69 @@ import HeroSection from '../components/HeroSection';
 
 const PartnersPage: React.FC = () => {
   const companyPartners = [
-    { name: "TechCorp", logo: "/api/placeholder/120/80" },
-    { name: "InnovateLab", logo: "/api/placeholder/120/80" },
-    { name: "DataSoft", logo: "/api/placeholder/120/80" },
-    { name: "FutureTech", logo: "/api/placeholder/120/80" },
-    { name: "SmartSolutions", logo: "/api/placeholder/120/80" },
-    { name: "DigitalWorks", logo: "/api/placeholder/120/80" }
+    { 
+      name: "Google", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/2560px-Google_2015_logo.svg.png",
+      website: "https://google.com"
+    },
+    { 
+      name: "Microsoft", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/2560px-Microsoft_logo.svg.png",
+      website: "https://microsoft.com"
+    },
+    { 
+      name: "Apple", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/1667px-Apple_logo_black.svg.png",
+      website: "https://apple.com"
+    },
+    { 
+      name: "Amazon", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png",
+      website: "https://amazon.com"
+    },
+    { 
+      name: "Meta", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/2560px-Meta_Platforms_Inc._logo.svg.png",
+      website: "https://meta.com"
+    },
+    { 
+      name: "Netflix", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/2560px-Netflix_2015_logo.svg.png",
+      website: "https://netflix.com"
+    }
   ];
 
   const schoolPartners = [
-    { name: "École Polytechnique", logo: "/api/placeholder/120/80" },
-    { name: "HEC Paris", logo: "/api/placeholder/120/80" },
-    { name: "ESSEC", logo: "/api/placeholder/120/80" },
-    { name: "Sciences Po", logo: "/api/placeholder/120/80" },
-    { name: "EPITECH", logo: "/api/placeholder/120/80" },
-    { name: "ESCP", logo: "/api/placeholder/120/80" }
+    { 
+      name: "École Polytechnique", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Logo_%C3%89cole_Polytechnique.svg/2560px-Logo_%C3%89cole_Polytechnique.svg.png",
+      website: "https://polytechnique.edu"
+    },
+    { 
+      name: "HEC Paris", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/HEC_Paris_logo.svg/2560px-HEC_Paris_logo.svg.png",
+      website: "https://hec.edu"
+    },
+    { 
+      name: "ESSEC", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/ESSEC_Business_School_logo.svg/2560px-ESSEC_Business_School_logo.svg.png",
+      website: "https://essec.edu"
+    },
+    { 
+      name: "Sciences Po", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Sciences_Po_logo.svg/2560px-Sciences_Po_logo.svg.png",
+      website: "https://sciencespo.fr"
+    },
+    { 
+      name: "EPITECH", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/EPITECH_logo.svg/2560px-EPITECH_logo.svg.png",
+      website: "https://epitech.eu"
+    },
+    { 
+      name: "ESCP", 
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/ESCP_Business_School_logo.svg/2560px-ESCP_Business_School_logo.svg.png",
+      website: "https://escp.eu"
+    }
   ];
 
   const benefits = [
@@ -96,13 +144,28 @@ const PartnersPage: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
             {companyPartners.map((partner, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-lg transition-shadow">
+              <a 
+                key={index} 
+                href={partner.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-50 rounded-lg p-6 flex items-center justify-center hover:shadow-lg hover:bg-gray-100 transition-all duration-300 group"
+              >
                 <img 
                   src={partner.logo} 
                   alt={partner.name}
-                  className="max-w-full max-h-16 object-contain"
+                  className="max-w-full max-h-16 object-contain group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
                 />
-              </div>
+                <div className="hidden w-full h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <span className="text-lg font-semibold text-blue-600">{partner.name}</span>
+                </div>
+              </a>
             ))}
           </div>
         </div>
@@ -126,13 +189,28 @@ const PartnersPage: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
             {schoolPartners.map((partner, index) => (
-              <div key={index} className="bg-white rounded-lg p-6 flex items-center justify-center hover:shadow-lg transition-shadow">
+              <a 
+                key={index} 
+                href={partner.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-lg p-6 flex items-center justify-center hover:shadow-lg hover:bg-gray-50 transition-all duration-300 group"
+              >
                 <img 
                   src={partner.logo} 
                   alt={partner.name}
-                  className="max-w-full max-h-16 object-contain"
+                  className="max-w-full max-h-16 object-contain group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
                 />
-              </div>
+                <div className="hidden w-full h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <span className="text-lg font-semibold text-blue-600">{partner.name}</span>
+                </div>
+              </a>
             ))}
           </div>
         </div>
