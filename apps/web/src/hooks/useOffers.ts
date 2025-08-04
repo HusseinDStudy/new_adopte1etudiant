@@ -66,9 +66,9 @@ export const useOffers = (filters: OfferFilters): UseOffersResult => {
         sortBy: filters.sortBy || 'recent',
       };
 
-      console.log('Fetching offers with filters:', filterParams);
+      // Fetching offers with filters
       const response = await listOffers(filterParams);
-      console.log('Received paginated response:', response);
+              // Received paginated response
       
       // Handle both old format (array) and new format (object with data + pagination)
       if (Array.isArray(response)) {

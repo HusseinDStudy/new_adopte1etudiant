@@ -234,7 +234,7 @@ export const convertMockDataToApiFormat = (mockPost: any): BlogPost => {
     category: mockPost.category,
     author: mockPost.author,
     readTime: mockPost.readTime,
-    published: true,
+    status: 'PUBLISHED',
     featured: mockPost.id === 1, // Make first post featured
     createdAt: mockPost.date,
     updatedAt: mockPost.date,

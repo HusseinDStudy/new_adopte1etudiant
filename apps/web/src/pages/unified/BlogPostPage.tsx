@@ -91,7 +91,7 @@ const BlogPostPage = () => {
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-4">
               {(() => {
-                const postCategory = post.category;
+                const postCategory = typeof post.category === 'string' ? categories.find(cat => cat.name === post.category) : post.category;
                 return (
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColorClasses(postCategory?.color)}`}>
                     {getCategoryIcon(postCategory?.icon)}
@@ -153,7 +153,7 @@ const BlogPostPage = () => {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Articles Similaires</h2>
               <p className="text-gray-600">
-                Découvrez d'autres articles de la catégorie "{post.category}"
+                Découvrez d'autres articles de la catégorie "{typeof post.category === 'string' ? post.category : post.category?.name || 'Aucune catégorie'}"
               </p>
             </div>
             
@@ -175,7 +175,7 @@ const BlogPostPage = () => {
                           return (
                             <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColorClasses(categoryData?.color)}`}>
                               {getCategoryIcon(categoryData?.icon)}
-                              <span className="ml-1">{relatedPost.category}</span>
+                              <span className="ml-1">{typeof relatedPost.category === 'string' ? relatedPost.category : relatedPost.category?.name || 'Aucune catégorie'}</span>
                             </span>
                           );
                         })()}

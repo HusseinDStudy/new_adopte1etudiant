@@ -20,7 +20,7 @@ const AdminOffersPage: React.FC = () => {
     const checkAuth = async () => {
       try {
         const user = await getMe();
-        console.log('🔐 Current user:', user);
+        // User authenticated
       } catch (error) {
         console.error('❌ Authentication error:', error);
       }
@@ -96,11 +96,7 @@ const AdminOffersPage: React.FC = () => {
               value={statusFilter === undefined ? '' : statusFilter.toString()}
               onChange={(e) => {
                 const newValue = e.target.value === '' ? undefined : e.target.value === 'true';
-                console.log('🔥 Filter changed:', { 
-                  rawValue: e.target.value, 
-                  newValue, 
-                  type: typeof newValue 
-                });
+                // Filter value updated
                 setStatusFilter(newValue);
               }}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

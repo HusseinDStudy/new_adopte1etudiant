@@ -93,7 +93,9 @@ describe('Security Tests', () => {
 
                 // Should return results or empty array, not error
                 expect(response.status).toBe(200);
-                expect(Array.isArray(response.body)).toBe(true);
+                expect(response.body).toHaveProperty('data');
+                expect(response.body).toHaveProperty('pagination');
+                expect(Array.isArray(response.body.data)).toBe(true);
             }
 
             // Verify offers table still exists and functions
@@ -206,7 +208,7 @@ describe('Security Tests', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${student.authToken}`);
 
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
 
             // Attempt XSS in message
             const response = await supertest(app.server)
@@ -387,7 +389,7 @@ describe('Security Tests', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${student.authToken}`);
 
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
 
             // Company2 tries to access the conversation
             const unauthorizedResponse = await supertest(app.server)

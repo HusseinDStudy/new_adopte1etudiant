@@ -323,6 +323,63 @@ async function messageRoutes(server: FastifyInstance) {
                 type: ['string', 'null'],
                 enum: ['PENDING', 'ACCEPTED', 'REJECTED', null],
                 description: 'Status of the adoption request associated with this conversation, if any'
+              },
+              conversation: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  topic: { type: 'string' },
+                  isReadOnly: { type: 'boolean' },
+                  isBroadcast: { type: 'boolean' },
+                  context: { type: 'string' },
+                  status: { type: 'string' },
+                  expiresAt: { type: ['string', 'null'], format: 'date-time' },
+                  participants: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        conversationId: { type: 'string' },
+                        userId: { type: 'string' },
+                        joinedAt: { type: 'string', format: 'date-time' },
+                        user: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'string' },
+                            email: { type: 'string' },
+                            role: { type: 'string' },
+                            studentProfile: {
+                              type: ['object', 'null'],
+                              properties: {
+                                firstName: { type: 'string' },
+                                lastName: { type: 'string' }
+                              }
+                            },
+                            companyProfile: {
+                              type: ['object', 'null'],
+                              properties: {
+                                name: { type: 'string' }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  adoptionRequestStatus: { type: ['string', 'null'] },
+                  applicationStatus: { type: ['string', 'null'] },
+                  contextDetails: {
+                    type: ['object', 'null'],
+                    properties: {
+                      type: { type: 'string' },
+                      status: { type: 'string' },
+                      companyName: { type: 'string' },
+                      initialMessage: { type: 'string' },
+                      offerTitle: { type: 'string' }
+                    }
+                  }
+                }
               }
             }
           },
@@ -415,7 +472,7 @@ async function messageRoutes(server: FastifyInstance) {
         }
       }
     }
-  }, createMessageInConversation);
+  }, createMessageInConversation as any);
 
   server.post(
     '/conversations/:conversationId/messages',

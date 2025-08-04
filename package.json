@@ -1,6 +1,7 @@
 {
   "name": "adopte1etudiant-mvp",
   "private": true,
+  "type": "module",
   "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "turbo build",
@@ -12,7 +13,7 @@
     "test:specific": "turbo test:specific",
     "test:coverage": "turbo test:coverage",
     "test:no-coverage": "turbo test:no-coverage",
-    "clean": "find . \\( -name 'node_modules' -o -name 'dist' -o -name 'build' -o -name '.turbo' -o -name 'coverage' -o -name '.next' -o -name '.cache' -o -name '.nyc_output' -o -name 'out' -o -name '.prisma' -o -name '.vite' -o -name 'temp' -o -name 'tmp' \\) -type d -prune -exec rm -rf '{}' + && find . -path './node_modules' -prune -o \\( -name '*.log' -o -name '*.lcov' -o -name '*.tsbuildinfo' -o -name '*.tmp' -o -name '*.temp' -o -name '.DS_Store' -o -name 'Thumbs.db' -o -name '*.swp' -o -name '*.swo' -o -name '*~' \\) -type f -print0 | xargs -0 rm -f",
+    "clean": "find . \\( -name 'node_modules' -o -name 'dist' -o -name 'build' -o -name '.turbo' -o -name 'coverage' -o -name '.next' -o -name '.cache' -o -name '.nyc_output' -o -name 'out' -o -name '.prisma' -o -name '.vite' -o -name 'temp' -o -name 'tmp' \\) -type d -prune -exec rm -rf '{}' + && find . -path './node_modules' -prune -o \\( -name '*.log' -o -name '*.lcov' -o -name '*.tsbuildinfo' -o -name '*.tmp' -o -name '*.temp' -o -name '.DS_Store' -o -name 'Thumbs.db' -o -name '*.swp' -o -name '*.swo' -o -name '*~' -o -name '.env' -o -name 'cookies.txt' \\) -type f -print0 | xargs -0 rm -f",
     "start": "npm run start --workspace=apps/api",
     "preview": "npm run preview --workspace=apps/web",
     "db:migrate:dev": "npm run migrate:dev --workspace=apps/api",
@@ -52,8 +53,14 @@
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.5",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "ajv-formats": "^3.0.1",
     "dotenv-cli": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-jsx-a11y": "^6.10.0",
+    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.5"
   },
@@ -62,6 +69,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@eslint-community/regexpp": "^4.12.1",
     "@prisma/client": "^6.12.0",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",

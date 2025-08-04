@@ -32,7 +32,7 @@ const allowedOrigins = [
   process.env.WEB_APP_URL,
   'http://localhost:5173',
   'http://localhost:5174'
-].filter(Boolean);
+].filter(Boolean) as string[];
 
 server.register(cors, {
   origin: allowedOrigins,

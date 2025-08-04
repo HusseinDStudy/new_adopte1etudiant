@@ -78,8 +78,8 @@ const StudentDirectoryPage: React.FC = () => {
     switch (sortBy) {
       case 'recent':
         return filtered.sort((a, b) =>
-          new Date(b.user?.createdAt || b.createdAt || 0).getTime() -
-          new Date(a.user?.createdAt || a.createdAt || 0).getTime()
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
         );
       case 'skills':
         return filtered.sort((a, b) =>

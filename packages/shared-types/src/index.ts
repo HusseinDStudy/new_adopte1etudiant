@@ -106,4 +106,21 @@ export type CreateOfferInput = z.infer<typeof createOfferSchema>;
 export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
 export type UpdateApplicationStatusInput = z.infer<typeof updateApplicationStatusSchema>;
-export type CreateMessageInput = z.infer<typeof createMessageSchema>; 
+export type CreateMessageInput = z.infer<typeof createMessageSchema>;
+
+// Offer type
+export interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  location: string | null;
+  duration: string | null;
+  skills: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  company: {
+    id: string;
+    name: string;
+  };
+} 

@@ -5,7 +5,7 @@ import { isTokenInvalidated } from '../controllers/authController.js';
 interface UserPayload {
   id: string;
   email: string;
-  role: 'STUDENT' | 'COMPANY';
+  role: 'STUDENT' | 'COMPANY' | 'ADMIN';
 }
 
 // Extend the FastifyRequest interface to include the user property

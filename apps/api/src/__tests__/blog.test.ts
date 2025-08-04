@@ -1,6 +1,6 @@
 // Quick test for featured functionality
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { getTestApp } from '../helpers/test-app';
+import { buildTestApp } from '../helpers/test-app';
 import type { FastifyInstance } from 'fastify';
 import { PrismaClient, Role } from '@prisma/client';
 
@@ -12,19 +12,30 @@ describe('Featured Blog Post Functionality', () => {
   let testPostId: string;
 
   beforeAll(async () => {
-    app = await getTestApp();
+    app = await buildTestApp();
     
-    // Create admin user and login
+    // Create regular user first
     const adminResponse = await app.inject({
       method: 'POST',
       url: '/api/auth/register',
       payload: {
         email: 'admin@test.com',
         password: 'Password123!',
-        role: Role.ADMIN,
-        firstName: 'Admin',
-        lastName: 'User'
+        role: 'COMPANY', // Use COMPANY role for registration
+        name: 'Admin Company',
+        contactEmail: 'admin@test.com'
       }
+    });
+
+    if (adminResponse.statusCode !== 201) {
+      console.error('Admin registration failed:', adminResponse.body);
+      throw new Error(`Admin registration failed: ${adminResponse.statusCode}`);
+    }
+
+    // Manually update user role to ADMIN in database
+    await prisma.user.update({
+      where: { email: 'admin@test.com' },
+      data: { role: 'ADMIN' }
     });
 
     const loginResponse = await app.inject({
@@ -38,6 +49,28 @@ describe('Featured Blog Post Functionality', () => {
     
     adminCookie = loginResponse.cookies.find(c => c.name === 'token')?.value || '';
 
+    // Create a blog category first
+    const createCategoryResponse = await app.inject({
+      method: 'POST',
+      url: '/api/blog/admin/categories',
+      headers: {
+        Cookie: `token=${adminCookie}`
+      },
+      payload: {
+        name: `Test Category ${Date.now()}`,
+        slug: `test-category-${Date.now()}`,
+        description: 'Test category for blog posts'
+      }
+    });
+
+    if (createCategoryResponse.statusCode !== 201) {
+      console.error('Category creation failed:', createCategoryResponse.body);
+      throw new Error(`Category creation failed: ${createCategoryResponse.statusCode}`);
+    }
+
+    const categoryId = createCategoryResponse.json().id;
+    console.log('Created category with ID:', categoryId);
+
     // Create a test blog post
     const createPostResponse = await app.inject({
       method: 'POST',
@@ -50,14 +83,20 @@ describe('Featured Blog Post Functionality', () => {
         slug: 'test-featured-post',
         excerpt: 'Test excerpt',
         content: 'Test content',
-        category: 'test',
+        categoryId: categoryId,
         author: 'Test Author',
         readTime: '5 min',
         published: true
       }
     });
     
+    if (createPostResponse.statusCode !== 201) {
+      console.error('Blog post creation failed:', createPostResponse.body);
+      throw new Error(`Blog post creation failed: ${createPostResponse.statusCode}`);
+    }
+    
     testPostId = createPostResponse.json().id;
+    console.log('Created blog post with ID:', testPostId);
   });
 
   afterAll(async () => {

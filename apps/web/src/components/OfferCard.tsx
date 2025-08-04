@@ -8,16 +8,16 @@ interface OfferCardProps {
     company: {
       name: string;
     };
-    location?: string;
+    location?: string | null;
     skills?: string[];
     matchScore?: number;
     type?: string;
-    duration?: string;
+    duration?: string | null;
     salary?: string;
     description?: string;
   };
   isApplied?: boolean;
-  userRole?: 'STUDENT' | 'COMPANY';
+  userRole?: 'STUDENT' | 'COMPANY' | 'ADMIN';
   onApply?: (offerId: string) => void;
   isApplying?: boolean;
 }

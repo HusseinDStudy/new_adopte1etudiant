@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 interface UserPayload {
   id: string;
   email: string;
-  role: 'STUDENT' | 'COMPANY';
+  role: 'STUDENT' | 'COMPANY' | 'ADMIN';
 }
 
 // Extend the FastifyRequest interface to include the user property

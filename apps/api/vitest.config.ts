@@ -17,6 +17,12 @@ export default defineConfig({
     // Increase timeout for database operations
     testTimeout: 30000,
     hookTimeout: 30000,
+    // Add delays between tests to reduce database load
+    sequence: {
+      hooks: 'list',
+    },
+    // Reduce concurrent operations
+    maxConcurrency: 1,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -29,12 +35,15 @@ export default defineConfig({
         'src/helpers/test-*', // Test helper files
         '**/*.d.ts', // Type definitions
         'src/fastify-oauth2.d.ts', // Type augmentation
+        'src/config/**', // Configuration files
+        'scripts/**', // Script files
+        'vitest.config.ts', // Test configuration
       ],
       thresholds: {
-        lines: 70, // More realistic threshold
-        functions: 70,
-        branches: 60,
-        statements: 70,
+        lines: 80, // Higher threshold for better coverage
+        functions: 85,
+        branches: 75,
+        statements: 80,
       },
     },
   },

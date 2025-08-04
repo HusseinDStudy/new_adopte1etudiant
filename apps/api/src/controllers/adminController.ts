@@ -267,11 +267,7 @@ export const getAdminOffers = asyncHandler(async (
   const { page = '1', limit = '15', search, companyId, isActive } = request.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
-  // Debug logging
-  console.log('=== ADMIN OFFERS DEBUG ===');
-  console.log('Raw query params:', request.query);
-  console.log('Extracted params:', { page, limit, search, companyId, isActive });
-  console.log('isActive type:', typeof isActive, 'value:', JSON.stringify(isActive));
+  // Admin offers query processing
   
   const whereClause: any = {};
 
@@ -289,17 +285,8 @@ export const getAdminOffers = asyncHandler(async (
 
   if (isActive !== undefined && isActive !== '') {
     const boolValue = isActive === 'true';
-    console.log('🔍 ADDING isActive filter:');
-    console.log('  - Raw value:', JSON.stringify(isActive));
-    console.log('  - Converted to boolean:', boolValue);
     whereClause.isActive = boolValue;
-  } else {
-    console.log('🚫 NOT adding isActive filter - undefined or empty');
   }
-
-  console.log('Final whereClause:', JSON.stringify(whereClause, null, 2));
-
-  console.log('About to execute Prisma query with whereClause:', whereClause);
   
   try {
     const [offers, total] = await Promise.all([
@@ -322,11 +309,7 @@ export const getAdminOffers = asyncHandler(async (
       prisma.offer.count({ where: whereClause })
     ]);
 
-    console.log('✅ Prisma query successful!');
-    console.log('Prisma query returned:', offers.length, 'offers');
-    console.log('Total count:', total);
-    console.log('Type of total:', typeof total);
-    console.log('Offer isActive values:', offers.map(o => ({ id: o.id, title: o.title, isActive: o.isActive })));
+    // Query executed successfully
 
     const formattedOffers = offers.map(offer => ({
       id: offer.id,
@@ -353,15 +336,7 @@ export const getAdminOffers = asyncHandler(async (
     const totalCount = total || 0;
     const totalPagesCount = Math.ceil(totalCount / limitNum);
 
-    console.log('🔍 PAGINATION DEBUG:', {
-      pageNum,
-      limitNum, 
-      totalCount,
-      totalPagesCount,
-      skip,
-      originalPage: page,
-      originalLimit: limit
-    });
+    // Pagination calculated
 
     const responseData = {
       data: formattedOffers,

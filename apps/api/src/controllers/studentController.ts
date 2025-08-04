@@ -27,7 +27,7 @@ export const getStudentStats = async (request: FastifyRequest, reply: FastifyRep
     return reply.send(stats);
   } catch (error) {
     console.error('Failed to get student stats:', error);
-    if (error.message === 'Student profile not found') {
+    if ((error as Error).message === 'Student profile not found') {
       return reply.code(404).send({ message: 'Student profile not found' });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });

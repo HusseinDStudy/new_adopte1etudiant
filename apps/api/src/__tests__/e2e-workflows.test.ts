@@ -128,9 +128,11 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(offersResponse.status).toBe(200);
-            expect(offersResponse.body).toHaveLength(1);
+            expect(offersResponse.body).toHaveProperty('data');
+            expect(offersResponse.body).toHaveProperty('pagination');
+            expect(offersResponse.body.data).toHaveLength(1);
             
-            const foundOffer = offersResponse.body[0];
+            const foundOffer = offersResponse.body.data[0];
             expect(foundOffer.matchScore).toBeGreaterThan(0); // Should have match score due to overlapping skills
 
             // Step 7: Student applies to the offer
@@ -190,10 +192,12 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(conversationsResponse.status).toBe(200);
-            expect(conversationsResponse.body).toHaveLength(1);
+            expect(conversationsResponse.body).toHaveProperty('conversations');
+            expect(conversationsResponse.body).toHaveProperty('pagination');
+            expect(conversationsResponse.body.conversations).toHaveLength(1);
             
-            const conversation = conversationsResponse.body[0];
-            expect(conversation.topic).toContain('Adoption Request');
+            const conversation = conversationsResponse.body.conversations[0];
+            expect(conversation.topic).toContain('Demande d\'adoption');
 
             // Step 13: Student views messages in conversation
             const messagesResponse = await supertest(app.server)
@@ -288,7 +292,7 @@ describe('End-to-End User Workflows', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentToken}`);
 
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
 
             const tryMessageResponse = await supertest(app.server)
                 .post(`/api/messages/conversations/${conversationId}/messages`)
@@ -462,7 +466,9 @@ describe('End-to-End User Workflows', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(conversationsResponse.status).toBe(200);
-            expect(conversationsResponse.body).toHaveLength(1);
+            expect(conversationsResponse.body).toHaveProperty('conversations');
+            expect(conversationsResponse.body).toHaveProperty('pagination');
+            expect(conversationsResponse.body.conversations).toHaveLength(1);
 
             // Step 12: Company updates application status
             const applicationId = applicantsResponse.body.applications[0].id;

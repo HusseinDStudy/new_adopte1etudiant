@@ -28,6 +28,7 @@ const BlogPostForm: React.FC = () => {
     featured: false,
     metaTitle: '',
     metaDescription: '',
+    status: 'DRAFT' as 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'ARCHIVED',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -45,6 +46,7 @@ const BlogPostForm: React.FC = () => {
         readTime: post.readTime || '5 min', // Default value to prevent empty string
         status: post.status || 'DRAFT',
         featured: post.featured || false,
+        published: post.status === 'PUBLISHED',
         metaTitle: post.metaTitle || '',
         metaDescription: post.metaDescription || '',
       });
@@ -219,7 +221,7 @@ const BlogPostForm: React.FC = () => {
 
     const draftData = { 
       ...cleanedFormData, 
-      status: 'DRAFT',
+      status: 'DRAFT' as const,
       slug: slug || cleanedFormData.title.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, ''),
       // Ensure these fields are strings, not undefined
       image: cleanedFormData.image?.trim() || '',

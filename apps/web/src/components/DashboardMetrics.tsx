@@ -71,6 +71,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
         </svg>
       ),
       color: 'blue' as const,
+      trend: undefined,
     },
 
     {
@@ -83,6 +84,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
         </svg>
       ),
       color: 'purple' as const,
+      trend: undefined,
     },
     {
       title: 'Vues du profil',
@@ -95,6 +97,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
         </svg>
       ),
       color: 'yellow' as const,
+      trend: undefined,
     },
   ];
 
@@ -109,6 +112,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
         </svg>
       ),
       color: 'blue' as const,
+      trend: undefined,
     },
     {
       title: 'Nouvelles candidatures',
@@ -120,6 +124,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
         </svg>
       ),
       color: 'green' as const,
+      trend: undefined,
     },
 
     {
@@ -132,6 +137,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
         </svg>
       ),
       color: 'purple' as const,
+      trend: undefined,
     },
   ];
 
@@ -147,7 +153,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
           subtitle={metric.subtitle}
           icon={metric.icon}
           color={metric.color}
-          trend={metric.trend}
+          trend={metric.trend || undefined}
         />
       ))}
     </div>

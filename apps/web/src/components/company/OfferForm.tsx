@@ -45,7 +45,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
       skills: defaultValues?.skills ?
         (Array.isArray(defaultValues.skills) ?
           defaultValues.skills.map(skill =>
-            typeof skill === 'string' ? skill : skill.name
+            typeof skill === 'string' ? skill : (skill as any).name
           ).join(', ') :
           defaultValues.skills
         ) : '',

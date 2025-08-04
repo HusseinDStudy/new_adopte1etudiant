@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface HeroSectionProps {
-  title: string;
+  title: string | React.ReactNode;
   subtitle?: string;
   description?: string;
   children?: React.ReactNode;

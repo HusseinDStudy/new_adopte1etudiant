@@ -105,7 +105,7 @@ const OfferApplicantsPage = () => {
   };
 
   const applicationStatuses = ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'];
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     NEW: 'bg-blue-100 text-blue-800',
     SEEN: 'bg-yellow-100 text-yellow-800',
     INTERVIEW: 'bg-purple-100 text-purple-800',
@@ -114,7 +114,7 @@ const OfferApplicantsPage = () => {
   };
 
   const getStatusCounts = () => {
-    const counts = { ALL: applications.length };
+    const counts: Record<string, number> = { ALL: applications.length };
     applicationStatuses.forEach(status => {
       counts[status] = applications.filter(app => app.status === status).length;
     });

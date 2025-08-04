@@ -16,6 +16,7 @@ export interface Student {
   skills: string[]; // API returns skills as array of strings
   cvUrl: string | null;
   isCvPublic: boolean;
+  createdAt?: string;
 }
 
 export interface Skill {
@@ -190,6 +191,8 @@ export const useStudents = (): UseStudentsResult => {
     skillsLoading,
     debouncedFilters: {
       search: debouncedSearchTerm,
+      location: '',
+      school: '',
       skills: selectedSkills,
     },
     setSearchTerm,

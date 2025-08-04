@@ -20,7 +20,7 @@ export const getCompanyStats = async (request: FastifyRequest, reply: FastifyRep
     return reply.send(stats);
   } catch (error) {
     console.error('Failed to get company stats:', error);
-    if (error.message === 'Company profile not found') {
+    if ((error as Error).message === 'Company profile not found') {
       return reply.code(404).send({ message: 'Company profile not found' });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });

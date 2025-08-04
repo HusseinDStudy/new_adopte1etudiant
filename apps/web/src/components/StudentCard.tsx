@@ -6,13 +6,13 @@ interface StudentCardProps {
     firstName: string;
     lastName: string;
     email: string;
-    school?: string;
-    degree?: string;
+    school?: string | null;
+    degree?: string | null;
     skills?: string[];
-    cvUrl?: string;
+    cvUrl?: string | null;
     isCvPublic?: boolean;
-    availability?: string;
-    location?: string;
+    availability?: string | null;
+    location?: string | null;
   };
   isRequested?: boolean;
   onRequestAdoption?: (studentId: string, message: string) => Promise<void>;

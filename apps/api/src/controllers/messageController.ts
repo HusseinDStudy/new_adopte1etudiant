@@ -128,32 +128,45 @@ export const getMessagesForConversation = async (
       }
     });
 
-    return reply.send({
+    if (!conversationDetails) {
+      console.error('Conversation not found for ID:', conversationId);
+      return reply.code(404).send({ message: 'Conversation not found.' });
+    }
+
+    console.log('Found conversation details:', {
+      id: conversationDetails.id,
+      context: conversationDetails.context,
+      status: conversationDetails.status
+    });
+
+    const response = {
       messages,
       conversation: {
-        id: conversationDetails?.id,
-        topic: conversationDetails?.topic,
-        isReadOnly: conversationDetails?.isReadOnly,
-        isBroadcast: conversationDetails?.isBroadcast,
-        context: conversationDetails?.context,
-        status: conversationDetails?.status,
-        expiresAt: conversationDetails?.expiresAt,
-        participants: conversationDetails?.participants,
-        adoptionRequestStatus: conversationDetails?.adoptionRequest?.status || null,
-        applicationStatus: conversationDetails?.application?.status || null,
-        contextDetails: conversationDetails?.context === 'ADOPTION_REQUEST' ? {
+        id: conversationDetails.id,
+        topic: conversationDetails.topic,
+        isReadOnly: conversationDetails.isReadOnly,
+        isBroadcast: conversationDetails.isBroadcast,
+        context: conversationDetails.context,
+        status: conversationDetails.status,
+        expiresAt: conversationDetails.expiresAt,
+        participants: conversationDetails.participants,
+        adoptionRequestStatus: conversationDetails.adoptionRequest?.status || null,
+        applicationStatus: conversationDetails.application?.status || null,
+        contextDetails: conversationDetails.context === 'ADOPTION_REQUEST' ? {
           type: 'adoption_request',
           status: conversationDetails.adoptionRequest?.status,
           companyName: conversationDetails.adoptionRequest?.company?.name,
           initialMessage: conversationDetails.adoptionRequest?.message
-        } : conversationDetails?.context === 'OFFER' ? {
+        } : conversationDetails.context === 'OFFER' ? {
           type: 'offer',
           status: conversationDetails.application?.status,
           offerTitle: conversationDetails.application?.offer?.title,
           companyName: conversationDetails.application?.offer?.company?.name
         } : null
       }
-    });
+    };
+
+    return reply.send(response);
   } catch (error) {
     console.error('Failed to get messages:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
@@ -260,7 +273,7 @@ export const createMessageInConversation = async (
         if (conversation.adoptionRequest.status === 'REJECTED') {
           return reply.code(403).send({ message: 'This adoption request has been rejected and the conversation is now read-only.' });
         }
-        if (conversation.adoptionRequest.status === 'PENDING') {
+        if (conversation.adoptionRequest.status === 'PENDING' || conversation.adoptionRequest.status === 'PENDING_APPROVAL') {
           // Only the student can send messages while pending (to accept/reject)
           if (senderRole !== 'STUDENT') {
             return reply.code(403).send({ message: 'You can only send messages after the student responds to the adoption request.' });
@@ -299,7 +312,7 @@ export const createMessageInConversation = async (
     if (!conversation.isBroadcast && 
         conversation.context === 'ADOPTION_REQUEST' && 
         conversation.adoptionRequest && 
-        conversation.adoptionRequest.status === 'PENDING' && 
+        (conversation.adoptionRequest.status === 'PENDING' || conversation.adoptionRequest.status === 'PENDING_APPROVAL') && 
         senderRole === 'STUDENT') {
       
       // Update adoption request status to ACCEPTED

@@ -111,7 +111,7 @@ export const adminCreatePost = asyncHandler(async (
   request: FastifyRequest<{ Body: any }>,
   reply: FastifyReply
 ) => {
-  const requestData = request.body;
+  const requestData = request.body as any;
   
   // Transform frontend data to backend format
   const postData: CreateBlogPostInput = {
@@ -155,7 +155,7 @@ export const adminUpdatePost = asyncHandler(async (
   reply: FastifyReply
 ) => {
   const { id } = request.params;
-  const requestData = request.body;
+  const requestData = request.body as any;
   
   // Transform frontend data to backend format
   const updateData: any = {

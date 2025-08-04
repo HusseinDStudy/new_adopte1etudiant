@@ -246,7 +246,9 @@ describe('Application Routes', () => {
                 where: { id: applicationId },
                 include: { conversation: true }
             });
-            expect(dbApplication!.conversation).toBeNull();
+            expect(dbApplication!.conversation).not.toBeNull();
+            expect(dbApplication!.conversation!.status).toBe('ARCHIVED');
+            expect(dbApplication!.conversation!.isReadOnly).toBe(true);
         });
 
         it('should not create duplicate conversation if one already exists', async () => {
