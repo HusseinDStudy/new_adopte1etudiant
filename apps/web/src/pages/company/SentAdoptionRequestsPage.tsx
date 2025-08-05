@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSentAdoptionRequests } from '../../services/adoptionRequestService';
-import SidebarLayout from '../../components/SidebarLayout';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 interface StudentProfile {
     firstName: string;

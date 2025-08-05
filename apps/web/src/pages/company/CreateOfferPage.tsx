@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import OfferForm from '../../components/company/OfferForm';
 import { createOffer } from '../../services/offerService';
 import { CreateOfferInput } from 'shared-types';
-import SidebarLayout from '../../components/SidebarLayout';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 const CreateOfferPage = () => {
   const navigate = useNavigate();

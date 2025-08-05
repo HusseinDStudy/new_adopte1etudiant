@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import SidebarLayout from '../components/SidebarLayout';
+import SidebarLayout from '../components/layout/SidebarLayout';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();

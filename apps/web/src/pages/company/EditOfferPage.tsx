@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import OfferForm from '../../components/company/OfferForm';
 import { getOfferById, updateOffer } from '../../services/offerService';
 import { CreateOfferInput } from 'shared-types';
-import SidebarLayout from '../../components/SidebarLayout';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 const EditOfferPage = () => {
   const { id } = useParams<{ id: string }>();

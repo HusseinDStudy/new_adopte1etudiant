@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, MapPin } from 'lucide-react';
-import SkillSelector from './SkillSelector';
-import { Skill } from '../hooks/useOfferFilters';
+import SkillSelector from '../common/SkillSelector';
+import { Skill } from '../../hooks/useOfferFilters';
 
 interface OfferFiltersProps {
   searchTerm: string;

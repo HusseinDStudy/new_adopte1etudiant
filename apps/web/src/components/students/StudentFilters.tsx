@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search } from 'lucide-react';
-import SkillSelector from './SkillSelector';
-import { Skill } from '../hooks/useStudents';
+import SkillSelector from '../common/SkillSelector';
+import { Skill } from '../../hooks/useStudents';
 
 interface StudentFiltersProps {
   searchTerm: string;

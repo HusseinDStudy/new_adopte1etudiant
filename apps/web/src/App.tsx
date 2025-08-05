@@ -1,15 +1,15 @@
 import React from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
-import ProtectedRoute from './components/ProtectedRoute';
-import GuestRoute from './components/GuestRoute';
-import RoleBasedRoute from './components/RoleBasedRoute';
-import DashboardRedirect from './components/DashboardRedirect';
+import ProtectedRoute from './components/routes/ProtectedRoute';
+import GuestRoute from './components/routes/GuestRoute';
+import RoleBasedRoute from './components/routes/RoleBasedRoute';
+import DashboardRedirect from './components/dashboard/DashboardRedirect';
 import OfferListPage from './pages/OfferListPage';
 import OfferDetailsPage from './pages/OfferDetailsPage';
 import ManageOffersPage from './pages/company/ManageOffersPage';
@@ -49,9 +49,7 @@ import AboutPage from './pages/AboutPage';
 import TeamPage from './pages/TeamPage';
 import MissionsPage from './pages/MissionsPage';
 import PartnersPage from './pages/PartnersPage';
-import { MentionsLegalesPage, RGPDPage } from './pages/unified';
-import BlogPage from './pages/unified/BlogPage';
-import BlogPostPage from './pages/unified/BlogPostPage';
+
 
 
 function App() {
@@ -95,10 +93,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
-          <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
-          <Route path="/rgpd" element={<RGPDPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:slug" element={<BlogPostPage />} />
+
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
           <Route path="/complete-registration" element={<CompleteRegistrationPage />} />

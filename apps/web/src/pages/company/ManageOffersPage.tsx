@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { listMyOffers, deleteOffer } from '../../services/offerService';
 import { Link } from 'react-router-dom';
-import SidebarLayout from '../../components/SidebarLayout';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 interface Offer {
   id: string;

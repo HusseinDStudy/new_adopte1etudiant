@@ -5,7 +5,7 @@ import StudentProfileForm from '../components/auth/StudentProfileForm';
 import CompanyProfileForm from '../components/auth/CompanyProfileForm';
 import { getMe, deleteAccountWithPassword, disablePassword } from '../services/authService';
 import TwoFactorAuthSetup from '../components/auth/TwoFactorAuthSetup';
-import SidebarLayout from '../components/SidebarLayout';
+import SidebarLayout from '../components/layout/SidebarLayout';
 
 const API_URL = import.meta.env.VITE_API_URL;
 

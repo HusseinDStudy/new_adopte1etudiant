@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getOfferById } from '../../services/offerService';
 import { listAvailableStudents } from '../../services/studentService';
 import { createAdoptionRequest, getRequestedStudentIds } from '../../services/adoptionRequestService';
-import SidebarLayout from '../../components/SidebarLayout';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 interface Student {
   id: string;

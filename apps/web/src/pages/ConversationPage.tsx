@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getMessagesForConversation, createMessageInConversation, Message, ConversationDetails } from '../services/messageService';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Lock, Archive, Clock, AlertCircle, Users, Briefcase, Building2, MessageSquare, Send } from 'lucide-react';
-import SidebarLayout from '../components/SidebarLayout';
+import SidebarLayout from '../components/layout/SidebarLayout';
 
 const ConversationPage: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();

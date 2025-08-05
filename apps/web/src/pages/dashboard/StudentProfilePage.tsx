@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardSidebar from '../../components/DashboardSidebar';
+import DashboardSidebar from '../../components/dashboard/DashboardSidebar';
 
 const StudentProfilePage: React.FC = () => {
   return (

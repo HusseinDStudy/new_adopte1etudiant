@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import HeroSection from '../components/HeroSection';
+import HeroSection from '../components/common/HeroSection';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({

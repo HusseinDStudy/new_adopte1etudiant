@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useApplications } from '../hooks/useApplications';
-import SidebarLayout from '../components/SidebarLayout';
+import SidebarLayout from '../components/layout/SidebarLayout';
 
 const MyApplicationsPage: React.FC = () => {
   const {

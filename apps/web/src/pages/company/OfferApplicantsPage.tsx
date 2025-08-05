@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getOfferApplications, getOfferById } from '../../services/offerService';
 import { updateApplicationStatus } from '../../services/applicationService';
-import SidebarLayout from '../../components/SidebarLayout';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 interface Student {
   userId: string;

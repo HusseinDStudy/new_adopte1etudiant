@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MessageSquare, Clock, Lock, Archive, AlertCircle, Building2, Briefcase, Users, Filter } from 'lucide-react';
 import { useConversations } from '../hooks/useConversations';
 import { useAuth } from '../context/AuthContext';
-import SidebarLayout from '../components/SidebarLayout';
+import SidebarLayout from '../components/layout/SidebarLayout';
 import { Conversation, ConversationContext } from '../services/messageService';
 
 const MyConversationsPage = () => {

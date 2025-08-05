@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useStudents } from '../hooks/useStudents';
 import { useStudentFilters } from '../hooks/useStudentFilters';
 import { useAuth } from '../context/AuthContext';
-import StudentFilters from '../components/StudentFilters';
-import StudentList from '../components/StudentList';
-import Pagination from '../components/Pagination';
+import StudentFilters from '../components/students/StudentFilters';
+import StudentList from '../components/students/StudentList';
+import Pagination from '../components/common/Pagination';
 
 type SortOption = 'recent' | 'skills' | 'school';
 

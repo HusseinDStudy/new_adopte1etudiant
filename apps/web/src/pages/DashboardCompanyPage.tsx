@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import SidebarLayout from '../components/SidebarLayout';
-import DashboardMetrics from '../components/DashboardMetrics';
+import SidebarLayout from '../components/layout/SidebarLayout';
+import DashboardMetrics from '../components/dashboard/DashboardMetrics';
 import { useCompanyStats } from '../hooks/useCompanyStats';
 import { useMyOffers } from '../hooks/useMyOffers';
 

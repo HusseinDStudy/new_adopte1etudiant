@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import HeroSection from '../components/HeroSection';
+import HeroSection from '../components/common/HeroSection';
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();

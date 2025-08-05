@@ -4,10 +4,10 @@ import { useOffers } from '../hooks/useOffers';
 import { useOfferFilters } from '../hooks/useOfferFilters';
 import { useOfferApplications } from '../hooks/useOfferApplications';
 import { useUrlSync } from '../hooks/useUrlSync';
-import OfferCard from '../components/OfferCard';
-import OfferFilters from '../components/OfferFilters';
-import DashboardMetrics from '../components/DashboardMetrics';
-import Pagination from '../components/Pagination';
+import OfferCard from '../components/offers/OfferCard';
+import OfferFilters from '../components/offers/OfferFilters';
+import DashboardMetrics from '../components/dashboard/DashboardMetrics';
+import Pagination from '../components/common/Pagination';
 import { Offer } from 'shared-types';
 
 type SortOption = 'recent' | 'relevance' | 'location';

@@ -1,6 +1,6 @@
 import React from 'react';
 import StudentCard from './StudentCard';
-import { Student } from '../hooks/useStudents';
+import { Student } from '../../hooks/useStudents';
 
 interface StudentListProps {
   students: Student[];
