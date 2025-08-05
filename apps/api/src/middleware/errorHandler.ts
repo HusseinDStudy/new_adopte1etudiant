@@ -20,8 +20,14 @@ export const errorHandler = (
   let message = 'Internal Server Error';
   let isOperational = false;
 
+  // Handle Fastify validation errors
+  if (error.name === 'FastifyError' && (error as any).statusCode === 400) {
+    statusCode = 400;
+    message = error.message;
+    isOperational = true;
+  }
   // Handle known application errors
-  if (error instanceof AppError) {
+  else if (error instanceof AppError) {
     statusCode = error.statusCode;
     message = error.message;
     isOperational = error.isOperational;
@@ -59,6 +65,25 @@ export const errorHandler = (
   else if (error.name === 'ZodError') {
     statusCode = 400;
     message = 'Validation failed';
+    isOperational = true;
+  }
+  // Handle Fastify schema validation errors
+  else if (error.message && error.message.includes('must be')) {
+    statusCode = 400;
+    message = error.message;
+    isOperational = true;
+  }
+  // Handle other validation-like errors
+  else if (error.message && (
+    error.message.includes('must have required property') ||
+    error.message.includes('must NOT have fewer than') ||
+    error.message.includes('must be equal to one of the allowed values') ||
+    error.message.includes('must be string') ||
+    error.message.includes('must be integer') ||
+    error.message.includes('must be boolean')
+  )) {
+    statusCode = 400;
+    message = error.message;
     isOperational = true;
   }
 

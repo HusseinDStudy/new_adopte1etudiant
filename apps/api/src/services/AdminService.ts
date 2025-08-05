@@ -1,0 +1,458 @@
+import { prisma } from 'db-postgres';
+import { Role } from '@prisma/client';
+
+export interface AdminAnalytics {
+  totalUsers: number;
+  totalStudents: number;
+  totalCompanies: number;
+  totalOffers: number;
+  totalApplications: number;
+  totalAdoptionRequests: number;
+  totalBlogPosts: number;
+  recentActivity: {
+    newUsersToday: number;
+    newOffersToday: number;
+    newApplicationsToday: number;
+  };
+  usersByRole: {
+    STUDENT: number;
+    COMPANY: number;
+    ADMIN: number;
+  };
+  offersByStatus: {
+    active: number;
+    inactive: number;
+  };
+}
+
+export interface UserListFilters {
+  role?: Role;
+  search?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface UserListResult {
+  users: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export class AdminService {
+  async getAdminAnalytics(): Promise<AdminAnalytics> {
+    console.log('🔍 getAdminAnalytics function called!');
+    
+    // Get total counts
+    const [
+      totalUsers,
+      totalStudents, 
+      totalCompanies,
+      totalOffers,
+      totalApplications,
+      totalAdoptionRequests,
+      totalBlogPosts
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.count({ where: { role: 'STUDENT' } }),
+      prisma.user.count({ where: { role: 'COMPANY' } }),
+      prisma.offer.count(),
+      prisma.application.count(),
+      prisma.adoptionRequest.count(),
+      prisma.blogPost.count()
+    ]);
+
+    console.log('📊 Total counts calculated:', {
+      totalUsers,
+      totalStudents,
+      totalCompanies,
+      totalOffers,
+      totalApplications,
+      totalAdoptionRequests,
+      totalBlogPosts
+    });
+
+    // Get today's activity (last 24 hours)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [
+      newUsersToday,
+      newOffersToday,
+      newApplicationsToday
+    ] = await Promise.all([
+      prisma.user.count({ where: { createdAt: { gte: today } } }),
+      prisma.offer.count({ where: { createdAt: { gte: today } } }),
+      prisma.application.count({ where: { createdAt: { gte: today } } })
+    ]);
+
+    console.log('📊 Today activity calculated:', {
+      newUsersToday,
+      newOffersToday,
+      newApplicationsToday
+    });
+
+    // Get user distribution by role
+    console.log('🔍 Calculating user role counts...');
+    const studentCount = await prisma.user.count({ where: { role: 'STUDENT' } });
+    const companyCount = await prisma.user.count({ where: { role: 'COMPANY' } });
+    const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
+
+    console.log('📊 User role counts calculated:', {
+      studentCount,
+      companyCount,
+      adminCount
+    });
+
+    // Get offers by status (active vs inactive)
+    console.log('🔍 Calculating offer status counts...');
+    const activeOffers = await prisma.offer.count({ where: { isActive: true } });
+    const inactiveOffers = await prisma.offer.count({ where: { isActive: false } });
+
+    console.log('📊 Offer status counts calculated:', {
+      activeOffers,
+      inactiveOffers
+    });
+
+    return {
+      totalUsers,
+      totalStudents,
+      totalCompanies,
+      totalOffers,
+      totalApplications,
+      totalAdoptionRequests,
+      totalBlogPosts,
+      recentActivity: {
+        newUsersToday,
+        newOffersToday,
+        newApplicationsToday
+      },
+      usersByRole: {
+        'STUDENT': studentCount,
+        'COMPANY': companyCount,
+        'ADMIN': adminCount
+      },
+      offersByStatus: {
+        active: activeOffers,
+        inactive: inactiveOffers
+      }
+    };
+  }
+
+  async getUsers(filters: UserListFilters): Promise<UserListResult> {
+    const { role, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = filters;
+
+    const whereClause: any = {};
+    
+    if (role) {
+      whereClause.role = role;
+    }
+
+    if (search) {
+      whereClause.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { studentProfile: { firstName: { contains: search, mode: 'insensitive' } } },
+        { studentProfile: { lastName: { contains: search, mode: 'insensitive' } } },
+        { companyProfile: { name: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where: whereClause,
+        include: {
+          studentProfile: {
+            select: {
+              firstName: true,
+              lastName: true,
+              school: true,
+              degree: true,
+            },
+          },
+          companyProfile: {
+            select: {
+              name: true,
+              sector: true,
+              size: true,
+            },
+          },
+        },
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: limit,
+      }),
+      prisma.user.count({ where: whereClause }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+      },
+    };
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+  }
+
+  async updateUserRole(userId: string, role: Role): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role },
+    });
+  }
+
+  async toggleUserActiveStatus(userId: string): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isActive: true },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: !user.isActive },
+    });
+  }
+
+  async getAdminOffers(filters: {
+    page?: string;
+    limit?: string;
+    search?: string;
+    companyId?: string;
+    isActive?: string;
+  }) {
+    const { page = '1', limit = '15', search, companyId, isActive } = filters;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const whereClause: any = {};
+
+    if (search) {
+      whereClause.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { company: { name: { contains: search, mode: 'insensitive' } } }
+      ];
+    }
+
+    if (companyId) {
+      whereClause.companyId = companyId;
+    }
+
+    if (isActive !== undefined && isActive !== '') {
+      const boolValue = isActive === 'true';
+      whereClause.isActive = boolValue;
+    }
+
+    const [offers, total] = await Promise.all([
+      prisma.offer.findMany({
+        where: whereClause,
+        include: {
+          company: {
+            include: {
+              user: true
+            }
+          },
+          _count: {
+            select: { applications: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: parseInt(limit)
+      }),
+      prisma.offer.count({ where: whereClause })
+    ]);
+
+    const formattedOffers = offers.map((offer: any) => ({
+      id: offer.id,
+      title: offer.title,
+      description: offer.description,
+      location: offer.location,
+      duration: offer.duration,
+      isActive: offer.isActive,
+      createdAt: offer.createdAt,
+      updatedAt: offer.updatedAt,
+      company: {
+        id: offer.company.id,
+        companyName: offer.company.name,
+        email: offer.company.user.email
+      },
+      _count: {
+        applications: offer._count.applications
+      }
+    }));
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const totalCount = total || 0;
+    const totalPagesCount = Math.ceil(totalCount / limitNum);
+
+    return {
+      data: formattedOffers,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: totalCount,
+        totalPages: totalPagesCount
+      }
+    };
+  }
+
+  async deleteOffer(offerId: string): Promise<void> {
+    await prisma.offer.delete({
+      where: { id: offerId }
+    });
+  }
+
+  async updateOfferStatus(offerId: string, isActive: boolean): Promise<void> {
+    await prisma.offer.update({
+      where: { id: offerId },
+      data: { isActive }
+    });
+  }
+
+  async sendBroadcastMessage(adminId: string, message: string, recipientIds: string[]): Promise<void> {
+    const recipient = await prisma.user.findUnique({
+      where: { id: recipientIds[0] }
+    });
+
+    if (!recipient) {
+      throw new Error('Recipient not found');
+    }
+
+    const conversation = await prisma.conversation.create({
+      data: {
+        topic: 'Broadcast Message',
+        context: 'BROADCAST',
+        status: 'ACTIVE',
+        participants: {
+          create: [
+            { userId: adminId },
+            ...recipientIds.map(id => ({ userId: id }))
+          ]
+        },
+        messages: {
+          create: {
+            senderId: adminId,
+            content: message,
+          }
+        }
+      },
+    });
+  }
+
+  async getAdminConversations(adminId: string, filters: {
+    page?: string;
+    limit?: string;
+    search?: string;
+    context?: string;
+  }) {
+    const { page = '1', limit = '15', search, context } = filters;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const whereClause: any = {};
+
+    if (search) {
+      whereClause.OR = [
+        { topic: { contains: search, mode: 'insensitive' } },
+        { messages: { some: { content: { contains: search, mode: 'insensitive' } } } }
+      ];
+    }
+
+    if (context) {
+      whereClause.context = context;
+    }
+
+    const [conversations, total] = await Promise.all([
+      prisma.conversation.findMany({
+        where: whereClause,
+        include: {
+          participants: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  role: true,
+                  studentProfile: {
+                    select: {
+                      firstName: true,
+                      lastName: true
+                    }
+                  },
+                  companyProfile: {
+                    select: {
+                      name: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          messages: {
+            take: 1,
+            orderBy: { createdAt: 'desc' }
+          },
+          _count: {
+            select: { messages: true }
+          }
+        },
+        orderBy: { updatedAt: 'desc' },
+        skip,
+        take: parseInt(limit)
+      }),
+      prisma.conversation.count({ where: whereClause })
+    ]);
+
+    const formattedConversations = conversations.map((conversation: any) => {
+      const otherParticipants = conversation.participants.filter((p: any) => p.userId !== adminId);
+      return {
+        id: conversation.id,
+        topic: conversation.topic,
+        context: conversation.context,
+        status: conversation.status,
+        createdAt: conversation.createdAt,
+        updatedAt: conversation.updatedAt,
+        participants: otherParticipants.map((p: any) => ({
+          id: p.user.id,
+          email: p.user.email,
+          role: p.user.role,
+          name: p.user.studentProfile ? 
+            `${p.user.studentProfile.firstName} ${p.user.studentProfile.lastName}` :
+            p.user.companyProfile?.name || 'Unknown'
+        })),
+        lastMessage: conversation.messages[0] || null,
+        messageCount: conversation._count.messages
+      };
+    });
+
+    return {
+      data: formattedConversations,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / parseInt(limit))
+      }
+    };
+  }
+} 

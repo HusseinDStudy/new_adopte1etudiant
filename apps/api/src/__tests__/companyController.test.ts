@@ -85,16 +85,23 @@ describe('Company Controller', () => {
       const originalFindMany = prisma.companyProfile.findMany;
       prisma.companyProfile.findMany = () => Promise.reject(new Error('Database error')) as any;
 
-      const response = await app.inject({
-        method: 'GET',
-        url: '/api/companies/'
-      });
+      try {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/companies/'
+        });
 
-      expect(response.statusCode).toBe(500);
-      expect(response.json()).toEqual({ message: 'Internal Server Error' });
-
-      // Restore original method
-      prisma.companyProfile.findMany = originalFindMany;
+        expect(response.statusCode).toBe(500);
+        const errorResponse = response.json();
+        expect(errorResponse.message).toBe('Internal Server Error');
+        expect(errorResponse.success).toBe(false);
+        expect(errorResponse.statusCode).toBe(500);
+        expect(errorResponse.path).toBe('/api/companies/');
+        expect(errorResponse.timestamp).toBeDefined();
+      } finally {
+        // Always restore original method
+        prisma.companyProfile.findMany = originalFindMany;
+      }
     });
   });
 
@@ -158,19 +165,26 @@ describe('Company Controller', () => {
       const originalFindUnique = prisma.companyProfile.findUnique;
       prisma.companyProfile.findUnique = () => Promise.reject(new Error('Database error')) as any;
 
-      const response = await app.inject({
-        method: 'GET',
-        url: '/api/companies/stats',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
-      });
+      try {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/companies/stats',
+          headers: {
+            Cookie: `token=${companyCookie}`
+          }
+        });
 
-      expect(response.statusCode).toBe(500);
-      expect(response.json()).toEqual({ message: 'Internal Server Error' });
-
-      // Restore original method
-      prisma.companyProfile.findUnique = originalFindUnique;
+        expect(response.statusCode).toBe(500);
+        const errorResponse = response.json();
+        expect(errorResponse.message).toBe('Internal Server Error');
+        expect(errorResponse.success).toBe(false);
+        expect(errorResponse.statusCode).toBe(500);
+        expect(errorResponse.path).toBe('/api/companies/stats');
+        expect(errorResponse.timestamp).toBeDefined();
+      } finally {
+        // Always restore original method
+        prisma.companyProfile.findUnique = originalFindUnique;
+      }
     });
 
     test('should return 401 when not authenticated', async () => {

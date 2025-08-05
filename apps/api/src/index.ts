@@ -5,6 +5,7 @@ import cookie from '@fastify/cookie';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { swaggerConfig, swaggerUiConfig } from './config/swagger.js';
+import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
 import offerRoutes from './routes/offer.js';
@@ -40,6 +41,9 @@ server.register(cors, {
 });
 server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
 server.register(cookie);
+
+// Register global error handler
+server.setErrorHandler(errorHandler);
 
 // Health check route with database connectivity test
 server.get('/health', {

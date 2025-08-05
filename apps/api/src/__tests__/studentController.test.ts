@@ -1,12 +1,9 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { buildTestApp } from '../helpers/test-app';
 import type { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma as dbPostgresPrisma } from 'db-postgres';
-
-const prisma = new PrismaClient();
 
 describe('Student Controller', () => {
   let app: FastifyInstance;
@@ -22,7 +19,7 @@ describe('Student Controller', () => {
     // Create student user directly in the database to ensure proper transaction context
     const hashedPassword = await bcrypt.hash('Password123!', 10);
     
-    const studentUser = await prisma.user.create({
+    const studentUser = await dbPostgresPrisma.user.create({
       data: {
         email: 'student@test.com',
         passwordHash: hashedPassword,
@@ -31,7 +28,7 @@ describe('Student Controller', () => {
       },
     });
 
-    const studentProfile = await prisma.studentProfile.create({
+    const studentProfile = await dbPostgresPrisma.studentProfile.create({
       data: {
         userId: studentUser.id,
         firstName: 'Test',
@@ -55,7 +52,7 @@ describe('Student Controller', () => {
     studentCookie = studentToken;
 
     // Create company user for testing student listing (requires COMPANY role)
-    const companyUser = await prisma.user.create({
+    const companyUser = await dbPostgresPrisma.user.create({
       data: {
         email: 'company-student-test@test.com',
         passwordHash: hashedPassword,
@@ -64,7 +61,7 @@ describe('Student Controller', () => {
       },
     });
 
-    const companyProfile = await prisma.companyProfile.create({
+    const companyProfile = await dbPostgresPrisma.companyProfile.create({
       data: {
         userId: companyUser.id,
         name: 'Test Company for Student Tests',
@@ -92,7 +89,7 @@ describe('Student Controller', () => {
 
   beforeEach(async () => {
     // Clean up any test data
-    await prisma.studentSkill.deleteMany({ where: { studentProfileId: studentUserId } });
+    await dbPostgresPrisma.studentSkill.deleteMany({ where: { studentProfileId: studentUserId } });
   });
 
   describe('GET /api/students/', () => {
@@ -166,7 +163,12 @@ describe('Student Controller', () => {
       });
 
       expect(response.statusCode).toBe(500);
-      expect(response.json()).toEqual({ message: 'Internal Server Error' });
+      const errorResponse = response.json();
+      expect(errorResponse.message).toBe('Internal Server Error');
+      expect(errorResponse.success).toBe(false);
+      expect(errorResponse.statusCode).toBe(500);
+      expect(errorResponse.path).toBe('/api/students/');
+      expect(errorResponse.timestamp).toBeDefined();
 
       // Restore original method
       dbPostgresPrisma.studentProfile.findMany = originalFindMany;
@@ -270,7 +272,7 @@ describe('Student Controller', () => {
     test('should return 404 when student profile not found', async () => {
       // Create a user without a student profile by directly creating a user
       const hashedPassword = await bcrypt.hash('Password123!', 10);
-      const userWithoutProfile = await prisma.user.create({
+      const userWithoutProfile = await dbPostgresPrisma.user.create({
         data: {
           email: 'no-profile-student@test.com',
           passwordHash: hashedPassword,
@@ -301,7 +303,7 @@ describe('Student Controller', () => {
       expect(response.json()).toEqual({ message: 'Student profile not found' });
 
       // Cleanup
-      await prisma.user.delete({ where: { email: 'no-profile-student@test.com' } });
+      await dbPostgresPrisma.user.delete({ where: { email: 'no-profile-student@test.com' } });
     });
 
     test('should return 500 on database error', async () => {
@@ -309,19 +311,26 @@ describe('Student Controller', () => {
       const originalFindUnique = dbPostgresPrisma.studentProfile.findUnique;
       dbPostgresPrisma.studentProfile.findUnique = () => Promise.reject(new Error('Database error')) as any;
 
-      const response = await app.inject({
-        method: 'GET',
-        url: '/api/students/stats',
-        headers: {
-          Cookie: `token=${studentCookie}`
-        }
-      });
+      try {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/students/stats',
+          headers: {
+            Cookie: `token=${studentCookie}`
+          }
+        });
 
-      expect(response.statusCode).toBe(500);
-      expect(response.json()).toEqual({ message: 'Internal Server Error' });
-
-      // Restore original method
-      dbPostgresPrisma.studentProfile.findUnique = originalFindUnique;
+        expect(response.statusCode).toBe(500);
+        const errorResponse = response.json();
+        expect(errorResponse.message).toBe('Internal Server Error');
+        expect(errorResponse.success).toBe(false);
+        expect(errorResponse.statusCode).toBe(500);
+        expect(errorResponse.path).toBe('/api/students/stats');
+        expect(errorResponse.timestamp).toBeDefined();
+      } finally {
+        // Always restore original method
+        dbPostgresPrisma.studentProfile.findUnique = originalFindUnique;
+      }
     });
 
     test('should return 401 when not authenticated', async () => {

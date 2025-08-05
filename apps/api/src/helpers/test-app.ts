@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import cookie from '@fastify/cookie';
 import addFormats from 'ajv-formats';
+import { errorHandler } from '../middleware/errorHandler.js';
 import authRoutes from '../routes/auth.js';
 import profileRoutes from '../routes/profile.js';
 import offerRoutes from '../routes/offer.js';
@@ -36,6 +37,9 @@ export async function buildTestApp(): Promise<FastifyInstance> {
   });
   await app.register(helmet);
   await app.register(cookie);
+
+  // Register global error handler
+  app.setErrorHandler(errorHandler);
 
   // Register routes
   app.register(authRoutes, { prefix: '/api/auth' });
