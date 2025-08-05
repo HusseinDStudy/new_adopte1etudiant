@@ -5,7 +5,7 @@ import { studentProfileSchema, StudentProfileInput } from 'shared-types';
 import { getProfile, upsertProfile } from '../../services/profileService';
 import { z } from 'zod';
 
-const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
 
 const skillValidation = z.string().refine(
   (value) => {

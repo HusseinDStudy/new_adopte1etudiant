@@ -323,10 +323,12 @@ describe('API Contract Tests', () => {
                 .set('Cookie', `token=${student.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
+            expect(response.body).toHaveProperty('data');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.data)).toBe(true);
+            expect(response.body.data).toHaveLength(1);
 
-            validateOffer(response.body[0], true); // Include match score
+            validateOffer(response.body.data[0], true); // Include match score
         });
 
         it('GET /api/offers/:id should return single offer schema', async () => {
@@ -605,10 +607,12 @@ describe('API Contract Tests', () => {
                 .set('Cookie', `token=${student.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations).toHaveLength(1);
 
-            validateConversation(response.body[0]);
+            validateConversation(response.body.conversations[0]);
         });
 
         it('GET /api/messages/conversations/:id/messages should return messages with adoption status', async () => {
@@ -627,7 +631,7 @@ describe('API Contract Tests', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${student.authToken}`);
 
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
 
             const response = await supertest(app.server)
                 .get(`/api/messages/conversations/${conversationId}/messages`)
@@ -635,7 +639,8 @@ describe('API Contract Tests', () => {
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('messages');
-            expect(response.body).toHaveProperty('adoptionRequestStatus');
+            expect(response.body).toHaveProperty('conversation');
+            expect(response.body.conversation).toHaveProperty('adoptionRequestStatus');
             expect(Array.isArray(response.body.messages)).toBe(true);
             
             response.body.messages.forEach(validateMessage);
@@ -657,7 +662,7 @@ describe('API Contract Tests', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${student.authToken}`);
 
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
 
             const response = await supertest(app.server)
                 .post(`/api/messages/conversations/${conversationId}/messages`)

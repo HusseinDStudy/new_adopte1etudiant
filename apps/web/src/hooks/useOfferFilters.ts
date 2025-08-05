@@ -1,14 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from './useDebounce';
 import { getAllSkills } from '../services/skillService';
-import { getCompaniesWithOffers } from '../services/companyService';
+import { getOfferTypes } from '../services/offerService';
 
 export interface Skill {
-  id: string;
-  name: string;
-}
-
-export interface Company {
   id: string;
   name: string;
 }
@@ -16,7 +11,8 @@ export interface Company {
 export interface FilterState {
   searchTerm: string;
   locationFilter: string;
-  selectedCompany: string;
+  companySearch: string;
+  selectedType: string;
   selectedSkills: string[];
 }
 
@@ -24,30 +20,33 @@ export interface DebouncedFilters {
   search: string;
   location: string;
   companyName: string;
+  type: string;
   skills: string[];
 }
 
 export interface UseOfferFiltersResult {
   // Filter state
   filters: FilterState;
-  
+
   // Debounced values for API calls
   debouncedFilters: DebouncedFilters;
-  
+
   // Filter options
   allSkills: Skill[];
-  allCompanies: Company[];
-  
+  allOfferTypes: string[];
+
   // Loading states
   skillsLoading: boolean;
-  companiesLoading: boolean;
-  
+  offerTypesLoading: boolean;
+
   // Actions
   setSearchTerm: (value: string) => void;
   setLocationFilter: (value: string) => void;
-  setSelectedCompany: (value: string) => void;
+  setCompanySearch: (value: string) => void;
+  setSelectedType: (value: string) => void;
   setSelectedSkills: (skills: string[]) => void;
   handleSkillChange: (skillName: string) => void;
+  clearAllSkills: () => void;
   clearFilters: () => void;
 }
 
@@ -55,20 +54,22 @@ export const useOfferFilters = (): UseOfferFiltersResult => {
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
-  const [selectedCompany, setSelectedCompany] = useState('');
+  const [companySearch, setCompanySearch] = useState('');
+  const [selectedType, setSelectedType] = useState('');
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   
   // Filter options
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
-  const [allCompanies, setAllCompanies] = useState<Company[]>([]);
-  
+  const [allOfferTypes, setAllOfferTypes] = useState<string[]>([]);
+
   // Loading states
   const [skillsLoading, setSkillsLoading] = useState(true);
-  const [companiesLoading, setCompaniesLoading] = useState(true);
+  const [offerTypesLoading, setOfferTypesLoading] = useState(true);
 
   // Debounced values
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const debouncedLocationFilter = useDebounce(locationFilter, 500);
+  const debouncedCompanySearch = useDebounce(companySearch, 500);
 
   // Fetch filter options on mount
   useEffect(() => {
@@ -87,20 +88,22 @@ export const useOfferFilters = (): UseOfferFiltersResult => {
     fetchFilterData();
   }, []);
 
+
+
   useEffect(() => {
-    const fetchCompanies = async () => {
+    const fetchOfferTypes = async () => {
       try {
-        setCompaniesLoading(true);
-        const companiesData = await getCompaniesWithOffers();
-        setAllCompanies(Array.isArray(companiesData) ? companiesData : []);
+        setOfferTypesLoading(true);
+        const typesData = await getOfferTypes();
+        setAllOfferTypes(Array.isArray(typesData) ? typesData : []);
       } catch (error) {
-        console.error("Failed to fetch companies", error);
+        console.error("Failed to fetch offer types", error);
       } finally {
-        setCompaniesLoading(false);
+        setOfferTypesLoading(false);
       }
     };
 
-    fetchCompanies();
+    fetchOfferTypes();
   }, []);
 
   // Handle skill selection
@@ -112,11 +115,17 @@ export const useOfferFilters = (): UseOfferFiltersResult => {
     );
   };
 
+  // Clear all skills
+  const clearAllSkills = () => {
+    setSelectedSkills([]);
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
     setLocationFilter('');
-    setSelectedCompany('');
+    setCompanySearch('');
+    setSelectedType('');
     setSelectedSkills([]);
   };
 
@@ -124,24 +133,28 @@ export const useOfferFilters = (): UseOfferFiltersResult => {
     filters: {
       searchTerm,
       locationFilter,
-      selectedCompany,
+      companySearch,
+      selectedType,
       selectedSkills,
     },
     debouncedFilters: {
       search: debouncedSearchTerm,
       location: debouncedLocationFilter,
-      companyName: selectedCompany,
+      companyName: debouncedCompanySearch,
+      type: selectedType, // Type filter should be applied immediately, no debouncing needed
       skills: selectedSkills,
     },
     allSkills,
-    allCompanies,
+    allOfferTypes,
     skillsLoading,
-    companiesLoading,
+    offerTypesLoading,
     setSearchTerm,
     setLocationFilter,
-    setSelectedCompany,
+    setCompanySearch,
+    setSelectedType,
     setSelectedSkills,
     handleSkillChange,
+    clearAllSkills,
     clearFilters,
   };
 };

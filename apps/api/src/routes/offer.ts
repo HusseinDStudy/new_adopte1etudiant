@@ -7,6 +7,7 @@ import {
   deleteOffer,
   listMyOffers,
   getOfferApplications,
+  getOfferTypes,
 } from '../controllers/offerController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
@@ -22,38 +23,55 @@ async function offerRoutes(server: FastifyInstance) {
       description: 'Get all available job offers with optional filtering',
       tags: ['Offers'],
       summary: 'List all offers',
-      querystring: {
-        type: 'object',
-        properties: {
-          page: { type: 'integer', minimum: 1, default: 1 },
-          limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-          search: { type: 'string', description: 'Search in title and description' },
-          location: { type: 'string', description: 'Filter by location' },
-          skills: { type: 'string', description: 'Comma-separated list of skills' }
-        }
-      },
+              querystring: {
+          type: 'object',
+          properties: {
+            page: { type: 'integer', minimum: 1, default: 1 },
+            limit: { type: 'integer', minimum: 1, maximum: 100, default: 9 },
+            search: { type: 'string', description: 'Search in title and description' },
+            location: { type: 'string', description: 'Filter by location' },
+            skills: { type: 'string', description: 'Comma-separated list of skills' },
+            companyName: { type: 'string', description: 'Filter by company name' },
+            type: { type: 'string', description: 'Filter by offer type (duration)' },
+            sortBy: { type: 'string', enum: ['recent', 'relevance', 'location'], description: 'Sort order for offers' }
+          }
+        },
       response: {
         200: {
-          description: 'List of offers',
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              title: { type: 'string' },
-              description: { type: 'string' },
-              location: { type: 'string' },
-              duration: { type: 'string' },
-              skills: { type: 'array', items: { type: 'string' } },
-              company: {
+          description: 'Paginated list of offers',
+          type: 'object',
+          properties: {
+            data: {
+              type: 'array',
+              items: {
                 type: 'object',
                 properties: {
-                  name: { type: 'string' },
-                  sector: { type: 'string' }
+                  id: { type: 'string' },
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  location: { type: 'string' },
+                  duration: { type: 'string' },
+                  skills: { type: 'array', items: { type: 'string' } },
+                  company: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                      sector: { type: 'string' }
+                    }
+                  },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  matchScore: { type: 'number', description: 'Match score for students (0-100)' }
                 }
-              },
-              createdAt: { type: 'string', format: 'date-time' },
-              matchScore: { type: 'number', description: 'Match score for students (0-100)' }
+              }
+            },
+            pagination: {
+              type: 'object',
+              properties: {
+                page: { type: 'integer' },
+                limit: { type: 'integer' },
+                total: { type: 'integer' },
+                totalPages: { type: 'integer' }
+              }
             }
           }
         }
@@ -108,6 +126,24 @@ async function offerRoutes(server: FastifyInstance) {
       }
     }
   }, getOfferById);
+
+  // Get offer types (public route)
+  server.get('/types', {
+    schema: {
+      description: 'Get all available offer types from the database',
+      tags: ['Offers'],
+      summary: 'Get offer types',
+      response: {
+        200: {
+          description: 'List of offer types',
+          type: 'array',
+          items: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }, getOfferTypes);
 
   // Protected routes for Companies only
   server.get(

@@ -1,9 +1,15 @@
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
+import GuestRoute from './components/GuestRoute';
+import RoleBasedRoute from './components/RoleBasedRoute';
+import DashboardRedirect from './components/DashboardRedirect';
 import OfferListPage from './pages/OfferListPage';
 import OfferDetailsPage from './pages/OfferDetailsPage';
 import ManageOffersPage from './pages/company/ManageOffersPage';
@@ -16,104 +22,237 @@ import MyConversationsPage from './pages/MyConversationsPage';
 import StudentDirectoryPage from './pages/StudentDirectoryPage';
 import MyAdoptionRequestsPage from './pages/MyAdoptionRequestsPage';
 import SentAdoptionRequestsPage from './pages/company/SentAdoptionRequestsPage';
+import InviteStudentsPage from './pages/company/InviteStudentsPage';
 import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
 import LinkAccountPage from './pages/LinkAccountPage';
 import Verify2faPage from './pages/Verify2faPage';
 import HomePage from './pages/HomePage';
-
-// A simple layout for auth pages to share navigation
-const AuthLayout = ({ children, isLogin }: { children: React.ReactNode, isLogin?: boolean }) => (
-  <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
-    {children}
-    <div className="mt-4 text-center text-sm">
-      {isLogin ? (
-        <p>
-          Don't have an account?{' '}
-          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Sign up
-          </Link>
-        </p>
-      ) : (
-        <p>
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Sign in
-          </Link>
-        </p>
-      )}
-    </div>
-  </div>
-);
+import SettingsPage from './pages/SettingsPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import BlogPostList from './pages/admin/BlogPostList';
+import BlogPostForm from './pages/admin/BlogPostForm';
+import BlogCategoriesPage from './pages/admin/BlogCategoriesPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminOffersPage from './pages/admin/AdminOffersPage';
+import AdminMessagesPage from './pages/admin/AdminMessagesPage';
+import AdminConversationPage from './pages/admin/AdminConversationPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
+import AdminProfilePage from './pages/admin/AdminProfilePage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import DashboardStudentPage from './pages/DashboardStudentPage';
+import DashboardCompanyPage from './pages/DashboardCompanyPage';
+import ContactPage from './pages/ContactPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import CookiesPage from './pages/CookiesPage';
+import AboutPage from './pages/AboutPage';
+import TeamPage from './pages/TeamPage';
+import MissionsPage from './pages/MissionsPage';
+import PartnersPage from './pages/PartnersPage';
+import { MentionsLegalesPage, RGPDPage } from './pages/unified';
+import BlogPage from './pages/unified/BlogPage';
+import BlogPostPage from './pages/unified/BlogPostPage';
 
 
 function App() {
-  const { isAuthenticated, isLoading, logout, user } = useAuth();
+  const { isLoading } = useAuth();
+  const location = useLocation();
+
+  // Check if we're on a page that uses SidebarLayout (authenticated pages)
+  const isSidebarPage = location.pathname.startsWith('/dashboard-') ||
+                        location.pathname.startsWith('/profile') ||
+                        location.pathname.startsWith('/settings') ||
+                        location.pathname.startsWith('/conversations') ||
+                        location.pathname.startsWith('/company/') ||
+                        location.pathname.startsWith('/my-');
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <nav className="bg-gray-800 p-4 text-white">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold">Adopte1Etudiant</Link>
-          <div>
-            <Link to="/offers" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Offers</Link>
-            {isAuthenticated ? (
-              <>
-                <Link to="/conversations" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">My Conversations</Link>
-                {user?.role === 'STUDENT' && (
-                  <>
-                    <Link to="/my-applications" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">My Applications</Link>
-                    <Link to="/my-adoption-requests" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Adoption Requests</Link>
-                  </>
-                )}
-                {user?.role === 'COMPANY' && (
-                  <>
-                    <Link to="/company/offers" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Manage Offers</Link>
-                    <Link to="/students" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Find Students</Link>
-                    <Link to="/company/sent-requests" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-ray-700">Sent Requests</Link>
-                  </>
-                )}
-                <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Profile</Link>
-                <button onClick={logout} className="ml-4 px-3 py-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600">
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Login</Link>
-            )}
-          </div>
-        </div>
-      </nav>
-      <main className="container mx-auto p-4">
+    <div className={isSidebarPage ? "" : "min-h-screen bg-gray-50"}>
+      {/* Only show header for non-sidebar pages (public pages) */}
+      {!isSidebarPage && <Header />}
+
+      <main className={isSidebarPage ? "" : "pt-4 px-4 pb-8 max-w-7xl mx-auto"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/offers" element={<OfferListPage />} />
           <Route path="/offers/:id" element={<OfferDetailsPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/missions" element={<MissionsPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/cookies" element={<CookiesPage />} />
+          <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+          <Route path="/rgpd" element={<RGPDPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+          <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
           <Route path="/complete-registration" element={<CompleteRegistrationPage />} />
           <Route path="/link-account" element={<LinkAccountPage />} />
           <Route path="/verify-2fa" element={<Verify2faPage />} />
           
           <Route element={<ProtectedRoute />}>
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/my-applications" element={<MyApplicationsPage />} />
-            <Route path="/conversations" element={<MyConversationsPage />} />
-            <Route path="/conversations/:conversationId" element={<ConversationPage />} />
-            <Route path="/students" element={<StudentDirectoryPage />} />
-            <Route path="/my-adoption-requests" element={<MyAdoptionRequestsPage />} />
-            <Route path="/company/offers" element={<ManageOffersPage />} />
-            <Route path="/company/offers/new" element={<CreateOfferPage />} />
-            <Route path="/company/offers/edit/:id" element={<EditOfferPage />} />
-            <Route path="/company/offers/:id/applications" element={<OfferApplicantsPage />} />
-            <Route path="/company/sent-requests" element={<SentAdoptionRequestsPage />} />
+            <Route path="/dashboard" element={<DashboardRedirect />} />
+            <Route path="/dashboard-student" element={
+              <RoleBasedRoute allowedRole="STUDENT">
+                <DashboardStudentPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/dashboard-company" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <DashboardCompanyPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/profile" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <ProfilePage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/my-applications" element={
+              <RoleBasedRoute allowedRole="STUDENT">
+                <MyApplicationsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/conversations" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <MyConversationsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/conversations/:conversationId" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <ConversationPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/students" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <StudentDirectoryPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/my-adoption-requests" element={
+              <RoleBasedRoute allowedRole="STUDENT">
+                <MyAdoptionRequestsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/company/offers" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <ManageOffersPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/company/offers/new" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <CreateOfferPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/company/offers/edit/:id" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <EditOfferPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/company/offers/:id/applications" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <OfferApplicantsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/company/offers/:id/invite-students" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <InviteStudentsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/company/sent-requests" element={
+              <RoleBasedRoute allowedRole="COMPANY">
+                <SentAdoptionRequestsPage />
+              </RoleBasedRoute>
+            } />
+
+            {/* Admin Routes */}
+            <Route path="/admin/dashboard" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminDashboard />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog" element={<Navigate to="/admin/blog/posts" replace />} />
+            <Route path="/admin/blog/posts" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogPostList />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog/posts/new" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogPostForm />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog/posts/:id/edit" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogPostForm />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/blog/categories" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <BlogCategoriesPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminUsersPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/offers" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminOffersPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/messages" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminMessagesPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/conversations/:conversationId" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminConversationPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/analytics" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminAnalyticsPage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/profile" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminProfilePage />
+              </RoleBasedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <RoleBasedRoute allowedRole="ADMIN">
+                <AdminSettingsPage />
+              </RoleBasedRoute>
+            } />
+
+            <Route path="/settings" element={
+              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
+                <SettingsPage />
+              </RoleBasedRoute>
+            } />
           </Route>
         </Routes>
       </main>
-    </>
+
+      {/* Only show footer for non-sidebar pages (public pages) */}
+      {!isSidebarPage && <Footer />}
+    </div>
   );
 }
 

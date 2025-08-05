@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createOfferSchema, CreateOfferInput } from 'shared-types';
 import { z } from 'zod';
 
-const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
 
 const skillValidation = z.string()
   .min(1, 'Please enter at least one skill.')
@@ -41,8 +41,14 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
     resolver: zodResolver(offerFormSchema),
     defaultValues: {
       ...defaultValues,
-      // @ts-ignore - skills from API are objects {id, name}, not strings
-      skills: defaultValues?.skills?.map(skill => skill.name).join(', ') || '',
+      // Handle skills properly - they can be either strings or objects with name property
+      skills: defaultValues?.skills ?
+        (Array.isArray(defaultValues.skills) ?
+          defaultValues.skills.map(skill =>
+            typeof skill === 'string' ? skill : (skill as any).name
+          ).join(', ') :
+          defaultValues.skills
+        ) : '',
     },
   });
 

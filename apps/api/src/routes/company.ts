@@ -1,5 +1,8 @@
 import { FastifyInstance } from 'fastify';
-import { getCompaniesWithOffers } from '../controllers/companyController.js';
+import { getCompaniesWithOffers, getCompanyStats } from '../controllers/companyController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { roleMiddleware } from '../middleware/roleMiddleware.js';
+import { Role } from '@prisma/client';
 
 async function companyRoutes(server: FastifyInstance) {
   server.get('/', {
@@ -68,6 +71,47 @@ async function companyRoutes(server: FastifyInstance) {
       }
     }
   }, getCompaniesWithOffers);
+
+  // Company stats endpoint
+  server.get('/stats', {
+    preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
+    schema: {
+      description: 'Get company statistics including offers, applications, and adoption requests',
+      tags: ['Companies'],
+      summary: 'Get company stats',
+      security: [{ cookieAuth: [] }],
+      response: {
+        200: {
+          description: 'Company statistics',
+          type: 'object',
+          properties: {
+            totalOffers: { type: 'integer' },
+            totalApplications: { type: 'integer' },
+            applicationsByStatus: {
+              type: 'object',
+              additionalProperties: { type: 'integer' }
+            },
+            adoptionRequestsSent: { type: 'integer' }
+          }
+        },
+        401: {
+          description: 'Not authenticated',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        403: {
+          description: 'Access denied - Company role required',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        404: {
+          description: 'Company profile not found',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, getCompanyStats);
 }
 
-export default companyRoutes; 
+export default companyRoutes;

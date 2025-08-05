@@ -2,21 +2,21 @@ import { useState, useEffect } from 'react';
 import { useDebounce } from './useDebounce';
 import { listAvailableStudents } from '../services/studentService';
 import { getAllSkills } from '../services/skillService';
-import { createAdoptionRequest } from '../services/adoptionRequestService';
+import { createAdoptionRequest, getRequestedStudentIds } from '../services/adoptionRequestService';
 
 export interface Student {
-  id: string;
+  id: string; // User ID for adoption requests
+  profileId: string; // Student profile ID
   firstName: string;
   lastName: string;
   email: string;
   school: string | null;
   degree: string | null;
-  skills: {
-    id: string;
-    name: string;
-  }[];
+  location: string | null;
+  skills: string[]; // API returns skills as array of strings
   cvUrl: string | null;
   isCvPublic: boolean;
+  createdAt?: string;
 }
 
 export interface Skill {
@@ -26,6 +26,8 @@ export interface Skill {
 
 export interface StudentFilters {
   search: string;
+  location: string;
+  school: string;
   skills: string[];
 }
 
@@ -34,26 +36,30 @@ export interface UseStudentsResult {
   students: Student[];
   loading: boolean;
   error: string | null;
-  
+
   // Filter state
   searchTerm: string;
   selectedSkills: string[];
   allSkills: Skill[];
   skillsLoading: boolean;
-  
+
   // Debounced filters for API calls
   debouncedFilters: StudentFilters;
-  
+
   // Actions
   setSearchTerm: (value: string) => void;
   setSelectedSkills: (skills: string[]) => void;
   handleSkillChange: (skillName: string) => void;
+  clearAllSkills: () => void;
   clearFilters: () => void;
   refetch: () => void;
-  
+
   // Adoption request functionality
   sendAdoptionRequest: (studentId: string, message: string) => Promise<void>;
   adoptionRequestLoading: boolean;
+  requestedStudentIds: Set<string>;
+  setRequestedStudentIds: (ids: Set<string>) => void;
+  refreshRequestedStudents: () => Promise<void>;
 }
 
 export const useStudents = (): UseStudentsResult => {
@@ -70,6 +76,7 @@ export const useStudents = (): UseStudentsResult => {
   
   // Adoption request state
   const [adoptionRequestLoading, setAdoptionRequestLoading] = useState(false);
+  const [requestedStudentIds, setRequestedStudentIds] = useState<Set<string>>(new Set());
 
   // Debounced values
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -82,6 +89,8 @@ export const useStudents = (): UseStudentsResult => {
     try {
       const filters = {
         search: debouncedSearchTerm,
+        location: '',
+        school: '',
         skills: selectedSkills,
       };
       
@@ -95,7 +104,17 @@ export const useStudents = (): UseStudentsResult => {
     }
   };
 
-  // Fetch skills for filter options
+  // Fetch requested student IDs
+  const refreshRequestedStudents = async () => {
+    try {
+      const requestedIds = await getRequestedStudentIds();
+      setRequestedStudentIds(new Set(requestedIds));
+    } catch (err) {
+      console.error('Failed to fetch requested student IDs:', err);
+    }
+  };
+
+  // Fetch skills for filter options and requested students
   useEffect(() => {
     const fetchSkills = async () => {
       try {
@@ -110,6 +129,7 @@ export const useStudents = (): UseStudentsResult => {
     };
 
     fetchSkills();
+    refreshRequestedStudents();
   }, []);
 
   // Fetch students when filters change
@@ -126,6 +146,11 @@ export const useStudents = (): UseStudentsResult => {
     );
   };
 
+  // Clear all skills
+  const clearAllSkills = () => {
+    setSelectedSkills([]);
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
@@ -137,9 +162,16 @@ export const useStudents = (): UseStudentsResult => {
     setAdoptionRequestLoading(true);
     try {
       await createAdoptionRequest(studentId, message);
-    } catch (err) {
+      // Add to requested students list on success
+      setRequestedStudentIds(prev => new Set(prev).add(studentId));
+    } catch (err: any) {
       console.error('Failed to send adoption request:', err);
-      throw err; // Re-throw so the component can handle it
+      // If it's a 409 error (already requested), update our local state
+      if (err.message?.includes('already sent')) {
+        setRequestedStudentIds(prev => new Set(prev).add(studentId));
+      }
+      // Re-throw the error with the specific message from the service
+      throw new Error(err.message || 'Failed to send adoption request');
     } finally {
       setAdoptionRequestLoading(false);
     }
@@ -159,14 +191,20 @@ export const useStudents = (): UseStudentsResult => {
     skillsLoading,
     debouncedFilters: {
       search: debouncedSearchTerm,
+      location: '',
+      school: '',
       skills: selectedSkills,
     },
     setSearchTerm,
     setSelectedSkills,
     handleSkillChange,
+    clearAllSkills,
     clearFilters,
     refetch,
     sendAdoptionRequest,
     adoptionRequestLoading,
+    requestedStudentIds,
+    setRequestedStudentIds,
+    refreshRequestedStudents,
   };
 };

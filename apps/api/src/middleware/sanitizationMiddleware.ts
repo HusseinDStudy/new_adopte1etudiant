@@ -221,7 +221,7 @@ export const authSanitizationMiddleware = (
       }
 
       if (body.firstName || body.lastName) {
-        const namePattern = /^[a-zA-Z\s\-'\.]+$/;
+        const namePattern = /^[a-zA-Z\s\-'.]+$/;
         ['firstName', 'lastName'].forEach(field => {
           if (body[field]) {
             validateInputLength(body[field], 50);

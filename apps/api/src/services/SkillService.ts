@@ -12,11 +12,11 @@ export class SkillService {
   }
 
   validateSkillName(name: string): SkillValidationResult {
-    const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+    const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
     if (validSkillRegex.test(name)) {
       return { isValid: true };
     }
-    const invalidChars = [...new Set(name.replace(/[a-zA-Z0-9\s\+#\.\-]/g, ''))];
+    const invalidChars = [...new Set(name.replace(/[a-zA-Z0-9\s+#.-]/g, ''))];
     return {
       isValid: false,
       message: `Skill name "${name}" contains invalid characters: ${invalidChars.join(', ')}. Only letters, numbers, spaces, and '+', '#', '.', '-' are allowed.`

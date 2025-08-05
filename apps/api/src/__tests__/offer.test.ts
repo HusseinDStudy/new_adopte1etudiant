@@ -51,9 +51,11 @@ describe('Offer Routes', () => {
         const response = await supertest(app.server).get('/api/offers');
         
         expect(response.status).toBe(200);
-        expect(response.body).toBeInstanceOf(Array);
-        expect(response.body.length).toBeGreaterThanOrEqual(1);
-        expect(response.body.find((o: any) => o.title === 'Public Offer')).toBeDefined();
+        expect(response.body).toHaveProperty('data');
+        expect(response.body).toHaveProperty('pagination');
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThanOrEqual(1);
+        expect(response.body.data.find((o: any) => o.title === 'Public Offer')).toBeDefined();
     });
 
     it('GET /api/offers/:id - should return a single offer', async () => {
@@ -185,17 +187,19 @@ describe('Offer Routes', () => {
 
     it('GET /api/offers - should return offers sorted by matchScore for a student', async () => {
       const response = await supertest(app.server)
-        .get('/api/offers')
+        .get('/api/offers?sortBy=relevance')
         .set('Cookie', `token=${studentAuthToken}`);
 
       expect(response.status).toBe(200);
-      expect(response.body.length).toBe(3);
-      expect(response.body[0].title).toBe('High Match');
-      expect(response.body[0].matchScore).toBe(100);
-      expect(response.body[1].title).toBe('Mid Match');
-      expect(response.body[1].matchScore).toBe(50);
-      expect(response.body[2].title).toBe('No Match');
-      expect(response.body[2].matchScore).toBe(0);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body).toHaveProperty('pagination');
+      expect(response.body.data.length).toBe(3);
+      expect(response.body.data[0].title).toBe('High Match');
+      expect(response.body.data[0].matchScore).toBe(100);
+      expect(response.body.data[1].title).toBe('Mid Match');
+      expect(response.body.data[1].matchScore).toBe(50);
+      expect(response.body.data[2].title).toBe('No Match');
+      expect(response.body.data[2].matchScore).toBe(0);
     });
   });
 

@@ -7,7 +7,7 @@ import { LoginInput } from 'shared-types';
 interface User {
   id: string;
   email: string;
-  role: 'STUDENT' | 'COMPANY';
+  role: 'STUDENT' | 'COMPANY' | 'ADMIN';
 }
 
 interface AuthContextType {
@@ -40,13 +40,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        // Always attempt to get user info - the httpOnly cookie will be sent automatically
         const currentUser = await getMe();
         setUser(currentUser);
         setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Not authenticated', error);
-        setUser(null);
-        setIsAuthenticated(false);
+      } catch (error: any) {
+        // Handle authentication errors silently for 401 errors (expected when not logged in)
+        if (error.response?.status === 401) {
+          // Expected behavior for expired/invalid tokens or when not logged in
+          setUser(null);
+          setIsAuthenticated(false);
+        } else {
+          // Log unexpected errors
+          console.error('Authentication check failed:', error);
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } finally {
         setLoading(false);
         setIsLoading(false);
@@ -83,7 +92,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Logout failed on server:', error);
     } finally {
       setUser(null);
-      localStorage.removeItem('user');
       setIsAuthenticated(false);
       navigate('/login');
     }

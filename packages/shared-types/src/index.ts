@@ -27,6 +27,13 @@ export const extendedRegisterSchema = z.discriminatedUnion('role', [
     name: z.string().min(1, 'Company name is required'),
     contactEmail: z.string().email('Invalid contact email'),
   }),
+  z.object({
+    role: z.literal('ADMIN'),
+    email: z.string().email(),
+    password: z.string().min(6),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+  }),
 ]);
 
 export const completeOauthSchema = z.discriminatedUnion('role', [
@@ -99,4 +106,21 @@ export type CreateOfferInput = z.infer<typeof createOfferSchema>;
 export type UpdateOfferInput = z.infer<typeof updateOfferSchema>;
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
 export type UpdateApplicationStatusInput = z.infer<typeof updateApplicationStatusSchema>;
-export type CreateMessageInput = z.infer<typeof createMessageSchema>; 
+export type CreateMessageInput = z.infer<typeof createMessageSchema>;
+
+// Offer type
+export interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  location: string | null;
+  duration: string | null;
+  skills: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  company: {
+    id: string;
+    name: string;
+  };
+} 

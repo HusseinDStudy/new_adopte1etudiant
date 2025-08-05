@@ -1,186 +1,265 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStudents } from '../hooks/useStudents';
+import { useStudentFilters } from '../hooks/useStudentFilters';
+import { useAuth } from '../context/AuthContext';
+import StudentFilters from '../components/StudentFilters';
+import StudentList from '../components/StudentList';
+import Pagination from '../components/Pagination';
+
+type SortOption = 'recent' | 'skills' | 'school';
 
 const StudentDirectoryPage: React.FC = () => {
-  const [requestedStudentIds, setRequestedStudentIds] = useState<Set<string>>(
-    new Set()
-  );
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [requestingStudentId, setRequestingStudentId] = useState<string | null>(null);
-  const [adoptionMessage, setAdoptionMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<SortOption>('recent');
+  const itemsPerPage = 9;
 
+  // Restrict access to company profiles only
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (user.role !== 'COMPANY') {
+      navigate('/');
+      return;
+    }
+  }, [user, navigate]);
+
+  // Use the new student filters hook
+  const {
+    searchTerm,
+    selectedSkills,
+    setSearchTerm,
+    handleSkillChange,
+    clearAllSkills,
+    clearFilters,
+  } = useStudentFilters();
+
+  // Use the students hook
   const {
     students,
     loading,
     error,
-    searchTerm,
-    selectedSkills,
     allSkills,
     skillsLoading,
-    setSearchTerm,
-    handleSkillChange,
-    clearFilters,
     sendAdoptionRequest,
     adoptionRequestLoading,
+    requestedStudentIds,
+    refreshRequestedStudents,
   } = useStudents();
 
-  const handleRequestAdoption = async (studentId: string) => {
-    if (!adoptionMessage.trim()) {
+  // Filter and sort students
+  const filteredAndSortedStudents = useMemo(() => {
+    if (!students || !Array.isArray(students)) return [];
+
+    // Apply filters
+    let filtered = students.filter(student => {
+      // Search filter
+      const searchMatch = !searchTerm ||
+        student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (student.school && student.school.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (student.degree && student.degree.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // Skills filter
+      const skillsMatch = selectedSkills.length === 0 ||
+        selectedSkills.some(skill => student.skills?.includes(skill));
+
+      return searchMatch && skillsMatch;
+    });
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'recent':
+        return filtered.sort((a, b) =>
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
+        );
+      case 'skills':
+        return filtered.sort((a, b) =>
+          (b.skills?.length || 0) - (a.skills?.length || 0)
+        );
+      case 'school':
+        return filtered.sort((a, b) =>
+          (a.school || '').localeCompare(b.school || '')
+        );
+      default:
+        return filtered;
+    }
+  }, [students, searchTerm, selectedSkills, sortBy]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAndSortedStudents.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedStudents = filteredAndSortedStudents.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Reset to page 1 when filters change
+  const prevFiltersRef = React.useRef<string>('');
+  React.useEffect(() => {
+    const filtersString = JSON.stringify({
+      search: searchTerm,
+      skills: selectedSkills,
+      sortBy
+    });
+
+    if (prevFiltersRef.current !== '' && prevFiltersRef.current !== filtersString) {
+      setCurrentPage(1);
+    }
+
+    prevFiltersRef.current = filtersString;
+  }, [searchTerm, selectedSkills, sortBy]);
+
+  // Remove mock metrics - we don't need them on this page
+
+  const handleRequestAdoption = async (studentId: string, message: string) => {
+    const trimmedMessage = message.trim();
+
+    if (!trimmedMessage) {
       alert('A message is required to send a request.');
+      return;
+    }
+
+    if (trimmedMessage.length < 10) {
+      alert('Message must be at least 10 characters long.');
+      return;
+    }
+
+    if (trimmedMessage.length > 1000) {
+      alert('Message must be no more than 1000 characters long.');
       return;
     }
 
     try {
       setRequestingStudentId(studentId);
-      await sendAdoptionRequest(studentId, adoptionMessage);
-      setRequestedStudentIds(prev => new Set(prev).add(studentId));
+      await sendAdoptionRequest(studentId, trimmedMessage);
       setRequestingStudentId(null);
-      setAdoptionMessage('');
+      alert('Adoption request sent successfully!');
     } catch (err: any) {
       console.error('Failed to send adoption request', err);
-      alert(err.response?.data?.message || 'Failed to send adoption request.');
+
+      // Handle specific error cases
+      if (err.message?.includes('already sent')) {
+        alert('You have already sent an adoption request to this student. Check your sent requests to view the conversation.');
+      } else {
+        alert(err.message || 'Failed to send adoption request.');
+      }
+
+      setRequestingStudentId(null);
     }
   }
 
-  if (loading) return <div className="text-center p-8">Loading students...</div>;
+  // Show access denied for non-company users
+  if (!user || user.role !== 'COMPANY') {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center py-16">
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+          <p className="text-gray-600 mb-6">
+            Cette page est réservée aux profils d'entreprise. Seules les entreprises peuvent consulter le répertoire des étudiants.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
+          >
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement des étudiants...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-8">
-        Find Your Next Intern
-      </h1>
-
-      {error && (
-          <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold text-red-800">An Error Occurred</h2>
-              <p className="mt-2 text-red-600">{error}</p>
+    <div className="max-w-7xl mx-auto">
+      {/* Page Header */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Étudiants à Adopter</h1>
+            <p className="text-gray-600 mt-2">Trouvez le talent qui correspond à vos besoins</p>
           </div>
-      )}
-
-      <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border">
-          <input
-            type="text"
-            placeholder="Search by name, school, degree..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg md:col-span-3"
-          />
-          <div className="md:col-span-3">
-            <h3 className="font-semibold mb-2">Filter by Skills:</h3>
-            <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2 bg-white border rounded-lg">
-              {skillsLoading ? (
-                <div>Loading skills...</div>
-              ) : (
-                allSkills.map((skill) => (
-                  <label
-                    key={skill.id}
-                    className="flex items-center space-x-2 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedSkills.includes(skill.name)}
-                      onChange={() => handleSkillChange(skill.name)}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span>{skill.name}</span>
-                  </label>
-                ))
-              )}
-            </div>
-            <button
-              onClick={clearFilters}
-              className="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            >
-              Clear Filters
-            </button>
-          </div>
+          <button
+            onClick={refreshRequestedStudents}
+            className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
+            title="Actualiser le statut des demandes"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Actualiser</span>
+          </button>
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center p-8">Loading students...</div>
-      ) : students.length === 0 ? (
-        <div className="text-center bg-white p-12 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold">No students are currently looking for opportunities.</h2>
-            <p className="mt-2 text-gray-500">Check back later to find new talent.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {students.map((student) => (
-            <div key={student.id} className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold">{student.firstName} {student.lastName}</h2>
-              <p className="text-gray-600">{student.email}</p>
-              <div className="mt-4">
-                <p className="text-sm"><strong>School:</strong> {student.school || 'N/A'}</p>
-                <p className="text-sm"><strong>Degree:</strong> {student.degree || 'N/A'}</p>
-              </div>
-              <div className="mt-4">
-                <h4 className="font-semibold">Skills:</h4>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {(student.skills || []).map((skill) => (
-                    <span
-                      key={skill.name}
-                      className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800"
-                    >
-                      {skill.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              {student.cvUrl && student.isCvPublic && (
-                <div className="mt-6 text-right">
-                  <a
-                    href={student.cvUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    View CV
-                  </a>
-                </div>
-              )}
-              <div className="mt-6 text-right">
-                {requestingStudentId === student.id ? (
-                  <div className="mt-4">
-                    <textarea
-                      className="w-full p-2 border rounded-lg"
-                      placeholder="Send a message with your request..."
-                      value={adoptionMessage}
-                      onChange={(e) => setAdoptionMessage(e.target.value)}
-                      rows={3}
-                    />
-                    <div className="mt-2 flex justify-end gap-2">
-                      <button
-                        onClick={() => setRequestingStudentId(null)}
-                        className="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400"
-                      >
-                        Cancel
-                      </button>
-                <button
-                  onClick={() => handleRequestAdoption(student.id)}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
-                        disabled={adoptionRequestLoading}
-                      >
-                        {adoptionRequestLoading ? 'Sending...' : 'Send Request'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setRequestingStudentId(student.id);
-                      setAdoptionMessage('');
-                    }}
-                  disabled={requestedStudentIds.has(student.id)}
-                  className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 disabled:bg-gray-400"
-                >
-                  {requestedStudentIds.has(student.id) ? 'Request Sent' : 'Request Adoption'}
-                </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Filters Section */}
+      <div className="mb-8">
+        <StudentFilters
+          searchTerm={searchTerm}
+          selectedSkills={selectedSkills}
+          allSkills={allSkills}
+          skillsLoading={skillsLoading}
+          onSearchChange={setSearchTerm}
+          onSkillChange={handleSkillChange}
+          onClearAllSkills={clearAllSkills}
+          onClearFilters={clearFilters}
+        />
+      </div>
+
+
+
+      {/* Students List */}
+      <div className="mb-8">
+        <StudentList
+          students={paginatedStudents}
+          loading={loading}
+          error={error}
+          requestedStudentIds={requestedStudentIds}
+          onRequestAdoption={handleRequestAdoption}
+          adoptionRequestLoading={adoptionRequestLoading}
+          requestingStudentId={requestingStudentId}
+          totalStudents={filteredAndSortedStudents.length}
+          sortBy={sortBy}
+          onSortChange={(newSortBy) => setSortBy(newSortBy as SortOption)}
+        />
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredAndSortedStudents.length}
+        />
       )}
     </div>
   );

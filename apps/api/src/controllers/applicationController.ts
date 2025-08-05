@@ -92,18 +92,76 @@ export const updateApplicationStatus = async (
       { status }
     );
 
-    // Handle conversation creation for certain statuses
-    if ((status === 'HIRED' || status === 'INTERVIEW')) {
-      // Check if conversation already exists
-      const existingApp = await applicationService.getApplicationById(applicationId, companyUserId);
-      if (!existingApp.conversationId) {
-        await prisma.conversation.create({
-          data: {
-            application: {
-              connect: { id: applicationId },
+    // Handle conversation creation and status management
+    const existingApp = await applicationService.getApplicationById(applicationId, companyUserId);
+    
+    if (existingApp) {
+      let conversationStatus = 'ACTIVE';
+      let isReadOnly = false;
+      let expiresAt = null;
+
+      switch (status) {
+        case 'NEW':
+          // No conversation needed for NEW status
+          break;
+        case 'SEEN':
+        case 'INTERVIEW':
+          // Create or update conversation for active communication
+          conversationStatus = 'ACTIVE';
+          isReadOnly = false;
+          break;
+        case 'REJECTED':
+          // Archive conversation - no more communication
+          conversationStatus = 'ARCHIVED';
+          isReadOnly = true;
+          break;
+        case 'HIRED':
+          // Active conversation for 1 month
+          conversationStatus = 'ACTIVE';
+          isReadOnly = false;
+          expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+          break;
+        default:
+          conversationStatus = 'ACTIVE';
+          isReadOnly = false;
+      }
+
+      if (status !== 'NEW') {
+        if (!existingApp.conversationId) {
+          // Create new conversation
+          const conversation = await prisma.conversation.create({
+            data: {
+              topic: `Candidature - ${existingApp.offer.title}`,
+              context: 'OFFER',
+              contextId: applicationId,
+              status: conversationStatus as any,
+              isReadOnly: isReadOnly,
+              expiresAt: expiresAt,
+              participants: {
+                create: [
+                  { userId: existingApp.studentId },
+                  { userId: companyUserId }
+                ]
+              }
             },
-          },
-        });
+          });
+
+          // Link conversation to application
+          await prisma.application.update({
+            where: { id: applicationId },
+            data: { conversationId: conversation.id }
+          });
+        } else {
+          // Update existing conversation
+          await prisma.conversation.update({
+            where: { id: existingApp.conversationId },
+            data: {
+              status: conversationStatus as any,
+              isReadOnly: isReadOnly,
+              expiresAt: expiresAt
+            }
+          });
+        }
       }
     }
 

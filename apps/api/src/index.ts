@@ -15,6 +15,8 @@ import adoptionRequestRoutes from './routes/adoptionRequest.js';
 import skillRoutes from './routes/skill.js';
 import companyRoutes from './routes/company.js';
 import twoFactorAuthRoutes from './routes/twoFactorAuth.js';
+import blogRoutes from './routes/blog.js';
+import adminRoutes from './routes/admin.js';
 import { prisma } from 'db-postgres';
 
 const server = Fastify({
@@ -26,7 +28,16 @@ server.register(swagger, swaggerConfig);
 server.register(swaggerUi, swaggerUiConfig);
 
 // Register plugins
-server.register(cors, { origin: process.env.WEB_APP_URL, credentials: true });
+const allowedOrigins = [
+  process.env.WEB_APP_URL,
+  'http://localhost:5173',
+  'http://localhost:5174'
+].filter(Boolean) as string[];
+
+server.register(cors, {
+  origin: allowedOrigins,
+  credentials: true
+});
 server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
 server.register(cookie);
 
@@ -96,6 +107,8 @@ server.register(applicationRoutes, { prefix: '/api/applications' });
 server.register(messageRoutes, { prefix: '/api/messages' });
 server.register(adoptionRequestRoutes, { prefix: '/api/adoption-requests' });
 server.register(twoFactorAuthRoutes, { prefix: '/api/2fa' });
+server.register(blogRoutes, { prefix: '/api/blog' });
+server.register(adminRoutes, { prefix: '/api/admin' });
 
 // Database connection test with retry logic
 const connectToDatabase = async (retries = 10, delay = 5000) => {
@@ -172,18 +185,5 @@ const start = async () => {
     process.exit(1);
   }
 };
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('🛑 Received SIGINT, shutting down gracefully...');
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('🛑 Received SIGTERM, shutting down gracefully...');
-  await prisma.$disconnect();
-  process.exit(0);
-});
 
 start(); 

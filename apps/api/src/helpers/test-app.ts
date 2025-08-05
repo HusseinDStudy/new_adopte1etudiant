@@ -13,6 +13,8 @@ import adoptionRequestRoutes from '../routes/adoptionRequest.js';
 import skillRoutes from '../routes/skill.js';
 import companyRoutes from '../routes/company.js';
 import twoFactorAuthRoutes from '../routes/twoFactorAuth.js';
+import blogRoutes from '../routes/blog.js';
+import adminRoutes from '../routes/admin.js';
 
 export async function buildTestApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -46,6 +48,8 @@ export async function buildTestApp(): Promise<FastifyInstance> {
   app.register(messageRoutes, { prefix: '/api/messages' });
   app.register(adoptionRequestRoutes, { prefix: '/api/adoption-requests' });
   app.register(twoFactorAuthRoutes, { prefix: '/api/2fa' });
+  app.register(blogRoutes, { prefix: '/api/blog' });
+  app.register(adminRoutes, { prefix: '/api/admin' });
 
   await app.ready();
 

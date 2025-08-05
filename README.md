@@ -69,22 +69,82 @@ This is the recommended way to run the project locally. You will run the databas
 
 ## Project Commands
 
-Here are the most common commands you'll use:
+Here are all available commands you can run from the root directory:
 
+### Main Commands
 | Command                 | Description                                                                 |
 | ----------------------- | --------------------------------------------------------------------------- |
 | `npm install`           | Installs all dependencies for the monorepo.                                 |
 | `npm run setup`         | Initializes `.env` files from examples. Run this once.                      |
 | `npm run dev`           | Starts both API and Web apps in development mode.                           |
 | `npm run build`         | Builds both API and Web apps for production.                                |
-| `npm test`              | Runs all tests across the project.                                          |
+| `npm run clean`         | Removes all build artifacts, cache files, and temporary files.              |
 | `npm run lint`          | Lints all code in the project.                                              |
 | `npm run format`        | Formats all code with Prettier.                                             |
-| `npm run db:migrate:dev`| Runs Prisma database migrations.                                            |
-| `npm run db:seed`       | Seeds the database with initial data.                                       |
-| `npm run db:studio`     | Opens Prisma Studio to view and manage your database.                       |
-| `npm run docs:serve`    | Shows the URL for interactive API documentation (Swagger UI).               |
-| `npm run docs:generate` | Generates OpenAPI specification files (JSON and YAML).                      |
+
+### Testing Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm test`                | Runs all tests across the project with coverage.                         |
+| `npm run test:watch`      | Runs tests in watch mode for all packages.                               |
+| `npm run test:specific`   | Runs tests with verbose output for all packages.                         |
+| `npm run test:coverage`   | Runs tests with coverage reports for all packages.                       |
+| `npm run test:no-coverage`| Runs tests without coverage for all packages.                           |
+
+### API-Specific Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run api:dev`         | Starts only the API in development mode.                                 |
+| `npm run api:build`       | Builds only the API for production.                                      |
+| `npm run api:start`       | Starts the built API server.                                             |
+| `npm run api:test`        | Runs tests only for the API.                                             |
+| `npm run api:test:watch`  | Runs API tests in watch mode.                                            |
+| `npm run api:test:coverage`| Runs API tests with coverage.                                           |
+
+### Web-Specific Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run web:dev`         | Starts only the web app in development mode.                             |
+| `npm run web:build`       | Builds only the web app for production.                                  |
+| `npm run web:preview`     | Previews the built web app.                                              |
+| `npm run web:test`        | Runs tests only for the web app.                                         |
+| `npm run web:test:watch`  | Runs web tests in watch mode.                                            |
+| `npm run web:test:coverage`| Runs web tests with coverage.                                           |
+
+### Database Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run db:migrate:dev`  | Runs Prisma database migrations for development.                         |
+| `npm run db:migrate:deploy`| Runs Prisma database migrations for production.                         |
+| `npm run db:push`         | Pushes schema changes to database without creating migration.            |
+| `npm run db:studio`       | Opens Prisma Studio to view and manage your database.                    |
+| `npm run db:generate`     | Generates Prisma client.                                                 |
+| `npm run db:seed`         | Seeds the database with initial data.                                    |
+| `npm run db:clean`        | Resets the database (removes all data and recreates schema).             |
+
+### Documentation Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run docs:serve`      | Shows the URL for interactive API documentation (Swagger UI).            |
+| `npm run docs:generate`   | Generates OpenAPI specification files (JSON and YAML).                   |
+| `npm run docs:json`       | Generates OpenAPI JSON specification file.                               |
+| `npm run docs:yaml`       | Generates OpenAPI YAML specification file.                               |
+| `npm run docs:validate`   | Validates the API documentation.                                         |
+| `npm run docs:test`       | Tests the API documentation.                                             |
+
+### Docker Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run docker:dev`      | Starts development environment with Docker Compose.                      |
+| `npm run docker:dev:down` | Stops development Docker containers.                                     |
+| `npm run docker:dev:clean`| Stops containers and cleans up Docker resources.                        |
+
+### Monitoring Commands
+| Command                     | Description                                                             |
+| --------------------------- | ----------------------------------------------------------------------- |
+| `npm run monitor:api`       | Runs API monitoring tests using Newman/Postman.                        |
+| `npm run monitor:performance`| Runs performance tests using Artillery.                               |
+| `npm run monitor:all`       | Runs all monitoring tests.                                             |
 
 ## 🛠️ Other Ways to Run the Project
 

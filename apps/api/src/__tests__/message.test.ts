@@ -87,9 +87,11 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body).toHaveLength(1);
-            expect(response.body[0]).toHaveProperty('id', adoptionConversationId);
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations).toHaveLength(1);
+            expect(response.body.conversations[0]).toHaveProperty('id', adoptionConversationId);
         });
 
         it('should return conversations for a company user', async () => {
@@ -98,9 +100,11 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body).toHaveLength(1);
-            expect(response.body[0]).toHaveProperty('id', adoptionConversationId);
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations).toHaveLength(1);
+            expect(response.body.conversations[0]).toHaveProperty('id', adoptionConversationId);
         });
 
         it('should return empty array when user has no conversations', async () => {
@@ -112,8 +116,10 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${newStudent.authToken}`);
 
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body).toHaveLength(0);
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations).toHaveLength(0);
         });
 
         it('should require authentication', async () => {
@@ -134,7 +140,8 @@ describe('Message Routes', () => {
             expect(response.body).toHaveProperty('messages');
             expect(response.body.messages).toBeInstanceOf(Array);
             expect(response.body.messages.length).toBeGreaterThan(0); // Should have initial adoption message
-            expect(response.body).toHaveProperty('adoptionRequestStatus');
+            expect(response.body).toHaveProperty('conversation');
+            expect(response.body.conversation).toHaveProperty('adoptionRequestStatus');
         });
 
         it('should allow company to access conversation messages', async () => {
@@ -145,7 +152,8 @@ describe('Message Routes', () => {
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('messages');
             expect(response.body.messages).toBeInstanceOf(Array);
-            expect(response.body).toHaveProperty('adoptionRequestStatus');
+            expect(response.body).toHaveProperty('conversation');
+            expect(response.body.conversation).toHaveProperty('adoptionRequestStatus');
         });
 
         it('should return 403 when user does not have access to the conversation', async () => {
@@ -182,6 +190,18 @@ describe('Message Routes', () => {
         });
 
         it('should allow company to send messages in conversation', async () => {
+            // First, accept the adoption request as the student
+            const adoptionRequest = await prisma.adoptionRequest.findUnique({
+                where: { conversationId: adoptionConversationId }
+            });
+
+            if (adoptionRequest) {
+                await supertest(app.server)
+                    .patch(`/api/adoption-requests/${adoptionRequest.id}/status`)
+                    .set('Cookie', `token=${studentAuthToken}`)
+                    .send({ status: 'ACCEPTED' });
+            }
+
             const messageContent = 'Looking forward to working with you!';
 
             const response = await supertest(app.server)
@@ -290,7 +310,7 @@ describe('Message Routes', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
             
             // Try to send a message in the rejected conversation
             const messageResponse = await supertest(app.server)
@@ -327,7 +347,7 @@ describe('Message Routes', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
             
             // Try to send a message in the accepted conversation
             const messageResponse = await supertest(app.server)
@@ -385,7 +405,7 @@ describe('Message Routes', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
             
             // Try to send a message as the unauthorized student
             const messageResponse = await supertest(app.server)
@@ -413,7 +433,7 @@ describe('Message Routes', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
             
             // Test with missing content
             const response1 = await supertest(app.server)
@@ -467,8 +487,10 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${freshStudentAuthToken}`);
             
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(0);
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations.length).toBe(0);
         });
 
         it('should return conversations with proper topic formatting for adoption requests', async () => {
@@ -488,9 +510,11 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(1);
-            expect(response.body[0].topic).toContain('Adoption Request from');
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations.length).toBe(1);
+            expect(response.body.conversations[0].topic).toContain('Demande d\'adoption');
         });
 
         it('should return conversations ordered by most recent activity', async () => {
@@ -514,8 +538,10 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${companyAuthToken}`);
             
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(2);
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations.length).toBe(2);
             
             // Verify ordering by updatedAt (most recent first)
             if (response.body.length > 1) {
@@ -540,9 +566,11 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(response.status).toBe(200);
-            expect(response.body).toBeInstanceOf(Array);
-            expect(response.body.length).toBe(1);
-            expect(response.body[0].lastMessage).toBe('No messages yet.');
+            expect(response.body).toHaveProperty('conversations');
+            expect(response.body).toHaveProperty('pagination');
+            expect(Array.isArray(response.body.conversations)).toBe(true);
+            expect(response.body.conversations.length).toBe(1);
+            expect(response.body.conversations[0].lastMessage).toBeNull();
         });
 
         it('should require authentication', async () => {
@@ -554,7 +582,7 @@ describe('Message Routes', () => {
     });
 
     describe('GET /api/messages/conversations/:conversationId/messages - Additional Edge Cases', () => {
-        it('should return 404 for non-existent conversation', async () => {
+        it('should return 403 for non-existent conversation', async () => {
             const fakeConversationId = 'clpre1234567890123';
             
             const response = await supertest(app.server)
@@ -562,7 +590,7 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(response.status).toBe(403);
-            expect(response.body.message).toContain('permission');
+            expect(response.body.message).toContain('Conversation not found');
         });
 
         it('should return 403 for unauthorized conversation access', async () => {
@@ -593,7 +621,7 @@ describe('Message Routes', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
             
             // Try to access conversation as unauthorized user
             const response = await supertest(app.server)
@@ -601,7 +629,7 @@ describe('Message Routes', () => {
                 .set('Cookie', `token=${otherStudentAuthToken}`);
             
             expect(response.status).toBe(403);
-            expect(response.body.message).toContain('permission');
+            expect(response.body.message).toContain('Not a participant');
         });
 
         it('should return empty array for conversation with no messages', async () => {
@@ -615,7 +643,7 @@ describe('Message Routes', () => {
                 .get('/api/messages/conversations')
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            const conversationId = conversationsResponse.body[0].id;
+            const conversationId = conversationsResponse.body.conversations[0].id;
             
             // Delete all messages
             await prisma.message.deleteMany({ where: { conversationId } });

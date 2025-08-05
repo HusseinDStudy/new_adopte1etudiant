@@ -8,8 +8,23 @@ const apiClient = axios.create({
 });
 
 export const applyToOffer = async (offerId: string) => {
-  const { data } = await apiClient.post('/applications', { offerId });
-  return data;
+  try {
+    const { data } = await apiClient.post('/applications', { offerId });
+    return data;
+  } catch (error: any) {
+    // Provide more specific error messages
+    if (error.response?.status === 409) {
+      throw new Error('You have already applied to this offer');
+    } else if (error.response?.status === 403) {
+      throw new Error('You must complete your profile before applying');
+    } else if (error.response?.status === 404) {
+      throw new Error('This offer is no longer available');
+    } else if (error.response?.status === 500) {
+      throw new Error('Server error. Please try again later.');
+    } else {
+      throw new Error('Failed to submit application. Please check your connection and try again.');
+    }
+  }
 };
 
 export const getMyApplications = async () => {
@@ -21,6 +36,20 @@ export const getMyApplications = async () => {
 export const updateApplicationStatus = async (applicationId: string, status: string) => {
   const { data } = await apiClient.patch(`/applications/${applicationId}/status`, { status });
   return data;
+};
+
+export const getAppliedOfferIds = async (): Promise<string[]> => {
+  try {
+    const applications = await getMyApplications();
+    return applications.map((app: any) => app.offer.id);
+  } catch (error: any) {
+    // Handle 403 errors gracefully (user not authorized - likely not a student)
+    if (error.response?.status === 403) {
+      return [];
+    }
+    console.error('Failed to fetch applied offer IDs:', error);
+    return [];
+  }
 };
 
 export const getMessages = async (applicationId: string) => {

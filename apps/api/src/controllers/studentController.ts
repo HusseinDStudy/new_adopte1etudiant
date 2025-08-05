@@ -19,3 +19,17 @@ export const listAvailableStudents = async (
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 };
+
+export const getStudentStats = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const userId = (request as any).user.id;
+    const stats = await studentService.getStudentStats(userId);
+    return reply.send(stats);
+  } catch (error) {
+    console.error('Failed to get student stats:', error);
+    if ((error as Error).message === 'Student profile not found') {
+      return reply.code(404).send({ message: 'Student profile not found' });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+};

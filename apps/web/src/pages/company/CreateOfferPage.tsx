@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import OfferForm from '../../components/company/OfferForm';
 import { createOffer } from '../../services/offerService';
 import { CreateOfferInput } from 'shared-types';
+import SidebarLayout from '../../components/SidebarLayout';
 
 const CreateOfferPage = () => {
   const navigate = useNavigate();
@@ -24,13 +25,13 @@ const CreateOfferPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <SidebarLayout>
       <h1 className="text-3xl font-bold">Create a New Offer</h1>
       {error && <p className="mt-4 text-red-500">{error}</p>}
       <div className="mt-6">
         <OfferForm onSubmit={handleCreateOffer} isSubmitting={isSubmitting} />
       </div>
-    </div>
+    </SidebarLayout>
   );
 };
 

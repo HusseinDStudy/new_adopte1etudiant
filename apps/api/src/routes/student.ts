@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { listAvailableStudents } from '../controllers/studentController.js';
+import { listAvailableStudents, getStudentStats } from '../controllers/studentController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { Role } from '@prisma/client';
@@ -33,9 +33,11 @@ async function studentRoutes(server: FastifyInstance) {
             items: {
               type: 'object',
               properties: {
-                id: { type: 'string' },
+                id: { type: 'string', description: 'User ID for adoption requests' },
+                profileId: { type: 'string', description: 'Student profile ID' },
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
+                email: { type: 'string', format: 'email' },
                 school: { type: 'string' },
                 degree: { type: 'string' },
                 skills: { type: 'array', items: { type: 'string' } },
@@ -67,6 +69,46 @@ async function studentRoutes(server: FastifyInstance) {
     },
     listAvailableStudents as any
   );
+
+  // Student stats endpoint
+  server.get('/stats', {
+    preHandler: [authMiddleware, roleMiddleware([Role.STUDENT])],
+    schema: {
+      description: 'Get student statistics including applications and adoption requests',
+      tags: ['Students'],
+      summary: 'Get student stats',
+      security: [{ cookieAuth: [] }],
+      response: {
+        200: {
+          description: 'Student statistics',
+          type: 'object',
+          properties: {
+            totalApplications: { type: 'integer' },
+            applicationsByStatus: {
+              type: 'object',
+              additionalProperties: { type: 'integer' }
+            },
+            adoptionRequestsReceived: { type: 'integer' }
+          }
+        },
+        401: {
+          description: 'Not authenticated',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        403: {
+          description: 'Access denied - Student role required',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        404: {
+          description: 'Student profile not found',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, getStudentStats);
 }
 
-export default studentRoutes; 
+export default studentRoutes;
