@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createOfferSchema, CreateOfferInput } from 'shared-types';
 import { z } from 'zod';
 
-const validSkillRegex = /^[a-zA-Z0-9\s\+#\.\-]*$/;
+const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
 
 const skillValidation = z.string()
   .min(1, 'Please enter at least one skill.')

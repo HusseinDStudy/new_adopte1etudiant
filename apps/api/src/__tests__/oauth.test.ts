@@ -354,7 +354,7 @@ describe('OAuth Authentication Tests', () => {
             
             try {
                 await createTestStudent(app, { email: uniqueEmail });
-            } catch (error) {
+            } catch (error: any) {
                 // If registration fails, skip this test as it's not critical
                 console.warn('Skipping OAuth email conflict test due to registration failure:', error.message);
                 return;

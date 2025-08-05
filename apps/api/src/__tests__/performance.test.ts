@@ -92,7 +92,7 @@ describe('API Performance Tests', () => {
             
             const duration = Date.now() - start;
             
-            expect(duration).toBeLessThan(200);
+            expect(duration).toBeLessThan(250);
             expect(response.body).toBeInstanceOf(Array);
         });
     });

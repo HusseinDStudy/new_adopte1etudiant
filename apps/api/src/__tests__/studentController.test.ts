@@ -155,7 +155,7 @@ describe('Student Controller', () => {
     test('should handle database errors gracefully', async () => {
       // Mock dbPostgresPrisma.studentProfile.findMany to throw an error
       const originalFindMany = dbPostgresPrisma.studentProfile.findMany;
-      dbPostgresPrisma.studentProfile.findMany = () => Promise.reject(new Error('Database error'));
+      dbPostgresPrisma.studentProfile.findMany = () => Promise.reject(new Error('Database error')) as any;
 
       const response = await app.inject({
         method: 'GET',
@@ -307,7 +307,7 @@ describe('Student Controller', () => {
     test('should return 500 on database error', async () => {
       // Mock dbPostgresPrisma.studentProfile.findUnique to throw an error
       const originalFindUnique = dbPostgresPrisma.studentProfile.findUnique;
-      dbPostgresPrisma.studentProfile.findUnique = () => Promise.reject(new Error('Database error'));
+      dbPostgresPrisma.studentProfile.findUnique = () => Promise.reject(new Error('Database error')) as any;
 
       const response = await app.inject({
         method: 'GET',

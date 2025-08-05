@@ -117,7 +117,7 @@ describe('AdminController', () => {
     test('should handle analytics errors gracefully', async () => {
       // Mock a database error by temporarily breaking the connection
       const originalCount = prisma.user.count;
-      prisma.user.count = () => Promise.reject(new Error('Database error'));
+      prisma.user.count = () => Promise.reject(new Error('Database error')) as any;
 
       const response = await supertest(app.server)
         .get('/api/admin/analytics')
@@ -181,7 +181,7 @@ describe('AdminController', () => {
       let user = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
       if (!user) {
         const student = await createTestStudent(app, { email: 'student3@test.com' });
-        user = await prisma.user.findUnique({ where: { id: student.userId } });
+        user = await prisma.user.findUnique({ where: { id: student.user.id } });
       }
       
       const response = await supertest(app.server)
@@ -201,7 +201,7 @@ describe('AdminController', () => {
       let user = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
       if (!user) {
         const student = await createTestStudent(app, { email: 'student4@test.com' });
-        user = await prisma.user.findUnique({ where: { id: student.userId } });
+        user = await prisma.user.findUnique({ where: { id: student.user.id } });
       }
       
       const response = await supertest(app.server)
@@ -219,7 +219,7 @@ describe('AdminController', () => {
       let user = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
       if (!user) {
         const student = await createTestStudent(app, { email: 'student5@test.com' });
-        user = await prisma.user.findUnique({ where: { id: student.userId } });
+        user = await prisma.user.findUnique({ where: { id: student.user.id } });
       }
       
       const response = await supertest(app.server)
@@ -241,7 +241,7 @@ describe('AdminController', () => {
       let user = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
       if (!user) {
         const student = await createTestStudent(app, { email: 'student6@test.com' });
-        user = await prisma.user.findUnique({ where: { id: student.userId } });
+        user = await prisma.user.findUnique({ where: { id: student.user.id } });
       }
       
       const response = await supertest(app.server)
@@ -262,7 +262,7 @@ describe('AdminController', () => {
       let company = await prisma.user.findFirst({ where: { role: 'COMPANY' } });
       if (!company) {
         const companyData = await createTestCompany(app, { email: 'company3@test.com' });
-        company = await prisma.user.findUnique({ where: { id: companyData.userId } });
+        company = await prisma.user.findUnique({ where: { id: companyData.user.id } });
       }
       const companyProfile = await prisma.companyProfile.findFirst({ where: { userId: company!.id } });
       await prisma.offer.create({
@@ -289,7 +289,7 @@ describe('AdminController', () => {
       let company = await prisma.user.findFirst({ where: { role: 'COMPANY' } });
       if (!company) {
         const companyData = await createTestCompany(app, { email: 'company4@test.com' });
-        company = await prisma.user.findUnique({ where: { id: companyData.userId } });
+        company = await prisma.user.findUnique({ where: { id: companyData.user.id } });
       }
       const companyProfile = await prisma.companyProfile.findFirst({ where: { userId: company!.id } });
       await prisma.offer.create({
@@ -316,7 +316,7 @@ describe('AdminController', () => {
       let company = await prisma.user.findFirst({ where: { role: 'COMPANY' } });
       if (!company) {
         const companyData = await createTestCompany(app, { email: 'company5@test.com' });
-        company = await prisma.user.findUnique({ where: { id: companyData.userId } });
+        company = await prisma.user.findUnique({ where: { id: companyData.user.id } });
       }
       const companyProfile = await prisma.companyProfile.findFirst({ where: { userId: company!.id } });
       const offer = await prisma.offer.create({
@@ -346,7 +346,7 @@ describe('AdminController', () => {
       let company = await prisma.user.findFirst({ where: { role: 'COMPANY' } });
       if (!company) {
         const companyData = await createTestCompany(app, { email: 'company6@test.com' });
-        company = await prisma.user.findUnique({ where: { id: companyData.userId } });
+        company = await prisma.user.findUnique({ where: { id: companyData.user.id } });
       }
       const companyProfile = await prisma.companyProfile.findFirst({ where: { userId: company!.id } });
       const offer = await prisma.offer.create({
@@ -378,7 +378,7 @@ describe('AdminController', () => {
       let student = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
       if (!student) {
         const studentData = await createTestStudent(app, { email: 'student7@test.com' });
-        student = await prisma.user.findUnique({ where: { id: studentData.userId } });
+        student = await prisma.user.findUnique({ where: { id: studentData.user.id } });
       }
       
       const response = await supertest(app.server)
@@ -425,13 +425,13 @@ describe('AdminController', () => {
       let student = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
       if (!student) {
         const studentData = await createTestStudent(app, { email: 'student8@test.com' });
-        student = await prisma.user.findUnique({ where: { id: studentData.userId } });
+        student = await prisma.user.findUnique({ where: { id: studentData.user.id } });
       }
       
       let company = await prisma.user.findFirst({ where: { role: 'COMPANY' } });
       if (!company) {
         const companyData = await createTestCompany(app, { email: 'company7@test.com' });
-        company = await prisma.user.findUnique({ where: { id: companyData.userId } });
+        company = await prisma.user.findUnique({ where: { id: companyData.user.id } });
       }
       
       // Create conversation participants first

@@ -273,7 +273,7 @@ export const createMessageInConversation = async (
         if (conversation.adoptionRequest.status === 'REJECTED') {
           return reply.code(403).send({ message: 'This adoption request has been rejected and the conversation is now read-only.' });
         }
-        if (conversation.adoptionRequest.status === 'PENDING' || conversation.adoptionRequest.status === 'PENDING_APPROVAL') {
+        if (conversation.adoptionRequest.status === 'PENDING') {
           // Only the student can send messages while pending (to accept/reject)
           if (senderRole !== 'STUDENT') {
             return reply.code(403).send({ message: 'You can only send messages after the student responds to the adoption request.' });
@@ -312,7 +312,7 @@ export const createMessageInConversation = async (
     if (!conversation.isBroadcast && 
         conversation.context === 'ADOPTION_REQUEST' && 
         conversation.adoptionRequest && 
-        (conversation.adoptionRequest.status === 'PENDING' || conversation.adoptionRequest.status === 'PENDING_APPROVAL') && 
+        conversation.adoptionRequest.status === 'PENDING' && 
         senderRole === 'STUDENT') {
       
       // Update adoption request status to ACCEPTED

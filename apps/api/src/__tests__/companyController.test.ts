@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { buildTestApp } from '../helpers/test-app';
 import type { FastifyInstance } from 'fastify';
 import { prisma } from 'db-postgres';
@@ -83,7 +83,7 @@ describe('Company Controller', () => {
     test('should handle database errors gracefully', async () => {
       // Mock a database error by overriding the findMany method
       const originalFindMany = prisma.companyProfile.findMany;
-      prisma.companyProfile.findMany = () => Promise.reject(new Error('Database error'));
+      prisma.companyProfile.findMany = () => Promise.reject(new Error('Database error')) as any;
 
       const response = await app.inject({
         method: 'GET',
@@ -156,7 +156,7 @@ describe('Company Controller', () => {
     test('should return 500 on database error', async () => {
       // Mock a database error by overriding the findUnique method
       const originalFindUnique = prisma.companyProfile.findUnique;
-      prisma.companyProfile.findUnique = () => Promise.reject(new Error('Database error'));
+      prisma.companyProfile.findUnique = () => Promise.reject(new Error('Database error')) as any;
 
       const response = await app.inject({
         method: 'GET',
