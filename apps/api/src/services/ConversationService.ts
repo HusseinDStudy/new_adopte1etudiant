@@ -220,6 +220,98 @@ export class ConversationService {
   }
 
   /**
+   * Get broadcast conversations for a user based on their role
+   */
+  async getBroadcastConversationsForUser(userId: string, options: {
+    page?: number;
+    limit?: number;
+  } = {}) {
+    const { page = 1, limit = 20 } = options;
+    const skip = (page - 1) * limit;
+
+    // Get user info to determine role
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true }
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const whereClause = {
+      isBroadcast: true,
+      OR: [
+        { broadcastTarget: 'ALL' },
+        { broadcastTarget: user.role === 'STUDENT' ? 'STUDENTS' : user.role === 'COMPANY' ? 'COMPANIES' : null }
+      ].filter(Boolean) as any
+    };
+
+    const [conversations, total] = await Promise.all([
+      prisma.conversation.findMany({
+        where: whereClause,
+        include: {
+          participants: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  role: true
+                }
+              }
+            }
+          },
+          messages: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            include: {
+              sender: {
+                select: {
+                  id: true,
+                  email: true,
+                  role: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: { updatedAt: 'desc' },
+        skip,
+        take: limit
+      }),
+      prisma.conversation.count({ where: whereClause as any })
+    ]);
+
+    return {
+      conversations: conversations.map(conv => ({
+        id: conv.id,
+        topic: conv.topic,
+        isReadOnly: conv.isReadOnly,
+        isBroadcast: conv.isBroadcast,
+        broadcastTarget: conv.broadcastTarget,
+        context: conv.context,
+        status: conv.status,
+        expiresAt: conv.expiresAt,
+        participants: conv.participants,
+        lastMessage: conv.messages[0] || null,
+        updatedAt: conv.updatedAt,
+        createdAt: conv.createdAt,
+        contextDetails: {
+          type: 'broadcast',
+          target: conv.broadcastTarget
+        }
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
+
+  /**
    * Check if a conversation is accessible for messaging
    */
   async isConversationAccessible(conversationId: string, userId: string): Promise<{

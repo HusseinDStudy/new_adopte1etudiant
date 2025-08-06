@@ -335,24 +335,48 @@ export class AdminService {
     });
   }
 
-  async sendBroadcastMessage(adminId: string, message: string, recipientIds: string[]): Promise<void> {
-    const recipient = await prisma.user.findUnique({
-      where: { id: recipientIds[0] }
-    });
+  async sendBroadcastMessage(adminId: string, message: string, targetRole?: 'STUDENT' | 'COMPANY'): Promise<{
+    conversationId: string;
+    sentTo: number;
+  }> {
+    // Determine broadcast target based on role
+    let broadcastTarget: 'ALL' | 'STUDENTS' | 'COMPANIES';
+    let userFilter: any = { isActive: true };
 
-    if (!recipient) {
-      throw new Error('Recipient not found');
+    if (targetRole === 'STUDENT') {
+      broadcastTarget = 'STUDENTS';
+      userFilter.role = 'STUDENT';
+    } else if (targetRole === 'COMPANY') {
+      broadcastTarget = 'COMPANIES';
+      userFilter.role = 'COMPANY';
+    } else {
+      broadcastTarget = 'ALL';
+      // No additional filter for ALL
     }
 
+    // Get all target users
+    const targetUsers = await prisma.user.findMany({
+      where: userFilter,
+      select: { id: true }
+    });
+
+    if (targetUsers.length === 0) {
+      throw new Error(`No users found for target role: ${targetRole || 'ALL'}`);
+    }
+
+    // Create broadcast conversation
     const conversation = await prisma.conversation.create({
       data: {
         topic: 'Broadcast Message',
         context: 'BROADCAST',
         status: 'ACTIVE',
+        isBroadcast: true,
+        broadcastTarget,
+        isReadOnly: true, // Broadcast conversations are read-only for non-admins
         participants: {
           create: [
-            { userId: adminId },
-            ...recipientIds.map(id => ({ userId: id }))
+            { userId: adminId }, // Admin as creator
+            ...targetUsers.map(user => ({ userId: user.id }))
           ]
         },
         messages: {
@@ -363,6 +387,11 @@ export class AdminService {
         }
       },
     });
+
+    return {
+      conversationId: conversation.id,
+      sentTo: targetUsers.length
+    };
   }
 
   async getAdminConversations(adminId: string, filters: {

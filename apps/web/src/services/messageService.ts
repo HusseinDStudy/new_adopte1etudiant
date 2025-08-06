@@ -92,6 +92,19 @@ export const getMyConversations = async (params: {
   return data;
 };
 
+export const getBroadcastConversations = async (params: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<ConversationResponse> => {
+  const searchParams = new URLSearchParams();
+  
+  if (params.page) searchParams.append('page', params.page.toString());
+  if (params.limit) searchParams.append('limit', params.limit.toString());
+
+  const { data } = await apiClient.get('/messages/broadcasts', { params: searchParams });
+  return data;
+};
+
 export const getMessagesForConversation = async (conversationId: string): Promise<MessagesResponse> => {
   const { data } = await apiClient.get(`/messages/conversations/${conversationId}`);
   return data;

@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { Role } from '@prisma/client';
 import { AdminService } from '../services/AdminService.js';
+import { prisma } from 'db-postgres';
 
 const adminService = new AdminService();
 
@@ -199,15 +200,38 @@ export const sendAdminMessage = asyncHandler(async (
   const { recipientId, subject, content, isReadOnly = false } = request.body;
   const senderId = (request as any).user.id;
 
-  await adminService.sendBroadcastMessage(senderId, content, [recipientId]);
+  // Create a direct message conversation
+  const conversation = await prisma.conversation.create({
+    data: {
+      topic: subject,
+      context: 'ADMIN_MESSAGE',
+      status: 'ACTIVE',
+      isReadOnly: isReadOnly || false,
+      participants: {
+        create: [
+          { userId: senderId },
+          { userId: recipientId }
+        ]
+      },
+      messages: {
+        create: {
+          senderId: senderId,
+          content: content,
+        }
+      }
+    },
+  });
 
-  return reply.send({ success: true });
+  return reply.send({ 
+    success: true, 
+    conversationId: conversation.id 
+  });
 });
 
 export const sendBroadcastMessage = asyncHandler(async (
   request: FastifyRequest<{
     Body: {
-      targetRole?: Role;
+      targetRole?: 'STUDENT' | 'COMPANY';
       subject: string;
       content: string;
     }
@@ -217,11 +241,13 @@ export const sendBroadcastMessage = asyncHandler(async (
   const { targetRole, subject, content } = request.body;
   const senderId = (request as any).user.id;
 
-  // For now, we'll use the existing sendBroadcastMessage method
-  // In the future, we might want to create a separate method for broadcast messages
-  await adminService.sendBroadcastMessage(senderId, content, []);
+  const result = await adminService.sendBroadcastMessage(senderId, content, targetRole);
 
-  return reply.send({ success: true });
+  return reply.send({ 
+    success: true, 
+    conversationId: result.conversationId,
+    sentTo: result.sentTo
+  });
 });
 
 

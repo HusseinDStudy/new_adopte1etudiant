@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import {
   getMyConversations,
+  getBroadcastConversations,
   getMessagesForConversation,
   createMessageInConversation,
 } from '../controllers/messageController.js';
@@ -140,6 +141,114 @@ async function messageRoutes(server: FastifyInstance) {
       }
     }
   }, getMyConversations);
+
+  server.get('/broadcasts', {
+    schema: {
+      description: 'Get broadcast conversations for the current user',
+      tags: ['Messages'],
+      summary: 'Get broadcast conversations',
+      security: [{ cookieAuth: [] }],
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'integer', minimum: 1, default: 1 },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 }
+        }
+      },
+      response: {
+        200: {
+          description: 'List of broadcast conversations with pagination',
+          type: 'object',
+          properties: {
+            conversations: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  topic: { type: ['string', 'null'] },
+                  isReadOnly: { type: 'boolean' },
+                  isBroadcast: { type: 'boolean' },
+                  broadcastTarget: { type: ['string', 'null'] },
+                  context: { type: ['string', 'null'] },
+                  status: { type: ['string', 'null'] },
+                  expiresAt: { type: ['string', 'null'], format: 'date-time' },
+                  participants: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        userId: { type: 'string' },
+                        user: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'string' },
+                            email: { type: 'string' },
+                            role: { type: 'string' }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  lastMessage: {
+                    oneOf: [
+                      {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          content: { type: 'string' },
+                          senderId: { type: 'string' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          sender: {
+                            type: 'object',
+                            properties: {
+                              id: { type: 'string' },
+                              email: { type: 'string' },
+                              role: { type: 'string' }
+                            }
+                          }
+                        }
+                      },
+                      { type: 'null' }
+                    ]
+                  },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  contextDetails: {
+                    type: 'object',
+                    properties: {
+                      type: { type: 'string' },
+                      target: { type: ['string', 'null'] }
+                    }
+                  }
+                }
+              }
+            },
+            pagination: {
+              type: 'object',
+              properties: {
+                page: { type: 'integer' },
+                limit: { type: 'integer' },
+                total: { type: 'integer' },
+                totalPages: { type: 'integer' }
+              }
+            }
+          }
+        },
+        401: {
+          description: 'Not authenticated',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        },
+        500: {
+          description: 'Internal server error',
+          type: 'object',
+          properties: { message: { type: 'string' } }
+        }
+      }
+    }
+  }, getBroadcastConversations);
 
   server.get('/conversations/:conversationId', {
     schema: {

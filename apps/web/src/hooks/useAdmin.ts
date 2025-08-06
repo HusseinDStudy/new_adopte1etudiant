@@ -270,11 +270,12 @@ export const useAdminMessaging = () => {
     targetRole?: 'STUDENT' | 'COMPANY';
     subject: string;
     content: string;
-  }): Promise<void> => {
+  }): Promise<{ conversationId: string; sentTo: number }> => {
     try {
       setLoading(true);
       setError(null);
-      await sendBroadcastMessage(data);
+      const result = await sendBroadcastMessage(data);
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send broadcast message';
       setError(errorMessage);

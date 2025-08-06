@@ -173,8 +173,9 @@ export const sendBroadcastMessage = async (data: {
   targetRole?: 'STUDENT' | 'COMPANY';
   subject: string;
   content: string;
-}): Promise<void> => {
-  await apiClient.post('/admin/messages/broadcast', data);
+}): Promise<{ conversationId: string; sentTo: number }> => {
+  const { data: response } = await apiClient.post('/admin/messages/broadcast', data);
+  return response;
 };
 
 export const getAdminConversations = async (params: {

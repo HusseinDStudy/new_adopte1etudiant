@@ -46,6 +46,31 @@ export const getMyConversations = async (
   }
 };
 
+export const getBroadcastConversations = async (
+  request: FastifyRequest<{
+    Querystring: {
+      page?: string;
+      limit?: string;
+    }
+  }>,
+  reply: FastifyReply
+) => {
+  const { id: userId } = request.user!;
+  const { page = '1', limit = '20' } = request.query;
+
+  try {
+    const result = await conversationService.getBroadcastConversationsForUser(userId, {
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+
+    return reply.send(result);
+  } catch (error) {
+    console.error('Failed to get broadcast conversations:', error);
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+};
+
 export const getMessagesForConversation = async (
   request: FastifyRequest<{ Params: { conversationId: string } }>,
   reply: FastifyReply

@@ -58,7 +58,7 @@ const AdminMessagesPage: React.FC = () => {
     }
 
     try {
-      await sendBroadcast({
+      const result = await sendBroadcast({
         targetRole: broadcastRole,
         subject,
         content,
@@ -68,7 +68,7 @@ const AdminMessagesPage: React.FC = () => {
       setSubject('');
       setContent('');
       setBroadcastRole(undefined);
-      alert('Message diffusé avec succès !');
+      alert(`Message diffusé avec succès ! Envoyé à ${result.sentTo} utilisateur(s).`);
     } catch (error) {
       console.error('Error sending broadcast:', error);
       alert('Erreur lors de la diffusion du message');
