@@ -231,7 +231,7 @@ export const sendAdminMessage = asyncHandler(async (
 export const sendBroadcastMessage = asyncHandler(async (
   request: FastifyRequest<{
     Body: {
-      targetRole?: 'STUDENT' | 'COMPANY';
+      targetRole?: 'STUDENT' | 'COMPANY' | 'ALL';
       subject: string;
       content: string;
     }

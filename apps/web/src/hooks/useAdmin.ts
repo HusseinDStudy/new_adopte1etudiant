@@ -267,7 +267,7 @@ export const useAdminMessaging = () => {
   };
 
   const sendBroadcast = async (data: {
-    targetRole?: 'STUDENT' | 'COMPANY';
+    targetRole?: 'STUDENT' | 'COMPANY' | 'ALL';
     subject: string;
     content: string;
   }): Promise<{ conversationId: string; sentTo: number }> => {

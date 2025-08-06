@@ -170,11 +170,18 @@ export const sendAdminMessage = async (data: {
 };
 
 export const sendBroadcastMessage = async (data: {
-  targetRole?: 'STUDENT' | 'COMPANY';
+  targetRole?: 'STUDENT' | 'COMPANY' | 'ALL';
   subject: string;
   content: string;
 }): Promise<{ conversationId: string; sentTo: number }> => {
-  const { data: response } = await apiClient.post('/admin/messages/broadcast', data);
+  // Only include targetRole if it's defined
+  const requestData = {
+    subject: data.subject,
+    content: data.content,
+    ...(data.targetRole && { targetRole: data.targetRole })
+  };
+  
+  const { data: response } = await apiClient.post('/admin/messages/broadcast', requestData);
   return response;
 };
 

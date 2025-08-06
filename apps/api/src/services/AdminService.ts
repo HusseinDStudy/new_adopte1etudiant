@@ -335,7 +335,7 @@ export class AdminService {
     });
   }
 
-  async sendBroadcastMessage(adminId: string, message: string, targetRole?: 'STUDENT' | 'COMPANY'): Promise<{
+  async sendBroadcastMessage(adminId: string, message: string, targetRole?: 'STUDENT' | 'COMPANY' | 'ALL'): Promise<{
     conversationId: string;
     sentTo: number;
   }> {
@@ -364,29 +364,78 @@ export class AdminService {
       throw new Error(`No users found for target role: ${targetRole || 'ALL'}`);
     }
 
-    // Create broadcast conversation
-    const conversation = await prisma.conversation.create({
-      data: {
-        topic: 'Broadcast Message',
-        context: 'BROADCAST',
-        status: 'ACTIVE',
-        isBroadcast: true,
-        broadcastTarget,
-        isReadOnly: true, // Broadcast conversations are read-only for non-admins
-        participants: {
-          create: [
-            { userId: adminId }, // Admin as creator
-            ...targetUsers.map(user => ({ userId: user.id }))
-          ]
-        },
-        messages: {
-          create: {
-            senderId: adminId,
-            content: message,
-          }
+    // Create broadcast conversation with better error handling and connection management
+    let conversation: any = null;
+    try {
+      // First, create the conversation and message outside of a large transaction
+      conversation = await prisma.conversation.create({
+        data: {
+          topic: 'Broadcast Message',
+          context: 'BROADCAST',
+          status: 'ACTIVE',
+          isBroadcast: true,
+          broadcastTarget,
+          isReadOnly: true, // Broadcast conversations are read-only for non-admins
         }
-      },
-    });
+      });
+
+      // Create the message
+      await prisma.message.create({
+        data: {
+          conversationId: conversation.id,
+          senderId: adminId,
+          content: message,
+        }
+      });
+
+      // Create participants in smaller batches with individual transactions
+      const participantData = [
+        { conversationId: conversation.id, userId: adminId }, // Admin as creator
+        ...targetUsers.map(user => ({ conversationId: conversation.id, userId: user.id }))
+      ];
+
+      // Create participants in very small batches to avoid connection issues
+      const batchSize = 10; // Reduced batch size
+      let participantCreationErrors: any[] = [];
+      
+      for (let i = 0; i < participantData.length; i += batchSize) {
+        const batch = participantData.slice(i, i + batchSize);
+        
+        try {
+          await prisma.conversationParticipant.createMany({
+            data: batch,
+            skipDuplicates: true
+          });
+        } catch (batchError) {
+          console.error(`Failed to create batch ${i / batchSize + 1}:`, batchError);
+          participantCreationErrors.push(batchError);
+        }
+      }
+      
+      // If any participant creation failed, throw an error
+      if (participantCreationErrors.length > 0) {
+        throw new Error(`Failed to create ${participantCreationErrors.length} participant batches`);
+      }
+
+    } catch (error) {
+      console.error('Broadcast creation failed:', error);
+      
+      // If conversation was created but participants failed, clean up
+      if (conversation?.id) {
+        try {
+          await prisma.conversation.delete({
+            where: { id: conversation.id }
+          });
+        } catch (cleanupError) {
+          console.error('Failed to cleanup conversation:', cleanupError);
+        }
+      }
+      
+      if (error instanceof Error && error.message.includes('Server has closed the connection')) {
+        throw new Error('Database connection failed. Please try again.');
+      }
+      throw new Error('Failed to create broadcast message. Please try again.');
+    }
 
     return {
       conversationId: conversation.id,

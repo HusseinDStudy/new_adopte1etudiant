@@ -11,7 +11,7 @@ const AdminMessagesPage: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
   const [isReadOnly, setIsReadOnly] = useState(false);
-  const [broadcastRole, setBroadcastRole] = useState<'STUDENT' | 'COMPANY' | undefined>(undefined);
+  const [broadcastRole, setBroadcastRole] = useState<'STUDENT' | 'COMPANY' | 'ALL' | undefined>(undefined);
   const [searchConversations, setSearchConversations] = useState('');
 
   const { sendMessage, sendBroadcast, loading: messagingLoading } = useAdminMessaging();
@@ -59,7 +59,7 @@ const AdminMessagesPage: React.FC = () => {
 
     try {
       const result = await sendBroadcast({
-        targetRole: broadcastRole,
+        ...(broadcastRole && { targetRole: broadcastRole }),
         subject,
         content,
       });
@@ -304,10 +304,10 @@ const AdminMessagesPage: React.FC = () => {
                 <select
                   id="targetGroup"
                   value={broadcastRole || ''}
-                  onChange={(e) => setBroadcastRole(e.target.value as 'STUDENT' | 'COMPANY' | undefined)}
+                  onChange={(e) => setBroadcastRole(e.target.value as 'STUDENT' | 'COMPANY' | 'ALL' | undefined)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">Tous les utilisateurs</option>
+                  <option value="ALL">Tous les utilisateurs</option>
                   <option value="STUDENT">Étudiants uniquement</option>
                   <option value="COMPANY">Entreprises uniquement</option>
                 </select>

@@ -530,7 +530,7 @@ async function adminRoutes(server: FastifyInstance) {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            conversation: { type: 'object' }
+            conversationId: { type: 'string' }
           }
         },
         401: {
@@ -559,23 +559,23 @@ async function adminRoutes(server: FastifyInstance) {
       tags: ['Admin'],
       summary: 'Admin: Send broadcast message',
       security: [{ cookieAuth: [] }],
-      body: {
-        type: 'object',
-        properties: {
-          targetRole: { type: 'string', enum: ['STUDENT', 'COMPANY'] },
-          subject: { type: 'string' },
-          content: { type: 'string' }
+              body: {
+          type: 'object',
+          properties: {
+            targetRole: { type: 'string', enum: ['STUDENT', 'COMPANY', 'ALL'] },
+            subject: { type: 'string' },
+            content: { type: 'string' }
+          },
+          required: ['subject', 'content']
         },
-        required: ['subject', 'content']
-      },
       response: {
         200: {
           description: 'Broadcast message sent successfully',
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            sentTo: { type: 'integer' },
-            conversations: { type: 'array' }
+            conversationId: { type: 'string' },
+            sentTo: { type: 'integer' }
           }
         },
         401: {

@@ -57,15 +57,16 @@ describe('AdminController', () => {
     // Clean up test data before each test, but preserve users
     await prisma.message.deleteMany();
     await prisma.conversation.deleteMany();
+    await prisma.conversationParticipant.deleteMany();
     await prisma.application.deleteMany();
     await prisma.adoptionRequest.deleteMany();
     await prisma.offer.deleteMany();
     await prisma.blogPost.deleteMany();
     await prisma.blogCategory.deleteMany();
     
-    // Ensure we have test users for each test
-    const existingStudent = await prisma.user.findFirst({ where: { role: 'STUDENT' } });
-    const existingCompany = await prisma.user.findFirst({ where: { role: 'COMPANY' } });
+    // Ensure we have test users for each test with proper active status
+    const existingStudent = await prisma.user.findFirst({ where: { role: 'STUDENT', isActive: true } });
+    const existingCompany = await prisma.user.findFirst({ where: { role: 'COMPANY', isActive: true } });
     
     if (!existingStudent) {
       await createTestStudent(app, { email: 'student2@test.com' });
@@ -73,6 +74,48 @@ describe('AdminController', () => {
     if (!existingCompany) {
       await createTestCompany(app, { email: 'company2@test.com' });
     }
+    
+    // Ensure admin user exists and is active, and refresh the token
+    let adminUser = await prisma.user.findFirst({ where: { role: 'ADMIN', isActive: true } });
+    
+    if (!adminUser) {
+      // Create admin user if it doesn't exist with proper password
+      const registerResponse = await supertest(app.server)
+        .post('/api/auth/register')
+        .send({
+          email: 'admin@test.com',
+          password: 'Password123!',
+          role: 'COMPANY', // Register as COMPANY first
+          name: 'Admin Company',
+          contactEmail: 'admin@test.com'
+        });
+
+      if (registerResponse.status !== 201) {
+        throw new Error(`Admin registration failed: ${registerResponse.status}`);
+      }
+
+      // Update user role to ADMIN
+      await prisma.user.update({
+        where: { email: 'admin@test.com' },
+        data: { role: 'ADMIN' }
+      });
+    } else {
+      // Ensure admin user is active
+      await prisma.user.updateMany({
+        where: { role: 'ADMIN' },
+        data: { isActive: true }
+      });
+    }
+    
+    // Refresh admin auth token to ensure it's valid
+    const loginResponse = await supertest(app.server)
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@test.com',
+        password: 'Password123!'
+      });
+    
+    adminAuthToken = loginResponse.headers['set-cookie']?.[0]?.split(';')[0]?.replace('token=', '') || '';
   });
 
   afterAll(async () => {
@@ -391,32 +434,84 @@ describe('AdminController', () => {
           subject: 'Test Subject'
         });
 
-      // The admin message endpoint might have foreign key constraints
-      expect([201, 400]).toContain(response.status);
-      if (response.status === 201) {
-        expect(response.body).toHaveProperty('id');
-        expect(response.body.content).toBe('Test admin message');
-      }
+      // The admin message endpoint returns 200 with success and conversationId
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body).toHaveProperty('conversationId');
+      expect(typeof response.body.conversationId).toBe('string');
     });
   });
 
   describe('sendBroadcastMessage', () => {
-    test('should send broadcast message successfully', async () => {
+    test('should send broadcast message to students successfully', async () => {
       const response = await supertest(app.server)
-        .post('/api/admin/broadcast')
+        .post('/api/admin/messages/broadcast')
         .set('Cookie', `token=${adminAuthToken}`)
         .send({
-          content: 'Test broadcast message',
-          subject: 'Test Broadcast',
+          content: 'Test broadcast message to students',
+          subject: 'Test Broadcast to Students',
           targetRole: 'STUDENT'
         });
 
-      // The broadcast endpoint might not exist yet, so we'll accept either 201 or 404
-      expect([201, 404]).toContain(response.status);
-      if (response.status === 201) {
-        expect(response.body).toHaveProperty('id');
-        expect(response.body.content).toBe('Test broadcast message');
-      }
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body).toHaveProperty('conversationId');
+      expect(response.body).toHaveProperty('sentTo');
+      expect(typeof response.body.sentTo).toBe('number');
+      expect(response.body.sentTo).toBeGreaterThan(0);
+    });
+
+    test('should send broadcast message to companies successfully', async () => {
+      const response = await supertest(app.server)
+        .post('/api/admin/messages/broadcast')
+        .set('Cookie', `token=${adminAuthToken}`)
+        .send({
+          content: 'Test broadcast message to companies',
+          subject: 'Test Broadcast to Companies',
+          targetRole: 'COMPANY'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body).toHaveProperty('conversationId');
+      expect(response.body).toHaveProperty('sentTo');
+      expect(typeof response.body.sentTo).toBe('number');
+      expect(response.body.sentTo).toBeGreaterThan(0);
+    });
+
+    test('should send broadcast message to all users successfully', async () => {
+      const response = await supertest(app.server)
+        .post('/api/admin/messages/broadcast')
+        .set('Cookie', `token=${adminAuthToken}`)
+        .send({
+          content: 'Test broadcast message to all users',
+          subject: 'Test Broadcast to All',
+          targetRole: 'ALL'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body).toHaveProperty('conversationId');
+      expect(response.body).toHaveProperty('sentTo');
+      expect(typeof response.body.sentTo).toBe('number');
+      expect(response.body.sentTo).toBeGreaterThan(0);
+    });
+
+    test('should send broadcast message without targetRole (defaults to ALL)', async () => {
+      const response = await supertest(app.server)
+        .post('/api/admin/messages/broadcast')
+        .set('Cookie', `token=${adminAuthToken}`)
+        .send({
+          content: 'Test broadcast message without target role',
+          subject: 'Test Broadcast Default'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body).toHaveProperty('conversationId');
+      expect(response.body).toHaveProperty('sentTo');
+      expect(typeof response.body.sentTo).toBe('number');
+      expect(response.body.sentTo).toBeGreaterThan(0);
     });
   });
 
