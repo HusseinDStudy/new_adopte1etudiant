@@ -117,6 +117,8 @@ const transformBlogPost = (post: any): BlogPost => {
     readTimeMinutes: post.readTimeMinutes,
     // Ensure status is set
     status: post.status || 'DRAFT',
+    // Ensure contentFormat is set (default to HTML if not specified)
+    contentFormat: post.contentFormat || 'HTML',
   };
 };
 

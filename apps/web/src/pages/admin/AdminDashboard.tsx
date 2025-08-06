@@ -2,11 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Users, Building2, Briefcase, TrendingUp, Eye, Plus, Edit } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { useBlogPosts } from '../../hooks/useBlog';
+import { useAdminBlogPosts } from '../../hooks/useBlog';
 import { useAdminStats } from '../../hooks/useAdmin';
 
 const AdminDashboard: React.FC = () => {
-  const { posts, loading: postsLoading } = useBlogPosts({ limit: 5 });
+  const { posts, loading: postsLoading } = useAdminBlogPosts({ limit: 5 });
   const { stats, loading: statsLoading } = useAdminStats();
 
   const dashboardStats = [

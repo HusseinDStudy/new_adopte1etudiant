@@ -185,7 +185,7 @@ export const sanitizationMiddleware = (
       checkInputLengths(request.body);
 
       // Sanitize the request body with skip fields
-      const skipFields = ['skills', 'message'];
+      const skipFields = ['skills', 'message', 'firstName', 'lastName', 'name'];
       request.body = sanitizeObject(request.body, skipFields);
     }
 

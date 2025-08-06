@@ -49,6 +49,8 @@ import AboutPage from './pages/AboutPage';
 import TeamPage from './pages/TeamPage';
 import MissionsPage from './pages/MissionsPage';
 import PartnersPage from './pages/PartnersPage';
+import BlogPage from './pages/blog/BlogPage';
+import BlogPostPage from './pages/blog/BlogPostPage';
 
 
 
@@ -90,6 +92,8 @@ function App() {
           <Route path="/team" element={<TeamPage />} />
           <Route path="/missions" element={<MissionsPage />} />
           <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/cookies" element={<CookiesPage />} />

@@ -227,6 +227,22 @@ export class OfferService {
       throw new NotFoundError('Offer not found');
     }
 
+    // Check if user is the owner of the offer (company user)
+    let isOwner = false;
+    if (user?.role === 'COMPANY') {
+      const companyProfile = await prisma.companyProfile.findUnique({
+        where: { userId: user.id }
+      });
+      if (companyProfile && companyProfile.id === offer.companyId) {
+        isOwner = true;
+      }
+    }
+
+    // Only allow access to inactive offers for admin users or the offer owner
+    if (!offer.isActive && user?.role !== 'ADMIN' && !isOwner) {
+      throw new NotFoundError('Offer not found');
+    }
+
     if (user?.role === 'STUDENT') {
       const studentProfile = await prisma.studentProfile.findUnique({
         where: { userId: user.id },

@@ -32,6 +32,7 @@ export interface UserListFilters {
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  isActive?: boolean;
 }
 
 export interface UserListResult {
@@ -145,12 +146,16 @@ export class AdminService {
   }
 
   async getUsers(filters: UserListFilters): Promise<UserListResult> {
-    const { role, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = filters;
+    const { role, search, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', isActive } = filters;
 
     const whereClause: any = {};
     
     if (role) {
       whereClause.role = role;
+    }
+
+    if (isActive !== undefined) {
+      whereClause.isActive = isActive;
     }
 
     if (search) {

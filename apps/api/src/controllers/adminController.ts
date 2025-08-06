@@ -36,6 +36,7 @@ export const getAdminUsers = asyncHandler(async (
     limit: parseInt(limit),
     search,
     role: role as Role | undefined,
+    isActive: isActive !== undefined ? isActive === 'true' : undefined,
   };
 
   const result = await adminService.getUsers(filters);
