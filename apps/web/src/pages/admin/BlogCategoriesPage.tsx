@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, Tag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useBlogCategories, useCategoryMutations } from '../../hooks/useBlog';
 import { CreateBlogCategoryInput } from '../../services/blogService';
 
 const BlogCategoriesPage: React.FC = () => {
+  const { t } = useTranslation();
   const { categories, loading, error, refetch } = useBlogCategories();
   const { createCategory, updateCategory, deleteCategory } = useCategoryMutations();
   
@@ -48,7 +50,7 @@ const BlogCategoriesPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la catégorie "${name}" ?`)) {
+    if (window.confirm(t('adminCategories.confirmDelete', { name }))) {
       try {
         await deleteCategory(id);
         refetch();
@@ -86,15 +88,15 @@ const BlogCategoriesPage: React.FC = () => {
 
   return (
     <AdminLayout
-      title="Catégories de blog"
-      subtitle="Gérez les catégories de vos articles de blog"
+      title={t('adminCategories.title')}
+      subtitle={t('adminCategories.subtitle')}
     >
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <h2 className="text-lg font-medium text-gray-900">
-              {categories.length} catégorie{categories.length !== 1 ? 's' : ''}
+              {t('adminCategories.count', { count: categories.length })}
             </h2>
           </div>
           
@@ -107,7 +109,7 @@ const BlogCategoriesPage: React.FC = () => {
             className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Nouvelle catégorie
+            {t('adminCategories.newCategory')}
           </button>
         </div>
 
@@ -115,22 +117,22 @@ const BlogCategoriesPage: React.FC = () => {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement des catégories...</p>
+            <p className="text-gray-600">{t('loading.loadingCategories')}</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <p className="text-red-600 mb-4">Erreur lors du chargement des catégories</p>
+            <p className="text-red-600 mb-4">{t('errors.loadingCategoriesError')}</p>
             <button
               onClick={refetch}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Réessayer
+              {t('common.retry')}
             </button>
           </div>
         ) : categories.length === 0 ? (
           <div className="text-center py-12">
             <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">Aucune catégorie trouvée</p>
+            <p className="text-gray-600 mb-4">{t('blog.noArticlesFound')}</p>
             <button
               onClick={() => {
                 resetForm();
@@ -140,7 +142,7 @@ const BlogCategoriesPage: React.FC = () => {
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Créer la première catégorie
+              {t('adminCategories.createFirst')}
             </button>
           </div>
         ) : (
@@ -162,14 +164,14 @@ const BlogCategoriesPage: React.FC = () => {
                     <button
                       onClick={() => handleEdit(category)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Modifier"
+                      title={t('common.edit')}
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(category.id, category.name)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Supprimer"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -193,13 +195,13 @@ const BlogCategoriesPage: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingCategory ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
+                {editingCategory ? t('adminCategories.editCategory') : t('adminCategories.newCategory')}
               </h3>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nom *
+                    {t('forms.name')} *
                   </label>
                   <input
                     type="text"
@@ -207,7 +209,7 @@ const BlogCategoriesPage: React.FC = () => {
                     value={formData.name}
                     onChange={handleNameChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Nom de la catégorie"
+                    placeholder={t('adminCategories.namePlaceholder')}
                     required
                   />
                 </div>
@@ -229,7 +231,7 @@ const BlogCategoriesPage: React.FC = () => {
 
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
+                    {t('forms.description')}
                   </label>
                   <textarea
                     id="description"
@@ -237,13 +239,13 @@ const BlogCategoriesPage: React.FC = () => {
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Description de la catégorie"
+                    placeholder={t('adminCategories.descriptionPlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-2">
-                    Couleur
+                    {t('adminCategories.color')}
                   </label>
                   <input
                     type="color"
@@ -264,13 +266,13 @@ const BlogCategoriesPage: React.FC = () => {
                     }}
                     className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    Annuler
+                    {t('common.cancel')}
                   </button>
                   <button
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    {editingCategory ? 'Mettre à jour' : 'Créer'}
+                    {editingCategory ? t('common.update') : t('common.create')}
                   </button>
                 </div>
               </form>

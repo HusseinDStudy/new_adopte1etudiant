@@ -1,13 +1,9 @@
 import React from 'react';
-import DashboardSidebar from '../../components/dashboard/DashboardSidebar';
+import SidebarLayout from '../../components/layout/SidebarLayout';
 
 const StudentProfilePage: React.FC = () => {
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <DashboardSidebar userRole="STUDENT" />
-      
-      {/* Main content */}
+    <SidebarLayout>
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           {/* Header */}
@@ -148,7 +144,7 @@ const StudentProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </SidebarLayout>
   );
 };
 

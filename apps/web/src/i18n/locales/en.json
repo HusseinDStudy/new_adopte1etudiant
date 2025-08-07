@@ -29,7 +29,22 @@
     "nextPage": "Next page",
     "page": "Page {{page}}",
     "showingResults": "Showing {{start}} to {{end}} of {{total}} results",
-    "pleaseTryAgain": "Please try again."
+    "pleaseTryAgain": "Please try again.",
+    "retry": "Retry",
+    "update": "Update",
+    "view": "View"
+  },
+  "adminOffers": {
+    "title": "Offer Management",
+    "subtitle": "Manage all platform job offers",
+    "allStatuses": "All statuses",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "confirmDelete": "Are you sure you want to permanently delete the offer \"{{title}}\"? This action is irreversible.",
+    "count": "{{count}} offer",
+    "count_plural": "{{count}} offers"
   },
   "loading": {
     "loading": "Loading...",
@@ -45,6 +60,18 @@
     "loadingSkills": "Loading skills...",
     "loadingTypes": "Loading types...",
     "loadingOfferDetails": "Loading offer details..."
+  },
+  "adminCategories": {
+    "title": "Blog Categories",
+    "subtitle": "Manage blog post categories",
+    "count": "{{count}} category",
+    "count_plural": "{{count}} categories",
+    "newCategory": "New category",
+    "createFirst": "Create the first category",
+    "confirmDelete": "Are you sure you want to delete the category \"{{name}}\"?",
+    "namePlaceholder": "Category name",
+    "descriptionPlaceholder": "Category description",
+    "color": "Color"
   },
   "errors": {
     "error": "Error",
@@ -77,6 +104,7 @@
   "dates": {
     "format": "MM/dd/yyyy",
     "formatWithTime": "MM/dd/yyyy HH:mm",
+    "lastUpdated": "Last updated",
     "today": "Today",
     "yesterday": "Yesterday",
     "tomorrow": "Tomorrow",
@@ -163,7 +191,60 @@
     "conversationLoading": "Loading...",
     "conversationError": "Unable to load conversation"
   },
+  "adminBlog": {
+    "title": "Blog Articles",
+    "subtitle": "Manage all your blog posts",
+    "newPost": "New post",
+    "confirmDeletePost": "Are you sure you want to delete the post \"{{title}}\"?",
+    "table": {
+      "article": "Article",
+      "category": "Category",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "status": {
+      "all": "All statuses",
+      "published": "Published",
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "archived": "Archived"
+    },
+    "actions": {
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "feature": "Feature",
+      "unfeature": "Remove from featured"
+    }
+  },
+  "adminUsers": {
+    "title": "User Management",
+    "subtitle": "Manage all platform users",
+    "searchPlaceholder": "Search users...",
+    "allRoles": "All roles",
+    "admins": "Administrators",
+    "admin": "Administrator",
+    "allStatuses": "All statuses",
+    "active": "Active",
+    "inactive": "Inactive",
+    "never": "Never",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "confirmChangeRole": "Are you sure you want to change this user's role to {{role}}?",
+    "confirmDeleteUser": "Are you sure you want to permanently delete the user \"{{email}}\"? This action is irreversible.",
+    "count": "{{count}} user",
+    "count_plural": "{{count}} users",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "registeredAt": "Registered at",
+      "lastLogin": "Last login",
+      "actions": "Actions"
+    }
+  },
   "forms": {
+    "required": "This field is required",
     "subject": "Subject",
     "content": "Content",
     "message": "Message",
@@ -180,6 +261,7 @@
     "category": "Category",
     "tags": "Tags",
     "publish": "Publish",
+    "status": "Status",
     "draft": "Draft",
     "published": "Published",
     "unpublished": "Unpublished",
@@ -246,6 +328,10 @@
     "deletePost": "Delete post",
     "publishPost": "Publish post",
     "unpublishPost": "Unpublish post",
+    "readTime": "Read time",
+    "featuredImage": "Featured image",
+    "seoTitle": "SEO Title",
+    "seoDescription": "SEO Description",
     "postTitleRequired": "Cannot publish a post without a title.",
     "postExcerptRequired": "Cannot publish a post without an excerpt.",
     "postContentRequired": "Cannot publish a post without content."
@@ -326,6 +412,7 @@
     "loading": "Loading conversations...",
     "loadingBroadcasts": "Loading broadcast messages...",
     "error": "Error",
+    "searchPosts": "Search conversations",
     "noConversations": "You don't have any conversations yet.",
     "noConversationsWithFilters": "No conversations found with current filters.",
     "noBroadcasts": "No broadcast messages received.",
@@ -421,7 +508,46 @@
     "notifications": "Notifications",
     "settings": "Settings",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "newUsersToday": "New users today",
+    "newOffersToday": "New offers today",
+    "newApplicationsToday": "New applications today",
+    "totalAdoptionRequests": "Total adoption requests",
+    "stats": {
+      "blogPosts": "Blog posts",
+      "users": "Users",
+      "companies": "Companies",
+      "activeOffers": "Active offers"
+    }
+  },
+  "roles": {
+    "student": "Students",
+    "company": "Companies",
+    "admin": "Administrators"
+  },
+  "analytics": {
+    "ofTotal": "of total",
+    "main": {
+      "totalUsers": "Total users",
+      "students": "Students",
+      "companies": "Companies",
+      "offers": "Job offers",
+      "applications": "Applications",
+      "adoptionRequests": "Adoption requests",
+      "blogPosts": "Blog posts"
+    },
+    "today": {
+      "newUsers": "New users",
+      "newOffers": "New offers",
+      "newApplications": "New applications"
+    },
+    "offers": {
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "draft": "Draft"
+      }
+    }
   },
   "applications": {
     "status": "Status",
@@ -630,6 +756,7 @@
   "settings": {
     "title": "Settings",
     "savedSuccessfully": "Settings saved successfully!",
+    "created": "Created",
     "notifications": "Notifications",
     "emailNotifications": "Email notifications",
     "emailNotificationsDescription": "Receive notifications via email",

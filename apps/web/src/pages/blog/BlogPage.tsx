@@ -249,7 +249,7 @@ const BlogPage = () => {
               >
                 <option value="">{t('blog.allCategories')}</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.slug}>
+                  <option key={category.id} value={category.name}>
                     {category.name}
                   </option>
                 ))}
