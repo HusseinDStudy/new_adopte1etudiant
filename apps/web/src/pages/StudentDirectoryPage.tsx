@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useStudents } from '../hooks/useStudents';
 import { useStudentFilters } from '../hooks/useStudentFilters';
@@ -11,6 +12,7 @@ type SortOption = 'recent' | 'skills' | 'school';
 
 const StudentDirectoryPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [requestingStudentId, setRequestingStudentId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,17 +130,17 @@ const StudentDirectoryPage: React.FC = () => {
     const trimmedMessage = message.trim();
 
     if (!trimmedMessage) {
-      alert('A message is required to send a request.');
+      alert(t('studentDirectory.messageRequired'));
       return;
     }
 
     if (trimmedMessage.length < 10) {
-      alert('Message must be at least 10 characters long.');
+      alert(t('studentDirectory.messageTooShort'));
       return;
     }
 
     if (trimmedMessage.length > 1000) {
-      alert('Message must be no more than 1000 characters long.');
+      alert(t('studentDirectory.messageTooLong'));
       return;
     }
 
@@ -146,15 +148,15 @@ const StudentDirectoryPage: React.FC = () => {
       setRequestingStudentId(studentId);
       await sendAdoptionRequest(studentId, trimmedMessage);
       setRequestingStudentId(null);
-      alert('Adoption request sent successfully!');
+      alert(t('studentDirectory.requestSentSuccess'));
     } catch (err: any) {
       console.error('Failed to send adoption request', err);
 
       // Handle specific error cases
       if (err.message?.includes('already sent')) {
-        alert('You have already sent an adoption request to this student. Check your sent requests to view the conversation.');
+        alert(t('studentDirectory.alreadySentRequest'));
       } else {
-        alert(err.message || 'Failed to send adoption request.');
+        alert(err.message || t('studentDirectory.requestFailed'));
       }
 
       setRequestingStudentId(null);
@@ -171,15 +173,15 @@ const StudentDirectoryPage: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Accès Restreint</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('studentDirectory.accessDenied')}</h2>
           <p className="text-gray-600 mb-6">
-            Cette page est réservée aux profils d'entreprise. Seules les entreprises peuvent consulter le répertoire des étudiants.
+            {t('studentDirectory.accessDeniedDescription')}
           </p>
           <button
             onClick={() => navigate('/')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
           >
-            Retour à l'accueil
+            {t('studentDirectory.backToHome')}
           </button>
         </div>
       </div>
@@ -191,7 +193,7 @@ const StudentDirectoryPage: React.FC = () => {
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des étudiants...</p>
+          <p className="mt-4 text-gray-600">{t('studentDirectory.loadingStudents')}</p>
         </div>
       </div>
     );
@@ -203,18 +205,18 @@ const StudentDirectoryPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Étudiants à Adopter</h1>
-            <p className="text-gray-600 mt-2">Trouvez le talent qui correspond à vos besoins</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('studentDirectory.title')}</h1>
+            <p className="text-gray-600 mt-2">{t('studentDirectory.subtitle')}</p>
           </div>
           <button
             onClick={refreshRequestedStudents}
             className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
-            title="Actualiser le statut des demandes"
+            title={t('studentDirectory.refreshTooltip')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span>Actualiser</span>
+            <span>{t('studentDirectory.refresh')}</span>
           </button>
         </div>
       </div>

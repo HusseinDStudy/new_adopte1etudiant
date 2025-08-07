@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import SidebarLayout from '../components/layout/SidebarLayout';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -32,23 +34,23 @@ const SettingsPage: React.FC = () => {
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    alert('Settings saved successfully!');
+    alert(t('settings.savedSuccessfully'));
   };
 
   return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Settings</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('settings.title')}</h1>
         
         <div className="space-y-6">
           {/* Notifications Section */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Notifications</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.notifications')}</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Email Notifications</label>
-                  <p className="text-sm text-gray-500">Receive notifications via email</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.emailNotifications')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.emailNotificationsDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -60,8 +62,8 @@ const SettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Push Notifications</label>
-                  <p className="text-sm text-gray-500">Receive push notifications in browser</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.pushNotifications')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.pushNotificationsDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -73,8 +75,8 @@ const SettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Marketing Emails</label>
-                  <p className="text-sm text-gray-500">Receive marketing and promotional emails</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.marketingEmails')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.marketingEmailsDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -88,12 +90,12 @@ const SettingsPage: React.FC = () => {
 
           {/* Privacy Section */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Privacy</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.privacy')}</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Profile Visibility</label>
-                  <p className="text-sm text-gray-500">Make your profile visible to other users</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.profileVisibility')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.profileVisibilityDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -105,8 +107,8 @@ const SettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Show Email</label>
-                  <p className="text-sm text-gray-500">Display your email address on your profile</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.showEmail')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.showEmailDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -118,8 +120,8 @@ const SettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Show Phone</label>
-                  <p className="text-sm text-gray-500">Display your phone number on your profile</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.showPhone')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.showPhoneDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -133,21 +135,21 @@ const SettingsPage: React.FC = () => {
 
           {/* Account Section */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Account</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('settings.account')}</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-900">Email</label>
+                <label className="text-sm font-medium text-gray-900">{t('settings.email')}</label>
                 <p className="text-sm text-gray-500">{user?.email}</p>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-900">Role</label>
+                <label className="text-sm font-medium text-gray-900">{t('settings.role')}</label>
                 <p className="text-sm text-gray-500 capitalize">{user?.role?.toLowerCase()}</p>
               </div>
               
               <div className="pt-4 border-t border-gray-200">
                 <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-                  Delete Account
+                  {t('settings.deleteAccount')}
                 </button>
               </div>
             </div>
@@ -159,7 +161,7 @@ const SettingsPage: React.FC = () => {
               onClick={handleSave}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium"
             >
-              Save Settings
+              {t('settings.saveSettings')}
             </button>
           </div>
         </div>

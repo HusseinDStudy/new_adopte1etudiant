@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getMyAdoptionRequests, updateAdoptionRequestStatus } from '../services/adoptionRequestService';
 import SidebarLayout from '../components/layout/SidebarLayout';
 
@@ -25,6 +26,7 @@ interface AdoptionRequest {
 }
 
 const MyAdoptionRequestsPage: React.FC = () => {
+    const { t } = useTranslation();
     const [requests, setRequests] = useState<AdoptionRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -36,7 +38,7 @@ const MyAdoptionRequestsPage: React.FC = () => {
             const data = await getMyAdoptionRequests();
             setRequests(data);
         } catch (err) {
-            setError('Failed to fetch adoption requests.');
+            setError(t('adoptionRequests.failedToFetch'));
             console.error(err);
         } finally {
             setLoading(false);
@@ -45,7 +47,7 @@ const MyAdoptionRequestsPage: React.FC = () => {
 
     useEffect(() => {
         fetchRequests();
-    }, []);
+    }, [t]);
 
     const handleStatusUpdate = async (id: string, status: string) => {
         setUpdating(id);
@@ -54,7 +56,7 @@ const MyAdoptionRequestsPage: React.FC = () => {
             await fetchRequests();
         } catch (err) {
             console.error('Failed to update request status', err);
-            alert('Failed to update status. Please try again.');
+            alert(t('adoptionRequests.failedToUpdateStatus'));
         } finally {
             setUpdating(null);
         }
@@ -64,7 +66,7 @@ const MyAdoptionRequestsPage: React.FC = () => {
         <SidebarLayout>
             <div className="container mx-auto">
                 <div className="flex justify-center items-center h-64">
-                    <div className="text-lg">Loading adoption requests...</div>
+                    <div className="text-lg">{t('adoptionRequests.loading')}</div>
                 </div>
             </div>
         </SidebarLayout>
@@ -74,13 +76,13 @@ const MyAdoptionRequestsPage: React.FC = () => {
         <SidebarLayout>
             <div className="container mx-auto">
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <strong>Error:</strong> {error}
+                    <strong>{t('adoptionRequests.error')}:</strong> {error}
                     <div className="mt-2">
                         <button
                             onClick={fetchRequests}
                             className="text-red-600 hover:text-red-800 underline"
                         >
-                            Try Again
+                            {t('adoptionRequests.tryAgain')}
                         </button>
                     </div>
                 </div>
@@ -91,11 +93,11 @@ const MyAdoptionRequestsPage: React.FC = () => {
     return (
         <SidebarLayout>
             <div className="container mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Adoption Requests</h1>
+            <h1 className="text-3xl font-bold mb-6">{t('adoptionRequests.title')}</h1>
             {requests.length === 0 ? (
                  <div className="text-center bg-white p-12 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold">No adoption requests yet.</h2>
-                    <p className="mt-2 text-gray-500">When a company is interested in you, you'll see their request here.</p>
+                    <h2 className="text-xl font-semibold">{t('adoptionRequests.noRequestsYet')}</h2>
+                    <p className="mt-2 text-gray-500">{t('adoptionRequests.noRequestsDescription')}</p>
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -106,11 +108,11 @@ const MyAdoptionRequestsPage: React.FC = () => {
                                     <h2 className="text-xl font-semibold">{req.company.name}</h2>
                                     {req.conversation && req.conversation.messages.length > 0 && (
                                         <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
-                                            <p className="text-sm text-gray-700 font-medium mb-1">Message from {req.company.name}:</p>
+                                            <p className="text-sm text-gray-700 font-medium mb-1">{t('adoptionRequests.messageFrom')} {req.company.name}:</p>
                                             <p className="text-sm text-gray-800">"{req.conversation.messages[0].content}"</p>
                                         </div>
                                     )}
-                                    <p className="text-gray-500 text-sm mt-3">Received on: {new Date(req.createdAt).toLocaleDateString()}</p>
+                                    <p className="text-gray-500 text-sm mt-3">{t('adoptionRequests.receivedOn')}: {new Date(req.createdAt).toLocaleDateString()}</p>
                                 </div>
                                 <div className="flex flex-col gap-3 md:items-end">
                                     {req.status === 'PENDING' ? (
@@ -120,14 +122,14 @@ const MyAdoptionRequestsPage: React.FC = () => {
                                                 disabled={updating === req.id}
                                                 className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
                                             >
-                                                {updating === req.id ? 'Accepting...' : 'Accept'}
+                                                {updating === req.id ? t('adoptionRequests.accepting') : t('adoptionRequests.accept')}
                                             </button>
                                             <button
                                                 onClick={() => handleStatusUpdate(req.id, 'REJECTED')}
                                                 disabled={updating === req.id}
                                                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50"
                                             >
-                                                {updating === req.id ? 'Rejecting...' : 'Reject'}
+                                                {updating === req.id ? t('adoptionRequests.rejecting') : t('adoptionRequests.reject')}
                                             </button>
                                         </div>
                                     ) : (
@@ -140,7 +142,7 @@ const MyAdoptionRequestsPage: React.FC = () => {
                                             {req.conversation && (req.status === 'ACCEPTED' || req.status === 'REJECTED') && (
                                                 <div className="mt-2">
                                                     <Link to={`/conversations/${req.conversation.id}`} className="text-sm text-indigo-600 hover:text-indigo-800">
-                                                        {req.status === 'ACCEPTED' ? 'View Conversation' : 'View Message'}
+                                                        {req.status === 'ACCEPTED' ? t('adoptionRequests.viewConversation') : t('adoptionRequests.viewMessage')}
                                                     </Link>
                                                 </div>
                                             )}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { getOfferById } from '../../services/offerService';
 import { listAvailableStudents } from '../../services/studentService';
@@ -28,6 +29,7 @@ interface Offer {
 
 const InviteStudentsPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
@@ -54,7 +56,7 @@ const InviteStudentsPage = () => {
         setFilteredStudents(studentsData);
         setAlreadyRequestedStudents(new Set(requestedStudentIds));
       } catch (err) {
-        setError('Failed to load data.');
+        setError(t('inviteStudents.failedToLoad'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -62,7 +64,7 @@ const InviteStudentsPage = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, t]);
 
   // Function to refresh requested students state
   const refreshRequestedStudents = async () => {
@@ -96,7 +98,7 @@ const InviteStudentsPage = () => {
     setError(''); // Clear any previous errors
 
     try {
-      await createAdoptionRequest(studentId, `Invitation to apply for: ${offer.title}`);
+      await createAdoptionRequest(studentId, `${t('inviteStudents.invitationMessage')} ${offer.title}`);
       // Successfully sent invitation
       setInvitedStudents(prev => new Set(prev).add(studentId));
       setAlreadyRequestedStudents(prev => new Set(prev).add(studentId));
@@ -111,7 +113,7 @@ const InviteStudentsPage = () => {
         // Don't show error for this case - it's expected behavior
       } else {
         // For other errors, show a user-friendly message
-        setError(`Failed to send invitation: ${err.message || 'Please try again.'}`);
+        setError(`${t('inviteStudents.failedToSendInvitation')}: ${err.message || t('common.pleaseTryAgain')}`);
       }
     } finally {
       setInvitingStudents(prev => {
@@ -144,7 +146,7 @@ const InviteStudentsPage = () => {
     <SidebarLayout>
       <div className="container mx-auto">
         <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading students...</div>
+          <div className="text-lg">{t('inviteStudents.loadingStudents')}</div>
         </div>
       </div>
     </SidebarLayout>
@@ -154,7 +156,7 @@ const InviteStudentsPage = () => {
     <SidebarLayout>
       <div className="container mx-auto">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <strong>Error:</strong> {error}
+          <strong>{t('inviteStudents.error')}:</strong> {error}
         </div>
       </div>
     </SidebarLayout>
@@ -170,24 +172,24 @@ const InviteStudentsPage = () => {
             to={`/company/offers/${id}/applications`}
             className="text-indigo-600 hover:text-indigo-800 flex items-center"
           >
-            ← Back to Applicants
+            {t('inviteStudents.backToApplicants')}
           </Link>
           <button
             onClick={refreshRequestedStudents}
             className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            title="Refresh invitation status"
+            title={t('inviteStudents.refreshStatusTitle')}
           >
-            🔄 Refresh Status
+            {t('inviteStudents.refreshStatus')}
           </button>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Invite Students</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('inviteStudents.title')}</h1>
         {offer && (
           <div className="mt-2">
-            <h2 className="text-xl text-gray-700">For: {offer.title}</h2>
+            <h2 className="text-xl text-gray-700">{t('inviteStudents.for')} {offer.title}</h2>
             {offer.location && <p className="text-gray-600">📍 {offer.location}</p>}
             {offer.skills && offer.skills.length > 0 && (
               <div className="mt-2">
-                <span className="text-sm font-medium text-gray-700">Required Skills: </span>
+                <span className="text-sm font-medium text-gray-700">{t('inviteStudents.requiredSkills')} </span>
                 <div className="inline-flex flex-wrap gap-1 mt-1">
                   {offer.skills.map((skill, index) => (
                     <span
@@ -223,7 +225,7 @@ const InviteStudentsPage = () => {
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Search students by name, school, degree, or skills..."
+          placeholder={t('inviteStudents.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -233,9 +235,9 @@ const InviteStudentsPage = () => {
       {/* Students List */}
       {sortedStudents.length === 0 ? (
         <div className="text-center bg-white p-12 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">No students found</h2>
+          <h2 className="text-xl font-semibold">{t('inviteStudents.noStudentsFound')}</h2>
           <p className="mt-2 text-gray-500">
-            {searchTerm ? 'Try adjusting your search criteria.' : 'No students are currently available for invitations.'}
+            {searchTerm ? t('inviteStudents.tryAdjustingSearch') : t('inviteStudents.noStudentsDescription')}
           </p>
         </div>
       ) : (
@@ -268,7 +270,7 @@ const InviteStudentsPage = () => {
                           }`}>
                             {matchScore}%
                           </div>
-                          <div className="text-xs text-gray-500">Match</div>
+                          <div className="text-xs text-gray-500">{t('inviteStudents.match')}</div>
                         </div>
                       )}
                     </div>
@@ -276,7 +278,7 @@ const InviteStudentsPage = () => {
                     {/* Skills */}
                     {student.skills && student.skills.length > 0 && (
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">{t('inviteStudents.skills')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {student.skills.map((skill, index) => {
                             const isMatching = offer?.skills?.some(offerSkill => 
@@ -310,7 +312,7 @@ const InviteStudentsPage = () => {
                           rel="noopener noreferrer"
                           className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                         >
-                          📄 View CV
+                          {t('inviteStudents.viewCv')}
                         </a>
                       </div>
                     )}
@@ -321,9 +323,9 @@ const InviteStudentsPage = () => {
                     {showAsInvited ? (
                       <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-medium text-center">
                         {wasAlreadyRequested && !isNewlyInvited ? (
-                          <>✓ Already Contacted</>
+                          <>{t('inviteStudents.alreadyContacted')}</>
                         ) : (
-                          <>✓ Invitation Sent</>
+                          <>{t('inviteStudents.invitationSent')}</>
                         )}
                       </div>
                     ) : (
@@ -332,7 +334,7 @@ const InviteStudentsPage = () => {
                         disabled={isInviting}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                       >
-                        {isInviting ? 'Sending...' : '🎯 Send Invitation'}
+                        {isInviting ? t('inviteStudents.sending') : t('inviteStudents.sendInvitation')}
                       </button>
                     )}
                   </div>

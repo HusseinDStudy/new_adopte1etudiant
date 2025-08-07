@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import OfferForm from '../../components/company/OfferForm';
 import { createOffer } from '../../services/offerService';
@@ -7,6 +8,7 @@ import SidebarLayout from '../../components/layout/SidebarLayout';
 
 const CreateOfferPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,7 +19,7 @@ const CreateOfferPage = () => {
       await createOffer(data);
       navigate('/company/offers');
     } catch (err) {
-      setError('Failed to create offer.');
+      setError(t('createOffer.failedToCreate'));
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -26,10 +28,16 @@ const CreateOfferPage = () => {
 
   return (
     <SidebarLayout>
-      <h1 className="text-3xl font-bold">Create a New Offer</h1>
-      {error && <p className="mt-4 text-red-500">{error}</p>}
-      <div className="mt-6">
-        <OfferForm onSubmit={handleCreateOffer} isSubmitting={isSubmitting} />
+      <div className="container mx-auto">
+        <h1 className="text-3xl font-bold">{t('createOffer.title')}</h1>
+        {error && (
+          <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <strong>{t('createOffer.error')}:</strong> {error}
+          </div>
+        )}
+        <div className="mt-6">
+          <OfferForm onSubmit={handleCreateOffer} isSubmitting={isSubmitting} />
+        </div>
       </div>
     </SidebarLayout>
   );

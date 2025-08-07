@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Send, Users, Building2, Globe, Plus, MessageSquare, Search, Lock, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminMessaging, useAdminUsers, useAdminConversations } from '../../hooks/useAdmin';
+import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 
 const AdminMessagesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'send' | 'broadcast' | 'conversations'>('send');
@@ -14,6 +16,9 @@ const AdminMessagesPage: React.FC = () => {
   const [broadcastRole, setBroadcastRole] = useState<'STUDENT' | 'COMPANY' | 'ALL' | undefined>(undefined);
   const [searchConversations, setSearchConversations] = useState('');
 
+  const { t, i18n } = useTranslation();
+  const { formatDateTime } = useLocalizedDate();
+  
   const { sendMessage, sendBroadcast, loading: messagingLoading } = useAdminMessaging();
   const { users } = useAdminUsers({ search: searchUsers, limit: 50 });
   const { conversations, loading: conversationsLoading } = useAdminConversations({ 
@@ -25,7 +30,7 @@ const AdminMessagesPage: React.FC = () => {
     e.preventDefault();
     
     if (!selectedUser || !subject || !content) {
-      alert('Veuillez remplir tous les champs obligatoires');
+      alert(t('errors.fillRequiredFields'));
       return;
     }
 
@@ -42,10 +47,10 @@ const AdminMessagesPage: React.FC = () => {
       setSubject('');
       setContent('');
       setIsReadOnly(false);
-      alert('Message envoyé avec succès !');
+      alert(t('success.messageSent'));
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Erreur lors de l\'envoi du message');
+      alert(t('errors.sendingMessageError'));
     }
   };
 
@@ -53,7 +58,7 @@ const AdminMessagesPage: React.FC = () => {
     e.preventDefault();
     
     if (!subject || !content) {
-      alert('Veuillez remplir tous les champs obligatoires');
+      alert(t('errors.fillRequiredFields'));
       return;
     }
 
@@ -68,21 +73,15 @@ const AdminMessagesPage: React.FC = () => {
       setSubject('');
       setContent('');
       setBroadcastRole(undefined);
-      alert(`Message diffusé avec succès ! Envoyé à ${result.sentTo} utilisateur(s).`);
+      alert(t('success.messageSentToUsers', { count: result.sentTo }));
     } catch (error) {
       console.error('Error sending broadcast:', error);
-      alert('Erreur lors de la diffusion du message');
+      alert(t('errors.broadcastingMessageError'));
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatDateTime(dateString);
   };
 
   const truncateText = (text: string, maxLength: number) => {

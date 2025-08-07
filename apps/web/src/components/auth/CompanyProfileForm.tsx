@@ -3,8 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { companyProfileSchema, CompanyProfileInput } from 'shared-types';
 import { getProfile, upsertProfile } from '../../services/profileService';
+import { useTranslation } from 'react-i18next';
 
 const CompanyProfileForm = () => {
+  const { t } = useTranslation();
   const [message, setMessage] = useState('');
   const {
     register,
@@ -33,9 +35,9 @@ const CompanyProfileForm = () => {
     setMessage('');
     try {
       await upsertProfile(data);
-      setMessage('Profile updated successfully!');
+      setMessage(t('profileForm.profileUpdated'));
     } catch (error) {
-      setMessage('Failed to update profile. Please try again.');
+      setMessage(t('profileForm.failedToUpdateProfile'));
       console.error(error);
     }
   };
@@ -43,16 +45,16 @@ const CompanyProfileForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Company Profile</h3>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">{t('profileForm.companyProfile')}</h3>
         <p className="mt-1 text-sm text-gray-600">
-          Update your company's information.
+          {t('profileForm.companyProfileDescription')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
         <div className="sm:col-span-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Company Name
+            {t('profileForm.companyName')}
           </label>
           <input
             type="text"
@@ -65,7 +67,7 @@ const CompanyProfileForm = () => {
 
         <div className="sm:col-span-4">
           <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700">
-            Contact Email
+            {t('profileForm.contactEmail')}
           </label>
           <input
             type="email"
@@ -78,7 +80,7 @@ const CompanyProfileForm = () => {
         
         <div className="sm:col-span-3">
           <label htmlFor="size" className="block text-sm font-medium text-gray-700">
-            Company Size
+            {t('profileForm.companySize')}
           </label>
           <input
             type="text"
@@ -90,7 +92,7 @@ const CompanyProfileForm = () => {
 
         <div className="sm:col-span-3">
           <label htmlFor="sector" className="block text-sm font-medium text-gray-700">
-            Sector
+            {t('profileForm.sector')}
           </label>
           <input
             type="text"
@@ -110,7 +112,7 @@ const CompanyProfileForm = () => {
             disabled={isSubmitting}
             className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            {isSubmitting ? 'Saving...' : 'Save'}
+            {isSubmitting ? t('profileForm.saving') : t('profileForm.save')}
           </button>
         </div>
       </div>

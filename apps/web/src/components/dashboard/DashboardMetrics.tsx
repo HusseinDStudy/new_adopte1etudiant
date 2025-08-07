@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface MetricCardProps {
   title: string;
@@ -13,6 +14,7 @@ interface MetricCardProps {
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({ title, value, subtitle, icon, color, trend }) => {
+  const { t } = useTranslation();
   const colorClasses = {
     blue: 'bg-blue-50 text-blue-600',
     green: 'bg-green-50 text-green-600',
@@ -35,7 +37,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, subtitle, icon, c
               <span className={`text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
                 {trend.isPositive ? '+' : ''}{trend.value}%
               </span>
-              <span className="text-gray-500 text-sm ml-1">vs mois dernier</span>
+              <span className="text-gray-500 text-sm ml-1">{t('dashboardStudent.metrics.vsLastMonth')}</span>
             </div>
           )}
         </div>
@@ -60,11 +62,13 @@ interface DashboardMetricsProps {
 }
 
 const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }) => {
+  const { t } = useTranslation();
+  
   const studentMetrics = [
     {
-      title: 'Candidatures envoyées',
+      title: t('dashboardStudent.metrics.applicationsSent'),
       value: metrics.myApplications || 0,
-      subtitle: 'Total',
+      subtitle: t('dashboardStudent.metrics.applicationsSentSubtitle'),
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -75,9 +79,9 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
     },
 
     {
-      title: 'Demandes d\'adoption',
+      title: t('dashboardStudent.metrics.adoptionRequests'),
       value: metrics.adoptionRequests || 0,
-      subtitle: 'Reçues',
+      subtitle: t('dashboardStudent.metrics.adoptionRequestsSubtitle'),
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -87,9 +91,9 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       trend: undefined,
     },
     {
-      title: 'Vues du profil',
+      title: t('dashboardStudent.metrics.profileViews'),
       value: metrics.profileViews || 0,
-      subtitle: 'Cette semaine',
+      subtitle: t('dashboardStudent.metrics.profileViewsSubtitle'),
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -103,9 +107,9 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
 
   const companyMetrics = [
     {
-      title: 'Offres actives',
+      title: t('dashboardCompany.metrics.activeOffers'),
       value: metrics.totalOffers || 0,
-      subtitle: 'Publiées',
+      subtitle: t('dashboardCompany.metrics.activeOffersSubtitle'),
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
@@ -115,9 +119,9 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       trend: undefined,
     },
     {
-      title: 'Nouvelles candidatures',
+      title: t('dashboardCompany.metrics.newApplications'),
       value: metrics.newApplications || 0,
-      subtitle: 'En attente',
+      subtitle: t('dashboardCompany.metrics.newApplicationsSubtitle'),
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -128,9 +132,9 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
     },
 
     {
-      title: 'Candidats embauchés',
+      title: t('dashboardCompany.metrics.hiredCandidates'),
       value: metrics.activeContracts || 0,
-      subtitle: 'Total',
+      subtitle: t('dashboardCompany.metrics.hiredCandidatesSubtitle'),
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />

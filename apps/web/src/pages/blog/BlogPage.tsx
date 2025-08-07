@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, User, ArrowRight, BookOpen, TrendingUp, FileText, Search, Pause } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import HeroSection from '../../components/common/HeroSection';
 import { useBlogPosts, useBlogCategories } from '../../hooks/useBlog';
 
 const BlogPage = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +95,7 @@ const BlogPage = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des articles...</p>
+          <p className="text-gray-600">{t('blog.loadingArticles')}</p>
         </div>
       </div>
     );
@@ -103,7 +105,7 @@ const BlogPage = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Erreur lors du chargement des articles</p>
+          <p className="text-red-600 mb-4">{t('blog.loadingError')}</p>
           <p className="text-gray-600">{error}</p>
         </div>
       </div>
@@ -114,8 +116,8 @@ const BlogPage = () => {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <HeroSection
-        title="Blog & Ressources"
-        description="Découvrez nos articles, conseils et guides pour vous accompagner dans votre recherche de stage et votre développement professionnel"
+        title={t('blog.title')}
+        description={t('blog.description')}
         variant="large"
       />
 
@@ -125,10 +127,10 @@ const BlogPage = () => {
           <div className="mb-12">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {featuredPosts.length > 1 ? "Articles à la Une" : "Article à la Une"}
+                {featuredPosts.length > 1 ? t('blog.featuredArticles') : t('blog.featuredArticle')}
               </h2>
               <p className="text-gray-600">
-                Découvrez nos articles sélectionnés pour vous accompagner dans votre développement professionnel
+                {t('blog.featuredDescription')}
               </p>
             </div>
             
@@ -152,7 +154,7 @@ const BlogPage = () => {
                         const categoryName = typeof featuredPosts[featuredIndex].category === 'string' 
                           ? featuredPosts[featuredIndex].category 
                           : featuredPosts[featuredIndex].category?.name;
-                        const displayCategory = !categoryName || categoryName.trim() === '' ? 'Aucune catégorie' : categoryName;
+                        const displayCategory = !categoryName || categoryName.trim() === '' ? t('blog.noCategory') : categoryName;
                         const colorClass = !categoryName || categoryName.trim() === '' ? 'bg-red-100 text-red-800' : getCategoryColorClasses();
                         
                         return (
@@ -162,7 +164,7 @@ const BlogPage = () => {
                           </span>
                         );
                       })()}
-                      <span className="text-sm text-gray-500">Article vedette</span>
+                      <span className="text-sm text-gray-500">{t('blog.featuredBadge')}</span>
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
                       {featuredPosts[featuredIndex].title}
@@ -185,7 +187,7 @@ const BlogPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center text-blue-600 font-medium hover:text-blue-700">
-                      <span>Lire l'article</span>
+                      <span>{t('blog.readArticle')}</span>
                       <ArrowRight className="w-4 h-4 ml-2 hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -233,7 +235,7 @@ const BlogPage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Rechercher un article..."
+                placeholder={t('blog.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -245,7 +247,7 @@ const BlogPage = () => {
                 onChange={(e) => handleCategoryFilter(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Toutes les catégories</option>
+                <option value="">{t('blog.allCategories')}</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.slug}>
                     {category.name}
@@ -257,7 +259,7 @@ const BlogPage = () => {
               type="submit"
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Rechercher
+              {t('blog.search')}
             </button>
           </form>
         </div>
@@ -265,17 +267,17 @@ const BlogPage = () => {
         {/* All Posts Grid */}
         <div className="mb-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Tous nos articles</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('blog.allArticles')}</h2>
             <p className="text-gray-600">
-              Découvrez tous nos articles pour enrichir vos connaissances
+              {t('blog.allArticlesDescription')}
             </p>
           </div>
 
           {posts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg mb-4">Aucun article trouvé</p>
+              <p className="text-gray-500 text-lg mb-4">{t('blog.noArticlesFound')}</p>
               <p className="text-gray-400">
-                Essayez de modifier vos critères de recherche ou revenez plus tard.
+                {t('blog.noArticlesFoundDescription')}
               </p>
             </div>
           ) : (
@@ -337,7 +339,7 @@ const BlogPage = () => {
                     {post.featured && (
                       <div className="mt-3">
                         <span className="inline-block px-2 py-1 text-xs font-medium text-yellow-800 bg-yellow-100 rounded">
-                          ⭐ Mis en avant
+                          ⭐ {t('blog.featuredBadge')}
                         </span>
                       </div>
                     )}
@@ -357,7 +359,7 @@ const BlogPage = () => {
                 disabled={pagination.page <= 1}
                 className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Précédent
+                {t('blog.previous')}
               </button>
               
               {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
@@ -379,7 +381,7 @@ const BlogPage = () => {
                 disabled={pagination.page >= pagination.totalPages}
                 className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Suivant
+                {t('blog.next')}
               </button>
             </nav>
           </div>

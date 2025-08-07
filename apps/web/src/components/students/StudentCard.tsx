@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface StudentCardProps {
   student: {
@@ -27,6 +28,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
 }) => {
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [adoptionMessage, setAdoptionMessage] = useState('');
+  const { t } = useTranslation();
 
   const handleRequestAdoption = async () => {
     const trimmedMessage = adoptionMessage.trim();
@@ -104,7 +106,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
       {/* Skills */}
       {student.skills && student.skills.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Compétences</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-2">{t('studentDirectory.studentCard.skills')}</h4>
           <div className="flex flex-wrap gap-2">
             {student.skills.slice(0, 6).map((skill, index) => (
               <span
@@ -116,7 +118,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
             ))}
             {student.skills.length > 6 && (
               <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">
-                +{student.skills.length - 6} autres
+                {t('studentDirectory.studentCard.moreSkills', { count: student.skills.length - 6 })}
               </span>
             )}
           </div>
@@ -129,7 +131,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Message à {student.firstName}
+                {t('studentDirectory.studentCard.messageTo')} {student.firstName}
               </label>
               <textarea
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm ${
@@ -137,7 +139,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
                     ? 'border-red-300'
                     : 'border-gray-300'
                 }`}
-                placeholder="Expliquez pourquoi vous souhaitez adopter cet étudiant et quelles opportunités vous pouvez offrir... (minimum 10 caractères)"
+                placeholder={t('studentDirectory.studentCard.messagePlaceholder')}
                 value={adoptionMessage}
                 onChange={(e) => setAdoptionMessage(e.target.value)}
                 rows={3}
@@ -147,12 +149,12 @@ const StudentCard: React.FC<StudentCardProps> = ({
                 <div className="text-xs text-gray-500">
                   {adoptionMessage.trim().length < 10 && adoptionMessage.trim().length > 0 && (
                     <span className="text-red-500">
-                      Minimum 10 caractères requis
+                      {t('studentDirectory.studentCard.minCharactersRequired')}
                     </span>
                   )}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {adoptionMessage.length}/1000 caractères
+                  {t('studentDirectory.studentCard.charactersCount', { current: adoptionMessage.length })}
                 </div>
               </div>
             </div>
@@ -164,14 +166,14 @@ const StudentCard: React.FC<StudentCardProps> = ({
                 }}
                 className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
               >
-                Annuler
+                {t('studentDirectory.studentCard.cancel')}
               </button>
               <button
                 onClick={handleRequestAdoption}
                 disabled={isRequesting || adoptionMessage.trim().length < 10}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
               >
-                {isRequesting ? 'Envoi...' : 'Envoyer la demande'}
+                {isRequesting ? t('studentDirectory.studentCard.sending') : t('studentDirectory.studentCard.sendRequest')}
               </button>
             </div>
           </div>
@@ -188,7 +190,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Voir le CV</span>
+                <span>{t('studentDirectory.studentCard.viewCV')}</span>
               </a>
             )}
 
@@ -198,14 +200,14 @@ const StudentCard: React.FC<StudentCardProps> = ({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>Demande envoyée</span>
+                <span>{t('studentDirectory.studentCard.requestSent')}</span>
               </div>
             ) : (
               <button
                 onClick={() => setShowRequestForm(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
               >
-                Demander l'adoption
+                {t('studentDirectory.studentCard.requestAdoption')}
               </button>
             )}
           </div>

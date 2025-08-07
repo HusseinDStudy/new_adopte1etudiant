@@ -1,12 +1,14 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import HeroSection from '../components/common/HeroSection';
 
 const TeamPage: React.FC = () => {
+  const { t } = useTranslation();
   const teamMembers = [
     {
       name: "Sophie Durand",
-      role: "Directrice Générale",
-      description: "Diplômée de l'ESSEC, Sophie a fondé 'Adopte un Étudiant' après avoir constaté les difficultés d'insertion professionnelle des jeunes.",
+      role: t('team.ceo'),
+      description: t('team.sophieDescription'),
       image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
@@ -16,8 +18,8 @@ const TeamPage: React.FC = () => {
     },
     {
       name: "Thomas Lefebvre",
-      role: "Directeur Technique",
-      description: "Expert en développement web, Thomas a créé pour plusieurs startups avant de rejoindre notre équipe.",
+      role: t('team.cto'),
+      description: t('team.thomasDescription'),
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
@@ -27,8 +29,8 @@ const TeamPage: React.FC = () => {
     },
     {
       name: "Amina Benali",
-      role: "Responsable Relations Écoles",
-      description: "Amina développe les partenariats avec les établissements d'enseignement supérieur.",
+      role: t('team.schoolRelations'),
+      description: t('team.aminaDescription'),
       image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
@@ -38,8 +40,8 @@ const TeamPage: React.FC = () => {
     },
     {
       name: "Lucas Martin",
-      role: "Responsable Relations Entreprises",
-      description: "Lucas a pour mission de convaincre les entreprises de tous secteurs de rejoindre la plateforme.",
+      role: t('team.companyRelations'),
+      description: t('team.lucasDescription'),
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
       social: {
         linkedin: "#",
@@ -52,18 +54,18 @@ const TeamPage: React.FC = () => {
   const values = [
     {
       number: "1",
-      title: "Transparence",
-      description: "Nous croyons en une communication honnête et claire avec tous nos utilisateurs et partenaires."
+      title: t('team.transparency'),
+      description: t('team.transparencyDescription')
     },
     {
       number: "2", 
-      title: "Accessibilité",
-      description: "Nous rendons les opportunités de stage accessibles à tous les étudiants, quelle que soit leur formation ou leur origine."
+      title: t('team.accessibility'),
+      description: t('team.accessibilityDescription')
     },
     {
       number: "3",
-      title: "Innovation",
-      description: "Nous cherchons constamment à améliorer notre plateforme pour offrir la meilleure expérience possible à tous utilisateurs."
+      title: t('team.innovation'),
+      description: t('team.innovationDescription')
     }
   ];
 
@@ -71,8 +73,8 @@ const TeamPage: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <HeroSection
-        title="Notre Équipe"
-        subtitle="Découvrez les personnes passionnées qui travaillent chaque jour pour connecter étudiants et entreprises."
+        title={t('team.ourTeam')}
+        subtitle={t('team.teamSubtitle')}
         variant="medium"
       />
 
@@ -133,9 +135,9 @@ const TeamPage: React.FC = () => {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Nos Valeurs</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">{t('team.ourValues')}</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Les principes qui guident nos actions et définissent notre culture d'entreprise.
+              {t('team.valuesSubtitle')}
             </p>
           </div>
 
@@ -156,16 +158,15 @@ const TeamPage: React.FC = () => {
       {/* Join Team Section */}
       <section className="py-20 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">Rejoignez Notre Équipe</h2>
+          <h2 className="text-4xl font-bold text-white mb-6">{t('team.joinOurTeam')}</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Nous sommes toujours à la recherche de personnes talentueuses et passionnées pour nous 
-            aider à accomplir notre mission.
+            {t('team.joinTeamDescription')}
           </p>
           <a
             href="/careers"
             className="inline-flex items-center bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 hover:scale-105 hover:shadow-2xl transition-all duration-300 shadow-lg transform active:scale-95 group"
           >
-            Voir nos offres d'emploi
+            {t('team.viewJobOffers')}
             <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

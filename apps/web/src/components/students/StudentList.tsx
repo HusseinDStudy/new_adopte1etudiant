@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import StudentCard from './StudentCard';
 import { Student } from '../../hooks/useStudents';
 
@@ -27,12 +28,13 @@ const StudentList: React.FC<StudentListProps> = ({
   sortBy,
   onSortChange,
 }) => {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des étudiants...</p>
+          <p className="mt-4 text-gray-600">{t('loading.loadingStudents')}</p>
         </div>
       </div>
     );
@@ -44,7 +46,7 @@ const StudentList: React.FC<StudentListProps> = ({
         <svg className="w-12 h-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 className="text-lg font-medium text-red-800 mb-2">Erreur de chargement</h3>
+        <h3 className="text-lg font-medium text-red-800 mb-2">{t('errors.loadingError')}</h3>
         <p className="text-red-600">{error}</p>
       </div>
     );
@@ -56,9 +58,9 @@ const StudentList: React.FC<StudentListProps> = ({
         <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
         </svg>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun étudiant trouvé</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">{t('students.noStudentsFound')}</h3>
         <p className="text-gray-500 mb-4">
-          Aucun étudiant ne correspond à vos critères de recherche
+          {t('noData.noResultsFound')}
         </p>
       </div>
     );
@@ -70,22 +72,22 @@ const StudentList: React.FC<StudentListProps> = ({
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
-            {totalStudents} étudiant(s) trouvé(s)
+            {t('students.foundStudents', { count: totalStudents })}
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            Affichage des étudiants disponibles
+            {t('students.showingAvailableStudents')}
           </p>
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <span>Trier par:</span>
+          <span>{t('common.sortBy')}:</span>
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:scale-105 transition-all duration-300"
           >
-            <option value="recent">📅 Plus récents</option>
-            <option value="skills">🎯 Plus de compétences</option>
-            <option value="school">🏫 École (A-Z)</option>
+            <option value="recent">📅 {t('students.mostRecent')}</option>
+            <option value="skills">🎯 {t('students.mostSkills')}</option>
+            <option value="school">🏫 {t('students.schoolAZ')}</option>
           </select>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import SidebarLayout from '../components/layout/SidebarLayout';
 import DashboardMetrics from '../components/dashboard/DashboardMetrics';
@@ -7,6 +8,7 @@ import { useMyOffers } from '../hooks/useMyOffers';
 
 const DashboardCompanyPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { stats, loading: statsLoading } = useCompanyStats();
   const { offers, loading: offersLoading } = useMyOffers();
 
@@ -22,10 +24,10 @@ const DashboardCompanyPage: React.FC = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          Tableau de bord Entreprise
+          {t('dashboardCompany.title')}
         </h1>
         <p className="text-gray-600 mt-2">
-          Bienvenue {user?.email}, gérez vos offres et trouvez les meilleurs talents
+          {t('dashboardCompany.welcome')} {user?.email}, {t('dashboardCompany.welcomeDescription')}
         </p>
       </div>
 
@@ -49,9 +51,9 @@ const DashboardCompanyPage: React.FC = () => {
             {/* Active Offers */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Offres actives</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('dashboardCompany.activeOffers')}</h3>
                 <a href="/company/offers" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Gérer →
+                  {t('dashboardCompany.manage')} →
                 </a>
               </div>
               <div className="space-y-4">
@@ -73,21 +75,21 @@ const DashboardCompanyPage: React.FC = () => {
                     <div key={offer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
                         <p className="font-medium text-gray-900">{offer.title}</p>
-                        <p className="text-sm text-gray-600">{offer._count.applications} candidature(s)</p>
+                        <p className="text-sm text-gray-600">{offer._count.applications} {t('dashboardCompany.applications')}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-gray-900">
-                          {new Date(offer.createdAt).toLocaleDateString('fr-FR')}
+                          {new Date(offer.createdAt).toLocaleDateString()}
                         </p>
-                        <p className="text-xs text-gray-500">Créée le</p>
+                        <p className="text-xs text-gray-500">{t('dashboardCompany.createdOn')}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <p>Aucune offre active</p>
+                    <p>{t('dashboardCompany.noActiveOffers')}</p>
                     <a href="/company/offers/new" className="text-blue-600 hover:text-blue-700 text-sm">
-                      Créer votre première offre →
+                      {t('dashboardCompany.createFirstOffer')} →
                     </a>
                   </div>
                 )}
@@ -99,7 +101,7 @@ const DashboardCompanyPage: React.FC = () => {
 
           {/* Quick Actions */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboardCompany.quickActions')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <a
                 href="/company/offers/new"
@@ -111,8 +113,8 @@ const DashboardCompanyPage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Créer une offre</p>
-                  <p className="text-sm text-gray-600">Publier une nouvelle opportunité</p>
+                  <p className="font-medium text-gray-900">{t('dashboardCompany.createOffer')}</p>
+                  <p className="text-sm text-gray-600">{t('dashboardCompany.createOfferDescription')}</p>
                 </div>
               </a>
 
@@ -126,8 +128,8 @@ const DashboardCompanyPage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Trouver des étudiants</p>
-                  <p className="text-sm text-gray-600">Découvrir de nouveaux talents</p>
+                  <p className="font-medium text-gray-900">{t('dashboardCompany.findStudents')}</p>
+                  <p className="text-sm text-gray-600">{t('dashboardCompany.findStudentsDescription')}</p>
                 </div>
               </a>
 
@@ -141,8 +143,8 @@ const DashboardCompanyPage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Messages</p>
-                  <p className="text-sm text-gray-600">Communiquer avec les candidats</p>
+                  <p className="font-medium text-gray-900">{t('dashboardCompany.messages')}</p>
+                  <p className="text-sm text-gray-600">{t('dashboardCompany.messagesDescription')}</p>
                 </div>
               </a>
             </div>

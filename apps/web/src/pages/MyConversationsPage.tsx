@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MessageSquare, Clock, Lock, Archive, AlertCircle, Building2, Briefcase, Users, Filter } from 'lucide-react';
 import { useConversations, useBroadcastConversations } from '../hooks/useConversations';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,7 @@ import SidebarLayout from '../components/layout/SidebarLayout';
 import { Conversation, ConversationContext } from '../services/messageService';
 
 const MyConversationsPage = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'conversations' | 'broadcasts'>('conversations');
   const [contextFilter, setContextFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -42,7 +44,7 @@ const MyConversationsPage = () => {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
           <Lock className="w-3 h-3 mr-1" />
-          Lecture seule
+          {t('conversations.status.readOnly')}
         </span>
       );
     }
@@ -51,7 +53,7 @@ const MyConversationsPage = () => {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
           <Archive className="w-3 h-3 mr-1" />
-          Archivée
+          {t('conversations.status.archived')}
         </span>
       );
     }
@@ -60,7 +62,7 @@ const MyConversationsPage = () => {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
           <Clock className="w-3 h-3 mr-1" />
-          Expirée
+          {t('conversations.status.expired')}
         </span>
       );
     }
@@ -69,7 +71,7 @@ const MyConversationsPage = () => {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
           <AlertCircle className="w-3 h-3 mr-1" />
-          En attente
+          {t('conversations.status.pendingApproval')}
         </span>
       );
     }
@@ -78,19 +80,19 @@ const MyConversationsPage = () => {
   };
 
   const getContextLabel = (contextDetails?: ConversationContext) => {
-    if (!contextDetails) return 'Conversation';
+    if (!contextDetails) return t('conversations.context.conversation');
     
     switch (contextDetails.type) {
       case 'adoption_request':
-        return `Demande d'adoption - ${contextDetails.companyName}`;
+        return `${t('conversations.context.adoptionRequest')} - ${contextDetails.companyName}`;
       case 'offer':
-        return `Candidature - ${contextDetails.offerTitle}`;
+        return `${t('conversations.context.application')} - ${contextDetails.offerTitle}`;
       case 'admin_message':
-        return 'Message administrateur';
+        return t('conversations.context.adminMessage');
       case 'broadcast':
-        return 'Message de diffusion';
+        return t('conversations.context.broadcast');
       default:
-        return 'Conversation';
+        return t('conversations.context.conversation');
     }
   };
 
@@ -98,7 +100,7 @@ const MyConversationsPage = () => {
     try {
       // Handle anonymous participants in broadcast conversations
       if (participant?.id === 'anonymous' || participant?.userId === 'anonymous') {
-        return 'Administrateur';
+        return t('conversations.admin');
       }
 
       // Handle different possible data structures
@@ -117,15 +119,15 @@ const MyConversationsPage = () => {
       }
       
       // Fallback
-      return 'Utilisateur inconnu';
+      return t('conversations.unknownUser');
     } catch (error) {
       console.error('Error getting participant name:', error, participant);
-      return 'Utilisateur inconnu';
+      return t('conversations.unknownUser');
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -140,7 +142,7 @@ const MyConversationsPage = () => {
     <SidebarLayout>
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Mes Conversations</h1>
+          <h1 className="text-3xl font-bold">{t('conversations.title')}</h1>
         </div>
 
         {/* Tabs */}
@@ -155,7 +157,7 @@ const MyConversationsPage = () => {
               }`}
             >
               <MessageSquare className="w-4 h-4 inline mr-2" />
-              Conversations
+              {t('conversations.conversationsTab')}
             </button>
             <button
               onClick={() => setActiveTab('broadcasts')}
@@ -166,7 +168,7 @@ const MyConversationsPage = () => {
               }`}
             >
               <Building2 className="w-4 h-4 inline mr-2" />
-              Messages de diffusion
+              {t('conversations.broadcastsTab')}
             </button>
           </nav>
         </div>
@@ -182,11 +184,11 @@ const MyConversationsPage = () => {
                   onChange={(e) => setContextFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">Tous les contextes</option>
-                  <option value="ADOPTION_REQUEST">Demandes d'adoption</option>
-                  <option value="OFFER">Candidatures</option>
-                  <option value="ADMIN_MESSAGE">Messages admin</option>
-                  <option value="BROADCAST">Diffusions</option>
+                  <option value="">{t('conversations.filters.allContexts')}</option>
+                  <option value="ADOPTION_REQUEST">{t('conversations.filters.adoptionRequests')}</option>
+                  <option value="OFFER">{t('conversations.filters.applications')}</option>
+                  <option value="ADMIN_MESSAGE">{t('conversations.filters.adminMessages')}</option>
+                  <option value="BROADCAST">{t('conversations.filters.broadcasts')}</option>
                 </select>
               </div>
               
@@ -195,11 +197,11 @@ const MyConversationsPage = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">Tous les statuts</option>
-                <option value="ACTIVE">Actives</option>
-                <option value="PENDING_APPROVAL">En attente</option>
-                <option value="ARCHIVED">Archivées</option>
-                <option value="EXPIRED">Expirées</option>
+                <option value="">{t('conversations.filters.allStatuses')}</option>
+                <option value="ACTIVE">{t('conversations.filters.active')}</option>
+                <option value="PENDING_APPROVAL">{t('conversations.filters.pending')}</option>
+                <option value="ARCHIVED">{t('conversations.filters.archived')}</option>
+                <option value="EXPIRED">{t('conversations.filters.expired')}</option>
               </select>
             </div>
           </>
@@ -211,7 +213,7 @@ const MyConversationsPage = () => {
               {loading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Chargement des conversations...</p>
+                  <p className="text-gray-600">{t('conversations.loading')}</p>
                 </div>
               ) : error ? (
                 <div className="text-center py-12">
@@ -235,7 +237,7 @@ const MyConversationsPage = () => {
                             
                             {/* Participants */}
                             <div className="text-sm text-gray-600 mb-2">
-                              <span className="font-medium">Participants:</span>{' '}
+                              <span className="font-medium">{t('conversations.participants')}:</span>{' '}
                               {conversation.participants.map((participant, index) => (
                                 <span key={participant.id}>
                                   {getParticipantName(participant)}
@@ -255,12 +257,12 @@ const MyConversationsPage = () => {
                             {conversation.expiresAt && (
                               <div className="text-xs text-orange-600 mb-2">
                                 <Clock className="w-3 h-3 inline mr-1" />
-                                Expire le {formatDate(conversation.expiresAt)}
+                                {t('conversations.expiresOn')} {formatDate(conversation.expiresAt)}
                               </div>
                             )}
 
                             <div className="text-xs text-gray-500">
-                              Dernière activité: {formatDate(conversation.updatedAt)}
+                              {t('conversations.lastActivity')}: {formatDate(conversation.updatedAt)}
                             </div>
                           </div>
                         </div>
@@ -273,8 +275,8 @@ const MyConversationsPage = () => {
                   <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">
                     {contextFilter || statusFilter 
-                      ? 'Aucune conversation trouvée avec les filtres actuels.'
-                      : 'Vous n\'avez pas encore de conversations.'
+                      ? t('conversations.noConversationsWithFilters')
+                      : t('conversations.noConversations')
                     }
                   </p>
                 </div>
@@ -309,7 +311,7 @@ const MyConversationsPage = () => {
               {broadcastLoading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Chargement des messages de diffusion...</p>
+                  <p className="text-gray-600">{t('conversations.loadingBroadcasts')}</p>
                 </div>
               ) : broadcastError ? (
                 <div className="text-center py-12">
@@ -326,17 +328,17 @@ const MyConversationsPage = () => {
                             <div className="flex items-center gap-2 mb-2">
                               <Building2 className="w-4 h-4" />
                               <h3 className="font-semibold text-lg text-gray-900">
-                                Message de diffusion
+                                {t('conversations.broadcastMessage')}
                               </h3>
                               {getStatusBadge(conversation)}
                             </div>
                             
                             {/* Broadcast Target */}
                             <div className="text-sm text-gray-600 mb-2">
-                              <span className="font-medium">Destinataires:</span>{' '}
-                              {conversation.broadcastTarget === 'ALL' ? 'Tous les utilisateurs' :
-                               conversation.broadcastTarget === 'STUDENTS' ? 'Étudiants uniquement' :
-                               conversation.broadcastTarget === 'COMPANIES' ? 'Entreprises uniquement' : 'Utilisateurs'}
+                              <span className="font-medium">{t('conversations.recipients')}:</span>{' '}
+                              {conversation.broadcastTarget === 'ALL' ? t('conversations.allUsers') :
+                               conversation.broadcastTarget === 'STUDENTS' ? t('conversations.studentsOnly') :
+                               conversation.broadcastTarget === 'COMPANIES' ? t('conversations.companiesOnly') : t('conversations.users')}
                             </div>
 
                             {/* Last Message */}
@@ -347,7 +349,7 @@ const MyConversationsPage = () => {
                             )}
 
                             <div className="text-xs text-gray-500">
-                              Dernière activité: {formatDate(conversation.updatedAt)}
+                              {t('conversations.lastActivity')}: {formatDate(conversation.updatedAt)}
                             </div>
                           </div>
                         </div>
@@ -359,7 +361,7 @@ const MyConversationsPage = () => {
                 <div className="text-center py-12">
                   <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">
-                    Aucun message de diffusion reçu.
+                    {t('conversations.noBroadcasts')}
                   </p>
                 </div>
               )}

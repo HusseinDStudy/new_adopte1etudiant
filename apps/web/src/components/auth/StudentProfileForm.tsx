@@ -3,33 +3,36 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { studentProfileSchema, StudentProfileInput } from 'shared-types';
 import { getProfile, upsertProfile } from '../../services/profileService';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
-
-const skillValidation = z.string().refine(
-  (value) => {
-    const skills = value.split(',').map(s => s.trim());
-    return skills.every(skill => validSkillRegex.test(skill) || skill === '');
-  },
-  {
-    message: "Skills can only contain letters, numbers, spaces, and '+', '#', '.', '-'. Please remove any invalid characters.",
-  }
-);
-
-// Zod schema for the form data, where skills is a string
-const studentProfileFormSchema = studentProfileSchema.extend({
-  skills: skillValidation,
-  isOpenToOpportunities: z.boolean().optional(),
-  cvUrl: z.string().url({ message: "Please enter a valid URL for your CV." }).optional().or(z.literal('')),
-  isCvPublic: z.boolean().optional(),
-});
-
-// Type for the form data
-type StudentProfileFormData = z.infer<typeof studentProfileFormSchema>;
-
 const StudentProfileForm = () => {
+  const { t } = useTranslation();
   const [error, setError] = useState('');
+
+  const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
+
+  const skillValidation = z.string().refine(
+    (value) => {
+      const skills = value.split(',').map(s => s.trim());
+      return skills.every(skill => validSkillRegex.test(skill) || skill === '');
+    },
+    {
+      message: t('profileForm.skillsValidationError'),
+    }
+  );
+
+  // Zod schema for the form data, where skills is a string
+  const studentProfileFormSchema = studentProfileSchema.extend({
+    skills: skillValidation,
+    isOpenToOpportunities: z.boolean().optional(),
+    cvUrl: z.string().url({ message: t('profileForm.cvUrlValidationError') }).optional().or(z.literal('')),
+    isCvPublic: z.boolean().optional(),
+  });
+
+  // Type for the form data
+  type StudentProfileFormData = z.infer<typeof studentProfileFormSchema>;
+
   const {
     register,
     handleSubmit,
@@ -51,12 +54,12 @@ const StudentProfileForm = () => {
           reset(formData);
         }
       } catch (err) {
-        setError('Failed to load profile.');
+        setError(t('profileForm.failedToLoadProfile'));
         console.error(err);
       }
     };
     fetchProfile();
-  }, [reset]);
+  }, [reset, t]);
 
   const onSubmit: SubmitHandler<StudentProfileFormData> = async (data) => {
     setError('');
@@ -75,24 +78,24 @@ const StudentProfileForm = () => {
       };
       
       reset(updatedFormData);
-      alert('Profile saved successfully!');
+      alert(t('profileForm.profileSaved'));
     } catch (err) {
-      setError('Failed to save profile.');
+      setError(t('profileForm.failedToSaveProfile'));
       console.error(err);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <h3 className="text-lg font-medium leading-6 text-gray-900">Student Profile</h3>
-      <p className="mt-1 text-sm text-gray-500">Update your personal and academic information.</p>
+      <h3 className="text-lg font-medium leading-6 text-gray-900">{t('profileForm.studentProfile')}</h3>
+      <p className="mt-1 text-sm text-gray-500">{t('profileForm.studentProfileDescription')}</p>
       
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
         <div className="sm:col-span-3">
           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-            First name
+            {t('profileForm.firstName')}
           </label>
           <input
             type="text"
@@ -105,7 +108,7 @@ const StudentProfileForm = () => {
 
         <div className="sm:col-span-3">
           <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-            Last name
+            {t('profileForm.lastName')}
           </label>
           <input
             type="text"
@@ -118,7 +121,7 @@ const StudentProfileForm = () => {
         
         <div className="sm:col-span-4">
           <label htmlFor="school" className="block text-sm font-medium text-gray-700">
-            School
+            {t('profileForm.school')}
           </label>
           <input
             type="text"
@@ -130,7 +133,7 @@ const StudentProfileForm = () => {
 
         <div className="sm:col-span-4">
           <label htmlFor="degree" className="block text-sm font-medium text-gray-700">
-            Degree
+            {t('profileForm.degree')}
           </label>
           <input
             type="text"
@@ -142,7 +145,7 @@ const StudentProfileForm = () => {
 
         <div className="sm:col-span-6">
           <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
-            Skills (comma-separated)
+            {t('profileForm.skills')}
           </label>
           <input
             type="text"
@@ -155,14 +158,14 @@ const StudentProfileForm = () => {
 
         <div className="sm:col-span-6">
           <label htmlFor="cvUrl" className="block text-sm font-medium text-gray-700">
-            CV URL (e.g., Google Drive, LinkedIn)
+            {t('profileForm.cvUrl')}
           </label>
           <input
             type="text"
             id="cvUrl"
             {...register('cvUrl')}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            placeholder="https://..."
+            placeholder={t('profileForm.cvUrlPlaceholder')}
           />
           {errors.cvUrl && <p className="mt-2 text-sm text-red-600">{errors.cvUrl?.message}</p>}
         </div>
@@ -179,10 +182,10 @@ const StudentProfileForm = () => {
         </div>
         <div className="ml-3 text-sm">
           <label htmlFor="isCvPublic" className="font-medium text-gray-700">
-            Make CV visible to companies
+            {t('profileForm.makeCvVisible')}
           </label>
           <p className="text-gray-500">
-            If checked, companies will be able to see a link to your CV.
+            {t('profileForm.makeCvVisibleDescription')}
           </p>
         </div>
       </div>
@@ -199,10 +202,10 @@ const StudentProfileForm = () => {
         </div>
         <div className="ml-3 text-sm">
           <label htmlFor="isOpenToOpportunities" className="font-medium text-gray-700">
-            Open to opportunities
+            {t('profileForm.openToOpportunities')}
           </label>
           <p id="isOpenToOpportunities-description" className="text-gray-500">
-            Allow companies to find your profile and contact you directly.
+            {t('profileForm.openToOpportunitiesDescription')}
           </p>
         </div>
       </div>
@@ -214,7 +217,7 @@ const StudentProfileForm = () => {
             disabled={isSubmitting}
             className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
           >
-            {isSubmitting ? 'Saving...' : 'Save'}
+            {isSubmitting ? t('profileForm.saving') : t('profileForm.save')}
           </button>
         </div>
       </div>

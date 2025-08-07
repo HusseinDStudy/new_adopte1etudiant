@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginInput } from 'shared-types';
+import { useTranslation } from 'react-i18next';
 import * as authService from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -12,6 +13,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isTwoFactorStep, setIsTwoFactorStep] = useState(false);
+  const { t } = useTranslation();
 
   // Get the intended destination from location state, or default to home
   const from = (location.state as any)?.from?.pathname || '/';
@@ -33,7 +35,7 @@ const LoginPage = () => {
     setError: set2faError,
     formState: { errors: twoFactorErrors, isSubmitting: is2faSubmitting },
   } = useForm<{ token: string }>({
-    resolver: zodResolver(z.object({ token: z.string().min(6, 'Code must be 6 digits') })),
+    resolver: zodResolver(z.object({ token: z.string().min(6, t('auth.tokenMustBe6Digits')) })),
   });
 
 
@@ -48,7 +50,7 @@ const LoginPage = () => {
         navigate(from, { replace: true });
       }
     } catch (error) {
-      setLoginError('root', { message: 'Invalid email or password' });
+      setLoginError('root', { message: t('auth.invalidEmailOrPassword') });
     }
   };
 
@@ -59,7 +61,7 @@ const LoginPage = () => {
       setCurrentUser(user);
       navigate(from, { replace: true });
     } catch (error) {
-      set2faError('root', { message: 'Invalid 2FA token' });
+      set2faError('root', { message: t('auth.invalid2FAToken') });
     }
   };
 
@@ -70,15 +72,15 @@ const LoginPage = () => {
           <div>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Adopte un Étudiant</h1>
-              <p className="text-gray-600">Connectez-vous à votre compte</p>
+              <p className="text-gray-600">{t('auth.signInToYourAccount')}</p>
             </div>
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <h2 className="text-center text-2xl font-bold text-gray-900 mb-6">
-              Connexion
+              {t('auth.login')}
             </h2>
             {from !== '/' && (
               <p className="mt-2 text-center text-sm text-gray-600">
-                Please sign in to access the requested page
+                {t('auth.pleaseSignInToAccess')}
               </p>
             )}
             <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit(onSubmit)}>

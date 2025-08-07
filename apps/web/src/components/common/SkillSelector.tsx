@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, X, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Skill {
   id: string;
@@ -23,6 +24,7 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
   loading = false,
   placeholder = "Rechercher des compétences..."
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -142,7 +144,7 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
             {loading ? (
               <div className="p-4 text-center text-gray-500">
                 <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                Chargement des compétences...
+                {t('loading.loadingSkills')}
               </div>
             ) : filteredSkills.length > 0 ? (
               <div className="py-2">

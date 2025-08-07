@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { extendedRegisterSchema, RegisterInput } from 'shared-types';
+import { useTranslation } from 'react-i18next';
 import { register as registerUser } from '../services/authService';
 
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -31,7 +33,7 @@ const RegisterPage = () => {
     } catch (err: any) {
       setError('root.serverError', {
         type: 'manual',
-        message: err.response?.data?.message || 'Registration failed. Please try again.'
+        message: err.response?.data?.message || t('auth.registrationFailed')
       });
     }
   };
@@ -41,12 +43,12 @@ const RegisterPage = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Adopte un Étudiant</h1>
-          <p className="text-gray-600">Créez votre compte</p>
+          <p className="text-gray-600">{t('auth.createYourAccount')}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <h2 className="text-center text-2xl font-bold text-gray-900 mb-6">
-            Inscription
+            {t('auth.register')}
           </h2>
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {errors.root?.serverError && (
@@ -54,37 +56,37 @@ const RegisterPage = () => {
             )}
 
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">Je suis</label>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">{t('auth.iAm')}</label>
               <select
                 id="role"
                 {...register('role')}
                 className="block w-full rounded-lg border-gray-300 py-3 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm transition-colors"
               >
-                <option value="STUDENT">Étudiant</option>
-                <option value="COMPANY">Entreprise</option>
+                <option value="STUDENT">{t('auth.student')}</option>
+                <option value="COMPANY">{t('auth.company')}</option>
               </select>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Adresse email</label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">{t('auth.emailAddress')}</label>
               <input
                 id="email"
                 type="email"
                 {...register('email')}
                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                placeholder="votre@email.com"
+                placeholder={t('auth.enterYourEmail')}
               />
               {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">{t('auth.password')}</label>
               <input
                 id="password"
                 type="password"
                 {...register('password')}
                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                placeholder="••••••••"
+                placeholder={t('auth.enterYourPassword')}
               />
               {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>}
             </div>
