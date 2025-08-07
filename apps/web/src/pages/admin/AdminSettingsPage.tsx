@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { Settings, Bell, Eye, Shield, Save, CheckCircle } from 'lucide-react';
 
 const AdminSettingsPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -58,14 +60,14 @@ const AdminSettingsPage: React.FC = () => {
 
   return (
     <AdminLayout
-      title="Paramètres Administrateur"
-      subtitle="Configurez vos préférences et paramètres système"
+      title={t('admin.settings')}
+      subtitle={t('settings.title')}
     >
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <Settings className="w-6 h-6 text-gray-600 mr-3" />
-            <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('settings.title')}</h1>
           </div>
           <button
             onClick={handleSave}
@@ -74,12 +76,12 @@ const AdminSettingsPage: React.FC = () => {
             {saved ? (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Sauvegardé
+                {t('success.saved')}
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Sauvegarder
+                {t('common.save')}
               </>
             )}
           </button>
@@ -90,13 +92,13 @@ const AdminSettingsPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">
               <Bell className="w-5 h-5 text-gray-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">Notifications</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('settings.notifications')}</h2>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Notifications par email</label>
-                  <p className="text-sm text-gray-500">Recevoir les notifications par email</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.emailNotifications')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.emailNotificationsDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -108,8 +110,8 @@ const AdminSettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Notifications push</label>
-                  <p className="text-sm text-gray-500">Recevoir les notifications push dans le navigateur</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.pushNotifications')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.pushNotificationsDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -121,8 +123,8 @@ const AdminSettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Emails marketing</label>
-                  <p className="text-sm text-gray-500">Recevoir les emails marketing et promotionnels</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.marketingEmails')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.marketingEmailsDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -134,8 +136,8 @@ const AdminSettingsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Alertes système</label>
-                  <p className="text-sm text-gray-500">Recevoir les alertes système importantes</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.notifications')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.notifications')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -147,8 +149,8 @@ const AdminSettingsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Rapports utilisateurs</label>
-                  <p className="text-sm text-gray-500">Recevoir les notifications de rapports utilisateurs</p>
+                  <label className="text-sm font-medium text-gray-900">{t('admin.users')}</label>
+                  <p className="text-sm text-gray-500">{t('admin.users')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -164,13 +166,13 @@ const AdminSettingsPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">
               <Eye className="w-5 h-5 text-gray-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">Confidentialité</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('settings.privacy')}</h2>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Visibilité du profil</label>
-                  <p className="text-sm text-gray-500">Rendre votre profil visible aux autres utilisateurs</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.profileVisibility')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.profileVisibilityDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -182,8 +184,8 @@ const AdminSettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Afficher l'email</label>
-                  <p className="text-sm text-gray-500">Permettre aux autres de voir votre adresse email</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.showEmail')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.showEmailDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -195,8 +197,8 @@ const AdminSettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Afficher le téléphone</label>
-                  <p className="text-sm text-gray-500">Permettre aux autres de voir votre numéro de téléphone</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.showPhone')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.showPhoneDescription')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -208,8 +210,8 @@ const AdminSettingsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Mode administrateur</label>
-                  <p className="text-sm text-gray-500">Afficher les informations d'administration</p>
+                  <label className="text-sm font-medium text-gray-900">{t('admin.profile')}</label>
+                  <p className="text-sm text-gray-500">{t('admin.profile')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -225,13 +227,13 @@ const AdminSettingsPage: React.FC = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">
               <Shield className="w-5 h-5 text-gray-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">Paramètres système</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('admin.settings')}</h2>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Approbation automatique des utilisateurs</label>
-                  <p className="text-sm text-gray-500">Approuver automatiquement les nouveaux utilisateurs</p>
+                  <label className="text-sm font-medium text-gray-900">{t('adminUsers.admins')}</label>
+                  <p className="text-sm text-gray-500">{t('adminUsers.admins')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -243,8 +245,8 @@ const AdminSettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Vérification email obligatoire</label>
-                  <p className="text-sm text-gray-500">Exiger la vérification de l'email pour l'inscription</p>
+                  <label className="text-sm font-medium text-gray-900">{t('settings.email')}</label>
+                  <p className="text-sm text-gray-500">{t('settings.email')}</p>
                 </div>
                 <input
                   type="checkbox"
@@ -256,8 +258,8 @@ const AdminSettingsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Activer l'authentification à deux facteurs</label>
-                  <p className="text-sm text-gray-500">Permettre l'utilisation de 2FA pour tous les utilisateurs</p>
+                  <label className="text-sm font-medium text-gray-900">2FA</label>
+                  <p className="text-sm text-gray-500">2FA</p>
                 </div>
                 <input
                   type="checkbox"
@@ -269,8 +271,8 @@ const AdminSettingsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">Journaliser les actions administrateur</label>
-                  <p className="text-sm text-gray-500">Enregistrer toutes les actions administratives</p>
+                  <label className="text-sm font-medium text-gray-900">{t('adminUsers.admin')}</label>
+                  <p className="text-sm text-gray-500">{t('adminUsers.admin')}</p>
                 </div>
                 <input
                   type="checkbox"

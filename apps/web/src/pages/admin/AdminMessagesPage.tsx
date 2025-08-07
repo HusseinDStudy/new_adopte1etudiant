@@ -137,8 +137,8 @@ const AdminMessagesPage: React.FC = () => {
 
   return (
     <AdminLayout
-      title="Gestion des messages"
-      subtitle="Envoyez des messages aux utilisateurs ou diffusez des annonces"
+      title={t('admin.messages')}
+      subtitle={t('admin.sendMessage') + ' / ' + t('admin.broadcastMessage')}
     >
       <div className="p-6">
         {/* Tabs */}
@@ -153,7 +153,7 @@ const AdminMessagesPage: React.FC = () => {
               }`}
             >
               <Send className="w-4 h-4 inline mr-2" />
-              Envoyer un message
+              {t('admin.sendMessage')}
             </button>
             <button
               onClick={() => setActiveTab('broadcast')}
@@ -164,7 +164,7 @@ const AdminMessagesPage: React.FC = () => {
               }`}
             >
               <Globe className="w-4 h-4 inline mr-2" />
-              Diffusion
+              {t('admin.broadcastMessage')}
             </button>
             <button
               onClick={() => setActiveTab('conversations')}
@@ -175,7 +175,7 @@ const AdminMessagesPage: React.FC = () => {
               }`}
             >
               <MessageSquare className="w-4 h-4 inline mr-2" />
-              Conversations
+              {t('admin.conversations')}
             </button>
           </nav>
         </div>
@@ -187,14 +187,14 @@ const AdminMessagesPage: React.FC = () => {
               {/* Recipient Selection */}
               <div>
                 <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-2">
-                  Destinataire *
+                  {t('forms.recipient')} *
                 </label>
                 <div className="space-y-3">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
                       type="text"
-                      placeholder="Rechercher un utilisateur..."
+                      placeholder={t('adminUsers.searchPlaceholder')}
                       value={searchUsers}
                       onChange={(e) => setSearchUsers(e.target.value)}
                       className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -208,7 +208,7 @@ const AdminMessagesPage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
-                    <option value="">Sélectionner un utilisateur</option>
+                    <option value="">{t('common.all')}</option>
                     {users.map((user) => (
                       <option key={user.id} value={user.id}>
                         {user.profile?.firstName && user.profile?.lastName
@@ -224,7 +224,7 @@ const AdminMessagesPage: React.FC = () => {
               {/* Subject */}
               <div>
                 <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Sujet *
+                  {t('forms.subject')} *
                 </label>
                 <input
                   type="text"
@@ -232,7 +232,7 @@ const AdminMessagesPage: React.FC = () => {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Sujet du message"
+                  placeholder={t('forms.subject')}
                   required
                 />
               </div>
@@ -240,7 +240,7 @@ const AdminMessagesPage: React.FC = () => {
               {/* Content */}
               <div>
                 <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                  Message *
+                  {t('forms.message')} *
                 </label>
                 <textarea
                   id="content"
@@ -248,7 +248,7 @@ const AdminMessagesPage: React.FC = () => {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Contenu du message"
+                  placeholder={t('forms.message')}
                   required
                 />
               </div>
@@ -265,7 +265,7 @@ const AdminMessagesPage: React.FC = () => {
                 <label htmlFor="isReadOnly" className="ml-2 block text-sm text-gray-700">
                   <div className="flex items-center">
                     <Lock className="w-4 h-4 mr-1" />
-                    Conversation en lecture seule (le destinataire ne pourra pas répondre)
+                    {t('forms.isReadOnly')}
                   </div>
                 </label>
               </div>
@@ -276,7 +276,7 @@ const AdminMessagesPage: React.FC = () => {
                 className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 <Send className="w-4 h-4 mr-2" />
-                {messagingLoading ? 'Envoi en cours...' : 'Envoyer le message'}
+                {messagingLoading ? t('loading.loading') : t('forms.send')}
               </button>
             </form>
           </div>
@@ -286,11 +286,9 @@ const AdminMessagesPage: React.FC = () => {
         {activeTab === 'broadcast' && (
           <div className="max-w-2xl">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <h3 className="text-sm font-medium text-yellow-800 mb-2">
-                Message de diffusion
-              </h3>
+              <h3 className="text-sm font-medium text-yellow-800 mb-2">{t('admin.broadcastMessage')}</h3>
               <p className="text-sm text-yellow-700">
-                Ce message sera envoyé à tous les utilisateurs du groupe sélectionné en lecture seule. Utilisez cette fonctionnalité avec prudence.
+                {t('conversations.broadcastMessage')}
               </p>
             </div>
 
@@ -298,7 +296,7 @@ const AdminMessagesPage: React.FC = () => {
               {/* Target Group */}
               <div>
                 <label htmlFor="targetGroup" className="block text-sm font-medium text-gray-700 mb-2">
-                  Groupe cible
+                  {t('forms.targetRole')}
                 </label>
                 <select
                   id="targetGroup"
@@ -306,16 +304,16 @@ const AdminMessagesPage: React.FC = () => {
                   onChange={(e) => setBroadcastRole(e.target.value as 'STUDENT' | 'COMPANY' | 'ALL' | undefined)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="ALL">Tous les utilisateurs</option>
-                  <option value="STUDENT">Étudiants uniquement</option>
-                  <option value="COMPANY">Entreprises uniquement</option>
+                  <option value="ALL">{t('forms.allUsers')}</option>
+                  <option value="STUDENT">{t('forms.students')}</option>
+                  <option value="COMPANY">{t('forms.companies')}</option>
                 </select>
               </div>
 
               {/* Subject */}
               <div>
                 <label htmlFor="broadcastSubject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Sujet *
+                  {t('forms.subject')} *
                 </label>
                 <input
                   type="text"
@@ -323,7 +321,7 @@ const AdminMessagesPage: React.FC = () => {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Sujet de l'annonce"
+                  placeholder={t('forms.subject')}
                   required
                 />
               </div>
@@ -331,7 +329,7 @@ const AdminMessagesPage: React.FC = () => {
               {/* Content */}
               <div>
                 <label htmlFor="broadcastContent" className="block text-sm font-medium text-gray-700 mb-2">
-                  Message *
+                  {t('forms.message')} *
                 </label>
                 <textarea
                   id="broadcastContent"
@@ -339,7 +337,7 @@ const AdminMessagesPage: React.FC = () => {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Contenu de l'annonce"
+                  placeholder={t('forms.message')}
                   required
                 />
               </div>
@@ -350,7 +348,7 @@ const AdminMessagesPage: React.FC = () => {
                 className="w-full flex items-center justify-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
               >
                 <Globe className="w-4 h-4 mr-2" />
-                {messagingLoading ? 'Diffusion en cours...' : 'Diffuser le message'}
+                {messagingLoading ? t('loading.loading') : t('forms.broadcast')}
               </button>
             </form>
           </div>
@@ -365,7 +363,7 @@ const AdminMessagesPage: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Rechercher dans les conversations..."
+                  placeholder={t('conversations.searchPosts') || t('common.search')}
                   value={searchConversations}
                   onChange={(e) => setSearchConversations(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -376,12 +374,12 @@ const AdminMessagesPage: React.FC = () => {
             {conversationsLoading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Chargement des conversations...</p>
+                <p className="text-gray-600">{t('loading.loadingConversations')}</p>
               </div>
             ) : conversations.length === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Aucune conversation trouvée</p>
+                <p className="text-gray-600">{t('noData.noResultsFound')}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -400,20 +398,20 @@ const AdminMessagesPage: React.FC = () => {
                           {conversation.isReadOnly && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                               <Lock className="w-3 h-3 mr-1" />
-                              Lecture seule
+                              {t('conversations.status.readOnly')}
                             </span>
                           )}
                           {conversation.isBroadcast && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                               <Globe className="w-3 h-3 mr-1" />
-                              Diffusion
+                              {t('conversations.context.broadcast')}
                             </span>
                           )}
                         </div>
                         
                         {/* Participants */}
                         <div className="text-sm text-gray-600 mb-2">
-                          <span className="font-medium">Participants:</span>{' '}
+                          <span className="font-medium">{t('conversationDetail.participants')}:</span>{' '}
                           {conversation.participants?.map((participant: ConversationParticipant, index: number) => (
                             <span key={participant.id}>
                               {getParticipantName(participant)}
@@ -431,7 +429,7 @@ const AdminMessagesPage: React.FC = () => {
                           </p>
                         )}
                         <div className="text-xs text-gray-500">
-                          Dernière activité: {formatDate(conversation.updatedAt)}
+                          {t('conversations.lastActivity')}: {formatDate(conversation.updatedAt)}
                         </div>
                       </div>
                     </div>

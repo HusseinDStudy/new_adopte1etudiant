@@ -13,28 +13,28 @@ const AdminDashboard: React.FC = () => {
 
   const dashboardStats = [
     {
-      name: 'Articles de blog',
+      name: t('dashboard.stats.blogPosts'),
       value: stats?.totalBlogPosts || 0,
       icon: FileText,
       color: 'bg-blue-500',
       href: '/admin/blog/posts',
     },
     {
-      name: 'Utilisateurs',
+      name: t('dashboard.stats.users'),
       value: stats?.totalUsers || 0,
       icon: Users,
       color: 'bg-green-500',
       href: '/admin/users',
     },
     {
-      name: 'Entreprises',
+      name: t('dashboard.stats.companies'),
       value: stats?.totalCompanies || 0,
       icon: Building2,
       color: 'bg-purple-500',
       href: '/admin/users',
     },
     {
-      name: 'Offres actives',
+      name: t('dashboard.stats.activeOffers'),
       value: stats?.totalOffers || 0,
       icon: Briefcase,
       color: 'bg-orange-500',
@@ -44,8 +44,8 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <AdminLayout
-      title="Tableau de bord"
-      subtitle="Vue d'ensemble de votre plateforme Adopte1Etudiant"
+      title={t('admin.dashboard')}
+      subtitle={t('admin.analyticsSubtitle')}
     >
       <div className="p-6">
         {/* Stats Grid */}
@@ -81,14 +81,14 @@ const AdminDashboard: React.FC = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.quickActions')}</h3>
             <div className="space-y-3">
               <Link
                 to="/admin/blog/posts/new"
                 className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
               >
                 <Plus className="w-5 h-5 mr-3" />
-                Créer un nouvel article
+                {t('adminBlog.newPost')}
               </Link>
               <Link
                 to="/blog"
@@ -97,47 +97,47 @@ const AdminDashboard: React.FC = () => {
                 className="flex items-center p-3 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <Eye className="w-5 h-5 mr-3" />
-                Voir le blog public
+                {t('blog.readArticle')}
               </Link>
               <Link
                 to="/admin/blog/categories"
                 className="flex items-center p-3 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
               >
                 <Edit className="w-5 h-5 mr-3" />
-                Gérer les catégories
+                {t('blog.categories')}
               </Link>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Activité récente</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.recentActivity')}</h3>
             {statsLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                <p className="text-gray-600 text-sm">Chargement...</p>
+                <p className="text-gray-600 text-sm">{t('loading.loading')}</p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Nouveaux utilisateurs aujourd'hui</span>
+                  <span className="text-sm text-gray-600">{t('dashboard.newUsersToday')}</span>
                   <span className="text-sm font-semibold text-gray-900">
                     {stats?.recentActivity.newUsersToday || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Nouvelles offres aujourd'hui</span>
+                  <span className="text-sm text-gray-600">{t('dashboard.newOffersToday')}</span>
                   <span className="text-sm font-semibold text-gray-900">
                     {stats?.recentActivity.newOffersToday || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Nouvelles candidatures aujourd'hui</span>
+                  <span className="text-sm text-gray-600">{t('dashboard.newApplicationsToday')}</span>
                   <span className="text-sm font-semibold text-gray-900">
                     {stats?.recentActivity.newApplicationsToday || 0}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Total des demandes d'adoption</span>
+                  <span className="text-sm text-gray-600">{t('dashboard.totalAdoptionRequests')}</span>
                   <div className="flex items-center">
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                     <span className="text-sm font-semibold text-green-600">
@@ -153,30 +153,30 @@ const AdminDashboard: React.FC = () => {
         {/* Recent Blog Posts */}
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Articles récents</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('blog.recentPosts')}</h3>
             <Link
               to="/admin/blog/posts"
               className="text-sm text-blue-600 hover:text-blue-700 font-medium"
             >
-              Voir tous les articles
+              {t('blog.allArticles')}
             </Link>
           </div>
 
           {postsLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-gray-600 mt-2">Chargement des articles...</p>
+              <p className="text-gray-600 mt-2">{t('loading.loadingArticles')}</p>
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-8">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">Aucun article trouvé</p>
+              <p className="text-gray-600">{t('blog.noArticlesFound')}</p>
               <Link
                 to="/admin/blog/posts/new"
                 className="inline-flex items-center mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Créer le premier article
+                {t('blog.createPost')}
               </Link>
             </div>
           ) : (
@@ -192,11 +192,11 @@ const AdminDashboard: React.FC = () => {
                       <span className={`px-2 py-1 rounded-full ${
                         post.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {post.status === 'PUBLISHED' ? 'Publié' : 'Brouillon'}
+                          {post.status === 'PUBLISHED' ? t('forms.published') : t('forms.draft')}
                       </span>
                       {post.featured && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                          À la une
+                          {t('blog.featuredBadge')}
                         </span>
                       )}
                     </div>

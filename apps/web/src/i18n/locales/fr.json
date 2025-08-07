@@ -29,7 +29,22 @@
     "nextPage": "Page suivante",
     "page": "Page {{page}}",
     "showingResults": "Affichage de {{start}} à {{end}} sur {{total}} résultats",
-    "pleaseTryAgain": "Veuillez réessayer."
+    "pleaseTryAgain": "Veuillez réessayer.",
+    "retry": "Réessayer",
+    "update": "Mettre à jour",
+    "view": "Voir"
+  },
+  "adminOffers": {
+    "title": "Gestion des offres",
+    "subtitle": "Gérez toutes les offres d'emploi de la plateforme",
+    "allStatuses": "Tous les statuts",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activer",
+    "deactivate": "Désactiver",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer définitivement l'offre \"{{title}}\" ? Cette action est irréversible.",
+    "count": "{{count}} offre",
+    "count_plural": "{{count}} offres"
   },
   "loading": {
     "loading": "Chargement...",
@@ -45,6 +60,70 @@
     "loadingSkills": "Chargement des compétences...",
     "loadingTypes": "Chargement des types...",
     "loadingOfferDetails": "Chargement des détails de l'offre..."
+  },
+  "adminCategories": {
+    "title": "Catégories de blog",
+    "subtitle": "Gérez les catégories de vos articles de blog",
+    "count": "{{count}} catégorie",
+    "count_plural": "{{count}} catégories",
+    "newCategory": "Nouvelle catégorie",
+    "createFirst": "Créer la première catégorie",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer la catégorie \"{{name}}\" ?",
+    "namePlaceholder": "Nom de la catégorie",
+    "descriptionPlaceholder": "Description de la catégorie",
+    "color": "Couleur"
+  },
+  "adminUsers": {
+    "title": "Gestion des utilisateurs",
+    "subtitle": "Gérez tous les utilisateurs de la plateforme",
+    "searchPlaceholder": "Rechercher des utilisateurs...",
+    "allRoles": "Tous les rôles",
+    "admins": "Administrateurs",
+    "admin": "Administrateur",
+    "allStatuses": "Tous les statuts",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "never": "Jamais",
+    "deactivate": "Désactiver",
+    "activate": "Activer",
+    "confirmChangeRole": "Êtes-vous sûr de vouloir changer le rôle de cet utilisateur vers {{role}} ?",
+    "confirmDeleteUser": "Êtes-vous sûr de vouloir supprimer définitivement l'utilisateur \"{{email}}\" ? Cette action est irréversible.",
+    "count": "{{count}} utilisateur",
+    "count_plural": "{{count}} utilisateurs",
+    "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "status": "Statut",
+      "registeredAt": "Date d'inscription",
+      "lastLogin": "Dernière connexion",
+      "actions": "Actions"
+    }
+  },
+  "adminBlog": {
+    "title": "Articles de blog",
+    "subtitle": "Gérez tous vos articles de blog",
+    "newPost": "Nouvel article",
+    "confirmDeletePost": "Êtes-vous sûr de vouloir supprimer l'article \"{{title}}\" ?",
+    "table": {
+      "article": "Article",
+      "category": "Catégorie",
+      "status": "Statut",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "status": {
+      "all": "Tous les statuts",
+      "published": "Publié",
+      "draft": "Brouillon",
+      "scheduled": "Programmé",
+      "archived": "Archivé"
+    },
+    "actions": {
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "feature": "Mettre à la une",
+      "unfeature": "Retirer de la une"
+    }
   },
   "errors": {
     "error": "Erreur",
@@ -77,6 +156,7 @@
   "dates": {
     "format": "dd/MM/yyyy",
     "formatWithTime": "dd/MM/yyyy HH:mm",
+    "lastUpdated": "Dernière mise à jour",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "tomorrow": "Demain",
@@ -163,7 +243,34 @@
     "conversationLoading": "Chargement...",
     "conversationError": "Impossible de charger la conversation"
   },
+  "adminBlog": {
+    "title": "Articles de blog",
+    "subtitle": "Gérez tous vos articles de blog",
+    "newPost": "Nouvel article",
+    "confirmDeletePost": "Êtes-vous sûr de vouloir supprimer l'article \"{{title}}\" ?",
+    "table": {
+      "article": "Article",
+      "category": "Catégorie",
+      "status": "Statut",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "status": {
+      "all": "Tous les statuts",
+      "published": "Publié",
+      "draft": "Brouillon",
+      "scheduled": "Programmé",
+      "archived": "Archivé"
+    },
+    "actions": {
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "feature": "Mettre à la une",
+      "unfeature": "Retirer de la une"
+    }
+  },
   "forms": {
+    "required": "Ce champ est requis",
     "subject": "Sujet",
     "content": "Contenu",
     "message": "Message",
@@ -180,6 +287,7 @@
     "category": "Catégorie",
     "tags": "Tags",
     "publish": "Publier",
+    "status": "Statut",
     "draft": "Brouillon",
     "published": "Publié",
     "unpublished": "Non publié",
@@ -246,6 +354,10 @@
     "deletePost": "Supprimer l'article",
     "publishPost": "Publier l'article",
     "unpublishPost": "Dépublier l'article",
+    "readTime": "Temps de lecture",
+    "featuredImage": "Image à la une",
+    "seoTitle": "Titre SEO",
+    "seoDescription": "Description SEO",
     "postTitleRequired": "Impossible de publier un article sans titre.",
     "postExcerptRequired": "Impossible de publier un article sans extrait.",
     "postContentRequired": "Impossible de publier un article sans contenu."
@@ -328,6 +440,7 @@
     "loadingConversation": "Chargement de la conversation...",
     "loadingConversations": "Chargement des conversations...",
     "loadingMessages": "Chargement des messages...",
+    "searchPosts": "Rechercher des conversations",
     "noConversations": "Aucune conversation",
     "startConversation": "Démarrer une conversation",
     "conversationError": "Impossible de charger la conversation"
@@ -386,7 +499,46 @@
     "notifications": "Notifications",
     "settings": "Paramètres",
     "profile": "Profil",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "newUsersToday": "Nouveaux utilisateurs aujourd'hui",
+    "newOffersToday": "Nouvelles offres aujourd'hui",
+    "newApplicationsToday": "Nouvelles candidatures aujourd'hui",
+    "totalAdoptionRequests": "Total des demandes d'adoption",
+    "stats": {
+      "blogPosts": "Articles de blog",
+      "users": "Utilisateurs",
+      "companies": "Entreprises",
+      "activeOffers": "Offres actives"
+    }
+  },
+  "roles": {
+    "student": "Étudiants",
+    "company": "Entreprises",
+    "admin": "Administrateurs"
+  },
+  "analytics": {
+    "ofTotal": "du total",
+    "main": {
+      "totalUsers": "Utilisateurs totaux",
+      "students": "Étudiants",
+      "companies": "Entreprises",
+      "offers": "Offres d'emploi",
+      "applications": "Candidatures",
+      "adoptionRequests": "Demandes d'adoption",
+      "blogPosts": "Articles de blog"
+    },
+    "today": {
+      "newUsers": "Nouveaux utilisateurs",
+      "newOffers": "Nouvelles offres",
+      "newApplications": "Nouvelles candidatures"
+    },
+    "offers": {
+      "status": {
+        "active": "Actives",
+        "inactive": "Inactives",
+        "draft": "Brouillons"
+      }
+    }
   },
   "applications": {
     "status": "Statut",
@@ -447,6 +599,7 @@
     "loading": "Chargement des conversations...",
     "loadingBroadcasts": "Chargement des messages de diffusion...",
     "error": "Erreur",
+    "searchPosts": "Rechercher des conversations",
     "noConversations": "Vous n'avez pas encore de conversations.",
     "noConversationsWithFilters": "Aucune conversation trouvée avec les filtres actuels.",
     "noBroadcasts": "Aucun message de diffusion reçu.",
@@ -643,6 +796,7 @@
   "settings": {
     "title": "Paramètres",
     "savedSuccessfully": "Paramètres enregistrés avec succès !",
+    "created": "Créé le",
     "notifications": "Notifications",
     "emailNotifications": "Notifications par email",
     "emailNotificationsDescription": "Recevoir des notifications par email",
@@ -1067,12 +1221,12 @@
     "accessDeniedDescription": "Cette page est réservée aux profils d'entreprise. Seules les entreprises peuvent consulter le répertoire des étudiants.",
     "backToHome": "Retour à l'accueil",
     "loadingStudents": "Chargement des étudiants...",
-    "messageRequired": "A message is required to send a request.",
-    "messageTooShort": "Message must be at least 10 characters long.",
-    "messageTooLong": "Message must be no more than 1000 characters long.",
-    "requestSentSuccess": "Adoption request sent successfully!",
-    "alreadySentRequest": "You have already sent an adoption request to this student. Check your sent requests to view the conversation.",
-    "requestFailed": "Failed to send adoption request.",
+    "messageRequired": "Un message est requis pour envoyer une demande.",
+    "messageTooShort": "Le message doit contenir au moins 10 caractères.",
+    "messageTooLong": "Le message ne doit pas dépasser 1000 caractères.",
+    "requestSentSuccess": "Demande d'adoption envoyée avec succès !",
+    "alreadySentRequest": "Vous avez déjà envoyé une demande d'adoption à cet étudiant. Consultez vos demandes envoyées pour voir la conversation.",
+    "requestFailed": "Échec de l'envoi de la demande d'adoption.",
     "filters": {
       "title": "Filtres de recherche",
       "search": "Recherche",

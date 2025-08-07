@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMe, deleteAccountWithPassword, disablePassword } from '../../services/authService';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { Shield, User, Mail, Calendar, Settings, Trash2, AlertTriangle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminProfilePage = () => {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const [error, setError] = useState('');
@@ -21,7 +23,7 @@ const AdminProfilePage = () => {
       const data = await getMe();
       setProfileData(data);
     } catch (err) {
-      setError('Failed to fetch profile data.');
+      setError(t('profile.failedToFetchProfile'));
     }
   };
 
@@ -42,23 +44,23 @@ const AdminProfilePage = () => {
   const handleDeletePasswordAccount = async () => {
     try {
         await deleteAccountWithPassword(password);
-        alert('Account deleted successfully.');
+        alert(t('profile.accountDeletedSuccessfully'));
         logout();
     } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to delete account.");
+        setError(err.response?.data?.message || t('profile.failedToDeleteAccount'));
     } finally {
         setShowDeleteModal(false);
     }
   };
 
   const handleDisablePassword = async () => {
-    if (window.confirm('Are you sure you want to disable password login? You will only be able to log in with your linked social accounts.')) {
+    if (window.confirm(t('profile.confirmDisablePassword'))) {
         try {
             await disablePassword();
             await fetchProfile();
-            setSuccessMessage('Password login disabled successfully.');
+            setSuccessMessage(t('profile.passwordLoginDisabled'));
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to disable password login.');
+            setError(err.response?.data?.message || t('profile.failedToDisablePassword'));
         }
     }
   };
@@ -68,7 +70,7 @@ const AdminProfilePage = () => {
   };
 
   const deleteOAuthAccount = (provider: 'google') => {
-    const confirmed = window.confirm(`Are you sure you want to delete your account? You will be asked to re-authenticate with ${provider}.`);
+    const confirmed = window.confirm(t('profile.confirmDeleteOAuth', { provider }));
     if (confirmed) {
         window.location.href = `${API_URL}/auth/${provider}/delete`;
     }
@@ -76,8 +78,8 @@ const AdminProfilePage = () => {
 
   return (
     <AdminLayout
-      title="Profil Administrateur"
-      subtitle="Gérez votre profil administrateur"
+      title={t('admin.profile')}
+      subtitle={t('profile.manageYourProfile')}
     >
       <div className="p-6">
         {error && (
@@ -103,8 +105,8 @@ const AdminProfilePage = () => {
                 <Shield className="w-6 h-6 text-red-600" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Informations du profil</h2>
-                <p className="text-gray-600">Détails de votre compte administrateur</p>
+                <h2 className="text-xl font-semibold text-gray-900">{t('profile.accountSettings')}</h2>
+                <p className="text-gray-600">{t('profile.manageYourProfile')}</p>
               </div>
             </div>
 
@@ -113,7 +115,7 @@ const AdminProfilePage = () => {
                 <div className="flex items-center">
                   <Mail className="w-4 h-4 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-sm text-gray-500">{t('profile.email')}</p>
                     <p className="font-medium">{profileData.email}</p>
                   </div>
                 </div>
@@ -121,7 +123,7 @@ const AdminProfilePage = () => {
                 <div className="flex items-center">
                   <Shield className="w-4 h-4 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500">Rôle</p>
+                    <p className="text-sm text-gray-500">{t('profile.role')}</p>
                     <p className="font-medium">{profileData.role}</p>
                   </div>
                 </div>
@@ -129,9 +131,9 @@ const AdminProfilePage = () => {
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 text-gray-400 mr-3" />
                   <div>
-                    <p className="text-sm text-gray-500">Membre depuis</p>
+                    <p className="text-sm text-gray-500">{t('settings.created') || 'Created'}</p>
                     <p className="font-medium">
-                      {new Date(profileData.createdAt).toLocaleDateString('fr-FR')}
+                      {new Date(profileData.createdAt).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US')}
                     </p>
                   </div>
                 </div>
@@ -140,9 +142,9 @@ const AdminProfilePage = () => {
                   <div className="flex items-center">
                     <User className="w-4 h-4 text-gray-400 mr-3" />
                     <div>
-                      <p className="text-sm text-gray-500">Dernière connexion</p>
+                      <p className="text-sm text-gray-500">{t('adminUsers.table.lastLogin')}</p>
                       <p className="font-medium">
-                        {new Date(profileData.lastLoginAt).toLocaleDateString('fr-FR')}
+                        {new Date(profileData.lastLoginAt).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US')}
                       </p>
                     </div>
                   </div>
@@ -155,31 +157,31 @@ const AdminProfilePage = () => {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-6">
               <Settings className="w-6 h-6 text-gray-600 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-900">Paramètres du compte</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('profile.accountSettings')}</h2>
             </div>
 
             {profileData && (
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-3">Comptes liés</h3>
+                  <h3 className="font-medium text-gray-900 mb-3">{t('profile.linkedAccounts')}</h3>
                   <div className="space-y-2">
                     {!profileData.linkedProviders.includes('google') && profileData.hasPassword && (
                       <button 
                         onClick={() => linkAccount('google')} 
                         className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        Lier avec Google
+                        {t('profile.linkGoogle')}
                       </button>
                     )}
                     
                     {profileData.linkedProviders.includes('google') && (
                       <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
-                        <span className="text-sm text-green-800">Google lié</span>
+                        <span className="text-sm text-green-800">Google</span>
                         <button 
                           onClick={() => deleteOAuthAccount('google')}
                           className="text-sm text-red-600 hover:text-red-800"
                         >
-                          Supprimer
+                          {t('common.delete')}
                         </button>
                       </div>
                     )}
@@ -192,7 +194,7 @@ const AdminProfilePage = () => {
                       onClick={handleDisablePassword}
                       className="w-full px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-yellow-50 hover:bg-yellow-100"
                     >
-                      Désactiver la connexion par mot de passe
+                      {t('profile.passwordLoginDisabled')}
                     </button>
                   </div>
                 )}
@@ -203,7 +205,7 @@ const AdminProfilePage = () => {
                     className="w-full flex items-center justify-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Supprimer le compte
+                    {t('profile.deleteAccount')}
                   </button>
                 </div>
               </div>
@@ -216,13 +218,13 @@ const AdminProfilePage = () => {
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
             <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
               <div className="mt-3">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Supprimer le compte</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('profile.deleteAccount')}</h3>
                 <p className="text-sm text-gray-500 mb-4">
-                  Cette action est irréversible. Toutes vos données seront supprimées définitivement.
+                  {t('profile.deleteAccountWarning')}
                 </p>
                 <input
                   type="password"
-                  placeholder="Entrez votre mot de passe"
+                  placeholder={t('profile.enterPassword')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -232,13 +234,13 @@ const AdminProfilePage = () => {
                     onClick={() => setShowDeleteModal(false)}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
                   >
-                    Annuler
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handleDeletePasswordAccount}
                     className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
                   >
-                    Supprimer
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>

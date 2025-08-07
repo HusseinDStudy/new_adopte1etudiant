@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Search, Filter, Users, Building2, Shield, Ban, Trash2, MoreVertical } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminUsers, useAdminUserMutations } from '../../hooks/useAdmin';
 
 const AdminUsersPage: React.FC = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<boolean | undefined>(undefined);
@@ -29,7 +31,7 @@ const AdminUsersPage: React.FC = () => {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir changer le rôle de cet utilisateur vers ${newRole} ?`)) {
+    if (window.confirm(t('adminUsers.confirmChangeRole', { role: newRole }))) {
       try {
         await updateRole(userId, newRole);
         refetch();
@@ -40,7 +42,7 @@ const AdminUsersPage: React.FC = () => {
   };
 
   const handleDeleteUser = async (userId: string, userEmail: string) => {
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'utilisateur "${userEmail}" ? Cette action est irréversible.`)) {
+    if (window.confirm(t('adminUsers.confirmDeleteUser', { email: userEmail }))) {
       try {
         await deleteUser(userId);
         refetch();
@@ -88,8 +90,8 @@ const AdminUsersPage: React.FC = () => {
 
   return (
     <AdminLayout
-      title="Gestion des utilisateurs"
-      subtitle="Gérez tous les utilisateurs de la plateforme"
+      title={t('adminUsers.title')}
+      subtitle={t('adminUsers.subtitle')}
     >
       <div className="p-6">
         {/* Header with Filters */}
@@ -100,7 +102,7 @@ const AdminUsersPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Rechercher des utilisateurs..."
+                placeholder={t('adminUsers.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
@@ -113,10 +115,10 @@ const AdminUsersPage: React.FC = () => {
               onChange={(e) => setRoleFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">Tous les rôles</option>
-              <option value="STUDENT">Étudiants</option>
-              <option value="COMPANY">Entreprises</option>
-              <option value="ADMIN">Administrateurs</option>
+              <option value="">{t('adminUsers.allRoles')}</option>
+              <option value="STUDENT">{t('forms.students')}</option>
+              <option value="COMPANY">{t('forms.companies')}</option>
+              <option value="ADMIN">{t('adminUsers.admins')}</option>
             </select>
 
             {/* Status Filter */}
@@ -125,37 +127,37 @@ const AdminUsersPage: React.FC = () => {
               onChange={(e) => setStatusFilter(e.target.value === '' ? undefined : e.target.value === 'true')}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="">Tous les statuts</option>
-              <option value="true">Actifs</option>
-              <option value="false">Inactifs</option>
+              <option value="">{t('adminUsers.allStatuses')}</option>
+              <option value="true">{t('adminUsers.active')}</option>
+              <option value="false">{t('adminUsers.inactive')}</option>
             </select>
           </div>
 
           <div className="text-sm text-gray-600">
-            {pagination?.total || 0} utilisateur{(pagination?.total || 0) !== 1 ? 's' : ''}
+            {t('adminUsers.count', { count: pagination?.total || 0 })}
           </div>
         </div>
 
         {/* Users Table */}
-        {loading ? (
+          {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement des utilisateurs...</p>
+              <p className="text-gray-600">{t('loading.loadingUsers')}</p>
           </div>
         ) : error ? (
           <div className="text-center py-12">
-            <p className="text-red-600 mb-4">Erreur lors du chargement des utilisateurs</p>
+              <p className="text-red-600 mb-4">{t('errors.loadingUsersError')}</p>
             <button
               onClick={refetch}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Réessayer
+                {t('common.retry')}
             </button>
           </div>
         ) : users.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Aucun utilisateur trouvé</p>
+              <p className="text-gray-600">{t('noData.noResultsFound')}</p>
           </div>
         ) : (
           <>
@@ -165,22 +167,22 @@ const AdminUsersPage: React.FC = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Utilisateur
+                      {t('adminUsers.table.user')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rôle
+                        {t('adminUsers.table.role')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
+                        {t('adminUsers.table.status')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date d'inscription
+                        {t('adminUsers.table.registeredAt')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Dernière connexion
+                        {t('adminUsers.table.lastLogin')}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                        {t('adminUsers.table.actions')}
                       </th>
                     </tr>
                   </thead>
@@ -206,7 +208,7 @@ const AdminUsersPage: React.FC = () => {
                                 <div className="text-xs text-gray-400">{user.profile.school}</div>
                               )}
                               {user.profile?.sector && (
-                                <div className="text-xs text-gray-400">Secteur: {user.profile.sector}</div>
+                                <div className="text-xs text-gray-400">{t('offers.requirements')}: {user.profile.sector}</div>
                               )}
                             </div>
                           </div>
@@ -225,14 +227,14 @@ const AdminUsersPage: React.FC = () => {
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
                           }`}>
-                            {user.isActive ? 'Actif' : 'Inactif'}
+                              {user.isActive ? t('adminUsers.active') : t('adminUsers.inactive')}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {formatDate(user.createdAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Jamais'}
+                              {user.lastLoginAt ? formatDate(user.lastLoginAt) : t('adminUsers.never')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
@@ -244,7 +246,7 @@ const AdminUsersPage: React.FC = () => {
                                   ? 'text-red-600 hover:bg-red-50'
                                   : 'text-green-600 hover:bg-green-50'
                               }`}
-                              title={user.isActive ? 'Désactiver' : 'Activer'}
+                              title={user.isActive ? t('adminUsers.deactivate') : t('adminUsers.activate')}
                             >
                               <Ban className="w-4 h-4" />
                             </button>
@@ -261,21 +263,21 @@ const AdminUsersPage: React.FC = () => {
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     disabled={user.role === 'STUDENT'}
                                   >
-                                    Étudiant
+                                    {t('forms.students')}
                                   </button>
                                   <button
                                     onClick={() => handleRoleChange(user.id, 'COMPANY')}
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     disabled={user.role === 'COMPANY'}
                                   >
-                                    Entreprise
+                                    {t('forms.companies')}
                                   </button>
                                   <button
                                     onClick={() => handleRoleChange(user.id, 'ADMIN')}
                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     disabled={user.role === 'ADMIN'}
                                   >
-                                    Administrateur
+                                    {t('adminUsers.admin')}
                                   </button>
                                 </div>
                               </div>
@@ -285,7 +287,7 @@ const AdminUsersPage: React.FC = () => {
                             <button
                               onClick={() => handleDeleteUser(user.id, user.email)}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Supprimer"
+                              title={t('common.delete')}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -302,7 +304,11 @@ const AdminUsersPage: React.FC = () => {
             {pagination && pagination.totalPages > 1 && (
               <div className="flex items-center justify-between mt-6">
                 <div className="text-sm text-gray-700">
-                  Affichage de {((currentPage - 1) * 15) + 1} à {Math.min(currentPage * 15, pagination.total)} sur {pagination.total} utilisateurs
+                  {t('common.showingResults', {
+                    start: ((currentPage - 1) * 15) + 1,
+                    end: Math.min(currentPage * 15, pagination.total),
+                    total: pagination.total,
+                  })}
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -310,7 +316,7 @@ const AdminUsersPage: React.FC = () => {
                     disabled={currentPage === 1}
                     className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Précédent
+                    {t('common.previous')}
                   </button>
                   
                   {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
@@ -335,7 +341,7 @@ const AdminUsersPage: React.FC = () => {
                     disabled={currentPage === pagination.totalPages}
                     className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Suivant
+                    {t('common.next')}
                   </button>
                 </div>
               </div>

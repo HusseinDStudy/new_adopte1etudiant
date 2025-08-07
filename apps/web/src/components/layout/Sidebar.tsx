@@ -1,6 +1,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  Briefcase,
+  MessageSquare,
+  BarChart3,
+  Tag,
+  Plus,
+  User as UserIcon,
+  Settings as SettingsIcon,
+} from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,7 +32,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     {
       label: 'Dashboard',
       path: (() => {
-        if (user?.role === 'COMPANY') {
+        if (user?.role === 'ADMIN') {
+          return '/admin/dashboard';
+        } else if (user?.role === 'COMPANY') {
           return '/dashboard-company';
         } else if (user?.role === 'STUDENT') {
           return '/dashboard-student';
@@ -28,24 +42,58 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           return '/dashboard';
         }
       })(),
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
-        </svg>
-      ),
+      icon: <LayoutDashboard className="w-5 h-5" />,
       show: isAuthenticated,
     },
     // Profile
     {
-      label: user?.role === 'COMPANY' ? 'Profil Entreprise' : 'Profil',
-      path: '/profile',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={user?.role === 'COMPANY' ? "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6" : "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"} />
-        </svg>
-      ),
+      label: user?.role === 'COMPANY' ? 'Profil Entreprise' : user?.role === 'ADMIN' ? 'Profil Admin' : 'Profil',
+      path: user?.role === 'ADMIN' ? '/admin/profile' : '/profile',
+      icon: <UserIcon className="w-5 h-5" />,
       show: isAuthenticated,
+    },
+    // Admin specific items
+    {
+      label: 'Articles du blog',
+      path: '/admin/blog/posts',
+      icon: <FileText className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
+    },
+    {
+      label: 'Nouvel article',
+      path: '/admin/blog/posts/new',
+      icon: <Plus className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
+    },
+    {
+      label: 'Catégories',
+      path: '/admin/blog/categories',
+      icon: <Tag className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
+    },
+    {
+      label: 'Utilisateurs',
+      path: '/admin/users',
+      icon: <Users className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
+    },
+    {
+      label: 'Offres',
+      path: '/admin/offers',
+      icon: <Briefcase className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
+    },
+    {
+      label: 'Messages',
+      path: '/admin/messages',
+      icon: <MessageSquare className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
+    },
+    {
+      label: 'Statistiques',
+      path: '/admin/analytics',
+      icon: <BarChart3 className="w-5 h-5" />,
+      show: isAuthenticated && user?.role === 'ADMIN',
     },
     // Student specific items
     {
@@ -104,22 +152,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     // Common items
     {
       label: 'Messages',
-      path: '/conversations',
+      path: user?.role === 'ADMIN' ? '/admin/messages' : '/conversations',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
+        user?.role === 'ADMIN' ? <MessageSquare className="w-5 h-5" /> : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        )
       ),
-      show: isAuthenticated,
+      show: isAuthenticated && user?.role !== 'ADMIN',
     },
     {
       label: 'Paramètres',
-      path: '/settings',
+      path: user?.role === 'ADMIN' ? '/admin/settings' : '/settings',
       icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+        user?.role === 'ADMIN' ? <SettingsIcon className="w-5 h-5" /> : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        )
       ),
       show: isAuthenticated,
     },
@@ -131,7 +183,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <button
+          type="button"
+          aria-label="Close sidebar overlay"
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
         />
@@ -144,17 +198,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         lg:translate-x-0 lg:static lg:z-auto
       `}>
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AE</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">Adopte un Étudiant</span>
-            </Link>
-            <button 
+          {/* Mobile close button (no logo to avoid duplication with header) */}
+          <div className="lg:hidden flex justify-end p-4 border-b border-gray-200">
+            <button
               onClick={onClose}
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+              className="p-2 rounded-md hover:bg-gray-100"
+              aria-label="Close sidebar"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

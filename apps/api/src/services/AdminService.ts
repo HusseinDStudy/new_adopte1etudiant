@@ -19,10 +19,7 @@ export interface AdminAnalytics {
     COMPANY: number;
     ADMIN: number;
   };
-  offersByStatus: {
-    active: number;
-    inactive: number;
-  };
+  offersByStatus: Record<string, number>;
 }
 
 export interface UserListFilters {
@@ -139,8 +136,8 @@ export class AdminService {
         'ADMIN': adminCount
       },
       offersByStatus: {
-        active: activeOffers,
-        inactive: inactiveOffers
+        ACTIVE: activeOffers,
+        INACTIVE: inactiveOffers
       }
     };
   }

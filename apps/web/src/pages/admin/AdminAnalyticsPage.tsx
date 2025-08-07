@@ -8,20 +8,17 @@ import {
   MessageSquare, 
   FileText, 
   Heart,
-  Calendar,
   Clock,
   Target,
-  Activity
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminStats } from '../../hooks/useAdmin';
-import { useLocalizedDate } from '../../hooks/useLocalizedDate';
+// import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 
 const AdminAnalyticsPage: React.FC = () => {
   const { stats, loading, error, refetch } = useAdminStats();
   const { t, i18n } = useTranslation();
-  const { formatDate } = useLocalizedDate();
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat(i18n.language === 'fr' ? 'fr-FR' : 'en-US').format(num);
@@ -68,12 +65,12 @@ const AdminAnalyticsPage: React.FC = () => {
   if (!stats) {
     return (
       <AdminLayout
-        title="Statistiques et analyses"
-        subtitle="Vue d'ensemble des performances de la plateforme"
+        title={t('admin.analytics')}
+        subtitle={t('admin.analyticsSubtitle')}
       >
         <div className="text-center py-12">
           <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">Aucune donnée disponible</p>
+          <p className="text-gray-600">{t('noData.noDataAvailable')}</p>
         </div>
       </AdminLayout>
     );
@@ -81,49 +78,49 @@ const AdminAnalyticsPage: React.FC = () => {
 
   const mainStats = [
     {
-      name: 'Utilisateurs totaux',
+      name: t('analytics.main.totalUsers'),
       value: stats.totalUsers,
       icon: Users,
       color: 'bg-blue-500',
       change: getGrowthPercentage(stats.recentActivity.newUsersToday, 0),
     },
     {
-      name: 'Étudiants',
+      name: t('analytics.main.students'),
       value: stats.totalStudents,
       icon: Users,
       color: 'bg-green-500',
       change: null,
     },
     {
-      name: 'Entreprises',
+      name: t('analytics.main.companies'),
       value: stats.totalCompanies,
       icon: Building2,
       color: 'bg-purple-500',
       change: null,
     },
     {
-      name: 'Offres d\'emploi',
+      name: t('analytics.main.offers'),
       value: stats.totalOffers,
       icon: Briefcase,
       color: 'bg-orange-500',
       change: getGrowthPercentage(stats.recentActivity.newOffersToday, 0),
     },
     {
-      name: 'Candidatures',
+      name: t('analytics.main.applications'),
       value: stats.totalApplications,
       icon: Target,
       color: 'bg-red-500',
       change: getGrowthPercentage(stats.recentActivity.newApplicationsToday, 0),
     },
     {
-      name: 'Demandes d\'adoption',
+      name: t('analytics.main.adoptionRequests'),
       value: stats.totalAdoptionRequests,
       icon: Heart,
       color: 'bg-pink-500',
       change: null,
     },
     {
-      name: 'Articles de blog',
+      name: t('analytics.main.blogPosts'),
       value: stats.totalBlogPosts,
       icon: FileText,
       color: 'bg-indigo-500',
@@ -133,19 +130,19 @@ const AdminAnalyticsPage: React.FC = () => {
 
   const todayStats = [
     {
-      name: 'Nouveaux utilisateurs',
+      name: t('analytics.today.newUsers'),
       value: stats.recentActivity.newUsersToday,
       icon: Users,
       color: 'text-blue-600',
     },
     {
-      name: 'Nouvelles offres',
+      name: t('analytics.today.newOffers'),
       value: stats.recentActivity.newOffersToday,
       icon: Briefcase,
       color: 'text-orange-600',
     },
     {
-      name: 'Nouvelles candidatures',
+      name: t('analytics.today.newApplications'),
       value: stats.recentActivity.newApplicationsToday,
       icon: Target,
       color: 'text-red-600',
@@ -154,13 +151,13 @@ const AdminAnalyticsPage: React.FC = () => {
 
   return (
     <AdminLayout
-      title="Statistiques et analyses"
-      subtitle="Vue d'ensemble des performances de la plateforme"
+      title={t('admin.analytics')}
+      subtitle={t('admin.analyticsSubtitle')}
     >
       <div className="p-6 space-y-8">
         {/* Main Statistics Grid */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Statistiques générales</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('admin.analytics')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {mainStats.map((stat) => (
               <div
@@ -193,7 +190,7 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* Today's Activity */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Activité d'aujourd'hui</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('dashboard.recentActivity')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {todayStats.map((stat) => (
               <div
@@ -216,7 +213,7 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* User Distribution */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Répartition des utilisateurs</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('admin.users')}</h2>
           <div className="bg-white p-6 rounded-lg border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {Object.entries(stats.usersByRole).map(([role, count]) => {
@@ -224,11 +221,11 @@ const AdminAnalyticsPage: React.FC = () => {
                 const getRoleInfo = (role: string) => {
                   switch (role) {
                     case 'STUDENT':
-                      return { name: 'Étudiants', color: 'bg-green-500', icon: Users };
+                      return { name: t('roles.student'), color: 'bg-green-500', icon: Users };
                     case 'COMPANY':
-                      return { name: 'Entreprises', color: 'bg-blue-500', icon: Building2 };
+                      return { name: t('roles.company'), color: 'bg-blue-500', icon: Building2 };
                     case 'ADMIN':
-                      return { name: 'Administrateurs', color: 'bg-red-500', icon: Users };
+                      return { name: t('roles.admin'), color: 'bg-red-500', icon: Users };
                     default:
                       return { name: role, color: 'bg-gray-500', icon: Users };
                   }
@@ -247,7 +244,7 @@ const AdminAnalyticsPage: React.FC = () => {
                     <p className="text-3xl font-bold text-gray-900 mt-2">
                       {formatNumber(count)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">{percentage}% du total</p>
+                    <p className="text-sm text-gray-600 mt-1">{percentage}% {t('analytics.ofTotal')}</p>
                     {/* Progress Bar */}
                     <div className="mt-3">
                       <div className="bg-gray-200 rounded-full h-2">
@@ -266,7 +263,7 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* Offers Status */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Statut des offres</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('admin.offers')}</h2>
           <div className="bg-white p-6 rounded-lg border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.entries(stats.offersByStatus).map(([status, count]) => {
@@ -274,11 +271,11 @@ const AdminAnalyticsPage: React.FC = () => {
                 const getStatusInfo = (status: string) => {
                   switch (status) {
                     case 'ACTIVE':
-                      return { name: 'Actives', color: 'bg-green-500' };
+                      return { name: t('analytics.offers.status.active'), color: 'bg-green-500' };
                     case 'INACTIVE':
-                      return { name: 'Inactives', color: 'bg-red-500' };
+                      return { name: t('analytics.offers.status.inactive'), color: 'bg-red-500' };
                     case 'DRAFT':
-                      return { name: 'Brouillons', color: 'bg-yellow-500' };
+                      return { name: t('analytics.offers.status.draft'), color: 'bg-yellow-500' };
                     default:
                       return { name: status, color: 'bg-gray-500' };
                   }
@@ -292,7 +289,7 @@ const AdminAnalyticsPage: React.FC = () => {
                       <div className={`w-4 h-4 rounded-full ${statusInfo.color} mr-3`}></div>
                       <div>
                         <p className="font-medium text-gray-900">{statusInfo.name}</p>
-                        <p className="text-sm text-gray-600">{percentage}% du total</p>
+                        <p className="text-sm text-gray-600">{percentage}% {t('analytics.ofTotal')}</p>
                       </div>
                     </div>
                     <p className="text-2xl font-bold text-gray-900">
@@ -307,14 +304,14 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* Quick Actions */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Actions rapides</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('dashboard.quickActions')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
               onClick={() => window.location.href = '/admin/users'}
               className="flex items-center p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
             >
               <Users className="w-6 h-6 text-blue-600 mr-3" />
-              <span className="font-medium text-blue-900">Gérer les utilisateurs</span>
+              <span className="font-medium text-blue-900">{t('admin.users')}</span>
             </button>
             
             <button
@@ -322,7 +319,7 @@ const AdminAnalyticsPage: React.FC = () => {
               className="flex items-center p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
             >
               <Briefcase className="w-6 h-6 text-orange-600 mr-3" />
-              <span className="font-medium text-orange-900">Gérer les offres</span>
+              <span className="font-medium text-orange-900">{t('admin.offers')}</span>
             </button>
             
             <button
@@ -330,7 +327,7 @@ const AdminAnalyticsPage: React.FC = () => {
               className="flex items-center p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
             >
               <FileText className="w-6 h-6 text-purple-600 mr-3" />
-              <span className="font-medium text-purple-900">Gérer le blog</span>
+              <span className="font-medium text-purple-900">{t('admin.blog')}</span>
             </button>
             
             <button
@@ -338,7 +335,7 @@ const AdminAnalyticsPage: React.FC = () => {
               className="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
             >
               <MessageSquare className="w-6 h-6 text-green-600 mr-3" />
-              <span className="font-medium text-green-900">Envoyer un message</span>
+              <span className="font-medium text-green-900">{t('admin.sendMessage')}</span>
             </button>
           </div>
         </section>
@@ -347,7 +344,7 @@ const AdminAnalyticsPage: React.FC = () => {
         <section className="text-center">
           <p className="text-sm text-gray-500">
             <Clock className="w-4 h-4 inline mr-1" />
-            Dernière mise à jour: {new Date().toLocaleDateString('fr-FR', {
+            {t('dates.lastUpdated') || 'Last updated'}: {new Date().toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
