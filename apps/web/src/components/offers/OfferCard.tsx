@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface OfferCardProps {
   offer: {
@@ -29,6 +30,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
   onApply,
   isApplying = false
 }) => {
+  const { t } = useTranslation();
   const getRingColor = (score: number) => {
     if (score > 75) return 'stroke-green-500';
     if (score > 40) return 'stroke-yellow-500';
@@ -143,7 +145,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
             ))}
             {offer.skills.length > 4 && (
               <span className="px-2.5 py-1 bg-gray-100 text-gray-500 rounded-full text-xs">
-                +{offer.skills.length - 4} autres
+                +{offer.skills.length - 4} {t('offers.others')}
               </span>
             )}
           </div>
@@ -155,7 +157,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
             to={`/offers/${offer.id}`}
             className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm hover:scale-105 hover:shadow-lg transition-all duration-300 shadow-sm transform active:scale-95 group"
           >
-            Voir les détails
+            {t('offers.viewDetails')}
             <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
@@ -168,7 +170,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Candidature envoyée</span>
+                  <span>{t('offers.applicationSent')}</span>
                 </div>
               ) : onApply && (
                 <button
@@ -176,7 +178,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
                   disabled={isApplying}
                   className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
                 >
-                  {isApplying ? 'Envoi...' : 'Postuler'}
+                  {isApplying ? t('offers.sending') : t('offers.apply')}
                 </button>
               )}
             </div>

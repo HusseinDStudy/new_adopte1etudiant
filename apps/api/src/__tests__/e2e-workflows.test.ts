@@ -413,10 +413,13 @@ describe('End-to-End User Workflows', () => {
                     });
 
                 // Apply to first offer
-                await supertest(app.server)
+                const applicationResponse = await supertest(app.server)
                     .post('/api/applications')
                     .set('Cookie', `token=${studentToken}`)
                     .send({ offerId: createdOffers[0].id });
+
+                // Check if application was created successfully
+                expect(applicationResponse.status).toBe(201);
 
                 students.push({ ...studentData, token: studentToken });
             }
@@ -490,15 +493,18 @@ describe('End-to-End User Workflows', () => {
                 include: {
                     applications: true,
                     _count: { select: { applications: true } }
+                },
+                orderBy: {
+                    createdAt: 'asc'
                 }
             });
 
-            console.log('Final offers:', finalOffers.length);
-            console.log('Applications on first offer:', finalOffers[0]?.applications?.length || 'No first offer');
-            console.log('All offers:', finalOffers.map(o => ({ id: o.id, applicationsCount: o.applications.length })));
-
             expect(finalOffers).toHaveLength(2);
-            expect(finalOffers[0].applications).toHaveLength(3);
+            
+            // Find the offer that has applications (should be the first offer created)
+            const offerWithApplications = finalOffers.find(offer => offer.applications.length > 0);
+            expect(offerWithApplications).toBeDefined();
+            expect(offerWithApplications!.applications).toHaveLength(3);
         });
     });
 

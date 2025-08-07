@@ -1,38 +1,40 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* À propos */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-blue-400">À propos</h3>
+            <h3 className="text-lg font-semibold mb-4 text-blue-400">{t('footer.about')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
-                  Qui sommes-nous
+                  {t('footer.whoWeAre')}
                 </Link>
               </li>
               <li>
                 <Link to="/team" className="text-gray-300 hover:text-white transition-colors">
-                  Notre équipe
+                  {t('footer.ourTeam')}
                 </Link>
               </li>
               <li>
                 <Link to="/missions" className="text-gray-300 hover:text-white transition-colors">
-                  Nos missions
+                  {t('footer.ourMissions')}
                 </Link>
               </li>
               <li>
                 <Link to="/partners" className="text-gray-300 hover:text-white transition-colors">
-                  Nos partenaires
+                  {t('footer.ourPartners')}
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="text-gray-300 hover:text-white transition-colors">
-                  Blog & Ressources
+                  {t('footer.blogAndResources')}
                 </Link>
               </li>
             </ul>
@@ -40,21 +42,21 @@ const Footer: React.FC = () => {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-blue-400">Services</h3>
+            <h3 className="text-lg font-semibold mb-4 text-blue-400">{t('footer.services')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/offers" className="text-gray-300 hover:text-white transition-colors">
-                  Offres de stage
+                  {t('navigation.offers')}
                 </Link>
               </li>
               <li>
                 <Link to="/students" className="text-gray-300 hover:text-white transition-colors">
-                  Étudiants
+                  {t('footer.students')}
                 </Link>
               </li>
               <li>
                 <Link to="/register" className="text-gray-300 hover:text-white transition-colors">
-                  Créer un compte
+                  {t('footer.createAccount')}
                 </Link>
               </li>
               <li>
@@ -67,7 +69,7 @@ const Footer: React.FC = () => {
 
           {/* Contact */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-blue-400">Contact</h3>
+            <h3 className="text-lg font-semibold mb-4 text-blue-400">{t('footer.contact')}</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +93,7 @@ const Footer: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span className="text-gray-300 text-sm">
-                  Paris, France
+                  {t('footer.location')}
                 </span>
               </div>
             </div>
@@ -99,21 +101,21 @@ const Footer: React.FC = () => {
 
           {/* Newsletter */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-blue-400">Newsletter</h3>
+            <h3 className="text-lg font-semibold mb-4 text-blue-400">{t('footer.newsletter')}</h3>
             <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-              Restez informé de nos dernières actualités et opportunités
+              {t('footer.newsletterDescription')}
             </p>
             <form className="space-y-3">
               <input
                 type="email"
-                placeholder="Votre email"
+                placeholder={t('footer.emailPlaceholder')}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               />
               <button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
               >
-                S'abonner
+                {t('footer.subscribe')}
               </button>
             </form>
           </div>
@@ -123,23 +125,23 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © 2025 Adopte un Étudiant. Tous droits réservés.
+              {t('footer.copyright')}
             </div>
             <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
               <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
-                Politique de confidentialité
+                {t('footer.privacyPolicy')}
               </Link>
               <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
-                CGU
+                {t('footer.termsOfService')}
               </Link>
               <Link to="/cookies" className="text-gray-400 hover:text-white transition-colors">
-                Cookies
+                {t('footer.cookies')}
               </Link>
               <Link to="/mentions-legales" className="text-gray-400 hover:text-white transition-colors">
-                Mentions légales
+                {t('footer.legalNotice')}
               </Link>
               <Link to="/rgpd" className="text-gray-400 hover:text-white transition-colors">
-                RGPD
+                {t('footer.gdpr')}
               </Link>
             </div>
           </div>

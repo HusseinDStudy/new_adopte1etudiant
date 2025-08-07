@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Save, ArrowLeft, Eye } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminBlogPost, useBlogPostMutations, useSlugGenerator, useBlogCategories } from '../../hooks/useBlog';
 import { CreateBlogPostInput, UpdateBlogPostInput } from '../../services/blogService';
@@ -9,6 +10,7 @@ const BlogPostForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditing = !!id;
+  const { t } = useTranslation();
 
   const { post, loading: postLoading } = useAdminBlogPost(id || '');
   const { createPost, updatePost, loading: mutationLoading } = useBlogPostMutations();
@@ -81,8 +83,8 @@ const BlogPostForm: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     // Validation minimale pour les brouillons - le titre et la catégorie sont requis
-    if (!formData.title?.trim()) newErrors.title = 'Le titre est requis';
-    if (!formData.categoryId?.trim()) newErrors.categoryId = 'La catégorie est requise';
+    if (!formData.title?.trim()) newErrors.title = t('forms.required');
+    if (!formData.categoryId?.trim()) newErrors.categoryId = t('forms.required');
 
     // Validate slug format if provided
     if (formData.slug?.trim()) {
@@ -132,15 +134,15 @@ const BlogPostForm: React.FC = () => {
     // Validation stricte pour publication uniquement
     if (cleanedFormData.status === 'PUBLISHED') {
       if (!cleanedFormData.title?.trim()) {
-        alert('Impossible de publier un article sans titre.');
+        alert(t('blog.postTitleRequired'));
         return;
       }
       if (!cleanedFormData.excerpt?.trim()) {
-        alert('Impossible de publier un article sans extrait.');
+        alert(t('blog.postExcerptRequired'));
         return;
       }
       if (!cleanedFormData.content?.trim()) {
-        alert('Impossible de publier un article sans contenu.');
+        alert(t('blog.postContentRequired'));
         return;
       }
     }

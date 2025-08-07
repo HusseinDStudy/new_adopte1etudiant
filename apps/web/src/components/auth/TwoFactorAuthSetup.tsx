@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as authService from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
 
 const TwoFactorAuthSetup = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -17,11 +19,11 @@ const TwoFactorAuthSetup = () => {
         const me = await authService.getMe();
         setIsTwoFactorEnabled(me.isTwoFactorEnabled);
       } catch (err) {
-        setError('Could not fetch 2FA status.');
+        setError(t('twoFactorAuth.couldNotFetchStatus'));
       }
     };
     checkStatus();
-  }, [user]);
+  }, [user, t]);
 
   const handleCopyCodes = () => {
     const codesString = recoveryCodes.join('\n');
@@ -36,7 +38,7 @@ const TwoFactorAuthSetup = () => {
       const { qrCodeUrl } = await authService.generate2faSecret();
       setQrCodeUrl(qrCodeUrl);
     } catch (err) {
-      setError('Could not generate a new 2FA secret.');
+      setError(t('twoFactorAuth.couldNotGenerateSecret'));
     }
   };
 
@@ -49,15 +51,15 @@ const TwoFactorAuthSetup = () => {
       setIsTwoFactorEnabled(true);
       setQrCodeUrl(''); // Clear QR code
     } catch (err) {
-      setError('Invalid token. Please try again.');
+      setError(t('twoFactorAuth.invalidToken'));
     }
   };
 
   const handleDisable = async () => {
-    if (!window.confirm('Are you sure you want to disable 2FA? You will need to provide one last code.')) {
+    if (!window.confirm(t('twoFactorAuth.confirmDisable'))) {
       return;
     }
-    const userToken = prompt('Please enter your 6-digit authentication code to disable 2FA.');
+    const userToken = prompt(t('twoFactorAuth.enterCodeToDisable'));
     if (userToken) {
       try {
         setError('');
@@ -65,47 +67,47 @@ const TwoFactorAuthSetup = () => {
         setIsTwoFactorEnabled(false);
         setToken('');
       } catch (err) {
-        setError('Invalid token. Could not disable 2FA.');
+        setError(t('twoFactorAuth.invalidTokenDisable'));
       }
     }
   };
 
   return (
     <div className="mt-8 p-4 border rounded-lg">
-      <h3 className="text-lg font-medium">Two-Factor Authentication (2FA)</h3>
+      <h3 className="text-lg font-medium">{t('twoFactorAuth.title')}</h3>
       {error && <p className="text-red-500 my-2">{error}</p>}
 
       {isTwoFactorEnabled ? (
         <div>
-          <p className="text-green-600 my-2">2FA is currently enabled.</p>
+          <p className="text-green-600 my-2">{t('twoFactorAuth.enabled')}</p>
           <button onClick={handleDisable} className="bg-red-500 text-white px-4 py-2 rounded">
-            Disable 2FA
+            {t('twoFactorAuth.disable2FA')}
           </button>
         </div>
       ) : (
         <div>
-          <p className="my-2">Strengthen your account security by enabling 2FA.</p>
+          <p className="my-2">{t('twoFactorAuth.description')}</p>
           {!qrCodeUrl && (
             <button onClick={handleGenerateSecret} className="bg-blue-500 text-white px-4 py-2 rounded">
-              Enable 2FA
+              {t('twoFactorAuth.enable2FA')}
             </button>
           )}
 
           {qrCodeUrl && !recoveryCodes.length && (
             <div className="mt-4">
-              <p>1. Scan this QR code with your authenticator app (like Google Authenticator).</p>
+              <p>{t('twoFactorAuth.step1')}</p>
               <img src={qrCodeUrl} alt="2FA QR Code" />
-              <p className="mt-4">2. Enter the 6-digit code from your app below.</p>
+              <p className="mt-4">{t('twoFactorAuth.step2')}</p>
               <form onSubmit={handleVerifyToken} className="flex items-center mt-2">
                 <input
                   type="text"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                   className="p-2 border rounded"
-                  placeholder="6-digit code"
+                  placeholder={t('twoFactorAuth.sixDigitCode')}
                 />
                 <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded ml-2">
-                  Verify & Enable
+                  {t('twoFactorAuth.verifyAndEnable')}
                 </button>
               </form>
             </div>
@@ -117,17 +119,17 @@ const TwoFactorAuthSetup = () => {
         <div className="mt-6 p-4 border-t">
            <div className="flex justify-between items-center mb-2">
             <div>
-                <h4 className="text-md font-semibold text-orange-600">Save Your Recovery Codes!</h4>
+                <h4 className="text-md font-semibold text-orange-600">{t('twoFactorAuth.saveRecoveryCodes')}</h4>
                 <p className="text-sm text-gray-600">
-                    Store these codes in a safe place.
+                    {t('twoFactorAuth.storeCodesSafely')}
                 </p>
             </div>
              <button
               onClick={handleCopyCodes}
-              title="Copy to clipboard"
+              title={t('twoFactorAuth.copyToClipboard')}
               className="p-1.5 bg-gray-200 hover:bg-gray-300 rounded-md text-gray-700 hover:text-gray-900"
             >
-              <span className="sr-only">Copy to clipboard</span>
+              <span className="sr-only">{t('twoFactorAuth.copyToClipboard')}</span>
               {isCopied ? (
                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

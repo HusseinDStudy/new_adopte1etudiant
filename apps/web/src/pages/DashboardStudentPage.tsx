@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import SidebarLayout from '../components/layout/SidebarLayout';
 import DashboardMetrics from '../components/dashboard/DashboardMetrics';
@@ -6,6 +7,7 @@ import { useStudentStats } from '../hooks/useStudentStats';
 import { useApplications } from '../hooks/useApplications';
 
 const DashboardStudentPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { stats, loading: statsLoading } = useStudentStats();
   const { applications, loading: applicationsLoading } = useApplications();
@@ -22,10 +24,10 @@ const DashboardStudentPage: React.FC = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          Tableau de bord Étudiant
+          {t('dashboardStudent.title')}
         </h1>
         <p className="text-gray-600 mt-2">
-          Bienvenue {user?.email}, suivez vos candidatures et découvrez de nouvelles opportunités
+          {t('dashboardStudent.welcome', { email: user?.email })}
         </p>
       </div>
 
@@ -49,9 +51,9 @@ const DashboardStudentPage: React.FC = () => {
             {/* Recent Applications */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Candidatures récentes</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('dashboardStudent.recentApplications')}</h3>
                 <a href="/my-applications" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  Voir tout →
+                  {t('dashboardStudent.viewAll')}
                 </a>
               </div>
               <div className="space-y-4">
@@ -80,23 +82,19 @@ const DashboardStudentPage: React.FC = () => {
                           app.status === 'HIRED' ? 'bg-green-100 text-green-800' :
                           'bg-red-100 text-red-800'
                         }`}>
-                          {app.status === 'NEW' ? 'Nouveau' :
-                           app.status === 'REVIEWED' ? 'En cours' :
-                           app.status === 'INTERVIEW' ? 'Entretien' :
-                           app.status === 'HIRED' ? 'Embauché' :
-                           'Refusé'}
+                          {t(`dashboardStudent.applicationStatus.${app.status}`)}
                         </span>
                         <p className="text-xs text-gray-500 mt-1">
-                          {new Date(app.createdAt).toLocaleDateString('fr-FR')}
+                          {new Date(app.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    <p>Aucune candidature récente</p>
+                    <p>{t('dashboardStudent.noRecentApplications')}</p>
                     <a href="/offers" className="text-blue-600 hover:text-blue-700 text-sm">
-                      Découvrir des offres →
+                      {t('dashboardStudent.discoverOffers')}
                     </a>
                   </div>
                 )}
@@ -108,7 +106,7 @@ const DashboardStudentPage: React.FC = () => {
 
           {/* Quick Actions */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboardStudent.quickActions')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <a
                 href="/offers"
@@ -120,8 +118,8 @@ const DashboardStudentPage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Parcourir les offres</p>
-                  <p className="text-sm text-gray-600">Découvrir de nouvelles opportunités</p>
+                  <p className="font-medium text-gray-900">{t('dashboardStudent.browseOffers')}</p>
+                  <p className="text-sm text-gray-600">{t('dashboardStudent.browseOffersDescription')}</p>
                 </div>
               </a>
 
@@ -135,8 +133,8 @@ const DashboardStudentPage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Mettre à jour le profil</p>
-                  <p className="text-sm text-gray-600">Améliorer votre visibilité</p>
+                  <p className="font-medium text-gray-900">{t('dashboardStudent.updateProfile')}</p>
+                  <p className="text-sm text-gray-600">{t('dashboardStudent.updateProfileDescription')}</p>
                 </div>
               </a>
 
@@ -150,8 +148,8 @@ const DashboardStudentPage: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">Messages</p>
-                  <p className="text-sm text-gray-600">Communiquer avec les entreprises</p>
+                  <p className="font-medium text-gray-900">{t('dashboardStudent.messages')}</p>
+                  <p className="text-sm text-gray-600">{t('dashboardStudent.messagesDescription')}</p>
                 </div>
               </a>
             </div>

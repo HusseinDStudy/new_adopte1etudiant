@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getOfferById } from '../services/offerService';
 import { useAuth } from '../context/AuthContext';
 import { useOfferApplications } from '../hooks/useOfferApplications';
@@ -29,6 +30,7 @@ const OfferDetailsPage = () => {
   const [error, setError] = useState('');
   const [applyMessage, setApplyMessage] = useState('');
   const { isAuthenticated, user } = useAuth();
+  const { t } = useTranslation();
 
   const {
     appliedOfferIds,
@@ -44,7 +46,7 @@ const OfferDetailsPage = () => {
         const data = await getOfferById(id);
         setOffer(data);
       } catch (err) {
-        setError('Failed to fetch offer details.');
+        setError(t('offers.failedToFetchDetails'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -58,13 +60,13 @@ const OfferDetailsPage = () => {
     setApplyMessage('');
     try {
       await applyToOfferWithTracking(id);
-      setApplyMessage('Application successful!');
+      setApplyMessage(t('applications.applicationSuccessful'));
     } catch (err: any) {
       // Handle specific error cases
       if (err.response?.status === 409 || err.message?.includes('already applied')) {
-        setApplyMessage('You have already applied to this offer. Check your applications to view the status.');
+        setApplyMessage(t('applications.alreadyApplied'));
       } else {
-        setApplyMessage(err.response?.data?.message || 'Failed to apply. Please try again.');
+        setApplyMessage(err.response?.data?.message || t('applications.failedToApply'));
       }
     }
   };
@@ -72,7 +74,7 @@ const OfferDetailsPage = () => {
   if (loading) return (
     <div className="container mx-auto p-4">
       <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading offer details...</div>
+        <div className="text-lg">{t('loading.loadingOfferDetails')}</div>
       </div>
     </div>
   );
@@ -80,10 +82,10 @@ const OfferDetailsPage = () => {
   if (error) return (
     <div className="container mx-auto p-4">
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        <strong>Error:</strong> {error}
+        <strong>{t('errors.error')}:</strong> {error}
         <div className="mt-2">
           <Link to="/offers" className="text-blue-600 hover:text-blue-800 underline">
-            ← Back to Offers
+            ← {t('navigation.backToOffers')}
           </Link>
         </div>
       </div>
@@ -93,10 +95,10 @@ const OfferDetailsPage = () => {
   if (!offer) return (
     <div className="container mx-auto p-4">
       <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-        <strong>Not Found:</strong> Offer not found.
+        <strong>{t('offers.notFound')}:</strong> {t('offers.offerNotFound')}.
         <div className="mt-2">
           <Link to="/offers" className="text-blue-600 hover:text-blue-800 underline">
-            ← Back to Offers
+            ← {t('navigation.backToOffers')}
           </Link>
         </div>
       </div>
@@ -108,7 +110,7 @@ const OfferDetailsPage = () => {
       {/* Back Navigation */}
       <div className="mb-4">
         <Link to="/offers" className="text-blue-600 hover:text-blue-800 flex items-center">
-          ← Back to Offers
+          {t('offerDetails.backToOffers')}
         </Link>
       </div>
 
@@ -116,7 +118,7 @@ const OfferDetailsPage = () => {
         {isAuthenticated && user?.role === 'STUDENT' && typeof offer.matchScore === 'number' && (
           <div className="mb-4 text-right">
             <span className="text-2xl font-bold text-blue-600">
-              Your Match Score: {offer.matchScore}%
+              {t('offerDetails.yourMatchScore')}: {offer.matchScore}%
             </span>
           </div>
         )}
@@ -140,10 +142,10 @@ const OfferDetailsPage = () => {
               {appliedOfferIds.has(offer.id) ? (
                 <div className="text-center">
                   <div className="bg-green-100 text-green-800 px-6 py-3 rounded-lg font-medium mb-2">
-                    ✓ Application Submitted
+                    {t('offerDetails.applicationSubmitted')}
                   </div>
                   <p className="text-xs text-gray-600">
-                    Check your applications to view status
+                    {t('offerDetails.checkApplicationsForStatus')}
                   </p>
                 </div>
               ) : (
@@ -152,13 +154,13 @@ const OfferDetailsPage = () => {
                   disabled={applicationLoading}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
                 >
-                  {applicationLoading ? 'Submitting...' : 'Apply Now'}
+                  {applicationLoading ? t('offerDetails.submitting') : t('offerDetails.applyNow')}
                 </button>
               )}
               <button
                 onClick={refreshAppliedOffers}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                title="Refresh application status"
+                title={t('offerDetails.refreshApplicationStatus')}
               >
                 🔄
               </button>
@@ -174,7 +176,7 @@ const OfferDetailsPage = () => {
         <hr className="my-6" />
 
         <div>
-          <h3 className="text-xl font-semibold mb-4">Job Description</h3>
+          <h3 className="text-xl font-semibold mb-4">{t('offerDetails.jobDescription')}</h3>
           <div className="prose max-w-none text-gray-700 leading-relaxed">
             {offer.description && offer.description.split('\n').map((paragraph, index) => (
               <p key={index} className="mb-3">{paragraph}</p>

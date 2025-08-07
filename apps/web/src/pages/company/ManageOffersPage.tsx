@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { listMyOffers, deleteOffer } from '../../services/offerService';
 import { Link } from 'react-router-dom';
 import SidebarLayout from '../../components/layout/SidebarLayout';
@@ -21,13 +22,14 @@ const ManageOffersPage = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const fetchOffers = async () => {
     try {
       const data = await listMyOffers();
       setOffers(data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch offers.');
+      setError(err.response?.data?.message || t('companyOffers.failedToFetch'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -36,15 +38,15 @@ const ManageOffersPage = () => {
 
   useEffect(() => {
     fetchOffers();
-  }, []);
+  }, [t]);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this offer?')) {
+    if (window.confirm(t('companyOffers.confirmDelete'))) {
       try {
         await deleteOffer(id);
         fetchOffers(); // Refresh the list after deletion
       } catch (err) {
-        alert('Failed to delete offer.');
+        alert(t('companyOffers.failedToDelete'));
         console.error(err);
       }
     }
@@ -53,7 +55,7 @@ const ManageOffersPage = () => {
   if (loading) return (
     <SidebarLayout>
       <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Loading your offers...</div>
+        <div className="text-lg">{t('companyOffers.loadingOffers')}</div>
       </div>
     </SidebarLayout>
   );
@@ -62,13 +64,13 @@ const ManageOffersPage = () => {
     <SidebarLayout>
       {error && (
         <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <strong>Error:</strong> {error}
+          <strong>{t('companyOffers.error')}:</strong> {error}
           <div className="mt-2">
             <button
               onClick={fetchOffers}
               className="text-red-600 hover:text-red-800 underline"
             >
-              Try Again
+              {t('companyOffers.tryAgain')}
             </button>
           </div>
         </div>
@@ -76,29 +78,29 @@ const ManageOffersPage = () => {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Manage Your Offers</h1>
+          <h1 className="text-3xl font-bold">{t('companyOffers.title')}</h1>
           <p className="text-gray-600 mt-1">
-            {offers.length} offer{offers.length !== 1 ? 's' : ''} total
+            {offers.length} {offers.length !== 1 ? t('companyOffers.subtitle') : t('companyOffers.subtitle').replace('offres', 'offre').replace('offers', 'offer')}
           </p>
         </div>
         <Link
           to="/company/offers/new"
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
         >
-          Create New Offer
+          {t('companyOffers.createNewOffer')}
         </Link>
       </div>
 
       {offers.length === 0 ? (
         <div className="text-center bg-white p-12 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold">No offers created yet</h2>
-          <p className="mt-2 text-gray-500">Create your first job offer to start attracting talent.</p>
+          <h2 className="text-xl font-semibold">{t('companyOffers.noOffersYet')}</h2>
+          <p className="mt-2 text-gray-500">{t('companyOffers.noOffersDescription')}</p>
           <div className="mt-6">
             <Link
               to="/company/offers/new"
               className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
             >
-              Create Your First Offer
+              {t('companyOffers.createFirstOffer')}
             </Link>
           </div>
         </div>
@@ -122,7 +124,7 @@ const ManageOffersPage = () => {
                         </span>
                       )}
                       <span className="flex items-center">
-                        📅 Created {new Date(offer.createdAt).toLocaleDateString()}
+                        📅 {t('companyOffers.created')} {new Date(offer.createdAt).toLocaleDateString()}
                       </span>
                     </div>
 
@@ -135,7 +137,7 @@ const ManageOffersPage = () => {
 
                     {offer.skills && offer.skills.length > 0 && (
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Required Skills:</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">{t('companyOffers.requiredSkills')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {offer.skills.map((skill, index) => (
                             <span
@@ -152,12 +154,12 @@ const ManageOffersPage = () => {
                     <div className="flex items-center gap-4">
                       <div className="bg-gray-50 px-3 py-2 rounded-lg">
                         <span className="text-sm font-medium text-gray-700">
-                          {offer._count.applications} Application{offer._count.applications !== 1 ? 's' : ''}
+                          {offer._count.applications} {offer._count.applications !== 1 ? t('companyOffers.applicationsPlural') : t('companyOffers.applications')}
                         </span>
                       </div>
                       {offer.updatedAt !== offer.createdAt && (
                         <span className="text-xs text-gray-500">
-                          Updated {new Date(offer.updatedAt).toLocaleDateString()}
+                          {t('companyOffers.updated')} {new Date(offer.updatedAt).toLocaleDateString()}
                         </span>
                       )}
                     </div>
@@ -169,19 +171,19 @@ const ManageOffersPage = () => {
                     to={`/company/offers/${offer.id}/applications`}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
                   >
-                    View Applicants ({offer._count.applications})
+                    {t('companyOffers.viewApplicants')} ({offer._count.applications})
                   </Link>
                   <Link
                     to={`/company/offers/edit/${offer.id}`}
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
                   >
-                    Edit
+                    {t('companyOffers.edit')}
                   </Link>
                   <button
                     onClick={() => handleDelete(offer.id)}
                     className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
                   >
-                    Delete
+                    {t('companyOffers.delete')}
                   </button>
                 </div>
               </div>

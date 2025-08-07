@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Users, Building2, Briefcase, TrendingUp, Eye, Plus, Edit } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminBlogPosts } from '../../hooks/useBlog';
 import { useAdminStats } from '../../hooks/useAdmin';
@@ -8,6 +9,7 @@ import { useAdminStats } from '../../hooks/useAdmin';
 const AdminDashboard: React.FC = () => {
   const { posts, loading: postsLoading } = useAdminBlogPosts({ limit: 5 });
   const { stats, loading: statsLoading } = useAdminStats();
+  const { t, i18n } = useTranslation();
 
   const dashboardStats = [
     {
@@ -50,7 +52,7 @@ const AdminDashboard: React.FC = () => {
         {statsLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement des statistiques...</p>
+            <p className="text-gray-600">{t('loading.loadingStatistics')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -67,7 +69,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">{stat.name}</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {typeof stat.value === 'number' ? stat.value.toLocaleString('fr-FR') : stat.value}
+                      {typeof stat.value === 'number' ? stat.value.toLocaleString(i18n.language === 'fr' ? 'fr-FR' : 'en-US') : stat.value}
                     </p>
                   </div>
                 </div>

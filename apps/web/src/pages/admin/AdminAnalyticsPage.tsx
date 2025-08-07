@@ -13,14 +13,18 @@ import {
   Target,
   Activity
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminStats } from '../../hooks/useAdmin';
+import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 
 const AdminAnalyticsPage: React.FC = () => {
   const { stats, loading, error, refetch } = useAdminStats();
+  const { t, i18n } = useTranslation();
+  const { formatDate } = useLocalizedDate();
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('fr-FR').format(num);
+    return new Intl.NumberFormat(i18n.language === 'fr' ? 'fr-FR' : 'en-US').format(num);
   };
 
   const getGrowthPercentage = (current: number, previous: number) => {
@@ -31,12 +35,12 @@ const AdminAnalyticsPage: React.FC = () => {
   if (loading) {
     return (
       <AdminLayout
-        title="Statistiques et analyses"
-        subtitle="Vue d'ensemble des performances de la plateforme"
+        title={t('admin.analytics')}
+        subtitle={t('admin.analyticsSubtitle')}
       >
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement des statistiques...</p>
+          <p className="text-gray-600">{t('loading.loadingStatistics')}</p>
         </div>
       </AdminLayout>
     );
@@ -45,16 +49,16 @@ const AdminAnalyticsPage: React.FC = () => {
   if (error) {
     return (
       <AdminLayout
-        title="Statistiques et analyses"
-        subtitle="Vue d'ensemble des performances de la plateforme"
+        title={t('admin.analytics')}
+        subtitle={t('admin.analyticsSubtitle')}
       >
         <div className="text-center py-12">
-          <p className="text-red-600 mb-4">Erreur lors du chargement des statistiques</p>
+          <p className="text-red-600 mb-4">{t('errors.loadingStatisticsError')}</p>
           <button
             onClick={refetch}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Réessayer
+            {t('common.retry')}
           </button>
         </div>
       </AdminLayout>

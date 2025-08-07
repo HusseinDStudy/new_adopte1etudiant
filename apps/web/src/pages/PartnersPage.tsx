@@ -1,7 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import HeroSection from '../components/common/HeroSection';
 
 const PartnersPage: React.FC = () => {
+  const { t } = useTranslation();
   const companyPartners = [
     { 
       name: "Google", 
@@ -76,8 +78,8 @@ const PartnersPage: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
         </svg>
       ),
-      title: "Visibilité",
-      description: "Mettez en avant votre marque et vos opportunités auprès d'une communauté ciblée d'étudiants motivés et qualifiés."
+      title: t('partners.visibility'),
+      description: t('partners.visibilityDescription')
     },
     {
       icon: (
@@ -85,8 +87,8 @@ const PartnersPage: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
-      title: "Recrutement",
-      description: "Trouvez les talents qui correspondent exactement à vos besoins grâce à notre système de matching intelligent."
+      title: t('partners.recruitment'),
+      description: t('partners.recruitmentDescription')
     },
     {
       icon: (
@@ -94,26 +96,26 @@ const PartnersPage: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      title: "Accompagnement",
-      description: "Bénéficiez d'un suivi personnalisé tout au long du processus de recrutement et d'intégration des stagiaires."
+      title: t('partners.support'),
+      description: t('partners.supportDescription')
     }
   ];
 
   const partnershipSteps = [
     {
       number: "1",
-      title: "Visibilité",
-      description: "Mettez en avant votre marque et vos opportunités auprès d'une communauté ciblée d'étudiants motivés et qualifiés."
+      title: t('partners.visibility'),
+      description: t('partners.visibilityDescription')
     },
     {
       number: "2", 
-      title: "Recrutement",
-      description: "Trouvez les talents qui correspondent exactement à vos besoins grâce à notre système de matching intelligent."
+      title: t('partners.recruitment'),
+      description: t('partners.recruitmentDescription')
     },
     {
       number: "3",
-      title: "Accompagnement", 
-      description: "Bénéficiez d'un suivi personnalisé tout au long du processus de recrutement et d'intégration des stagiaires."
+      title: t('partners.support'), 
+      description: t('partners.supportDescription')
     }
   ];
 
@@ -121,8 +123,8 @@ const PartnersPage: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <HeroSection
-        title="Nos Partenaires"
-        subtitle="Une collaboration étroite avec les entreprises et écoles pour favoriser l'insertion professionnelle des étudiants."
+        title={t('partners.ourPartners')}
+        subtitle={t('partners.partnersSubtitle')}
         variant="medium"
       />
 
@@ -134,11 +136,10 @@ const PartnersPage: React.FC = () => {
               <svg className="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              <h2 className="text-3xl font-bold text-gray-900">Entreprises Partenaires</h2>
+              <h2 className="text-3xl font-bold text-gray-900">{t('partners.companyPartners')}</h2>
             </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Ces entreprises innovantes s'associent à notre plateforme pour proposer des opportunités de stage de 
-              qualité et contribuer à la formation de la nouvelle génération de professionnels.
+              {t('partners.companyPartnersDescription')}
             </p>
           </div>
 
@@ -179,11 +180,10 @@ const PartnersPage: React.FC = () => {
               <svg className="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
-              <h2 className="text-3xl font-bold text-gray-900">Écoles Partenaires</h2>
+              <h2 className="text-3xl font-bold text-gray-900">{t('partners.schoolPartners')}</h2>
             </div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Nous collaborons avec des institutions d'enseignement supérieur de premier plan pour faciliter l'accès des 
-              étudiants à des opportunités professionnelles enrichissantes.
+              {t('partners.schoolPartnersDescription')}
             </p>
           </div>
 
@@ -248,18 +248,16 @@ const PartnersPage: React.FC = () => {
                     <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"></path>
                     <path d="M3 4h8"></path>
                   </svg>
-                  <h2 className="text-3xl font-bold text-white">Devenir Partenaire</h2>
+                  <h2 className="text-3xl font-bold text-white">{t('partners.becomePartner')}</h2>
                 </div>
                 <p className="text-blue-100 mb-8 leading-relaxed text-lg">
-                  Rejoignez notre réseau de partenaires et participez à la formation de la
-                  prochaine génération de talents. Ensemble, créons des opportunités qui
-                  façonneront l'avenir professionnel des étudiants.
+                  {t('partners.becomePartnerDescription')}
                 </p>
                 <a
                   href="/contact"
                   className="inline-flex items-center bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 hover:scale-105 hover:shadow-xl transition-all duration-300 transform active:scale-95 group"
                 >
-                  Nous Contacter
+                  {t('partners.contactUs')}
                   <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
@@ -268,7 +266,7 @@ const PartnersPage: React.FC = () => {
 
               {/* Right side - Advantages Box */}
               <div className="bg-blue-500/30 backdrop-blur-sm rounded-3xl p-4 max-w-sm">
-                <h3 className="text-xl font-bold text-white mb-6">Avantages partenaires</h3>
+                <h3 className="text-xl font-bold text-white mb-6">{t('partners.partnerAdvantages')}</h3>
                 <div className="space-y-4">
                   <div className="flex items-center text-white">
                     <div className="w-5 h-5 bg-blue-200/80 rounded-full mr-3 flex-shrink-0 flex items-center justify-center">
@@ -276,7 +274,7 @@ const PartnersPage: React.FC = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>Accès prioritaire aux profils étudiants</span>
+                    <span>{t('partners.priorityAccess')}</span>
                   </div>
                   <div className="flex items-center text-white">
                     <div className="w-5 h-5 bg-blue-200/80 rounded-full mr-3 flex-shrink-0 flex items-center justify-center">
@@ -284,7 +282,7 @@ const PartnersPage: React.FC = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>Événements de recrutement exclusifs</span>
+                    <span>{t('partners.exclusiveEvents')}</span>
                   </div>
                   <div className="flex items-center text-white">
                     <div className="w-5 h-5 bg-blue-200/80 rounded-full mr-3 flex-shrink-0 flex items-center justify-center">
@@ -292,7 +290,7 @@ const PartnersPage: React.FC = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>Contenu personnalisé et stratégique</span>
+                    <span>{t('partners.personalizedContent')}</span>
                   </div>
                   <div className="flex items-center text-white">
                     <div className="w-5 h-5 bg-blue-200/80 rounded-full mr-3 flex-shrink-0 flex items-center justify-center">
@@ -300,7 +298,7 @@ const PartnersPage: React.FC = () => {
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
-                    <span>Support dédié et assistance recrutement</span>
+                    <span>{t('partners.dedicatedSupport')}</span>
                   </div>
                 </div>
               </div>

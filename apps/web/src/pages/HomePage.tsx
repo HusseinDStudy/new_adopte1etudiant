@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import HeroSection from '../components/common/HeroSection';
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -16,7 +18,7 @@ const HomePage = () => {
             qui vous correspond
           </>
         }
-        description="La plateforme qui connecte étudiants et entreprises pour des stages et alternances qui correspondent vraiment à vos attentes."
+        description={t('home.platformDescription')}
         variant="large"
       >
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -24,13 +26,13 @@ const HomePage = () => {
             to="/register"
             className="bg-teal-500 hover:bg-teal-600 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
           >
-            Commencer maintenant
+            {t('home.getStarted')}
           </Link>
           <Link
             to="/offers"
             className="bg-white hover:bg-gray-50 text-blue-700 px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
           >
-            Voir les offres
+            {t('home.viewOffers')}
           </Link>
         </div>
       </HeroSection>
@@ -49,7 +51,7 @@ const HomePage = () => {
                 </svg>
               </div>
               <div className="text-4xl font-bold text-blue-600 mb-3 group-hover:text-blue-700 transition-colors duration-300">2,500+</div>
-              <div className="text-gray-600 font-medium group-hover:text-gray-700 transition-colors duration-300">Étudiants actifs</div>
+              <div className="text-gray-600 font-medium group-hover:text-gray-700 transition-colors duration-300">{t('home.activeStudents')}</div>
             </div>
 
             <div className="bg-white rounded-2xl p-10 shadow-lg hover:shadow-xl transition-all duration-300 group">
@@ -59,7 +61,7 @@ const HomePage = () => {
                 </svg>
               </div>
               <div className="text-4xl font-bold text-blue-600 mb-3 group-hover:text-blue-700 transition-colors duration-300">500+</div>
-              <div className="text-gray-600 font-medium group-hover:text-gray-700 transition-colors duration-300">Entreprises partenaires</div>
+              <div className="text-gray-600 font-medium group-hover:text-gray-700 transition-colors duration-300">{t('home.partnerCompanies')}</div>
             </div>
 
             <div className="bg-white rounded-2xl p-10 shadow-lg hover:shadow-xl transition-all duration-300 group">
@@ -69,7 +71,7 @@ const HomePage = () => {
                 </svg>
               </div>
               <div className="text-4xl font-bold text-blue-600 mb-3 group-hover:text-blue-700 transition-colors duration-300">1,200+</div>
-              <div className="text-gray-600 font-medium group-hover:text-gray-700 transition-colors duration-300">Stages pourvus</div>
+              <div className="text-gray-600 font-medium group-hover:text-gray-700 transition-colors duration-300">{t('home.filledInternships')}</div>
             </div>
           </div>
         </div>
@@ -79,10 +81,10 @@ const HomePage = () => {
       <div className="bg-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <div className="text-blue-500 font-semibold text-lg mb-4 uppercase tracking-wide">Nos services</div>
-            <h2 className="text-5xl font-bold text-gray-900 mb-6">Une plateforme complète</h2>
+            <div className="text-blue-500 font-semibold text-lg mb-4 uppercase tracking-wide">{t('home.ourServices')}</div>
+            <h2 className="text-5xl font-bold text-gray-900 mb-6">{t('home.completePlatform')}</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              Découvrez tous nos services pour faciliter votre recherche de stage et d'alternance
+              {t('home.discoverOurServices')}
             </p>
           </div>
 

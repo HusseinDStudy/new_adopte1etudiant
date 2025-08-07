@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getMessagesForConversation, createMessageInConversation, Message, ConversationDetails } from '../services/messageService';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Lock, Archive, Clock, AlertCircle, Users, Briefcase, Building2, MessageSquare, Send } from 'lucide-react';
 import SidebarLayout from '../components/layout/SidebarLayout';
 
 const ConversationPage: React.FC = () => {
+  const { t } = useTranslation();
   const { conversationId } = useParams<{ conversationId: string }>();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -33,11 +35,11 @@ const ConversationPage: React.FC = () => {
         })
         .catch((err) => {
           console.error(err);
-          setError('Failed to load messages.');
+          setError(t('conversationDetail.failedToLoad'));
           setLoading(false);
         });
     }
-  }, [conversationId]);
+  }, [conversationId, t]);
 
   useEffect(() => {
     scrollToBottom();
@@ -54,7 +56,7 @@ const ConversationPage: React.FC = () => {
       setNewMessage('');
     } catch (err: any) {
       console.error('Failed to send message:', err);
-      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
+      setError(err.response?.data?.message || t('conversationDetail.failedToSend'));
     } finally {
       setSending(false);
     }
@@ -82,7 +84,7 @@ const ConversationPage: React.FC = () => {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
           <Lock className="w-4 h-4 mr-1" />
-          Lecture seule
+          {t('conversationDetail.status.readOnly')}
         </span>
       );
     }
@@ -91,7 +93,7 @@ const ConversationPage: React.FC = () => {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
           <Archive className="w-4 h-4 mr-1" />
-          Archivée
+          {t('conversationDetail.status.archived')}
         </span>
       );
     }
@@ -100,7 +102,7 @@ const ConversationPage: React.FC = () => {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
           <Clock className="w-4 h-4 mr-1" />
-          Expirée
+          {t('conversationDetail.status.expired')}
         </span>
       );
     }
@@ -109,7 +111,7 @@ const ConversationPage: React.FC = () => {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
           <AlertCircle className="w-4 h-4 mr-1" />
-          En attente
+          {t('conversationDetail.status.pendingApproval')}
         </span>
       );
     }
@@ -127,16 +129,16 @@ const ConversationPage: React.FC = () => {
         return (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <h3 className="font-semibold text-blue-900 mb-2">
-              Demande d'adoption - {contextDetails.companyName}
+              {t('conversationDetail.context.adoptionRequest')} - {contextDetails.companyName}
             </h3>
             <p className="text-blue-700 text-sm mb-2">
-              Statut: {contextDetails.status === 'PENDING' ? 'En attente de réponse' : 
-                       contextDetails.status === 'ACCEPTED' ? 'Acceptée' : 
-                       contextDetails.status === 'REJECTED' ? 'Rejetée' : contextDetails.status}
+              {t('conversationDetail.context.status')}: {contextDetails.status === 'PENDING' ? t('conversationDetail.context.pendingResponse') : 
+                       contextDetails.status === 'ACCEPTED' ? t('conversationDetail.context.accepted') : 
+                       contextDetails.status === 'REJECTED' ? t('conversationDetail.context.rejected') : contextDetails.status}
             </p>
             {contextDetails.initialMessage && (
               <div className="text-blue-600 text-sm">
-                <strong>Message initial:</strong> {contextDetails.initialMessage}
+                <strong>{t('conversationDetail.context.initialMessage')}:</strong> {contextDetails.initialMessage}
               </div>
             )}
           </div>
@@ -145,17 +147,17 @@ const ConversationPage: React.FC = () => {
         return (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
             <h3 className="font-semibold text-green-900 mb-2">
-              Candidature - {contextDetails.offerTitle}
+              {t('conversationDetail.context.application')} - {contextDetails.offerTitle}
             </h3>
             <p className="text-green-700 text-sm mb-2">
-              Entreprise: {contextDetails.companyName}
+              {t('conversationDetail.context.company')}: {contextDetails.companyName}
             </p>
             <p className="text-green-700 text-sm">
-              Statut: {contextDetails.status === 'NEW' ? 'Nouvelle' : 
-                       contextDetails.status === 'SEEN' ? 'Vue' : 
-                       contextDetails.status === 'INTERVIEW' ? 'Entretien' : 
-                       contextDetails.status === 'REJECTED' ? 'Rejetée' : 
-                       contextDetails.status === 'HIRED' ? 'Embauchée' : contextDetails.status}
+              {t('conversationDetail.context.status')}: {contextDetails.status === 'NEW' ? t('conversationDetail.context.new') : 
+                       contextDetails.status === 'SEEN' ? t('conversationDetail.context.seen') : 
+                       contextDetails.status === 'INTERVIEW' ? t('conversationDetail.context.interview') : 
+                       contextDetails.status === 'REJECTED' ? t('conversationDetail.context.rejected') : 
+                       contextDetails.status === 'HIRED' ? t('conversationDetail.context.hired') : contextDetails.status}
             </p>
           </div>
         );
@@ -163,12 +165,12 @@ const ConversationPage: React.FC = () => {
         return (
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
             <h3 className="font-semibold text-orange-900 mb-2">
-              Message de diffusion
+              {t('conversationDetail.context.broadcast')}
             </h3>
             <p className="text-orange-700 text-sm">
-              Destiné à: {contextDetails.target === 'ALL' ? 'Tous les utilisateurs' : 
-                          contextDetails.target === 'STUDENTS' ? 'Étudiants uniquement' : 
-                          contextDetails.target === 'COMPANIES' ? 'Entreprises uniquement' : 'Utilisateurs'}
+              {t('conversationDetail.context.targetedTo')}: {contextDetails.target === 'ALL' ? t('conversationDetail.context.allUsers') : 
+                          contextDetails.target === 'STUDENTS' ? t('conversationDetail.context.studentsOnly') : 
+                          contextDetails.target === 'COMPANIES' ? t('conversationDetail.context.companiesOnly') : t('conversationDetail.context.users')}
             </p>
           </div>
         );
@@ -189,7 +191,7 @@ const ConversationPage: React.FC = () => {
     try {
       // Handle anonymous participants in broadcast conversations
       if (participant?.id === 'anonymous' || participant?.userId === 'anonymous') {
-        return 'Administrateur';
+        return t('conversations.admin');
       }
 
       // Handle different possible data structures
@@ -208,15 +210,15 @@ const ConversationPage: React.FC = () => {
       }
       
       // Fallback
-      return 'Utilisateur inconnu';
+      return t('conversations.unknownUser');
     } catch (error) {
       console.error('Error getting participant name:', error, participant);
-      return 'Utilisateur inconnu';
+      return t('conversations.unknownUser');
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -231,7 +233,7 @@ const ConversationPage: React.FC = () => {
         <div className="container mx-auto p-6">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement de la conversation...</p>
+            <p className="text-gray-600">{t('conversationDetail.loading')}</p>
           </div>
         </div>
       </SidebarLayout>
@@ -243,13 +245,13 @@ const ConversationPage: React.FC = () => {
       <SidebarLayout>
         <div className="container mx-auto p-6">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <strong>Erreur:</strong> {error}
+            <strong>{t('conversationDetail.error')}:</strong> {error}
             <div className="mt-2">
               <button
                 onClick={() => window.location.reload()}
                 className="text-red-600 hover:text-red-800 underline"
               >
-                Réessayer
+                {t('conversationDetail.tryAgain')}
               </button>
             </div>
           </div>
@@ -273,7 +275,7 @@ const ConversationPage: React.FC = () => {
             <div className="flex items-center gap-2">
               {getContextIcon(conversation?.context)}
               <h1 className="text-2xl font-bold">
-                {conversation?.topic || 'Conversation'}
+                {conversation?.topic || t('conversationDetail.conversation')}
               </h1>
               {getStatusBadge()}
             </div>
@@ -281,7 +283,7 @@ const ConversationPage: React.FC = () => {
           
           {/* Participants */}
           <div className="text-sm text-gray-600">
-            <span className="font-medium">Participants:</span>{' '}
+            <span className="font-medium">{t('conversationDetail.participants')}:</span>{' '}
             {conversation?.participants.map((participant, index) => (
               <span key={participant.id}>
                 {getParticipantName(participant)}
@@ -300,7 +302,7 @@ const ConversationPage: React.FC = () => {
             <div className="flex items-center text-orange-800">
               <Clock className="w-4 h-4 mr-2" />
               <span className="text-sm">
-                Cette conversation expire le {formatDate(conversation.expiresAt)}
+                {t('conversationDetail.expiresOn')} {formatDate(conversation.expiresAt)}
               </span>
             </div>
           </div>
@@ -327,16 +329,16 @@ const ConversationPage: React.FC = () => {
                       : 'bg-white text-gray-800 border border-gray-200'
                   }`}
                 >
-                  <p className="text-sm">{msg.content || 'No content'}</p>
+                  <p className="text-sm">{msg.content || t('conversationDetail.noContent')}</p>
                   <p className={`text-xs mt-1 ${isOwnMessage ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {msg.createdAt ? formatDate(msg.createdAt) : 'Unknown time'}
+                    {msg.createdAt ? formatDate(msg.createdAt) : t('conversationDetail.unknownTime')}
                   </p>
                 </div>
               </div>
             );
           }) : (
             <div className="text-center text-gray-500 py-8">
-              Aucun message dans cette conversation.
+              {t('conversationDetail.noMessages')}
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -347,10 +349,10 @@ const ConversationPage: React.FC = () => {
           {!canSendMessage() ? (
             <div className="text-center text-gray-500 italic p-4 bg-gray-50 rounded-lg">
               {conversation?.status === 'ARCHIVED' || conversation?.status === 'EXPIRED' 
-                ? 'Cette conversation a été fermée et est maintenant en lecture seule.'
+                ? t('conversationDetail.conversationClosed')
                 : conversation?.isReadOnly 
-                ? 'Cette conversation est en lecture seule.'
-                : 'Vous ne pouvez pas envoyer de messages dans cette conversation.'
+                ? t('conversationDetail.readOnly')
+                : t('conversationDetail.cannotSend')
               }
             </div>
           ) : (
@@ -360,7 +362,7 @@ const ConversationPage: React.FC = () => {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Tapez votre message..."
+                placeholder={t('conversationDetail.typeMessage')}
                 disabled={sending}
               />
               <button
@@ -369,7 +371,7 @@ const ConversationPage: React.FC = () => {
                 className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Send className="w-4 h-4" />
-                {sending ? 'Envoi...' : 'Envoyer'}
+                {sending ? t('conversationDetail.sending') : t('conversationDetail.send')}
               </button>
             </form>
           )}

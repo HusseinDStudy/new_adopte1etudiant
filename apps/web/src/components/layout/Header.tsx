@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
 const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
@@ -34,7 +37,7 @@ const Header: React.FC = () => {
                   : 'text-gray-700 hover:text-blue-600'
               }`}
             >
-              Offres de stage
+              {t('navigation.offers')}
             </Link>
 
             {user?.role === 'COMPANY' && (
@@ -46,7 +49,7 @@ const Header: React.FC = () => {
                     : 'text-gray-700 hover:text-blue-600'
                 }`}
               >
-                Étudiants
+                {t('navigation.students')}
               </Link>
             )}
 
@@ -60,7 +63,7 @@ const Header: React.FC = () => {
                   : 'text-gray-700 hover:text-blue-600'
               }`}
             >
-              Blog
+              {t('navigation.blog')}
             </Link>
 
             <Link
@@ -71,12 +74,13 @@ const Header: React.FC = () => {
                   : 'text-gray-700 hover:text-blue-600'
               }`}
             >
-              Contact
+              {t('navigation.contact')}
             </Link>
           </nav>
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             {isAuthenticated ? (
               <>
                 {/* Dashboard Icon */}
@@ -132,20 +136,20 @@ const Header: React.FC = () => {
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Mon profil
+                      {t('navigation.profile')}
                     </Link>
                     <Link
                       to="/settings"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      Paramètres
+                      {t('navigation.settings')}
                     </Link>
                     <hr className="my-1" />
                     <button
                       onClick={logout}
                       className="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
                     >
-                      Déconnexion
+                      {t('navigation.logout')}
                     </button>
                   </div>
                 </div>
@@ -156,13 +160,13 @@ const Header: React.FC = () => {
                   to="/login"
                   className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Connexion
+                  {t('navigation.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
-                  Inscription
+                  {t('navigation.register')}
                 </Link>
               </div>
             )}

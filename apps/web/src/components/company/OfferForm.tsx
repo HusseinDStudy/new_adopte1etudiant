@@ -1,30 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createOfferSchema, CreateOfferInput } from 'shared-types';
 import { z } from 'zod';
-
-const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
-
-const skillValidation = z.string()
-  .min(1, 'Please enter at least one skill.')
-  .refine(
-    (value) => {
-      const skills = value.split(',').map(s => s.trim());
-      return skills.every(skill => validSkillRegex.test(skill));
-    },
-    {
-      message: "Skills can only contain letters, numbers, spaces, and '+', '#', '.', '-'. Please remove any invalid characters.",
-    }
-);
-
-// Zod schema for the form data, where skills is a string
-const offerFormSchema = createOfferSchema.extend({
-  skills: skillValidation,
-});
-
-// Type for the form data
-type OfferFormData = z.infer<typeof offerFormSchema>;
 
 interface OfferFormProps {
   onSubmit: (data: CreateOfferInput) => void;
@@ -33,6 +12,30 @@ interface OfferFormProps {
 }
 
 const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmitting }) => {
+  const { t } = useTranslation();
+
+  const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
+
+  const skillValidation = z.string()
+    .min(1, t('offerForm.validation.skillsRequired'))
+    .refine(
+      (value) => {
+        const skills = value.split(',').map(s => s.trim());
+        return skills.every(skill => validSkillRegex.test(skill));
+      },
+      {
+        message: t('offerForm.validation.skillsInvalid'),
+      }
+    );
+
+  // Zod schema for the form data, where skills is a string
+  const offerFormSchema = createOfferSchema.extend({
+    skills: skillValidation,
+  });
+
+  // Type for the form data
+  type OfferFormData = z.infer<typeof offerFormSchema>;
+
   const {
     register,
     handleSubmit,
@@ -64,7 +67,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="sm:col-span-4">
         <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-          Offer Title
+          {t('offerForm.offerTitle')}
         </label>
         <input
           type="text"
@@ -77,7 +80,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
 
       <div className="sm:col-span-6">
         <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-          Description
+          {t('offerForm.description')}
         </label>
         <textarea
           id="description"
@@ -90,7 +93,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
 
       <div className="sm:col-span-3">
         <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-          Location
+          {t('offerForm.location')}
         </label>
         <input
           type="text"
@@ -102,7 +105,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
       
       <div className="sm:col-span-3">
         <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
-          Duration
+          {t('offerForm.duration')}
         </label>
         <input
           type="text"
@@ -114,7 +117,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
       
       <div className="sm:col-span-6">
         <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
-          Required Skills (comma-separated)
+          {t('offerForm.requiredSkills')}
         </label>
         <input
           type="text"
@@ -132,7 +135,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
             disabled={isSubmitting}
             className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
           >
-            {isSubmitting ? 'Saving...' : 'Save Offer'}
+            {isSubmitting ? t('offerForm.saving') : t('offerForm.saveOffer')}
           </button>
         </div>
       </div>

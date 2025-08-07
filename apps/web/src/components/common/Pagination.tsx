@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
   currentPage: number;
@@ -15,6 +16,7 @@ const Pagination: React.FC<PaginationProps> = ({
   itemsPerPage,
   totalItems
 }) => {
+  const { t } = useTranslation();
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -64,23 +66,21 @@ const Pagination: React.FC<PaginationProps> = ({
           disabled={currentPage === 1}
           className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
         >
-          Précédent
+          {t('common.previous')}
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
         >
-          Suivant
+          {t('common.next')}
         </button>
       </div>
       
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Affichage de <span className="font-medium">{startItem}</span> à{' '}
-            <span className="font-medium">{endItem}</span> sur{' '}
-            <span className="font-medium">{totalItems}</span> résultats
+            {t('common.showingResults', { start: startItem, end: endItem, total: totalItems })}
           </p>
         </div>
         
@@ -91,9 +91,9 @@ const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
               className="relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-medium text-gray-500 bg-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
-              title="Première page"
+              title={t('common.firstPage')}
             >
-              Premier
+              {t('common.first')}
             </button>
 
             {/* Previous button */}
@@ -101,9 +101,9 @@ const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
-              title="Page précédente"
+              title={t('common.previousPage')}
             >
-              <span className="sr-only">Précédent</span>
+                              <span className="sr-only">{t('common.previous')}</span>
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
               </svg>
@@ -124,7 +124,7 @@ const Pagination: React.FC<PaginationProps> = ({
                         ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
                         : 'text-gray-900'
                     }`}
-                    title={`Page ${page}`}
+                    title={t('common.page', { page })}
                   >
                     {page}
                   </button>
@@ -137,9 +137,9 @@ const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
-              title="Page suivante"
+              title={t('common.nextPage')}
             >
-              <span className="sr-only">Suivant</span>
+                              <span className="sr-only">{t('common.next')}</span>
               <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
               </svg>
@@ -150,9 +150,9 @@ const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages}
               className="relative inline-flex items-center rounded-r-md px-3 py-2 text-sm font-medium text-gray-500 bg-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
-              title="Dernière page"
+              title={t('common.lastPage')}
             >
-              Dernier
+              {t('common.last')}
             </button>
           </nav>
         </div>

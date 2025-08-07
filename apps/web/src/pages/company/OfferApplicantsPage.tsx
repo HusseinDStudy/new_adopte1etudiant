@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { getOfferApplications, getOfferById } from '../../services/offerService';
 import { updateApplicationStatus } from '../../services/applicationService';
@@ -45,6 +46,7 @@ const OfferApplicantsPage = () => {
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [updating, setUpdating] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!id) return;
@@ -58,7 +60,7 @@ const OfferApplicantsPage = () => {
         setApplications(Array.isArray(apps) ? apps : []);
         setOffer(offerData);
       } catch (err) {
-        setError('Failed to load applicants.');
+        setError(t('offerApplicants.failedToLoad'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -66,7 +68,7 @@ const OfferApplicantsPage = () => {
     };
 
     fetchAllData();
-  }, [id]);
+  }, [id, t]);
 
   // Filter applications based on status
   useEffect(() => {
@@ -98,7 +100,7 @@ const OfferApplicantsPage = () => {
     } catch (error) {
       console.error('Failed to update status:', error);
       setApplications(originalApplications); // Revert on error
-      setError('Failed to update application status. Please try again.');
+      setError(t('offerApplicants.failedToUpdateStatus'));
     } finally {
       setUpdating(null);
     }
@@ -125,7 +127,7 @@ const OfferApplicantsPage = () => {
     <SidebarLayout>
       <div className="container mx-auto">
         <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading applicants...</div>
+          <div className="text-lg">{t('offerApplicants.loadingApplicants')}</div>
         </div>
       </div>
     </SidebarLayout>
@@ -135,13 +137,13 @@ const OfferApplicantsPage = () => {
     <SidebarLayout>
       <div className="container mx-auto">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <strong>Error:</strong> {error}
+          <strong>{t('offerApplicants.error')}:</strong> {error}
           <div className="mt-2">
             <button
               onClick={() => window.location.reload()}
               className="text-red-600 hover:text-red-800 underline"
             >
-              Try Again
+              {t('offerApplicants.tryAgain')}
             </button>
           </div>
         </div>
@@ -161,16 +163,16 @@ const OfferApplicantsPage = () => {
             to="/company/offers"
             className="text-indigo-600 hover:text-indigo-800 flex items-center"
           >
-            ← Back to Offers
+            {t('offerApplicants.backToOffers')}
           </Link>
           <Link
             to={`/company/offers/${id}/invite-students`}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
-            🎯 Invite Students
+            {t('offerApplicants.inviteStudents')}
           </Link>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Applicants for {offer?.title}</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('offerApplicants.title')} {offer?.title}</h1>
         {offer?.description && (
           <p className="text-gray-600 mt-2">{offer.description}</p>
         )}
@@ -182,7 +184,7 @@ const OfferApplicantsPage = () => {
 
       {/* Status Filter */}
       <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border">
-        <h3 className="text-lg font-medium mb-3">Filter by Status</h3>
+        <h3 className="text-lg font-medium mb-3">{t('offerApplicants.filterByStatus')}</h3>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setStatusFilter('ALL')}
@@ -192,7 +194,7 @@ const OfferApplicantsPage = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            All ({statusCounts.ALL})
+            {t('offerApplicants.all')} ({statusCounts.ALL})
           </button>
           {applicationStatuses.map(status => (
             <button
@@ -204,7 +206,7 @@ const OfferApplicantsPage = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {status} ({statusCounts[status]})
+              {t(`offerApplicants.status.${status.toLowerCase()}`)} ({statusCounts[status]})
             </button>
           ))}
         </div>
@@ -215,14 +217,14 @@ const OfferApplicantsPage = () => {
         <div className="text-center bg-white p-12 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">
             {statusFilter === 'ALL'
-              ? 'No applications yet'
-              : `No ${statusFilter.toLowerCase()} applications`
+              ? t('offerApplicants.noApplicationsYet')
+              : `${t('offerApplicants.noStatusApplications')} ${t(`offerApplicants.status.${statusFilter.toLowerCase()}`)}`
             }
           </h2>
           <p className="mt-2 text-gray-500">
             {statusFilter === 'ALL'
-              ? 'When students apply to this offer, they will appear here.'
-              : `No applications with ${statusFilter.toLowerCase()} status found.`
+              ? t('offerApplicants.noApplicationsDescription')
+              : `${t('offerApplicants.noStatusApplicationsDescription')} ${t(`offerApplicants.status.${statusFilter.toLowerCase()}`)} ${t('offerApplicants.statusFound')}`
             }
           </p>
         </div>
@@ -238,7 +240,7 @@ const OfferApplicantsPage = () => {
                       <h3 className="text-xl font-semibold text-gray-900">
                         {app.student?.firstName || ''} {app.student?.lastName || ''}
                       </h3>
-                      <p className="text-gray-600">Student ID: {app.studentId}</p>
+                      <p className="text-gray-600">{t('offerApplicants.studentId')}: {app.studentId}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[app.status]}`}>
                       {app.status}
@@ -248,19 +250,19 @@ const OfferApplicantsPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <p className="text-sm text-gray-600">
-                        <strong>School:</strong> {app.student?.school || 'N/A'}
+                        <strong>{t('offerApplicants.school')}:</strong> {app.student?.school || t('offerApplicants.na')}
                       </p>
                       <p className="text-sm text-gray-600">
-                        <strong>Degree:</strong> {app.student?.degree || 'N/A'}
+                        <strong>{t('offerApplicants.degree')}:</strong> {app.student?.degree || t('offerApplicants.na')}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">
-                        <strong>Applied:</strong> {new Date(app.createdAt).toLocaleDateString()}
+                        <strong>{t('offerApplicants.applied')}:</strong> {new Date(app.createdAt).toLocaleDateString()}
                       </p>
                       {app.updatedAt !== app.createdAt && (
                         <p className="text-sm text-gray-600">
-                          <strong>Updated:</strong> {new Date(app.updatedAt).toLocaleDateString()}
+                          <strong>{t('offerApplicants.updated')}:</strong> {new Date(app.updatedAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
@@ -269,7 +271,7 @@ const OfferApplicantsPage = () => {
                   {/* Skills */}
                   {app.student?.skills && app.student.skills.length > 0 && (
                     <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Skills:</h4>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">{t('offerApplicants.skills')}:</h4>
                       <div className="flex flex-wrap gap-2">
                         {app.student.skills.map((skill, index) => (
                           <span
@@ -292,7 +294,7 @@ const OfferApplicantsPage = () => {
                         rel="noopener noreferrer"
                         className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                       >
-                        📄 View CV
+                        📄 {t('offerApplicants.viewCv')}
                       </a>
                     </div>
                   )}
@@ -301,9 +303,7 @@ const OfferApplicantsPage = () => {
                 {/* Actions */}
                 <div className="flex flex-col gap-3 lg:w-64">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Application Status
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('offerApplicants.applicationStatus')}</label>
                     <select
                       value={app.status}
                       onChange={(e) => handleStatusChange(app.id, e.target.value)}
@@ -323,7 +323,7 @@ const OfferApplicantsPage = () => {
                       to={`/conversations/${app.conversation.id}`}
                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition-colors"
                     >
-                      View Conversation
+                      {t('offerApplicants.viewConversation')}
                     </Link>
                   )}
 
@@ -332,7 +332,7 @@ const OfferApplicantsPage = () => {
                       to={`/students?highlight=${app.student.userId}`}
                       className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium text-center transition-colors"
                     >
-                      Request Adoption
+                      {t('offerApplicants.requestAdoption')}
                     </Link>
                   )}
                 </div>
