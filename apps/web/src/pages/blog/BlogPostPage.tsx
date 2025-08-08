@@ -1,19 +1,23 @@
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, Clock, User, ArrowLeft, ArrowRight, BookOpen, TrendingUp, FileText } from 'lucide-react';
+import { Calendar, Clock, User, ArrowLeft, BookOpen, TrendingUp, FileText } from 'lucide-react';
 import { useBlogPost, useRelatedPosts, useBlogCategories } from '../../hooks/useBlog';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { post, loading, error } = useBlogPost(slug || '');
-  const { posts: relatedPosts, loading: relatedLoading } = useRelatedPosts(slug || '', 3);
+  const { posts: relatedPosts } = useRelatedPosts(slug || '', 3);
   const { categories } = useBlogCategories();
+  const { t } = useTranslation();
+  const { formatDate } = useLocalizedDate();
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement de l'article...</p>
+          <p className="text-gray-600">{t('blog.loadingPost')}</p>
         </div>
       </div>
     );
@@ -23,10 +27,10 @@ const BlogPostPage = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Article non trouvé</h1>
-          <p className="text-gray-600 mb-4">{error || "L'article demandé n'existe pas."}</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('blog.postNotFound')}</h1>
+          <p className="text-gray-600 mb-4">{error || t('blog.postNotFoundDescription')}</p>
           <Link to="/blog" className="text-blue-600 hover:text-blue-700">
-            Retour au blog
+            {t('blog.backToBlog')}
           </Link>
         </div>
       </div>
@@ -55,14 +59,7 @@ const BlogPostPage = () => {
     return colorMap[color] || "bg-gray-100 text-gray-800";
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  
 
   return (
     <div className="min-h-screen bg-white">
@@ -76,7 +73,7 @@ const BlogPostPage = () => {
               className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour au blog
+              {t('blog.backToBlog')}
             </Link>
           </div>
 
@@ -88,13 +85,13 @@ const BlogPostPage = () => {
                 return (
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getCategoryColorClasses(postCategory?.color)}`}>
                     {getCategoryIcon(postCategory?.icon)}
-                    <span className="ml-2">{postCategory?.name || 'Aucune catégorie'}</span>
+                  <span className="ml-2">{postCategory?.name || t('blog.noCategory')}</span>
                   </span>
                 );
               })()}
               {post.featured && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                  ⭐ Mis en avant
+                ⭐ {t('blog.featuredBadge')}
                 </span>
               )}
             </div>
@@ -154,10 +151,6 @@ const BlogPostPage = () => {
             {/* Content */}
             <article className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline">
               {(() => {
-                // Debug: Log the content format and first 100 characters of content
-                console.log('Content Format:', post.contentFormat);
-                console.log('Content Preview:', post.content.substring(0, 100));
-                
                 // Check if content looks like HTML (contains HTML tags)
                 const looksLikeHTML = /<[^>]*>/.test(post.content);
                 
@@ -186,7 +179,7 @@ const BlogPostPage = () => {
             {relatedPosts.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Articles similaires
+                  {t('blog.relatedArticles')}
                 </h3>
                 <div className="space-y-4">
                   {relatedPosts.map((relatedPost) => (
@@ -214,7 +207,7 @@ const BlogPostPage = () => {
             {/* Share */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Partager cet article
+                {t('blog.shareThisArticle')}
               </h3>
               <div className="flex space-x-3">
                 <button
@@ -225,7 +218,7 @@ const BlogPostPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
                 >
-                  Twitter
+                  {t('blog.twitter')}
                 </button>
                 <button
                   onClick={() => {
@@ -234,7 +227,7 @@ const BlogPostPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors text-sm font-medium"
                 >
-                  LinkedIn
+                  {t('blog.linkedin')}
                 </button>
                 <button
                   onClick={() => {
@@ -243,7 +236,7 @@ const BlogPostPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
                 >
-                  Copier
+                  {t('blog.copyLink')}
                 </button>
               </div>
             </div>

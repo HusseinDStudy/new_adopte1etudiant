@@ -94,24 +94,24 @@ const RegisterPage = () => {
             {role === 'STUDENT' && (
               <>
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">{t('forms.name')}</label>
                   <input
                     id="firstName"
                     type="text"
                     {...register('firstName')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                    placeholder="Votre prénom"
+                placeholder={t('forms.name')}
                   />
                   {(errors as any).firstName && <p className="mt-1 text-sm text-red-500">{(errors as any).firstName.message}</p>}
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">{t('forms.name')}</label>
                   <input
                     id="lastName"
                     type="text"
                     {...register('lastName')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                    placeholder="Votre nom"
+                placeholder={t('forms.name')}
                   />
                   {(errors as any).lastName && <p className="mt-1 text-sm text-red-500">{(errors as any).lastName.message}</p>}
                 </div>
@@ -121,24 +121,24 @@ const RegisterPage = () => {
             {role === 'COMPANY' && (
               <>
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">{t('profileForm.companyName')}</label>
                   <input
                     id="name"
                     type="text"
                     {...register('name')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                    placeholder="Nom de votre entreprise"
+                placeholder={t('profileForm.companyName')}
                   />
                   {(errors as any).name && <p className="mt-1 text-sm text-red-500">{(errors as any).name.message}</p>}
                 </div>
                 <div>
-                  <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-2">Email de contact</label>
+              <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-2">{t('profileForm.contactEmail')}</label>
                   <input
                     id="contactEmail"
                     type="email"
                     {...register('contactEmail')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                    placeholder="contact@entreprise.com"
+                placeholder="contact@company.com"
                   />
                   {(errors as any).contactEmail && <p className="mt-1 text-sm text-red-500">{(errors as any).contactEmail.message}</p>}
                 </div>
@@ -151,17 +151,14 @@ const RegisterPage = () => {
                 disabled={isSubmitting}
                 className="flex w-full justify-center rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-all duration-200 hover:shadow-xl"
               >
-                {isSubmitting ? 'Inscription...' : "S'inscrire"}
+                {isSubmitting ? t('loading.loading') : t('auth.register')}
               </button>
             </div>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Déjà un compte ?{' '}
-              <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                Se connecter
-              </a>
+              {t('auth.alreadyHaveAccount')} <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">{t('auth.login')}</a>
             </p>
           </div>
         </div>

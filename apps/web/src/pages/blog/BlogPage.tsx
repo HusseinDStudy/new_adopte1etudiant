@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, User, ArrowRight, BookOpen, TrendingUp, FileText, Search, Pause } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, BookOpen, TrendingUp, FileText, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import HeroSection from '../../components/common/HeroSection';
 import { useBlogPosts, useBlogCategories } from '../../hooks/useBlog';
+import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 
 const BlogPage = () => {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ const BlogPage = () => {
   });
 
   const { categories, loading: categoriesLoading } = useBlogCategories();
+  const { formatDate } = useLocalizedDate();
 
   const getCategoryIcon = (iconName?: string) => {
     const icons: Record<string, JSX.Element> = {
@@ -71,14 +73,7 @@ const BlogPage = () => {
     }
   }, [featuredPosts.length, isPaused]);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,12 +250,6 @@ const BlogPage = () => {
                 ))}
               </select>
             </div>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {t('blog.search')}
-            </button>
           </form>
         </div>
 

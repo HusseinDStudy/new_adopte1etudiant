@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../context/AuthContext';
 import HeroSection from '../components/common/HeroSection';
 
 const HomePage = () => {
-  const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
 
   return (
@@ -96,12 +94,12 @@ const HomePage = () => {
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors duration-300">Profil personnalisé</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors duration-300">{t('home.personalizedProfile')}</h3>
               <p className="text-gray-600 leading-relaxed mb-6 text-lg group-hover:text-gray-700 transition-colors duration-300">
-                Créez votre profil et mettez en avant vos compétences et vos meilleures opportunités.
+                {t('home.personalizedProfileDescription')}
               </p>
-              <Link to="/register" className="inline-flex items-center text-blue-500 font-semibold hover:text-blue-600 transition-all duration-300 text-lg group-hover:translate-x-1">
-                Se connecter
+              <Link to="/login" className="inline-flex items-center text-blue-500 font-semibold hover:text-blue-600 transition-all duration-300 text-lg group-hover:translate-x-1">
+                {t('navigation.login')}
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -115,12 +113,12 @@ const HomePage = () => {
                   <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors duration-300">Offres ciblées</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors duration-300">{t('home.targetedOffers')}</h3>
               <p className="text-gray-600 leading-relaxed mb-6 text-lg group-hover:text-gray-700 transition-colors duration-300">
-                Accédez à des offres correspondant parfaitement à votre profil et vos aspirations.
+                {t('home.targetedOffersDescription')}
               </p>
               <Link to="/offers" className="inline-flex items-center text-blue-500 font-semibold hover:text-blue-600 transition-all duration-300 text-lg group-hover:translate-x-1">
-                Voir les offres
+                {t('home.viewOffers')}
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -134,12 +132,12 @@ const HomePage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors duration-300">Mise en relation</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors duration-300">{t('home.directContact')}</h3>
               <p className="text-gray-600 leading-relaxed mb-6 text-lg group-hover:text-gray-700 transition-colors duration-300">
-                Connectez-vous directement avec les entreprises et étudiants qui vous correspondent.
+                {t('home.directContactDescription')}
               </p>
               <Link to="/students" className="inline-flex items-center text-blue-500 font-semibold hover:text-blue-600 transition-all duration-300 text-lg group-hover:translate-x-1">
-                Voir les profils
+                {t('home.viewProfiles')}
                 <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -162,16 +160,16 @@ const HomePage = () => {
 
         <div className="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
-            Prêt à commencer l'aventure ?
+            {t('home.readyToStart')}
           </h2>
           <p className="text-2xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Rejoignez notre communauté et trouvez le stage ou l'alternance de vos rêves
+            {t('home.joinCommunity')}
           </p>
           <Link
             to="/register"
             className="inline-block bg-white text-blue-700 px-12 py-5 rounded-2xl font-bold text-xl hover:bg-gray-50 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2"
           >
-            Créer un compte gratuitement
+            {t('home.createFreeAccount')}
           </Link>
         </div>
       </div>
