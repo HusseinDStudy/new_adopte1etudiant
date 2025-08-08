@@ -6,16 +6,17 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 const adoptionRequestService = new AdoptionRequestService();
 
 export const createAdoptionRequest = asyncHandler(async (
-  request: FastifyRequest<{ Body: { studentId: string; message: string; position?: string } }>,
+  request: FastifyRequest<{ Body: { studentId: string; message: string; position?: string; offerId?: string } }>,
   reply: FastifyReply
 ) => {
   const { id: companyUserId } = request.user!;
-  const { studentId, message, position } = request.body;
+  const { studentId, message, position, offerId } = request.body;
 
   const newRequest = await adoptionRequestService.createAdoptionRequest(companyUserId, {
     studentId,
     message,
-    position
+    position,
+    offerId
   });
 
   return reply.code(201).send(newRequest);

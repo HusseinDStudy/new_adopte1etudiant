@@ -283,9 +283,9 @@ describe('Security Tests', () => {
             // Create a student token but try to access company-only endpoints
             const student = await createTestStudent(app);
 
-            // Try to access company-only student directory
+            // Students endpoint is now public, so use a company-only endpoint instead
             const studentsResponse = await supertest(app.server)
-                .get('/api/students')
+                .get('/api/adoption-requests/sent-requests')
                 .set('Cookie', `token=${student.authToken}`);
 
             expect(studentsResponse.status).toBe(403);

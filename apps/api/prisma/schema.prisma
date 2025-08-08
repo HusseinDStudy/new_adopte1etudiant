@@ -29,26 +29,26 @@ enum AdoptionRequestStatus {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  email           String           @unique
-  passwordHash    String?
-  passwordLoginDisabled Boolean          @default(false)
-  isActive        Boolean          @default(true)
-  role            Role
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  passwordHash          String?
+  passwordLoginDisabled Boolean  @default(false)
+  isActive              Boolean  @default(true)
+  role                  Role
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   // 2FA / MFA Fields
-  isTwoFactorEnabled      Boolean          @default(false)
-  twoFactorSecret         String?
-  twoFactorRecoveryCodes  String[]
+  isTwoFactorEnabled     Boolean  @default(false)
+  twoFactorSecret        String?
+  twoFactorRecoveryCodes String[]
 
-  accounts        Account[]
-  studentProfile  StudentProfile?
-  companyProfile  CompanyProfile?
-  applications    Application[]
-  messages        Message[]
-  adoptionRequests AdoptionRequest[] @relation("ReceivedAdoptionRequests")
+  accounts                 Account[]
+  studentProfile           StudentProfile?
+  companyProfile           CompanyProfile?
+  applications             Application[]
+  messages                 Message[]
+  adoptionRequests         AdoptionRequest[]         @relation("ReceivedAdoptionRequests")
   conversationParticipants ConversationParticipant[]
 }
 
@@ -72,37 +72,37 @@ model Account {
 }
 
 model StudentProfile {
-  id        String          @id @default(cuid())
-  userId    String          @unique
-  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  firstName String
-  lastName  String
-  school    String?
-  degree    String?
-  cvUrl     String?
-  skills    StudentSkill[]
-  isOpenToOpportunities Boolean @default(false)
-  isCvPublic Boolean @default(false)
+  id                    String         @id @default(cuid())
+  userId                String         @unique
+  user                  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName             String
+  lastName              String
+  school                String?
+  degree                String?
+  cvUrl                 String?
+  skills                StudentSkill[]
+  isOpenToOpportunities Boolean        @default(false)
+  isCvPublic            Boolean        @default(false)
 }
 
 model CompanyProfile {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  logoUrl     String?
-  size        String?
-  sector      String?
-  contactEmail String
-  offers      Offer[]
+  id               String            @id @default(cuid())
+  userId           String            @unique
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  logoUrl          String?
+  size             String?
+  sector           String?
+  contactEmail     String
+  offers           Offer[]
   adoptionRequests AdoptionRequest[] @relation("SentAdoptionRequests")
 }
 
 model Skill {
-  id            String          @id @default(cuid())
-  name          String          @unique
+  id            String         @id @default(cuid())
+  name          String         @unique
   studentSkills StudentSkill[]
-  offerSkills   Offer[]         @relation("OfferSkills")
+  offerSkills   Offer[]        @relation("OfferSkills")
 }
 
 model StudentSkill {
@@ -115,18 +115,19 @@ model StudentSkill {
 }
 
 model Offer {
-  id            String        @id @default(cuid())
-  title         String
-  description   String
-  location      String?
-  duration      String?
-  isActive      Boolean       @default(true)
-  companyId     String
-  company       CompanyProfile @relation(fields: [companyId], references: [id])
-  skills        Skill[]       @relation("OfferSkills")
-  applications  Application[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id               String            @id @default(cuid())
+  title            String
+  description      String
+  location         String?
+  duration         String?
+  isActive         Boolean           @default(true)
+  companyId        String
+  company          CompanyProfile    @relation(fields: [companyId], references: [id])
+  skills           Skill[]           @relation("OfferSkills")
+  applications     Application[]
+  adoptionRequests AdoptionRequest[] @relation("OfferAdoptionRequests")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model Application {
@@ -146,17 +147,17 @@ model Application {
 }
 
 model Conversation {
-  id             String       @id @default(cuid())
-  topic          String?
-  isReadOnly      Boolean          @default(false) // If true, only admin can send messages
-  isBroadcast     Boolean          @default(false) // If true, this is a broadcast message
+  id              String                    @id @default(cuid())
+  topic           String?
+  isReadOnly      Boolean                   @default(false) // If true, only admin can send messages
+  isBroadcast     Boolean                   @default(false) // If true, this is a broadcast message
   broadcastTarget BroadcastTarget? // Target audience for broadcast messages
   context         ConversationContext? // Context of the conversation (adoption request, offer, etc.)
-  contextId       String?          // ID of the related entity (adoption request ID, offer ID, etc.)
-  status          ConversationStatus @default(ACTIVE) // Status of the conversation
-  expiresAt       DateTime?        // When the conversation expires (for hired offers)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  contextId       String? // ID of the related entity (adoption request ID, offer ID, etc.)
+  status          ConversationStatus        @default(ACTIVE) // Status of the conversation
+  expiresAt       DateTime? // When the conversation expires (for hired offers)
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
   messages        Message[]
   participants    ConversationParticipant[]
   application     Application?
@@ -206,19 +207,22 @@ model Message {
 }
 
 model AdoptionRequest {
-  id          String                @id @default(cuid())
-  companyId   String
-  studentId   String
-  status      AdoptionRequestStatus @default(PENDING)
-  message     String?               // Initial message from company
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  company     CompanyProfile        @relation("SentAdoptionRequests", fields: [companyId], references: [id], onDelete: Cascade)
-  student     User                  @relation("ReceivedAdoptionRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  id             String                @id @default(cuid())
+  companyId      String
+  studentId      String
+  offerId        String?
+  status         AdoptionRequestStatus @default(PENDING)
+  message        String? // Initial message from company
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  company        CompanyProfile        @relation("SentAdoptionRequests", fields: [companyId], references: [id], onDelete: Cascade)
+  student        User                  @relation("ReceivedAdoptionRequests", fields: [studentId], references: [id], onDelete: Cascade)
+  offer          Offer?                @relation("OfferAdoptionRequests", fields: [offerId], references: [id], onDelete: SetNull)
   conversation   Conversation?         @relation(fields: [conversationId], references: [id])
   conversationId String?               @unique
 
-  @@unique([companyId, studentId])
+  @@unique([companyId, studentId, offerId])
+  @@index([offerId])
 }
 
 enum PostStatus {
@@ -236,29 +240,29 @@ enum ContentFormat {
 }
 
 model BlogPost {
-  id          String       @id @default(cuid())
-  title       String       @db.VarChar(140)
-  slug        String       @unique @db.VarChar(150)
-  excerpt     String?      @db.Text
-  content     String       @db.Text
+  id            String        @id @default(cuid())
+  title         String        @db.VarChar(140)
+  slug          String        @unique @db.VarChar(150)
+  excerpt       String?       @db.Text
+  content       String        @db.Text
   contentFormat ContentFormat @default(MARKDOWN)
 
-  image       String?
+  image String?
 
-  categoryId  String
-  category    BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   // Prefer a relation if you have a User model:
   // authorId String
   // author   User @relation(fields: [authorId], references: [id], onDelete: Restrict)
-  author      String
+  author String
 
   readTimeMinutes Int? // denormalized; compute from content and store if you want
 
-  status      PostStatus  @default(DRAFT)
-  featured    Boolean     @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  status      PostStatus @default(DRAFT)
+  featured    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   publishedAt DateTime?
 
   // SEO
@@ -269,16 +273,16 @@ model BlogPost {
   // Tags if you add BlogTag
   // tags BlogTag[]
 
-  @@map("blog_posts")
   @@index([status, createdAt])
   @@index([featured, createdAt])
   @@index([categoryId])
+  @@map("blog_posts")
 }
 
 model BlogCategory {
-  id          String @id @default(cuid())
-  name        String @unique
-  slug        String @unique @db.VarChar(100)
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique @db.VarChar(100)
   description String?
   icon        String?
   color       String?

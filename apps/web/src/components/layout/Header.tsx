@@ -40,18 +40,16 @@ const Header: React.FC = () => {
               {t('navigation.offers')}
             </Link>
 
-            {user?.role === 'COMPANY' && (
-              <Link
-                to="/students"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/students')
-                    ? 'text-blue-600 bg-blue-50'
-                    : 'text-gray-700 hover:text-blue-600'
-                }`}
-              >
-                {t('navigation.students')}
-              </Link>
-            )}
+            <Link
+              to="/students"
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/students')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:text-blue-600'
+              }`}
+            >
+              {t('navigation.students')}
+            </Link>
 
 
 

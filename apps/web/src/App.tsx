@@ -94,6 +94,7 @@ function App() {
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/students" element={<StudentDirectoryPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
@@ -136,11 +137,7 @@ function App() {
                 <ConversationPage />
               </RoleBasedRoute>
             } />
-            <Route path="/students" element={
-              <RoleBasedRoute allowedRole="COMPANY">
-                <StudentDirectoryPage />
-              </RoleBasedRoute>
-            } />
+            {/* /students is now public */}
             <Route path="/my-adoption-requests" element={
               <RoleBasedRoute allowedRole="STUDENT">
                 <MyAdoptionRequestsPage />

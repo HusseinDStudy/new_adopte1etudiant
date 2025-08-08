@@ -146,7 +146,8 @@ describe('Adoption Request Routes', () => {
                 .send({ ...requestData, message: 'Second request' });
 
             expect(secondRequest.status).toBe(409);
-            expect(secondRequest.body.message).toContain('already sent a request');
+            // Message wording changed to distinguish general vs per-offer
+            expect(secondRequest.body.message).toContain('already sent');
         });
 
         it('should be forbidden for a student to send an adoption request', async () => {

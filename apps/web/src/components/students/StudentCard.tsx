@@ -6,7 +6,7 @@ interface StudentCardProps {
     id: string;
     firstName: string;
     lastName: string;
-    email: string;
+    email?: string;
     school?: string | null;
     degree?: string | null;
     skills?: string[];
@@ -63,7 +63,17 @@ const StudentCard: React.FC<StudentCardProps> = ({
           <h3 className="text-lg font-semibold text-gray-900">
             {student.firstName} {student.lastName}
           </h3>
-          <p className="text-gray-600 text-sm truncate">{student.email}</p>
+          {/* Show email when provided (companies viewing public list) */}
+          {student.email && (
+            <div className="mt-0.5 text-sm text-gray-600 truncate" title={student.email}>
+              <span className="inline-flex items-center">
+                <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12H8m8 0l-8-6m8 6l-8 6" />
+                </svg>
+                {student.email}
+              </span>
+            </div>
+          )}
           {student.availability && (
             <div className="flex items-center space-x-1 mt-1">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -127,7 +137,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
 
       {/* Actions */}
       <div className="pt-4 border-t border-gray-100">
-        {showRequestForm ? (
+        {onRequestAdoption && showRequestForm ? (
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -194,21 +204,23 @@ const StudentCard: React.FC<StudentCardProps> = ({
               </a>
             )}
 
-            {/* Action Button */}
-            {isRequested ? (
-              <div className="flex items-center space-x-1 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>{t('studentDirectory.studentCard.requestSent')}</span>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowRequestForm(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
-              >
-                {t('studentDirectory.studentCard.requestAdoption')}
-              </button>
+            {/* Action Button - only for company users (when onRequestAdoption is provided) */}
+            {onRequestAdoption && (
+              isRequested ? (
+                <div className="flex items-center space-x-1 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{t('studentDirectory.studentCard.requestSent')}</span>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowRequestForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
+                >
+                  {t('studentDirectory.studentCard.requestAdoption')}
+                </button>
+              )
             )}
           </div>
         )}

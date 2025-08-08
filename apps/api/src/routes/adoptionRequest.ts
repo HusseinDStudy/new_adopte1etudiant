@@ -39,6 +39,11 @@ async function adoptionRequestRoutes(server: FastifyInstance) {
             position: {
               type: 'string',
               description: 'Position or role being offered (optional)'
+            },
+            offerId: {
+              type: 'string',
+              nullable: true,
+              description: 'Optional offer ID to tie the request to a specific offer'
             }
           }
         },
@@ -50,6 +55,7 @@ async function adoptionRequestRoutes(server: FastifyInstance) {
               id: { type: 'string' },
               studentId: { type: 'string' },
               companyId: { type: 'string' },
+              offerId: { type: ['string', 'null'] },
               message: { type: 'string' },
               position: { type: 'string' },
               status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
@@ -121,6 +127,7 @@ async function adoptionRequestRoutes(server: FastifyInstance) {
                     id: { type: 'string' },
                     studentId: { type: 'string' },
                     companyId: { type: 'string' },
+                    offerId: { type: ['string', 'null'] },
                     status: { type: 'string', enum: ['PENDING', 'ACCEPTED', 'REJECTED'] },
                     conversationId: { type: ['string', 'null'] },
                     student: {

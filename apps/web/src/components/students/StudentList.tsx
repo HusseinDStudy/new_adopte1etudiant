@@ -8,7 +8,7 @@ interface StudentListProps {
   loading: boolean;
   error: string | null;
   requestedStudentIds: Set<string>;
-  onRequestAdoption: (studentId: string, message: string) => Promise<void>;
+  onRequestAdoption?: (studentId: string, message: string) => Promise<void>;
   adoptionRequestLoading: boolean;
   requestingStudentId: string | null;
   totalStudents: number;

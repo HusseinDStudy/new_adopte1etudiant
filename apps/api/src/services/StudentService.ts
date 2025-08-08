@@ -8,8 +8,12 @@ export interface StudentFilters {
 }
 
 export class StudentService {
-  async listAvailableStudents(filters: StudentFilters) {
+  async listAvailableStudents(
+    filters: StudentFilters,
+    options?: { includeEmail?: boolean }
+  ) {
     const { search, skills } = filters;
+    const includeEmail = Boolean(options?.includeEmail);
 
     const where: Prisma.StudentProfileWhereInput = {
       isOpenToOpportunities: true,
@@ -49,31 +53,32 @@ export class StudentService {
       include: {
         user: {
           select: {
-            email: true,
-            createdAt: true
-          }
+            createdAt: true,
+            ...(includeEmail ? { email: true } : {}),
+          },
         },
         skills: {
           include: {
-            skill: true
-          }
-        }
-      }
+            skill: true,
+          },
+        },
+      },
     });
 
-    return students.map(student => ({
+    return students.map((student) => ({
       id: student.userId, // Use userId for adoption requests
       profileId: student.id, // Keep profile ID for reference
       firstName: student.firstName,
       lastName: student.lastName,
-      email: student.user.email, // Include email directly
+      ...(includeEmail ? { email: (student.user as any).email as string } : {}),
       school: student.school,
       degree: student.degree,
-      skills: student.skills.map(s => s.skill.name),
+      skills: student.skills.map((s) => s.skill.name),
       cvUrl: student.cvUrl,
       isCvPublic: student.isCvPublic,
       isOpenToOpportunities: student.isOpenToOpportunities,
-      user: student.user
+      // Expose only createdAt for sorting purposes
+      createdAt: student.user.createdAt as unknown as string,
     }));
   }
 

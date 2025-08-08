@@ -12,7 +12,10 @@ export const listAvailableStudents = asyncHandler(async (
 ) => {
   const { search, skills } = request.query;
   const filters = { search, skills };
-  const students = await studentService.listAvailableStudents(filters);
+  const isCompany = (request as any).user?.role === 'COMPANY';
+  const students = await studentService.listAvailableStudents(filters, {
+    includeEmail: isCompany,
+  });
   return reply.send(students);
 });
 

@@ -19,18 +19,7 @@ const StudentDirectoryPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const itemsPerPage = 9;
 
-  // Restrict access to company profiles only
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    if (user.role !== 'COMPANY') {
-      navigate('/');
-      return;
-    }
-  }, [user, navigate]);
+  // Page is public now; no redirect based on role
 
   // Use the new student filters hook
   const {
@@ -65,7 +54,7 @@ const StudentDirectoryPage: React.FC = () => {
       const searchMatch = !searchTerm ||
         student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        // email is no longer part of public payload
         (student.school && student.school.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (student.degree && student.degree.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -163,30 +152,7 @@ const StudentDirectoryPage: React.FC = () => {
     }
   }
 
-  // Show access denied for non-company users
-  if (!user || user.role !== 'COMPANY') {
-    return (
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center py-16">
-          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('studentDirectory.accessDenied')}</h2>
-          <p className="text-gray-600 mb-6">
-            {t('studentDirectory.accessDeniedDescription')}
-          </p>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
-          >
-            {t('studentDirectory.backToHome')}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Public access: we do not block the page for non-company users
 
   if (loading) {
     return (
@@ -208,16 +174,18 @@ const StudentDirectoryPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900">{t('studentDirectory.title')}</h1>
             <p className="text-gray-600 mt-2">{t('studentDirectory.subtitle')}</p>
           </div>
-          <button
-            onClick={refreshRequestedStudents}
-            className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
-            title={t('studentDirectory.refreshTooltip')}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>{t('studentDirectory.refresh')}</span>
-          </button>
+          {user?.role === 'COMPANY' && (
+            <button
+              onClick={refreshRequestedStudents}
+              className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
+              title={t('studentDirectory.refreshTooltip')}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>{t('studentDirectory.refresh')}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -244,7 +212,7 @@ const StudentDirectoryPage: React.FC = () => {
           loading={loading}
           error={error}
           requestedStudentIds={requestedStudentIds}
-          onRequestAdoption={handleRequestAdoption}
+          onRequestAdoption={user?.role === 'COMPANY' ? handleRequestAdoption : undefined}
           adoptionRequestLoading={adoptionRequestLoading}
           requestingStudentId={requestingStudentId}
           totalStudents={filteredAndSortedStudents.length}

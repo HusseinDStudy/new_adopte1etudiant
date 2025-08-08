@@ -15,9 +15,13 @@ async function main() {
   // 1. Clean the database
   console.log('Cleaning database...');
   await prisma.message.deleteMany();
-  await prisma.conversation.deleteMany();
+  // Ensure participants are cleared before conversations if not cascading
+  await prisma.conversationParticipant.deleteMany();
+  // Remove dependents that may reference conversations
   await prisma.adoptionRequest.deleteMany();
   await prisma.application.deleteMany();
+  // Now it's safe to remove conversations
+  await prisma.conversation.deleteMany();
   await prisma.studentSkill.deleteMany();
   // We can't delete offer skills directly, it's a relation table managed by Prisma.
   // Deleting offers will cascade.
@@ -150,8 +154,8 @@ async function main() {
   });
   adminUsers.push(mainAdmin);
 
-  // Create additional admin users with Faker data
-  for (let i = 0; i < 2; i++) {
+  // When we Manage Multi Admin you may Create additional admin users with Faker data using this code
+  /*for (let i = 0; i < 2; i++) {
     const admin = await prisma.user.create({
       data: {
         email: faker.internet.email(),
@@ -160,7 +164,7 @@ async function main() {
       },
     });
     adminUsers.push(admin);
-  }
+  }*/
   console.log(`${adminUsers.length} admin users created.`);
 
   // 7. Create Applications

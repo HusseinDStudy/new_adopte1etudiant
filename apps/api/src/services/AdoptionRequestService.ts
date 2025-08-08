@@ -5,6 +5,7 @@ export interface CreateAdoptionRequestData {
   studentId: string;
   message: string;
   position?: string;
+  offerId?: string; // optional: when present, tie request to a specific offer
 }
 
 export interface UpdateAdoptionRequestStatusData {
@@ -13,7 +14,7 @@ export interface UpdateAdoptionRequestStatusData {
 
 export class AdoptionRequestService {
   async createAdoptionRequest(companyUserId: string, data: CreateAdoptionRequestData) {
-    const { studentId, message, position } = data;
+    const { studentId, message, position, offerId } = data;
 
     // Validate input
     if (!studentId || typeof studentId !== 'string') {
@@ -33,18 +34,35 @@ export class AdoptionRequestService {
       throw new ForbiddenError('You must have a company profile to send requests.');
     }
 
-    // Check if request already exists
-    const existingRequest = await prisma.adoptionRequest.findUnique({
-      where: {
-        companyId_studentId: {
+    // Enforce uniqueness rules
+    if (offerId) {
+      // Offer-specific: ensure the offer belongs to the company and one request per (company, student, offer)
+      const offer = await prisma.offer.findUnique({ where: { id: offerId } });
+      if (!offer || offer.companyId !== companyProfile.id) {
+        throw new ForbiddenError('You can only invite students for your own offers.');
+      }
+      const existingOfferSpecific = await prisma.adoptionRequest.findFirst({
+        where: {
           companyId: companyProfile.id,
           studentId,
-        },
-      },
-    });
-
-    if (existingRequest) {
-      throw new ConflictError('You have already sent a request to this student.');
+          offerId,
+        }
+      });
+      if (existingOfferSpecific) {
+        throw new ConflictError('You have already sent a request for this student for this offer.');
+      }
+    } else {
+      // General: at most one general request per (company, student) with offerId null
+      const existingGeneral = await prisma.adoptionRequest.findFirst({
+        where: {
+          companyId: companyProfile.id,
+          studentId,
+          offerId: null,
+        }
+      });
+      if (existingGeneral) {
+        throw new ConflictError('You have already sent a general request to this student.');
+      }
     }
 
     // Create adoption request with conversation in transaction
@@ -75,6 +93,7 @@ export class AdoptionRequestService {
           data: {
             companyId: companyProfile.id,
             studentId,
+            offerId: offerId ?? null,
             message: message,
             conversationId: conversation.id,
           },

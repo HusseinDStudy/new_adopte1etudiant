@@ -48,7 +48,7 @@ const InviteStudentsPage = () => {
         const [offerData, studentsData, requestedStudentIds] = await Promise.all([
           getOfferById(id),
           listAvailableStudents({}),
-          getRequestedStudentIds()
+          getRequestedStudentIds(id)
         ]);
 
         setOffer(offerData);
@@ -69,7 +69,7 @@ const InviteStudentsPage = () => {
   // Function to refresh requested students state
   const refreshRequestedStudents = async () => {
     try {
-      const requestedStudentIds = await getRequestedStudentIds();
+      const requestedStudentIds = await getRequestedStudentIds(id);
       setAlreadyRequestedStudents(new Set(requestedStudentIds));
     } catch (err) {
       console.error('Failed to refresh requested students:', err);
@@ -98,7 +98,11 @@ const InviteStudentsPage = () => {
     setError(''); // Clear any previous errors
 
     try {
-      await createAdoptionRequest(studentId, `${t('inviteStudents.invitationMessage')} ${offer.title}`);
+      await createAdoptionRequest(
+        studentId,
+        `${t('inviteStudents.invitationMessage')} ${offer.title}`,
+        offer.id
+      );
       // Successfully sent invitation
       setInvitedStudents(prev => new Set(prev).add(studentId));
       setAlreadyRequestedStudents(prev => new Set(prev).add(studentId));

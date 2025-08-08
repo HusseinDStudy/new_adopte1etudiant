@@ -7,9 +7,9 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-export const createAdoptionRequest = async (studentId: string, message: string) => {
+export const createAdoptionRequest = async (studentId: string, message: string, offerId?: string) => {
   try {
-    const { data } = await apiClient.post('/adoption-requests', { studentId, message });
+    const { data } = await apiClient.post('/adoption-requests', { studentId, message, offerId });
     return data;
   } catch (error: any) {
     // Provide more specific error messages
@@ -17,7 +17,7 @@ export const createAdoptionRequest = async (studentId: string, message: string) 
       const errorMessage = error.response.data?.message || 'Invalid request data';
       throw new Error(errorMessage);
     } else if (error.response?.status === 409) {
-      throw new Error('You have already sent an adoption request to this student');
+      throw new Error('You have already sent this adoption request');
     } else if (error.response?.status === 500) {
       throw new Error('Server error. Please try again later.');
     } else {
@@ -32,10 +32,18 @@ export const getSentAdoptionRequests = async () => {
   return data.requests || [];
 }
 
-export const getRequestedStudentIds = async (): Promise<string[]> => {
+// If offerId is provided, returns student IDs requested for that specific offer.
+// If omitted, returns student IDs for general requests only (offerId null).
+export const getRequestedStudentIds = async (offerId?: string): Promise<string[]> => {
   try {
     const requests = await getSentAdoptionRequests();
-    return requests.map((request: any) => request.studentId);
+    const filtered = requests.filter((request: any) => {
+      if (offerId) {
+        return request.offerId === offerId;
+      }
+      return !request.offerId;
+    });
+    return filtered.map((request: any) => request.studentId);
   } catch (error) {
     console.error('Failed to fetch sent adoption requests:', error);
     return [];

@@ -2,18 +2,20 @@ import { FastifyInstance } from 'fastify';
 import { listAvailableStudents, getStudentStats } from '../controllers/studentController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
+import { optionalAuthMiddleware } from '../middleware/optionalAuthMiddleware.js';
 import { Role } from '@prisma/client';
 
 async function studentRoutes(server: FastifyInstance) {
   server.get(
     '/',
     {
-      preHandler: [authMiddleware, roleMiddleware([Role.COMPANY])],
+      // Public endpoint: no auth required to view public student profiles
+      preHandler: [optionalAuthMiddleware],
       schema: {
-        description: 'Get list of available students (Company only). Only shows students who are open to opportunities and have public profiles.',
+        description: 'Get list of available students (public). Only shows students who are open to opportunities and have public profiles.',
         tags: ['Students'],
         summary: 'List available students',
-        security: [{ cookieAuth: [] }],
+        security: [],
         querystring: {
           type: 'object',
           properties: {

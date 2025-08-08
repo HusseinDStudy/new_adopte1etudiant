@@ -3,13 +3,14 @@ import { useDebounce } from './useDebounce';
 import { listAvailableStudents } from '../services/studentService';
 import { getAllSkills } from '../services/skillService';
 import { createAdoptionRequest, getRequestedStudentIds } from '../services/adoptionRequestService';
+import { useAuth } from '../context/AuthContext';
 
 export interface Student {
   id: string; // User ID for adoption requests
   profileId: string; // Student profile ID
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string; // No longer exposed on public listing
   school: string | null;
   degree: string | null;
   location: string | null;
@@ -63,6 +64,7 @@ export interface UseStudentsResult {
 }
 
 export const useStudents = (): UseStudentsResult => {
+  const { user, isAuthenticated } = useAuth();
   // Student data
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +108,12 @@ export const useStudents = (): UseStudentsResult => {
 
   // Fetch requested student IDs
   const refreshRequestedStudents = async () => {
+    // Only fetch when authenticated as COMPANY to avoid leaking request patterns on public pages
+    if (!isAuthenticated || user?.role !== 'COMPANY') {
+      setRequestedStudentIds(new Set());
+      return;
+    }
+
     try {
       const requestedIds = await getRequestedStudentIds();
       setRequestedStudentIds(new Set(requestedIds));
@@ -114,7 +122,7 @@ export const useStudents = (): UseStudentsResult => {
     }
   };
 
-  // Fetch skills for filter options and requested students
+  // Fetch skills for filter options (public)
   useEffect(() => {
     const fetchSkills = async () => {
       try {
@@ -129,8 +137,12 @@ export const useStudents = (): UseStudentsResult => {
     };
 
     fetchSkills();
-    refreshRequestedStudents();
   }, []);
+
+  // Fetch requested students only for authenticated company users
+  useEffect(() => {
+    refreshRequestedStudents();
+  }, [isAuthenticated, user?.role]);
 
   // Fetch students when filters change
   useEffect(() => {

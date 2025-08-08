@@ -190,8 +190,7 @@ describe('Student Routes', () => {
     describe('GET /api/students', () => {
         it('should return all students open to opportunities', async () => {
             const response = await supertest(app.server)
-                .get('/api/students')
-                .set('Cookie', `token=${companyAuthToken}`);
+                .get('/api/students');
 
             expect(response.status).toBe(200);
             expect(response.body).toBeInstanceOf(Array);
@@ -204,7 +203,7 @@ describe('Student Routes', () => {
             expect(studentNames).not.toContain('Charlie Brown'); // Not open to opportunities
         });
 
-        it('should return students with correct structure and data', async () => {
+        it('should return students with correct structure and data (includes email for company)', async () => {
             const response = await supertest(app.server)
                 .get('/api/students')
                 .set('Cookie', `token=${companyAuthToken}`);
@@ -217,8 +216,11 @@ describe('Student Routes', () => {
             expect(alice).toHaveProperty('id');
             expect(alice).toHaveProperty('firstName', 'Alice');
             expect(alice).toHaveProperty('lastName', 'Johnson');
-            expect(alice).toHaveProperty('user');
-            expect(alice.user).toHaveProperty('email');
+            // Ensure internal user object is not leaked
+            expect(alice).not.toHaveProperty('user');
+            // Email should be present for company viewers
+            expect(alice).toHaveProperty('email');
+            expect(typeof alice.email).toBe('string');
             expect(alice).toHaveProperty('school', 'MIT');
             expect(alice).toHaveProperty('degree', 'Computer Science');
             expect(alice).toHaveProperty('skills');
@@ -229,6 +231,18 @@ describe('Student Routes', () => {
             
             expect(alice.skills).toContain('React');
             expect(alice.skills).toContain('Node.js');
+        });
+
+        it('should not include email when unauthenticated (public view)', async () => {
+            const response = await supertest(app.server)
+                .get('/api/students');
+
+            expect(response.status).toBe(200);
+            expect(response.body.length).toBeGreaterThan(0);
+
+            const alice = response.body.find((student: any) => student.firstName === 'Alice');
+            expect(alice).toBeDefined();
+            expect(alice).not.toHaveProperty('email');
         });
 
         it('should filter students by search term in firstName', async () => {
@@ -319,14 +333,14 @@ describe('Student Routes', () => {
             expect(response.body).toHaveLength(0); // Bob doesn't have React skill
         });
 
-        it('should require authentication', async () => {
+        it('should be public (no authentication required)', async () => {
             const response = await supertest(app.server)
                 .get('/api/students');
 
-            expect(response.status).toBe(401);
+            expect(response.status).toBe(200);
         });
 
-        it('should require company role', async () => {
+        it('should not require company role (public)', async () => {
             // Create a student user
             const studentData = {
                 email: faker.internet.email(),
@@ -347,8 +361,7 @@ describe('Student Routes', () => {
                 .get('/api/students')
                 .set('Cookie', `token=${studentToken}`);
 
-            expect(response.status).toBe(403);
-            expect(response.body.message).toContain('permission');
+            expect(response.status).toBe(200);
         });
 
         it('should handle empty search gracefully', async () => {

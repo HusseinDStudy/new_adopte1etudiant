@@ -92,14 +92,11 @@ describe('Student Controller', () => {
     await dbPostgresPrisma.studentSkill.deleteMany({ where: { studentProfileId: studentUserId } });
   });
 
-  describe('GET /api/students/', () => {
+  describe('GET /api/students/ (public)', () => {
     test('should return available students without filters', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/'
       });
 
       expect(response.statusCode).toBe(200);
@@ -110,10 +107,7 @@ describe('Student Controller', () => {
     test('should return available students with search filter', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?search=test',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?search=test'
       });
 
       expect(response.statusCode).toBe(200);
@@ -124,10 +118,7 @@ describe('Student Controller', () => {
     test('should return available students with skills filter', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?skills=javascript,react',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?skills=javascript,react'
       });
 
       expect(response.statusCode).toBe(200);
@@ -138,10 +129,7 @@ describe('Student Controller', () => {
     test('should return available students with both search and skills filters', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?search=test&skills=javascript',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?search=test&skills=javascript'
       });
 
       expect(response.statusCode).toBe(200);
@@ -156,10 +144,7 @@ describe('Student Controller', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/'
       });
 
       expect(response.statusCode).toBe(500);
@@ -177,10 +162,7 @@ describe('Student Controller', () => {
     test('should handle empty search parameter', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?search=',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?search='
       });
 
       expect(response.statusCode).toBe(200);
@@ -191,10 +173,7 @@ describe('Student Controller', () => {
     test('should handle empty skills parameter', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?skills=',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?skills='
       });
 
       expect(response.statusCode).toBe(200);
@@ -205,10 +184,7 @@ describe('Student Controller', () => {
     test('should handle special characters in search', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?search=test@example.com',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?search=test@example.com'
       });
 
       expect(response.statusCode).toBe(200);
@@ -219,10 +195,7 @@ describe('Student Controller', () => {
     test('should handle multiple skills with spaces', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/students/?skills=javascript, react, node.js',
-        headers: {
-          Cookie: `token=${companyCookie}`
-        }
+        url: '/api/students/?skills=javascript, react, node.js'
       });
 
       expect(response.statusCode).toBe(200);
@@ -230,26 +203,7 @@ describe('Student Controller', () => {
       expect(Array.isArray(students)).toBe(true);
     });
 
-    test('should return 401 when not authenticated', async () => {
-      const response = await app.inject({
-        method: 'GET',
-        url: '/api/students/'
-      });
-
-      expect(response.statusCode).toBe(401);
-    });
-
-    test('should return 403 when authenticated as student', async () => {
-      const response = await app.inject({
-        method: 'GET',
-        url: '/api/students/',
-        headers: {
-          Cookie: `token=${studentCookie}`
-        }
-      });
-
-      expect(response.statusCode).toBe(403);
-    });
+    // Endpoint is public; no 401/403 checks here anymore
   });
 
   describe('GET /api/students/stats', () => {
