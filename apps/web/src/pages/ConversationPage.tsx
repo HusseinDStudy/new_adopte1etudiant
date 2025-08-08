@@ -119,6 +119,13 @@ const ConversationPage: React.FC = () => {
     return null;
   };
 
+  const renderTargetLabel = (target?: 'ALL' | 'STUDENTS' | 'COMPANIES') => {
+    if (target === 'ALL') return t('conversations.allUsers');
+    if (target === 'STUDENTS') return t('conversations.studentsOnly');
+    if (target === 'COMPANIES') return t('conversations.companiesOnly');
+    return t('conversations.users');
+  };
+
   const getContextInfo = () => {
     if (!conversation?.contextDetails) return null;
 
@@ -281,15 +288,24 @@ const ConversationPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Participants */}
+          {/* Participants or Broadcast Target */}
           <div className="text-sm text-gray-600">
-            <span className="font-medium">{t('conversationDetail.participants')}:</span>{' '}
-            {conversation?.participants.map((participant, index) => (
-              <span key={participant.id}>
-                {getParticipantName(participant)}
-                {index < (conversation?.participants.length || 0) - 1 ? ', ' : ''}
-              </span>
-            ))}
+            {conversation?.isBroadcast ? (
+              <>
+                <span className="font-medium">{t('conversations.recipients')}:</span>{' '}
+                {renderTargetLabel(conversation?.contextDetails?.target || conversation?.broadcastTarget)}
+              </>
+            ) : (
+              <>
+                <span className="font-medium">{t('conversationDetail.participants')}:</span>{' '}
+                {conversation?.participants.map((participant, index) => (
+                  <span key={participant.id}>
+                    {getParticipantName(participant)}
+                    {index < (conversation?.participants.length || 0) - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </>
+            )}
           </div>
         </div>
 

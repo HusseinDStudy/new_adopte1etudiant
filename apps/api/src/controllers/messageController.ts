@@ -76,7 +76,7 @@ export const getMessagesForConversation = async (
   reply: FastifyReply
 ) => {
   const { conversationId } = request.params;
-  const { id: userId } = request.user!;
+  const { id: userId, role: requesterRole } = request.user!;
 
   try {
     // Use ConversationService to check access (handles both regular and broadcast conversations)
@@ -171,10 +171,12 @@ export const getMessagesForConversation = async (
         topic: conversationDetails.topic,
         isReadOnly: conversationDetails.isReadOnly,
         isBroadcast: conversationDetails.isBroadcast,
+        broadcastTarget: conversationDetails.broadcastTarget,
         context: conversationDetails.context,
         status: conversationDetails.status,
         expiresAt: conversationDetails.expiresAt,
-        participants: conversationDetails.participants,
+        // For broadcasts, hide participants for non-admins
+        participants: (conversationDetails.isBroadcast && requesterRole !== 'ADMIN') ? [] : conversationDetails.participants,
         adoptionRequestStatus: conversationDetails.adoptionRequest?.status || null,
         applicationStatus: conversationDetails.application?.status || null,
         contextDetails: conversationDetails.context === 'ADOPTION_REQUEST' ? {
@@ -187,6 +189,9 @@ export const getMessagesForConversation = async (
           status: conversationDetails.application?.status,
           offerTitle: conversationDetails.application?.offer?.title,
           companyName: conversationDetails.application?.offer?.company?.name
+        } : conversationDetails.context === 'BROADCAST' ? {
+          type: 'broadcast',
+          target: conversationDetails.broadcastTarget
         } : null
       }
     };

@@ -41,6 +41,7 @@ async function messageRoutes(server: FastifyInstance) {
                   topic: { type: ['string', 'null'] },
                   isReadOnly: { type: 'boolean' },
                   isBroadcast: { type: 'boolean' },
+                  broadcastTarget: { type: ['string', 'null'], enum: ['ALL', 'STUDENTS', 'COMPANIES', null] },
                   context: { type: ['string', 'null'] },
                   status: { type: ['string', 'null'] },
                   expiresAt: { type: ['string', 'null'], format: 'date-time' },
@@ -169,7 +170,7 @@ async function messageRoutes(server: FastifyInstance) {
                   topic: { type: ['string', 'null'] },
                   isReadOnly: { type: 'boolean' },
                   isBroadcast: { type: 'boolean' },
-                  broadcastTarget: { type: ['string', 'null'] },
+                  broadcastTarget: { type: ['string', 'null'], enum: ['ALL', 'STUDENTS', 'COMPANIES', null] },
                   context: { type: ['string', 'null'] },
                   status: { type: ['string', 'null'] },
                   expiresAt: { type: ['string', 'null'], format: 'date-time' },
@@ -296,6 +297,7 @@ async function messageRoutes(server: FastifyInstance) {
                 topic: { type: ['string', 'null'] },
                 isReadOnly: { type: 'boolean' },
                 isBroadcast: { type: 'boolean' },
+                broadcastTarget: { type: ['string', 'null'], enum: ['ALL', 'STUDENTS', 'COMPANIES', null] },
                 context: { type: ['string', 'null'] },
                 status: { type: ['string', 'null'] },
                 expiresAt: { type: ['string', 'null'], format: 'date-time' },
@@ -341,7 +343,8 @@ async function messageRoutes(server: FastifyInstance) {
                         status: { type: ['string', 'null'] },
                         companyName: { type: ['string', 'null'] },
                         offerTitle: { type: ['string', 'null'] },
-                        initialMessage: { type: ['string', 'null'] }
+                        initialMessage: { type: ['string', 'null'] },
+                        target: { type: ['string', 'null'], enum: ['ALL', 'STUDENTS', 'COMPANIES', null] }
                       }
                     },
                     { type: 'null' }

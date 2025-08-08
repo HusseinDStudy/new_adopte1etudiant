@@ -235,15 +235,26 @@ const MyConversationsPage = () => {
                               {getStatusBadge(conversation)}
                             </div>
                             
-                            {/* Participants */}
+                            {/* Participants or Broadcast Target */}
                             <div className="text-sm text-gray-600 mb-2">
-                              <span className="font-medium">{t('conversations.participants')}:</span>{' '}
-                              {conversation.participants.map((participant, index) => (
-                                <span key={participant.id}>
-                                  {getParticipantName(participant)}
-                                  {index < conversation.participants.length - 1 ? ', ' : ''}
-                                </span>
-                              ))}
+                              {conversation.isBroadcast ? (
+                                <>
+                                  <span className="font-medium">{t('conversations.recipients')}:</span>{' '}
+                                  {conversation.broadcastTarget === 'ALL' ? t('conversations.allUsers') :
+                                   conversation.broadcastTarget === 'STUDENTS' ? t('conversations.studentsOnly') :
+                                   conversation.broadcastTarget === 'COMPANIES' ? t('conversations.companiesOnly') : t('conversations.users')}
+                                </>
+                              ) : (
+                                <>
+                                  <span className="font-medium">{t('conversations.participants')}:</span>{' '}
+                                  {conversation.participants.map((participant, index) => (
+                                    <span key={participant.id}>
+                                      {getParticipantName(participant)}
+                                      {index < conversation.participants.length - 1 ? ', ' : ''}
+                                    </span>
+                                  ))}
+                                </>
+                              )}
                             </div>
 
                             {/* Last Message */}
