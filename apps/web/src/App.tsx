@@ -43,6 +43,8 @@ import DashboardStudentPage from './pages/DashboardStudentPage';
 import DashboardCompanyPage from './pages/DashboardCompanyPage';
 import ContactPage from './pages/ContactPage';
 import PrivacyPage from './pages/PrivacyPage';
+import MentionsLegalesPage from './pages/MentionsLegalesPage';
+import RGPDPage from './pages/RGPDPage';
 import TermsPage from './pages/TermsPage';
 import CookiesPage from './pages/CookiesPage';
 import AboutPage from './pages/AboutPage';
@@ -96,6 +98,8 @@ function App() {
           <Route path="/blog/:slug" element={<BlogPostPage />} />
           <Route path="/students" element={<StudentDirectoryPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+          <Route path="/rgpd" element={<RGPDPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
 
