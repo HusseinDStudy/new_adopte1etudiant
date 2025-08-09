@@ -27,7 +27,7 @@ import CompleteRegistrationPage from './pages/CompleteRegistrationPage';
 import LinkAccountPage from './pages/LinkAccountPage';
 import Verify2faPage from './pages/Verify2faPage';
 import HomePage from './pages/HomePage';
-import SettingsPage from './pages/SettingsPage';
+// SettingsPage removed
 import AdminDashboard from './pages/admin/AdminDashboard';
 import BlogPostList from './pages/admin/BlogPostList';
 import BlogPostForm from './pages/admin/BlogPostForm';
@@ -38,7 +38,7 @@ import AdminMessagesPage from './pages/admin/AdminMessagesPage';
 import AdminConversationPage from './pages/admin/AdminConversationPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminProfilePage from './pages/admin/AdminProfilePage';
-import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+// AdminSettingsPage removed
 import DashboardStudentPage from './pages/DashboardStudentPage';
 import DashboardCompanyPage from './pages/DashboardCompanyPage';
 import ContactPage from './pages/ContactPage';
@@ -63,7 +63,6 @@ function App() {
   // Check if we're on a page that uses SidebarLayout (authenticated pages)
   const isSidebarPage = location.pathname.startsWith('/dashboard-') ||
                         location.pathname.startsWith('/profile') ||
-                        location.pathname.startsWith('/settings') ||
                         location.pathname.startsWith('/conversations') ||
                         location.pathname.startsWith('/company/') ||
                         location.pathname.startsWith('/my-');
@@ -235,17 +234,14 @@ function App() {
                 <AdminProfilePage />
               </RoleBasedRoute>
             } />
-            <Route path="/admin/settings" element={
+            <Route path="/admin/profil" element={
               <RoleBasedRoute allowedRole="ADMIN">
-                <AdminSettingsPage />
+                <AdminProfilePage />
               </RoleBasedRoute>
             } />
+            {/* Admin settings route removed */}
 
-            <Route path="/settings" element={
-              <RoleBasedRoute allowedRoles={['STUDENT', 'COMPANY']}>
-                <SettingsPage />
-              </RoleBasedRoute>
-            } />
+            {/* User settings route removed */}
           </Route>
         </Routes>
       </main>

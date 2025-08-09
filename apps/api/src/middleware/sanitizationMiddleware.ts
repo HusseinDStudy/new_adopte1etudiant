@@ -25,8 +25,9 @@ export const sanitizeString = (value: string): string => {
   // First pass: Remove HTML tags and dangerous content
   let sanitized = purify.sanitize(value);
 
-  // Second pass: Escape any remaining problematic characters
-  sanitized = validator.escape(sanitized);
+  // Second pass: Avoid HTML entity escaping to preserve valid characters like apostrophes
+  // Rely on DOMPurify to strip tags. Optionally strip angle brackets as a safety net.
+  sanitized = sanitized.replace(/[<>]/g, '');
 
   // Third pass: Remove dangerous protocols
   sanitized = sanitized.replace(/javascript:/gi, '')

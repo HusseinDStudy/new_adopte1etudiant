@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getMe, deleteAccountWithPassword, disablePassword } from '../../services/authService';
 import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
+import TwoFactorAuthSetup from '../../components/auth/TwoFactorAuthSetup';
 import { Shield, User, Mail, Calendar, Settings, Trash2, AlertTriangle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -210,6 +211,11 @@ const AdminProfilePage = () => {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Two-Factor Authentication */}
+          <div className="bg-white rounded-lg shadow p-6 lg:col-span-2">
+            <TwoFactorAuthSetup />
           </div>
         </div>
 

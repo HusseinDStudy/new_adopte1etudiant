@@ -79,7 +79,7 @@ describe('Auth Routes', () => {
       expect(user).not.toBeNull();
       const companyProfile = await prisma.companyProfile.findUnique({ where: { userId: user!.id } });
       expect(companyProfile).not.toBeNull();
-      expect(companyProfile?.name).toBe("O&#x27;Conner - Lebsack");
+      expect(companyProfile?.name).toBe("O'Conner - Lebsack");
     });
 
     it('should return 409 if user with the same email already exists', async () => {

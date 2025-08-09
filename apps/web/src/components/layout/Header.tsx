@@ -113,7 +113,7 @@ const Header: React.FC = () => {
                 </Link>
 
                 {/* User dropdown */}
-                <div className="relative group">
+                 <div className="relative group">
                   <button className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50">
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-medium text-sm">
@@ -128,7 +128,7 @@ const Header: React.FC = () => {
                     </svg>
                   </button>
 
-                  {/* Dropdown menu */}
+                    {/* Dropdown menu */}
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <Link
                       to="/profile"
@@ -136,12 +136,7 @@ const Header: React.FC = () => {
                     >
                       {t('navigation.profile')}
                     </Link>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      {t('navigation.settings')}
-                    </Link>
+                    {/* Settings removed */}
                     <hr className="my-1" />
                     <button
                       onClick={logout}
