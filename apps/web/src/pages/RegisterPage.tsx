@@ -94,24 +94,24 @@ const RegisterPage = () => {
             {role === 'STUDENT' && (
               <>
                 <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">{t('forms.name')}</label>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">{t('forms.firstName')}</label>
                   <input
                     id="firstName"
                     type="text"
                     {...register('firstName')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                placeholder={t('forms.name')}
+                placeholder={t('forms.enterYourFirstName')}
                   />
                   {(errors as any).firstName && <p className="mt-1 text-sm text-red-500">{(errors as any).firstName.message}</p>}
                 </div>
                 <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">{t('forms.name')}</label>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">{t('forms.lastName')}</label>
                   <input
                     id="lastName"
                     type="text"
                     {...register('lastName')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                placeholder={t('forms.name')}
+                placeholder={t('forms.enterYourLastName')}
                   />
                   {(errors as any).lastName && <p className="mt-1 text-sm text-red-500">{(errors as any).lastName.message}</p>}
                 </div>
@@ -127,7 +127,7 @@ const RegisterPage = () => {
                     type="text"
                     {...register('name')}
                     className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-3 px-4 transition-colors"
-                placeholder={t('profileForm.companyName')}
+                placeholder={t('forms.enterYourCompanyName')}
                   />
                   {(errors as any).name && <p className="mt-1 text-sm text-red-500">{(errors as any).name.message}</p>}
                 </div>
