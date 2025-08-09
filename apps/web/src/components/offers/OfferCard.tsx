@@ -56,7 +56,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
     <div className="relative bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 group">
       {/* Match Score Ring */}
       {userRole === 'STUDENT' && offer.matchScore !== undefined && (
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 hidden sm:block">
           <div className="relative w-16 h-16">
             <svg className="transform -rotate-90 w-16 h-16">
               <circle cx="32" cy="32" r="24" stroke="currentColor" strokeWidth="4" className="text-gray-200" />
@@ -97,14 +97,14 @@ const OfferCard: React.FC<OfferCardProps> = ({
         </div>
 
         {/* Location and Duration */}
-        <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-sm text-gray-500">
           {offer.location && (
             <div className="flex items-center space-x-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>{offer.location}</span>
+              <span className="break-words">{offer.location}</span>
             </div>
           )}
           {offer.duration && (
@@ -152,7 +152,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-100">
           <Link
             to={`/offers/${offer.id}`}
             className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm hover:scale-105 hover:shadow-lg transition-all duration-300 shadow-sm transform active:scale-95 group"
@@ -164,7 +164,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
           </Link>
 
           {userRole === 'STUDENT' && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               {isApplied ? (
                 <div className="flex items-center space-x-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm font-medium">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

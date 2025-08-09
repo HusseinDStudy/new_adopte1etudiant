@@ -79,7 +79,7 @@ function App() {
   }
 
   return (
-    <div className={isSidebarPage ? "" : "min-h-screen bg-gray-50"}>
+    <div className={isSidebarPage ? "" : "min-h-[100dvh] bg-gray-50"}>
       {/* Only show header for non-sidebar pages (public pages) */}
       {!isSidebarPage && <Header />}
 

@@ -76,9 +76,9 @@ const ManageOffersPage = () => {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">{t('companyOffers.title')}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-bold break-words">{t('companyOffers.title')}</h1>
           <p className="text-gray-600 mt-1">
             {offers.length} {offers.length !== 1 ? t('companyOffers.subtitle') : t('companyOffers.subtitle').replace('offres', 'offre').replace('offers', 'offer')}
           </p>
@@ -109,9 +109,9 @@ const ManageOffersPage = () => {
           {offers.map(offer => (
             <div key={offer.id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
               <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                   <div className="flex-1">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">{offer.title}</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2 break-words">{offer.title}</h2>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                       {offer.location && (
                         <span className="flex items-center">

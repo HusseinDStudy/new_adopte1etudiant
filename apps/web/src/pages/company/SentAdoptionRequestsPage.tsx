@@ -80,14 +80,14 @@ const SentAdoptionRequestsPage: React.FC = () => {
                 ) : (
                     <div className="space-y-4">
                         {requests.map(req => (
-                            <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center">
-                                <div>
+                            <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                                <div className="min-w-0">
                                     <h2 className="text-xl font-semibold">
                                         {req.student.studentProfile ? `${req.student.studentProfile.firstName} ${req.student.studentProfile.lastName}` : t('adoptionRequests.aStudent')}
                                     </h2>
                                     <p className="text-gray-500 text-sm mt-2">{t('adoptionRequests.sentOn')}: {new Date(req.createdAt).toLocaleDateString()}</p>
                                 </div>
-                                 <div className="text-right">
+                                 <div className="text-left sm:text-right">
                                     {getStatusPill(req.status)}
                                     {req.conversation && (
                                         <div className="mt-2">

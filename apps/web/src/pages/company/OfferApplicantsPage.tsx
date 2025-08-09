@@ -158,7 +158,7 @@ const OfferApplicantsPage = () => {
       <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <Link
             to="/company/offers"
             className="text-indigo-600 hover:text-indigo-800 flex items-center"
@@ -172,7 +172,7 @@ const OfferApplicantsPage = () => {
             {t('offerApplicants.inviteStudents')}
           </Link>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('offerApplicants.title')} {offer?.title}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 break-words">{t('offerApplicants.title')} {offer?.title}</h1>
         {offer?.description && (
           <p className="text-gray-600 mt-2">{offer.description}</p>
         )}
@@ -235,7 +235,7 @@ const OfferApplicantsPage = () => {
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 {/* Student Info */}
                 <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">
                         {app.student?.firstName || ''} {app.student?.lastName || ''}

@@ -122,14 +122,14 @@ const OfferDetailsPage = () => {
             </span>
           </div>
         )}
-        <h1 className="text-3xl font-bold">{offer.title}</h1>
+        <h1 className="text-3xl font-bold break-words">{offer.title}</h1>
         <p className="mt-2 text-xl text-gray-700">{offer.company.name}</p>
         <div className="mt-4 flex flex-wrap gap-4 text-gray-600">
           {offer.location && <span>📍 {offer.location}</span>}
           {offer.duration && <span>⏰ {offer.duration}</span>}
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {Array.isArray(offer.skills) ? offer.skills.map((skill, index) => (
               <span key={`detail-skill-${index}`} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800">

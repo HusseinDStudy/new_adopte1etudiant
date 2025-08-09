@@ -116,9 +116,9 @@ const OfferListPage = () => {
     <div className="max-w-7xl mx-auto">
       {/* Page Header */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t('offers.internshipAndApprenticeshipOffers')}</h1>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+          <div className="min-w-0">
+            <h1 className="text-3xl font-bold text-gray-900 break-words">{t('offers.internshipAndApprenticeshipOffers')}</h1>
             <p className="text-gray-600 mt-2">{t('offers.findTalentForYourNeeds')}</p>
           </div>
           {user?.role === 'STUDENT' && (
@@ -179,7 +179,7 @@ const OfferListPage = () => {
       ) : (
         <>
           {/* Results Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
                 {t('offers.foundOffers', { count: pagination?.total || 0 })}

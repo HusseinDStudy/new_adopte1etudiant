@@ -2,8 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global base tweaks to prevent accidental horizontal scroll */
+@layer base {
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
 /* Custom utilities for blog */
 @layer utilities {
+  /* Ensure images/embeds in prose scale with container */
+  .prose img,
+  .prose video,
+  .prose iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -23,6 +38,14 @@
 .prose {
   color: #374151;
   max-width: none;
+}
+
+.prose a {
+  word-break: break-word;
+}
+
+.prose code, .prose pre {
+  overflow-x: auto;
 }
 
 .prose h2 {

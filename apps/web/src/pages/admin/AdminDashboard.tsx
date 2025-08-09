@@ -152,7 +152,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Recent Blog Posts */}
         <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
             <h3 className="text-lg font-semibold text-gray-900">{t('blog.recentPosts')}</h3>
             <Link
               to="/admin/blog/posts"
@@ -182,17 +182,24 @@ const AdminDashboard: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {posts.slice(0, 5).map((post) => (
-                <div key={post.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{post.title}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{post.excerpt.substring(0, 100)}...</p>
-                    <div className="flex items-center mt-2 space-x-4 text-xs text-gray-500">
+                <div
+                  key={post.id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-4 border border-gray-200 rounded-lg"
+                >
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900 break-words">{post.title}</h4>
+                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">{post.excerpt}</p>
+                    <div className="flex flex-wrap items-center mt-2 gap-3 text-xs text-gray-500">
                       <span>Par {post.author}</span>
                       <span>{new Date(post.createdAt).toLocaleDateString('fr-FR')}</span>
-                      <span className={`px-2 py-1 rounded-full ${
-                        post.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                          {post.status === 'PUBLISHED' ? t('forms.published') : t('forms.draft')}
+                      <span
+                        className={`px-2 py-1 rounded-full ${
+                          post.status === 'PUBLISHED'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {post.status === 'PUBLISHED' ? t('forms.published') : t('forms.draft')}
                       </span>
                       {post.featured && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
@@ -201,7 +208,7 @@ const AdminDashboard: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2 ml-4">
+                  <div className="flex items-center space-x-2 ml-0 sm:ml-4 mt-2 sm:mt-0">
                     <Link
                       to={`/admin/blog/posts/${post.id}/edit`}
                       className="p-2 text-gray-400 hover:text-blue-600 transition-colors"

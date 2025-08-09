@@ -186,6 +186,7 @@
     "profile": "Profil",
     "settings": "Paramètres",
     "logout": "Déconnexion",
+    "messages": "Messages",
     "backToOffers": "Retour aux offres"
   },
   "auth": {

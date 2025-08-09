@@ -171,7 +171,7 @@ const InviteStudentsPage = () => {
       <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <Link
             to={`/company/offers/${id}/applications`}
             className="text-indigo-600 hover:text-indigo-800 flex items-center"

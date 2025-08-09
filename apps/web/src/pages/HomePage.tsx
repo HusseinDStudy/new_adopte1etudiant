@@ -80,7 +80,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <div className="text-blue-500 font-semibold text-lg mb-4 uppercase tracking-wide">{t('home.ourServices')}</div>
-            <h2 className="text-5xl font-bold text-gray-900 mb-6">{t('home.completePlatform')}</h2>
+            <h2 className="text-5xl font-bold text-gray-900 mb-6 break-words">{t('home.completePlatform')}</h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
               {t('home.discoverOurServices')}
             </p>

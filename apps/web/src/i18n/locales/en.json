@@ -134,6 +134,7 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Logout",
+    "messages": "Messages",
     "backToOffers": "Back to offers"
   },
   "auth": {

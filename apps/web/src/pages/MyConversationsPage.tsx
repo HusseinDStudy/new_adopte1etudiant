@@ -146,8 +146,8 @@ const MyConversationsPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8">
+        <div className="border-b border-gray-200 mb-6 overflow-x-auto">
+          <nav className="-mb-px flex space-x-8 min-w-max">
             <button
               onClick={() => setActiveTab('conversations')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -176,13 +176,13 @@ const MyConversationsPage = () => {
         {activeTab === 'conversations' && (
           <>
             {/* Filters */}
-            <div className="flex gap-4 items-center mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center mb-6">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-500" />
                 <select
                   value={contextFilter}
                   onChange={(e) => setContextFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">{t('conversations.filters.allContexts')}</option>
                   <option value="ADOPTION_REQUEST">{t('conversations.filters.adoptionRequests')}</option>
@@ -195,7 +195,7 @@ const MyConversationsPage = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">{t('conversations.filters.allStatuses')}</option>
                 <option value="ACTIVE">{t('conversations.filters.active')}</option>

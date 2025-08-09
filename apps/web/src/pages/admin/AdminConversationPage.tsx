@@ -250,7 +250,7 @@ const AdminConversationPage: React.FC = () => {
       title="Conversation"
       subtitle={conversation?.topic || 'Détails de la conversation'}
     >
-      <div className="p-6 flex flex-col h-[calc(100vh-120px)]">
+      <div className="p-6 flex flex-col min-h-[100dvh] min-h-[100svh] pb-[env(safe-area-inset-bottom)]">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 border-b pb-4">
           <div className="flex items-center gap-4">
@@ -297,7 +297,7 @@ const AdminConversationPage: React.FC = () => {
         )}
 
         {/* Messages */}
-        <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 rounded-lg">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-4 bg-gray-50 rounded-lg">
           {Array.isArray(messages) ? messages.map((msg, index) => {
             if (!msg || !msg.id || !msg.sender || !msg.sender.id) {
               return null;

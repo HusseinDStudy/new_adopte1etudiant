@@ -95,17 +95,17 @@ const AdminUsersPage: React.FC = () => {
     >
       <div className="p-6">
         {/* Header with Filters */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-6 gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 min-w-0">
             {/* Search */}
-            <div className="relative">
+            <div className="relative min-w-0 sm:min-w-[16rem] flex-1 sm:flex-none">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder={t('adminUsers.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+                className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -113,7 +113,7 @@ const AdminUsersPage: React.FC = () => {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">{t('adminUsers.allRoles')}</option>
               <option value="STUDENT">{t('forms.students')}</option>
@@ -125,7 +125,7 @@ const AdminUsersPage: React.FC = () => {
             <select
               value={statusFilter === undefined ? '' : statusFilter.toString()}
               onChange={(e) => setStatusFilter(e.target.value === '' ? undefined : e.target.value === 'true')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">{t('adminUsers.allStatuses')}</option>
               <option value="true">{t('adminUsers.active')}</option>
@@ -162,8 +162,77 @@ const AdminUsersPage: React.FC = () => {
         ) : (
           <>
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+              {/* Mobile stacked cards */}
+              <div className="sm:hidden divide-y divide-gray-200">
+                {users.map((u) => (
+                  <div key={u.id} className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                        {getRoleIcon(u.role)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="text-sm font-medium text-gray-900 break-words">
+                            {u.profile?.firstName && u.profile?.lastName
+                              ? `${u.profile.firstName} ${u.profile.lastName}`
+                              : u.profile?.companyName || u.email.split('@')[0]}
+                          </div>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(u.role)}`}>
+                            {getRoleIcon(u.role)}
+                            <span className="ml-1">{u.role}</span>
+                          </span>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {u.isActive ? t('adminUsers.active') : t('adminUsers.inactive')}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1 break-words">{u.email}</div>
+                        <div className="mt-2 text-xs text-gray-600">
+                          <span className="mr-2">{t('adminUsers.table.registeredAt')}: {formatDate(u.createdAt)}</span>
+                          <span>{t('adminUsers.table.lastLogin')}: {u.lastLoginAt ? formatDate(u.lastLoginAt) : t('adminUsers.never')}</span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <button
+                            onClick={() => handleToggleStatus(u.id, u.isActive)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              u.isActive ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'
+                            }`}
+                            title={u.isActive ? t('adminUsers.deactivate') : t('adminUsers.activate')}
+                          >
+                            <Ban className="w-4 h-4" />
+                          </button>
+                          <div className="relative group">
+                            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                              <Shield className="w-4 h-4" />
+                            </button>
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                              <div className="py-1">
+                                <button onClick={() => handleRoleChange(u.id, 'STUDENT')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'STUDENT'}>
+                                  {t('forms.students')}
+                                </button>
+                                <button onClick={() => handleRoleChange(u.id, 'COMPANY')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'COMPANY'}>
+                                  {t('forms.companies')}
+                                </button>
+                                <button onClick={() => handleRoleChange(u.id, 'ADMIN')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'ADMIN'}>
+                                  {t('adminUsers.admin')}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <button onClick={() => handleDeleteUser(u.id, u.email)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title={t('common.delete')}>
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="min-w-[1000px] divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -197,7 +266,7 @@ const AdminUsersPage: React.FC = () => {
                               </div>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900 break-words">
                                 {user.profile?.firstName && user.profile?.lastName
                                   ? `${user.profile.firstName} ${user.profile.lastName}`
                                   : user.profile?.companyName || user.email.split('@')[0]
@@ -298,7 +367,7 @@ const AdminUsersPage: React.FC = () => {
                   </tbody>
                 </table>
               </div>
-            </div>
+              </div>
 
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (

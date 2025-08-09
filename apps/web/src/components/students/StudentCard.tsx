@@ -55,7 +55,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-xl hover:transform hover:-translate-y-2 transition-all duration-300 group">
       {/* Header */}
-      <div className="flex items-start space-x-4 mb-4">
+      <div className="flex items-start gap-4 mb-4">
         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
           {getInitials(student.firstName, student.lastName)}
         </div>
@@ -188,7 +188,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             {/* CV Link */}
             {student.cvUrl && student.isCvPublic && (
               <a

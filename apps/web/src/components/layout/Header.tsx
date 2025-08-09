@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
@@ -13,8 +13,64 @@ const Header: React.FC = () => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const closeMobile = () => setMobileOpen(false);
+
+  // Close mobile menu on Escape and trap focus within when open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const menuEl = mobileMenuRef.current;
+    const selectors = [
+      'a[href]','button:not([disabled])','textarea','input[type="text"]','input[type="email"]','input[type="password"]','select','[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+    const focusables = menuEl ? (Array.from(menuEl.querySelectorAll<HTMLElement>(selectors)) as HTMLElement[]) : [];
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    first?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeMobile();
+      }
+      if (e.key === 'Tab' && focusables.length > 0) {
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobileOpen]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = original; };
+  }, [mobileOpen]);
+
+  // Auto-close mobile menu on viewport upsize to md+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => { if (e.matches) setMobileOpen(false); };
+    if (mq.addEventListener) mq.addEventListener('change', handler);
+    else mq.addListener(handler);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', handler);
+      else mq.removeListener(handler);
+    };
+  }, []);
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40 pt-[env(safe-area-inset-top)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -28,7 +84,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-8" aria-label="Primary">
             <Link
               to="/offers"
               className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -77,10 +133,22 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Right side actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <LanguageSwitcher />
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden p-2 rounded-md hover:bg-gray-100"
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            {/* Hide the heavy action cluster on small screens; expose via mobile menu */}
             {isAuthenticated ? (
-              <>
+              <div className="hidden sm:flex items-center space-x-2">
                 {/* Dashboard Icon */}
                 <Link
                   to="/dashboard"
@@ -146,7 +214,7 @@ const Header: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
               <div className="flex items-center space-x-2">
                 <Link
@@ -166,6 +234,73 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile menu sheet + overlay */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-30 md:hidden"
+            aria-hidden="true"
+            onClick={closeMobile}
+          />
+          <div className="md:hidden border-t border-gray-200 bg-white shadow-sm relative z-40" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <nav ref={mobileMenuRef} className="max-w-7xl mx-auto px-4 py-3 space-y-1" aria-label="Mobile">
+            <Link
+              to="/offers"
+              onClick={closeMobile}
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                isActive('/offers') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {t('navigation.offers')}
+            </Link>
+            <Link
+              to="/students"
+              onClick={closeMobile}
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                isActive('/students') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {t('navigation.students')}
+            </Link>
+            <Link
+              to="/blog"
+              onClick={closeMobile}
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                isActive('/blog') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {t('navigation.blog')}
+            </Link>
+            <Link
+              to="/contact"
+              onClick={closeMobile}
+              className={`block px-3 py-2 rounded-md text-sm font-medium ${
+                isActive('/contact') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {t('navigation.contact')}
+            </Link>
+            {isAuthenticated && (
+              <>
+                <Link to="/dashboard" onClick={closeMobile} className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive('/dashboard') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  {t('navigation.dashboard')}
+                </Link>
+                <Link to={user?.role === 'ADMIN' ? '/admin/messages' : '/conversations'} onClick={closeMobile} className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive(user?.role === 'ADMIN' ? '/admin/messages' : '/conversations') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  {t('navigation.messages')}
+                </Link>
+                <Link to="/profile" onClick={closeMobile} className={`block px-3 py-2 rounded-md text-sm font-medium ${isActive('/profile') ? 'text-blue-700 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'}`}>
+                  {t('navigation.profile')}
+                </Link>
+                <button onClick={() => { closeMobile(); logout(); }} className="w-full text-left block px-3 py-2 rounded-md text-sm font-medium text-red-700 hover:bg-red-50">
+                  {t('navigation.logout')}
+                </button>
+              </>
+            )}
+          </nav>
+          </div>
+        </>
+      )}
     </header>
   );
 };

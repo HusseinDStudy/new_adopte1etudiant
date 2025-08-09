@@ -69,7 +69,7 @@ const StudentList: React.FC<StudentListProps> = ({
   return (
     <div>
       {/* Results Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
             {t('students.foundStudents', { count: totalStudents })}

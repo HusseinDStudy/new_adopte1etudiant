@@ -51,7 +51,7 @@ const RGPDPage: React.FC = () => {
     <>
       <HeroSection title={t('gdpr.title')} description={t('gdpr.description')} variant="default" />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-[100dvh] bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
           {/* Intro */}
           <section className="bg-white rounded-2xl shadow-lg p-8 text-center">

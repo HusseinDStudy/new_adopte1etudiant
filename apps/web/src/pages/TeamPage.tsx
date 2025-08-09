@@ -70,7 +70,7 @@ const TeamPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[100dvh] bg-white">
       {/* Hero Section */}
       <HeroSection
         title={t('team.ourTeam')}
@@ -103,7 +103,7 @@ const TeamPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">{member.name}</h3>
+                   <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300 break-words">{member.name}</h3>
                   <p className="text-blue-600 font-medium mb-3 group-hover:text-blue-700 transition-colors duration-300">{member.role}</p>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4 group-hover:text-gray-700 transition-colors duration-300">{member.description}</p>
                   
