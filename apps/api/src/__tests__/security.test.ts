@@ -123,6 +123,44 @@ describe('Security Tests', () => {
         });
     });
 
+    describe('Admin Metrics Endpoint', () => {
+        it('GET /metrics should require authentication', async () => {
+            const res = await supertest(app.server).get('/metrics');
+            expect(res.status).toBe(401);
+        });
+
+        it('GET /metrics should return 403 for non-admin user', async () => {
+            // Create student
+            const student = await createTestStudent(app);
+            const res = await supertest(app.server)
+                .get('/metrics')
+                .set('Cookie', `token=${student.authToken}`);
+            expect(res.status).toBe(403);
+        });
+
+        it('GET /metrics should return metrics for admin', async () => {
+            // Create admin user directly
+            const email = faker.internet.email();
+            const password = 'Password123!';
+            const bcrypt = await import('bcryptjs');
+            const hash = await bcrypt.default.hash(password, 10);
+            await prisma.user.create({ data: { email, role: 'ADMIN', passwordHash: hash } });
+
+            const login = await supertest(app.server)
+                .post('/api/auth/login')
+                .send({ email, password });
+            const cookie = login.headers['set-cookie'][0];
+
+            const res = await supertest(app.server)
+                .get('/metrics')
+                .set('Cookie', cookie);
+            expect(res.status).toBe(200);
+            expect(res.body.status).toBe('ok');
+            expect(typeof res.body.uptimeSeconds).toBe('number');
+            expect(res.body.memory).toBeDefined();
+        });
+    });
+
     describe('XSS Protection', () => {
         it('should sanitize XSS attempts in user registration', async () => {
             const xssPayloads = [

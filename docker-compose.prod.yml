@@ -11,6 +11,7 @@ services:
       - WEB_APP_URL=${WEB_APP_URL}
       - PORT=8080
       - NODE_ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     depends_on:
@@ -40,6 +41,13 @@ services:
           cpus: "0.25"
     networks:
       - app-network
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /adopte1etudiant/api
+        awslogs-region: ${AWS_REGION}
+        awslogs-stream: api
+        awslogs-create-group: "true"
 
   web:
     image: ${DOCKERHUB_USERNAME}/web:${WEB_IMAGE_TAG:-latest}
@@ -73,6 +81,13 @@ services:
           cpus: "0.1"
     networks:
       - app-network
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /adopte1etudiant/web
+        awslogs-region: ${AWS_REGION}
+        awslogs-stream: web
+        awslogs-create-group: "true"
 
   postgres:
     image: postgres:15-alpine

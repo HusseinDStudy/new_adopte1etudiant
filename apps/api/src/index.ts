@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import { randomUUID } from 'node:crypto';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import cookie from '@fastify/cookie';
@@ -19,9 +20,32 @@ import twoFactorAuthRoutes from './routes/twoFactorAuth.js';
 import blogRoutes from './routes/blog.js';
 import adminRoutes from './routes/admin.js';
 import { prisma } from 'db-postgres';
+import { authMiddleware } from './middleware/authMiddleware.js';
+import { roleMiddleware } from './middleware/roleMiddleware.js';
+import { Role } from '@prisma/client';
 
 const server = Fastify({
-  logger: true,
+  logger: {
+    level: process.env.LOG_LEVEL || 'info',
+    // Redact sensitive fields from logs
+    redact: {
+      paths: [
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'request.body.password',
+        'request.body.*.password',
+        'response.body.password',
+        'cookies'
+      ],
+      censor: '[REDACTED]'
+    }
+  },
+  // Correlate logs with a consistent request id
+  genReqId: (req) => {
+    const headerId = (req.headers['x-request-id'] || req.headers['x-correlation-id']) as string | undefined;
+    return headerId || randomUUID();
+  },
+  requestIdHeader: 'x-request-id'
 });
 
 // Register Swagger documentation
@@ -44,6 +68,37 @@ server.register(cookie);
 
 // Register global error handler
 server.setErrorHandler(errorHandler);
+
+// Basic request/response logging with timing and correlation id
+server.addHook('onRequest', async (request) => {
+  // Use high-resolution timer
+  (request as any)._startAt = process.hrtime.bigint();
+  request.log.info({
+    reqId: request.id,
+    method: request.method,
+    url: request.url,
+    ip: request.ip,
+    userId: (request as any).user?.id || null
+  }, 'Incoming request');
+});
+
+server.addHook('onSend', async (request, reply, _payload) => {
+  // Ensure response carries the request id header
+  reply.header('x-request-id', request.id);
+});
+
+server.addHook('onResponse', async (request, reply) => {
+  const startAt = (request as any)._startAt as bigint | undefined;
+  const durationMs = startAt ? Number((process.hrtime.bigint() - startAt) / BigInt(1_000_000)) : undefined;
+  request.log.info({
+    reqId: request.id,
+    method: request.method,
+    url: request.url,
+    statusCode: reply.statusCode,
+    durationMs,
+    userId: (request as any).user?.id || null
+  }, 'Request completed');
+});
 
 // Health check route with database connectivity test
 server.get('/health', {
@@ -74,7 +129,7 @@ server.get('/health', {
       }
     }
   }
-}, async (request, reply) => {
+}, async (_request, _reply) => {
   try {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
@@ -82,13 +137,56 @@ server.get('/health', {
   } catch (error) {
     // Return unhealthy status if database is not accessible
     server.log.error('Health check failed:', error);
-    return reply.code(503).send({ 
+    return _reply.code(503).send({ 
       status: 'error', 
       timestamp: new Date().toISOString(), 
       database: 'disconnected',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
+});
+
+// Metrics endpoint (admin only)
+server.get('/metrics', {
+  preHandler: [authMiddleware, roleMiddleware([Role.ADMIN])],
+  schema: {
+    description: 'Runtime metrics (admin only)',
+    tags: ['System'],
+    summary: 'Metrics',
+    response: {
+      200: {
+        description: 'Runtime metrics snapshot',
+        type: 'object',
+        properties: {
+          status: { type: 'string', enum: ['ok'] },
+          timestamp: { type: 'string', format: 'date-time' },
+          uptimeSeconds: { type: 'number' },
+          memory: {
+            type: 'object',
+            properties: {
+              rss: { type: 'number' },
+              heapTotal: { type: 'number' },
+              heapUsed: { type: 'number' },
+              external: { type: 'number' }
+            }
+          }
+        }
+      }
+    }
+  }
+}, async (_request, _reply) => {
+  const mem = process.memoryUsage();
+  return {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: process.uptime(),
+    memory: {
+      rss: mem.rss,
+      heapTotal: mem.heapTotal,
+      heapUsed: mem.heapUsed,
+      external: mem.external
+    }
+  };
 });
 
 // Add a startup log for debugging

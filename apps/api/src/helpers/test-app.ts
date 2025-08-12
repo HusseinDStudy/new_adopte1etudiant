@@ -16,6 +16,9 @@ import companyRoutes from '../routes/company.js';
 import twoFactorAuthRoutes from '../routes/twoFactorAuth.js';
 import blogRoutes from '../routes/blog.js';
 import adminRoutes from '../routes/admin.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { roleMiddleware } from '../middleware/roleMiddleware.js';
+import { Role } from '@prisma/client';
 
 export async function buildTestApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -54,6 +57,32 @@ export async function buildTestApp(): Promise<FastifyInstance> {
   app.register(twoFactorAuthRoutes, { prefix: '/api/2fa' });
   app.register(blogRoutes, { prefix: '/api/blog' });
   app.register(adminRoutes, { prefix: '/api/admin' });
+
+  // Health endpoint (simple for tests)
+  app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString(), database: 'connected' }));
+
+  // Metrics endpoint (admin only) to mirror production
+  app.get('/metrics', {
+    preHandler: [authMiddleware, roleMiddleware([Role.ADMIN])],
+    schema: {
+      description: 'Runtime metrics (admin only)',
+      tags: ['System'],
+      summary: 'Metrics',
+    }
+  }, async () => {
+    const mem = process.memoryUsage();
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptimeSeconds: process.uptime(),
+      memory: {
+        rss: mem.rss,
+        heapTotal: mem.heapTotal,
+        heapUsed: mem.heapUsed,
+        external: mem.external
+      }
+    };
+  });
 
   await app.ready();
 

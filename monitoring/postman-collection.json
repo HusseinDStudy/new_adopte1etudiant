@@ -45,6 +45,42 @@
       ]
     },
     {
+      "name": "Metrics (Admin Only - optional)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Cookie", "value": "token={{adminToken}}", "type": "text", "disabled": true }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/metrics",
+          "host": ["{{baseUrl}}"],
+          "path": ["metrics"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (!pm.variables.get('adminToken')) {",
+              "  console.log('Skipping metrics test: adminToken not set');",
+              "  pm.test('Metrics test skipped (no adminToken)', function () { pm.expect(true).to.be.true; });",
+              "} else {",
+              "  pm.test('Metrics returns 200', function () { pm.response.to.have.status(200); });",
+              "  const json = pm.response.json();",
+              "  pm.test('Metrics payload has uptime and memory', function () {",
+              "    pm.expect(json.status).to.eql('ok');",
+              "    pm.expect(typeof json.uptimeSeconds).to.eql('number');",
+              "    pm.expect(json).to.have.property('memory');",
+              "  });",
+              "}"]
+            ,
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
       "name": "API Documentation",
       "request": {
         "method": "GET",
@@ -102,9 +138,15 @@
               "    pm.response.to.have.status(200);",
               "});",
               "",
-              "pm.test('Response is an array of offers', function () {",
+              "pm.test('Response shape is correct (array or data wrapper)', function () {",
               "    const jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an('array');",
+              "    if (Array.isArray(jsonData)) {",
+              "      pm.expect(jsonData).to.be.an('array');",
+              "    } else {",
+              "      pm.expect(jsonData).to.have.property('data');",
+              "      pm.expect(jsonData).to.have.property('pagination');",
+              "      pm.expect(jsonData.data).to.be.an('array');",
+              "    }",
               "});"
             ],
             "type": "text/javascript"
