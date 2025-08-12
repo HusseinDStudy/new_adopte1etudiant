@@ -49,7 +49,7 @@ const EditOfferPage = () => {
   if (loading) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="flex justify-center items-center h-64">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-lg">{t('editOffer.loadingOffer')}</div>
         </div>
       </div>
@@ -59,7 +59,7 @@ const EditOfferPage = () => {
   if (error) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong>{t('editOffer.error')}:</strong> {error}
         </div>
       </div>

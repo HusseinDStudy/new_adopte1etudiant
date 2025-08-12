@@ -20,6 +20,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tseslint,
+      'tailwindcss': (await import('eslint-plugin-tailwindcss')).default,
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -27,6 +28,8 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'tailwindcss/classnames-order': 'warn',
+      'tailwindcss/no-custom-classname': 'off',
     },
   },
   

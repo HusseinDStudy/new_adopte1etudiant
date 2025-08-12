@@ -35,8 +35,8 @@ const AdminAnalyticsPage: React.FC = () => {
         title={t('admin.analytics')}
         subtitle={t('admin.analyticsSubtitle')}
       >
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <div className="py-12 text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">{t('loading.loadingStatistics')}</p>
         </div>
       </AdminLayout>
@@ -49,11 +49,11 @@ const AdminAnalyticsPage: React.FC = () => {
         title={t('admin.analytics')}
         subtitle={t('admin.analyticsSubtitle')}
       >
-        <div className="text-center py-12">
-          <p className="text-red-600 mb-4">{t('errors.loadingStatisticsError')}</p>
+        <div className="py-12 text-center">
+          <p className="mb-4 text-red-600">{t('errors.loadingStatisticsError')}</p>
           <button
             onClick={refetch}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
           >
             {t('common.retry')}
           </button>
@@ -68,8 +68,8 @@ const AdminAnalyticsPage: React.FC = () => {
         title={t('admin.analytics')}
         subtitle={t('admin.analyticsSubtitle')}
       >
-        <div className="text-center py-12">
-          <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <div className="py-12 text-center">
+          <BarChart3 className="mx-auto mb-4 h-12 w-12 text-gray-400" />
           <p className="text-gray-600">{t('noData.noDataAvailable')}</p>
         </div>
       </AdminLayout>
@@ -154,19 +154,19 @@ const AdminAnalyticsPage: React.FC = () => {
       title={t('admin.analytics')}
       subtitle={t('admin.analyticsSubtitle')}
     >
-      <div className="p-6 space-y-8">
+      <div className="space-y-8 p-6">
         {/* Main Statistics Grid */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('admin.analytics')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">{t('admin.analytics')}</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {mainStats.map((stat) => (
               <div
                 key={stat.name}
-                className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+                className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
               >
                 <div className="flex items-center">
-                  <div className={`${stat.color} p-3 rounded-lg`}>
-                    <stat.icon className="w-6 h-6 text-white" />
+                  <div className={`${stat.color} rounded-lg p-3`}>
+                    <stat.icon className="h-6 w-6 text-white" />
                   </div>
                   <div className="ml-4 flex-1">
                     <p className="text-sm font-medium text-gray-600">{stat.name}</p>
@@ -175,8 +175,8 @@ const AdminAnalyticsPage: React.FC = () => {
                         {formatNumber(stat.value)}
                       </p>
                       {stat.change !== null && stat.change > 0 && (
-                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <TrendingUp className="w-3 h-3 mr-1" />
+                        <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                          <TrendingUp className="mr-1 h-3 w-3" />
                           +{stat.change}%
                         </span>
                       )}
@@ -190,15 +190,15 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* Today's Activity */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('dashboard.recentActivity')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">{t('dashboard.recentActivity')}</h2>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {todayStats.map((stat) => (
               <div
                 key={stat.name}
-                className="bg-white p-6 rounded-lg border border-gray-200"
+                className="rounded-lg border border-gray-200 bg-white p-6"
               >
                 <div className="flex items-center">
-                  <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">{stat.name}</p>
                     <p className="text-3xl font-bold text-gray-900">
@@ -213,9 +213,9 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* User Distribution */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('admin.users')}</h2>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">{t('admin.users')}</h2>
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {Object.entries(stats.usersByRole).map(([role, count]) => {
                 const percentage = stats.totalUsers > 0 ? Math.round((count / stats.totalUsers) * 100) : 0;
                 const getRoleInfo = (role: string) => {
@@ -235,19 +235,19 @@ const AdminAnalyticsPage: React.FC = () => {
 
                 return (
                   <div key={role} className="text-center">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className={`${roleInfo.color} p-4 rounded-full`}>
-                        <roleInfo.icon className="w-8 h-8 text-white" />
+                    <div className="mb-4 flex items-center justify-center">
+                      <div className={`${roleInfo.color} rounded-full p-4`}>
+                        <roleInfo.icon className="h-8 w-8 text-white" />
                       </div>
                     </div>
                     <h3 className="text-lg font-medium text-gray-900">{roleInfo.name}</h3>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
                       {formatNumber(count)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">{percentage}% {t('analytics.ofTotal')}</p>
+                    <p className="mt-1 text-sm text-gray-600">{percentage}% {t('analytics.ofTotal')}</p>
                     {/* Progress Bar */}
                     <div className="mt-3">
-                      <div className="bg-gray-200 rounded-full h-2">
+                      <div className="h-2 rounded-full bg-gray-200">
                         <div
                           className={`h-2 rounded-full ${roleInfo.color}`}
                           style={{ width: `${percentage}%` }}
@@ -263,9 +263,9 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* Offers Status */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('admin.offers')}</h2>
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">{t('admin.offers')}</h2>
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {Object.entries(stats.offersByStatus).map(([status, count]) => {
                 const percentage = stats.totalOffers > 0 ? Math.round((count / stats.totalOffers) * 100) : 0;
                 const getStatusInfo = (status: string) => {
@@ -284,9 +284,9 @@ const AdminAnalyticsPage: React.FC = () => {
                 const statusInfo = getStatusInfo(status);
 
                 return (
-                  <div key={status} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={status} className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
                     <div className="flex items-center">
-                      <div className={`w-4 h-4 rounded-full ${statusInfo.color} mr-3`}></div>
+                      <div className={`h-4 w-4 rounded-full ${statusInfo.color} mr-3`}></div>
                       <div>
                         <p className="font-medium text-gray-900">{statusInfo.name}</p>
                         <p className="text-sm text-gray-600">{percentage}% {t('analytics.ofTotal')}</p>
@@ -304,37 +304,37 @@ const AdminAnalyticsPage: React.FC = () => {
 
         {/* Quick Actions */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('dashboard.quickActions')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <h2 className="mb-6 text-xl font-semibold text-gray-900">{t('dashboard.quickActions')}</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
             <button
               onClick={() => window.location.href = '/admin/users'}
-              className="flex items-center p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+              className="flex items-center rounded-lg border border-blue-200 bg-blue-50 p-4 transition-colors hover:bg-blue-100"
             >
-              <Users className="w-6 h-6 text-blue-600 mr-3" />
+              <Users className="mr-3 h-6 w-6 text-blue-600" />
               <span className="font-medium text-blue-900">{t('admin.users')}</span>
             </button>
             
             <button
               onClick={() => window.location.href = '/admin/offers'}
-              className="flex items-center p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
+              className="flex items-center rounded-lg border border-orange-200 bg-orange-50 p-4 transition-colors hover:bg-orange-100"
             >
-              <Briefcase className="w-6 h-6 text-orange-600 mr-3" />
+              <Briefcase className="mr-3 h-6 w-6 text-orange-600" />
               <span className="font-medium text-orange-900">{t('admin.offers')}</span>
             </button>
             
             <button
               onClick={() => window.location.href = '/admin/blog/posts'}
-              className="flex items-center p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+              className="flex items-center rounded-lg border border-purple-200 bg-purple-50 p-4 transition-colors hover:bg-purple-100"
             >
-              <FileText className="w-6 h-6 text-purple-600 mr-3" />
+              <FileText className="mr-3 h-6 w-6 text-purple-600" />
               <span className="font-medium text-purple-900">{t('admin.blog')}</span>
             </button>
             
             <button
               onClick={() => window.location.href = '/admin/messages'}
-              className="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+              className="flex items-center rounded-lg border border-green-200 bg-green-50 p-4 transition-colors hover:bg-green-100"
             >
-              <MessageSquare className="w-6 h-6 text-green-600 mr-3" />
+              <MessageSquare className="mr-3 h-6 w-6 text-green-600" />
               <span className="font-medium text-green-900">{t('admin.sendMessage')}</span>
             </button>
           </div>
@@ -343,7 +343,7 @@ const AdminAnalyticsPage: React.FC = () => {
         {/* Last Updated */}
         <section className="text-center">
           <p className="text-sm text-gray-500">
-            <Clock className="w-4 h-4 inline mr-1" />
+            <Clock className="mr-1 inline h-4 w-4" />
             {t('dates.lastUpdated') || 'Last updated'}: {new Date().toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US', {
               year: 'numeric',
               month: 'long',

@@ -13,11 +13,11 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+      className="flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
       title={i18n.language === 'fr' ? 'Switch to English' : 'Passer en français'}
     >
-      <Globe className="w-4 h-4" />
-      <span className="uppercase font-semibold">
+      <Globe className="h-4 w-4" />
+      <span className="font-semibold uppercase">
         {i18n.language === 'fr' ? 'EN' : 'FR'}
       </span>
     </button>

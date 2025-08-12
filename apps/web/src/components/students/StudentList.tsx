@@ -31,9 +31,9 @@ const StudentList: React.FC<StudentListProps> = ({
   const { t } = useTranslation();
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">{t('loading.loadingStudents')}</p>
         </div>
       </div>
@@ -42,11 +42,11 @@ const StudentList: React.FC<StudentListProps> = ({
 
   if (error) {
     return (
-      <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <svg className="w-12 h-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+        <svg className="mx-auto mb-4 h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 className="text-lg font-medium text-red-800 mb-2">{t('errors.loadingError')}</h3>
+        <h3 className="mb-2 text-lg font-medium text-red-800">{t('errors.loadingError')}</h3>
         <p className="text-red-600">{error}</p>
       </div>
     );
@@ -54,12 +54,12 @@ const StudentList: React.FC<StudentListProps> = ({
 
   if (students.length === 0) {
     return (
-      <div className="text-center py-12">
-        <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="py-12 text-center">
+        <svg className="mx-auto mb-4 h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
         </svg>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">{t('students.noStudentsFound')}</h3>
-        <p className="text-gray-500 mb-4">
+        <h3 className="mb-2 text-lg font-medium text-gray-900">{t('students.noStudentsFound')}</h3>
+        <p className="mb-4 text-gray-500">
           {t('noData.noResultsFound')}
         </p>
       </div>
@@ -69,12 +69,12 @@ const StudentList: React.FC<StudentListProps> = ({
   return (
     <div>
       {/* Results Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
             {t('students.foundStudents', { count: totalStudents })}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             {t('students.showingAvailableStudents')}
           </p>
         </div>
@@ -83,7 +83,7 @@ const StudentList: React.FC<StudentListProps> = ({
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:scale-105 transition-all duration-300"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-all duration-300 hover:scale-105 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="recent">📅 {t('students.mostRecent')}</option>
             <option value="skills">🎯 {t('students.mostSkills')}</option>
@@ -93,7 +93,7 @@ const StudentList: React.FC<StudentListProps> = ({
       </div>
 
       {/* Students Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {students.map((student) => (
           <StudentCard
             key={student.id}

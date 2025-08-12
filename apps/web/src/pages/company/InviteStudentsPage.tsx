@@ -5,6 +5,8 @@ import { getOfferById } from '../../services/offerService';
 import { listAvailableStudents } from '../../services/studentService';
 import { createAdoptionRequest, getRequestedStudentIds } from '../../services/adoptionRequestService';
 import SidebarLayout from '../../components/layout/SidebarLayout';
+import { Field, Label } from '../../components/form/Field';
+import { Input } from '../../components/ui/input';
 
 interface Student {
   id: string;
@@ -149,7 +151,7 @@ const InviteStudentsPage = () => {
   if (loading) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="flex justify-center items-center h-64">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-lg">{t('inviteStudents.loadingStudents')}</div>
         </div>
       </div>
@@ -159,7 +161,7 @@ const InviteStudentsPage = () => {
   if (error) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong>{t('inviteStudents.error')}:</strong> {error}
         </div>
       </div>
@@ -171,16 +173,16 @@ const InviteStudentsPage = () => {
       <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to={`/company/offers/${id}/applications`}
-            className="text-indigo-600 hover:text-indigo-800 flex items-center"
+            className="flex items-center text-indigo-600 hover:text-indigo-800"
           >
             {t('inviteStudents.backToApplicants')}
           </Link>
           <button
             onClick={refreshRequestedStudents}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
             title={t('inviteStudents.refreshStatusTitle')}
           >
             {t('inviteStudents.refreshStatus')}
@@ -194,11 +196,11 @@ const InviteStudentsPage = () => {
             {offer.skills && offer.skills.length > 0 && (
               <div className="mt-2">
                 <span className="text-sm font-medium text-gray-700">{t('inviteStudents.requiredSkills')} </span>
-                <div className="inline-flex flex-wrap gap-1 mt-1">
+                <div className="mt-1 inline-flex flex-wrap gap-1">
                   {offer.skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
+                      className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
                     >
                       {skill}
                     </span>
@@ -212,12 +214,12 @@ const InviteStudentsPage = () => {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+        <div className="mb-6 rounded-lg border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <div className="flex items-center justify-between">
             <span>{error}</span>
             <button
               onClick={() => setError('')}
-              className="text-red-500 hover:text-red-700 font-bold text-lg"
+              className="text-lg font-bold text-red-500 hover:text-red-700"
             >
               ×
             </button>
@@ -227,18 +229,23 @@ const InviteStudentsPage = () => {
 
       {/* Search */}
       <div className="mb-6">
-        <input
-          type="text"
-          placeholder={t('inviteStudents.searchPlaceholder')}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+        <Field className="space-y-1">{({ id }) => (
+          <>
+            <Label>{t('inviteStudents.searchPlaceholder')}</Label>
+            <Input
+              id={id}
+              uiSize="md"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={t('inviteStudents.searchPlaceholder') as string}
+            />
+          </>
+        )}</Field>
       </div>
 
       {/* Students List */}
       {sortedStudents.length === 0 ? (
-        <div className="text-center bg-white p-12 rounded-lg shadow-md">
+        <div className="rounded-lg bg-white p-12 text-center shadow-md">
           <h2 className="text-xl font-semibold">{t('inviteStudents.noStudentsFound')}</h2>
           <p className="mt-2 text-gray-500">
             {searchTerm ? t('inviteStudents.tryAdjustingSearch') : t('inviteStudents.noStudentsDescription')}
@@ -254,11 +261,11 @@ const InviteStudentsPage = () => {
             const showAsInvited = isNewlyInvited || wasAlreadyRequested;
 
             return (
-              <div key={student.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+              <div key={student.id} className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   {/* Student Info */}
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="mb-3 flex items-start justify-between">
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900">
                           {student.firstName} {student.lastName}
@@ -282,7 +289,7 @@ const InviteStudentsPage = () => {
                     {/* Skills */}
                     {student.skills && student.skills.length > 0 && (
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">{t('inviteStudents.skills')}</h4>
+                        <h4 className="mb-2 text-sm font-medium text-gray-700">{t('inviteStudents.skills')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {student.skills.map((skill, index) => {
                             const isMatching = offer?.skills?.some(offerSkill => 
@@ -293,7 +300,7 @@ const InviteStudentsPage = () => {
                             return (
                               <span
                                 key={index}
-                                className={`text-xs font-medium px-2.5 py-0.5 rounded ${
+                                className={`rounded px-2.5 py-0.5 text-xs font-medium ${
                                   isMatching 
                                     ? 'bg-green-100 text-green-800 ring-2 ring-green-300' 
                                     : 'bg-gray-100 text-gray-800'
@@ -314,7 +321,7 @@ const InviteStudentsPage = () => {
                           href={student.cvUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
                         >
                           {t('inviteStudents.viewCv')}
                         </a>
@@ -325,7 +332,7 @@ const InviteStudentsPage = () => {
                   {/* Actions */}
                   <div className="flex flex-col gap-3 lg:w-48">
                     {showAsInvited ? (
-                      <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-medium text-center">
+                      <div className="rounded-lg bg-green-100 px-4 py-2 text-center text-sm font-medium text-green-800">
                         {wasAlreadyRequested && !isNewlyInvited ? (
                           <>{t('inviteStudents.alreadyContacted')}</>
                         ) : (
@@ -336,7 +343,7 @@ const InviteStudentsPage = () => {
                       <button
                         onClick={() => handleInviteStudent(student.id)}
                         disabled={isInviting}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
                       >
                         {isInviting ? t('inviteStudents.sending') : t('inviteStudents.sendInvitation')}
                       </button>

@@ -51,7 +51,7 @@ const CompanyProfileForm = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
         <div className="sm:col-span-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
             {t('profileForm.companyName')}
@@ -110,7 +110,7 @@ const CompanyProfileForm = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             {isSubmitting ? t('profileForm.saving') : t('profileForm.save')}
           </button>

@@ -47,8 +47,14 @@
     "docs:json": "npm run docs:json --workspace=apps/api",
     "docs:yaml": "npm run docs:yaml --workspace=apps/api",
     "monitor:api": "newman run monitoring/postman-collection.json -e monitoring/environment.json --reporters cli",
+    "monitor:api:ci": "newman run monitoring/postman-collection.json --env-var \"baseUrl=$MONITORING_BASE_URL\" --reporters cli",
     "monitor:performance": "artillery run monitoring/artillery-config.yml",
+    "monitor:performance:ci": "artillery run monitoring/artillery-config.yml --target \"$MONITORING_BASE_URL\"",
     "monitor:all": "npm run monitor:api && npm run monitor:performance",
+    "monitor:all:ci": "npm run monitor:api:ci && npm run monitor:performance:ci",
+    "alert:slack": "node scripts/notify-slack.js",
+    "alert:slack:failure": "node scripts/notify-slack.js '⚠️ Monitoring failed'",
+    "monitor:ci": "npm run monitor:all:ci || npm run alert:slack:failure",
     "setup": "npm install && cp apps/api/.env.example apps/api/.env && cp apps/web/.env.example apps/web/.env && cp .env.example .env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: npm run docker:dev'"
   },
   "devDependencies": {
@@ -61,8 +67,11 @@
     "eslint-plugin-jsx-a11y": "^6.10.0",
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-tailwindcss": "^3.18.2",
     "prettier": "^3.6.2",
-    "turbo": "^2.5.5"
+    "turbo": "^2.5.5",
+    "artillery": "^2.0.0",
+    "newman": "^6.2.0"
   },
   "workspaces": [
     "apps/*",

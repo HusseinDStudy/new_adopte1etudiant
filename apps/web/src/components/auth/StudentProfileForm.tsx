@@ -5,6 +5,8 @@ import { studentProfileSchema, StudentProfileInput } from 'shared-types';
 import { getProfile, upsertProfile } from '../../services/profileService';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { Field, Label } from '../form/Field';
+import { Input } from '../ui/input';
 
 const StudentProfileForm = () => {
   const { t } = useTranslation();
@@ -66,7 +68,7 @@ const StudentProfileForm = () => {
     try {
       const transformedData: StudentProfileInput = {
         ...data,
-        skills: data.skills.split(',').map(s => s.trim()).filter(Boolean),
+        skills: data.skills.split(',').map((s: string) => s.trim()).filter(Boolean),
         isOpenToOpportunities: data.isOpenToOpportunities,
       };
       
@@ -92,86 +94,51 @@ const StudentProfileForm = () => {
       
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-        <div className="sm:col-span-3">
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-            {t('profileForm.firstName')}
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            {...register('firstName')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-          {errors.firstName && <p className="mt-2 text-sm text-red-600">{errors.firstName.message}</p>}
-        </div>
+      <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+        <Field error={errors.firstName?.message} className="sm:col-span-3">{({ id, errorId }) => (
+          <>
+            <Label>{t('profileForm.firstName')}</Label>
+            <Input id={id} uiSize="md" aria-invalid={!!errors.firstName} aria-describedby={[errorId].filter(Boolean).join(' ')} {...register('firstName')} />
+          </>
+        )}</Field>
 
-        <div className="sm:col-span-3">
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-            {t('profileForm.lastName')}
-          </label>
-          <input
-            type="text"
-            id="lastName"
-            {...register('lastName')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-          {errors.lastName && <p className="mt-2 text-sm text-red-600">{errors.lastName.message}</p>}
-        </div>
+        <Field error={errors.lastName?.message} className="sm:col-span-3">{({ id, errorId }) => (
+          <>
+            <Label>{t('profileForm.lastName')}</Label>
+            <Input id={id} uiSize="md" aria-invalid={!!errors.lastName} aria-describedby={[errorId].filter(Boolean).join(' ')} {...register('lastName')} />
+          </>
+        )}</Field>
         
-        <div className="sm:col-span-4">
-          <label htmlFor="school" className="block text-sm font-medium text-gray-700">
-            {t('profileForm.school')}
-          </label>
-          <input
-            type="text"
-            id="school"
-            {...register('school')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-        </div>
+        <Field className="sm:col-span-4">{({ id }) => (
+          <>
+            <Label>{t('profileForm.school')}</Label>
+            <Input id={id} uiSize="md" {...register('school')} />
+          </>
+        )}</Field>
 
-        <div className="sm:col-span-4">
-          <label htmlFor="degree" className="block text-sm font-medium text-gray-700">
-            {t('profileForm.degree')}
-          </label>
-          <input
-            type="text"
-            id="degree"
-            {...register('degree')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-        </div>
+        <Field className="sm:col-span-4">{({ id }) => (
+          <>
+            <Label>{t('profileForm.degree')}</Label>
+            <Input id={id} uiSize="md" {...register('degree')} />
+          </>
+        )}</Field>
 
-        <div className="sm:col-span-6">
-          <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
-            {t('profileForm.skills')}
-          </label>
-          <input
-            type="text"
-            id="skills"
-            {...register('skills')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-          {errors.skills && <p className="mt-2 text-sm text-red-600">{errors.skills?.message}</p>}
-        </div>
+        <Field error={errors.skills?.message} className="sm:col-span-6">{({ id, errorId }) => (
+          <>
+            <Label>{t('profileForm.skills')}</Label>
+            <Input id={id} uiSize="md" aria-invalid={!!errors.skills} aria-describedby={[errorId].filter(Boolean).join(' ')} {...register('skills')} />
+          </>
+        )}</Field>
 
-        <div className="sm:col-span-6">
-          <label htmlFor="cvUrl" className="block text-sm font-medium text-gray-700">
-            {t('profileForm.cvUrl')}
-          </label>
-          <input
-            type="text"
-            id="cvUrl"
-            {...register('cvUrl')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            placeholder={t('profileForm.cvUrlPlaceholder')}
-          />
-          {errors.cvUrl && <p className="mt-2 text-sm text-red-600">{errors.cvUrl?.message}</p>}
-        </div>
+        <Field error={errors.cvUrl?.message} className="sm:col-span-6">{({ id, errorId }) => (
+          <>
+            <Label>{t('profileForm.cvUrl')}</Label>
+            <Input id={id} uiSize="md" aria-invalid={!!errors.cvUrl} aria-describedby={[errorId].filter(Boolean).join(' ')} {...register('cvUrl')} placeholder={t('profileForm.cvUrlPlaceholder') as string} />
+          </>
+        )}</Field>
       </div>
 
-      <div className="relative flex items-start mt-6">
+      <div className="relative mt-6 flex items-start">
         <div className="flex h-5 items-center">
           <input
             id="isCvPublic"
@@ -190,7 +157,7 @@ const StudentProfileForm = () => {
         </div>
       </div>
 
-      <div className="relative flex items-start mt-6">
+      <div className="relative mt-6 flex items-start">
         <div className="flex h-5 items-center">
           <input
             id="isOpenToOpportunities"
@@ -215,7 +182,7 @@ const StudentProfileForm = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
           >
             {isSubmitting ? t('profileForm.saving') : t('profileForm.save')}
           </button>

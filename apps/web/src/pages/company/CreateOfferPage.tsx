@@ -31,7 +31,7 @@ const CreateOfferPage = () => {
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold">{t('createOffer.title')}</h1>
         {error && (
-          <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="mt-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
             <strong>{t('createOffer.error')}:</strong> {error}
           </div>
         )}

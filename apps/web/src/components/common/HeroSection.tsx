@@ -38,10 +38,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <div className={`relative bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 overflow-hidden ${getHeightClass()} ${variant === 'large' ? 'flex items-center' : ''}`}>
+    <div className={`relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 ${getHeightClass()} ${variant === 'large' ? 'flex items-center' : ''}`}>
       {/* Complex Organic Background Pattern */}
-      <div className="absolute inset-0 w-full h-full">
-        <svg className="w-full h-full" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div className="absolute inset-0 h-full w-full">
+        <svg className="h-full w-full" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Large organic shapes */}
           <path d="M-200 200C100 100 300 300 500 200C700 100 900 400 1100 300C1300 200 1500 500 1700 400L1700 0L-200 0Z" fill="rgba(255,255,255,0.05)"/>
           <path d="M-200 400C200 250 400 450 600 350C800 250 1000 550 1200 450C1400 350 1600 650 1800 550L1800 800L-200 800Z" fill="rgba(255,255,255,0.03)"/>
@@ -89,19 +89,19 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </svg>
       </div>
       
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         {subtitle && (
-          <div className="text-blue-200 font-semibold text-lg mb-4 uppercase tracking-wide">
+          <div className="mb-4 text-lg font-semibold uppercase tracking-wide text-blue-200">
             {subtitle}
           </div>
         )}
         
-        <h1 className={`${getTitleSize()} font-bold text-white mb-6 leading-tight`}>
+        <h1 className={`${getTitleSize()} mb-6 font-bold leading-tight text-white`}>
           {title}
         </h1>
         
         {description && (
-          <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-4xl mx-auto leading-relaxed">
+          <p className="mx-auto mb-8 max-w-4xl text-xl leading-relaxed text-blue-100 md:text-2xl">
             {description}
           </p>
         )}

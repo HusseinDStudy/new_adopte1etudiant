@@ -17,30 +17,30 @@ const TermsPage = () => {
       <div className="min-h-[100dvh] bg-gray-50">
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-white rounded-2xl shadow-lg p-8 space-y-8">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="space-y-8 rounded-2xl bg-white p-8 shadow-lg">
           
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.acceptance')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.acceptance')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.acceptanceText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.serviceDescription')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.serviceDescription')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.serviceDescriptionText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.registration')}</h2>
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.registration')}</h2>
             <div className="space-y-4">
-              <p className="text-gray-600 leading-relaxed">
+              <p className="leading-relaxed text-gray-600">
                 {t('terms.registrationText')}
               </p>
-              <ul className="list-disc list-inside text-gray-600 space-y-2">
+              <ul className="list-inside list-disc space-y-2 text-gray-600">
                 <li>{t('terms.registrationList.0')}</li>
                 <li>{t('terms.registrationList.1')}</li>
                 <li>{t('terms.registrationList.2')}</li>
@@ -50,11 +50,11 @@ const TermsPage = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.acceptableUse')}</h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.acceptableUse')}</h2>
+            <p className="mb-4 leading-relaxed text-gray-600">
               {t('terms.acceptableUseText')}
             </p>
-            <ul className="list-disc list-inside text-gray-600 space-y-2">
+            <ul className="list-inside list-disc space-y-2 text-gray-600">
               <li>{t('terms.acceptableUseList.0')}</li>
               <li>{t('terms.acceptableUseList.1')}</li>
               <li>{t('terms.acceptableUseList.2')}</li>
@@ -64,45 +64,45 @@ const TermsPage = () => {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.userContent')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.userContent')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.userContentText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.liability')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.liability')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.liabilityText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.suspension')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.suspension')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.suspensionText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.modifications')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.modifications')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.modificationsText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.applicableLaw')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.applicableLaw')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.applicableLawText')}
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('terms.contact')}</h2>
-            <p className="text-gray-600 leading-relaxed">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">{t('terms.contact')}</h2>
+            <p className="leading-relaxed text-gray-600">
               {t('terms.contactText')}
-              <a href="mailto:legal@adopte-un-etudiant.fr" className="text-blue-600 hover:text-blue-700 ml-1">
+              <a href="mailto:legal@adopte-un-etudiant.fr" className="ml-1 text-blue-600 hover:text-blue-700">
                 legal@adopte-un-etudiant.fr
               </a>
             </p>

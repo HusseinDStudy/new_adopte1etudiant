@@ -33,11 +33,11 @@ const BlogPage = () => {
 
   const getCategoryIcon = (iconName?: string) => {
     const icons: Record<string, JSX.Element> = {
-      "BookOpen": <BookOpen className="w-5 h-5" />,
-      "TrendingUp": <TrendingUp className="w-5 h-5" />,
-      "FileText": <FileText className="w-5 h-5" />
+      "BookOpen": <BookOpen className="h-5 w-5" />,
+      "TrendingUp": <TrendingUp className="h-5 w-5" />,
+      "FileText": <FileText className="h-5 w-5" />
     };
-    return icons[iconName || "BookOpen"] || <BookOpen className="w-5 h-5" />;
+    return icons[iconName || "BookOpen"] || <BookOpen className="h-5 w-5" />;
   };
 
   const getCategoryColorClasses = (color?: string) => {
@@ -87,9 +87,9 @@ const BlogPage = () => {
 
   if ((loading && posts.length === 0) || (featuredLoading && featuredPosts.length === 0)) {
     return (
-      <div className="min-h-[100dvh] bg-white flex items-center justify-center">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">{t('blog.loadingArticles')}</p>
         </div>
       </div>
@@ -98,9 +98,9 @@ const BlogPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-[100dvh] bg-white flex items-center justify-center">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-white">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{t('blog.loadingError')}</p>
+          <p className="mb-4 text-red-600">{t('blog.loadingError')}</p>
           <p className="text-gray-600">{error}</p>
         </div>
       </div>
@@ -116,12 +116,12 @@ const BlogPage = () => {
         variant="large"
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Featured Posts Carousel */}
         {featuredPosts.length > 0 && (
           <div className="mb-12">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="mb-8 text-center">
+              <h2 className="mb-2 text-3xl font-bold text-gray-900">
                 {featuredPosts.length > 1 ? t('blog.featuredArticles') : t('blog.featuredArticle')}
               </h2>
               <p className="text-gray-600">
@@ -130,17 +130,17 @@ const BlogPage = () => {
             </div>
             
             <div 
-              className="relative bg-white rounded-lg shadow-lg overflow-hidden"
+              className="relative overflow-hidden rounded-lg bg-white shadow-lg"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
               <Link to={`/blog/${featuredPosts[featuredIndex].slug}`} className="block">
-                <div className="grid md:grid-cols-2 gap-6 p-6">
-                  <div className="aspect-video md:aspect-square bg-gray-200 rounded-lg overflow-hidden">
+                <div className="grid gap-6 p-6 md:grid-cols-2">
+                  <div className="aspect-video overflow-hidden rounded-lg bg-gray-200 md:aspect-square">
                     <img
                       src={featuredPosts[featuredIndex].image || "/api/placeholder/600/400"}
                       alt={featuredPosts[featuredIndex].title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                   </div>
                   <div className="flex flex-col justify-center space-y-4">
@@ -153,7 +153,7 @@ const BlogPage = () => {
                         const colorClass = !categoryName || categoryName.trim() === '' ? 'bg-red-100 text-red-800' : getCategoryColorClasses();
                         
                         return (
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}>
+                          <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${colorClass}`}>
                             {getCategoryIcon()}
                             <span className="ml-2">{displayCategory}</span>
                           </span>
@@ -161,29 +161,29 @@ const BlogPage = () => {
                       })()}
                       <span className="text-sm text-gray-500">{t('blog.featuredBadge')}</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                    <h2 className="text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600 md:text-3xl">
                       {featuredPosts[featuredIndex].title}
                     </h2>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="leading-relaxed text-gray-600">
                       {featuredPosts[featuredIndex].excerpt}
                     </p>
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="h-4 w-4" />
                         <span>{formatDate(featuredPosts[featuredIndex].publishedAt || featuredPosts[featuredIndex].createdAt)}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <User className="w-4 h-4" />
+                        <User className="h-4 w-4" />
                         <span>{featuredPosts[featuredIndex].author}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Clock className="w-4 h-4" />
+                        <Clock className="h-4 w-4" />
                         <span>{featuredPosts[featuredIndex].readTime}</span>
                       </div>
                     </div>
-                    <div className="flex items-center text-blue-600 font-medium hover:text-blue-700">
+                    <div className="flex items-center font-medium text-blue-600 hover:text-blue-700">
                       <span>{t('blog.readArticle')}</span>
-                      <ArrowRight className="w-4 h-4 ml-2 hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform hover:translate-x-1" />
                     </div>
                   </div>
                 </div>
@@ -194,25 +194,25 @@ const BlogPage = () => {
                 <>
                   <button
                     onClick={prevFeatured}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 z-10"
+                    className="absolute left-4 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-white/90 p-2 shadow-lg transition-all duration-200 hover:bg-white"
                   >
-                    <ArrowRight className="w-5 h-5 rotate-180" />
+                    <ArrowRight className="h-5 w-5 rotate-180" />
                   </button>
                   <button
                     onClick={nextFeatured}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 z-10"
+                    className="absolute right-4 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-white/90 p-2 shadow-lg transition-all duration-200 hover:bg-white"
                   >
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="h-5 w-5" />
                   </button>
                   
                   {/* Carousel indicators */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 transform space-x-2">
                     {featuredPosts.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setFeaturedIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                          index === featuredIndex ? 'bg-blue-600 w-6' : 'bg-gray-300'
+                        className={`h-2 w-2 rounded-full transition-all duration-200 ${
+                          index === featuredIndex ? 'w-6 bg-blue-600' : 'bg-gray-300'
                         }`}
                       />
                     ))}
@@ -224,23 +224,23 @@ const BlogPage = () => {
         )}
 
         {/* Search and Filter Section */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <div className="mb-8 rounded-lg border bg-white p-6 shadow-sm">
+          <form onSubmit={handleSearch} className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
               <input
                 type="text"
                 placeholder={t('blog.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="sm:w-48">
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryFilter(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">{t('blog.allCategories')}</option>
                 {categories.map((category) => (
@@ -255,30 +255,30 @@ const BlogPage = () => {
 
         {/* All Posts Grid */}
         <div className="mb-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('blog.allArticles')}</h2>
+          <div className="mb-8 text-center">
+            <h2 className="mb-2 text-3xl font-bold text-gray-900">{t('blog.allArticles')}</h2>
             <p className="text-gray-600">
               {t('blog.allArticlesDescription')}
             </p>
           </div>
 
           {posts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg mb-4">{t('blog.noArticlesFound')}</p>
+            <div className="py-12 text-center">
+              <p className="mb-4 text-lg text-gray-500">{t('blog.noArticlesFound')}</p>
               <p className="text-gray-400">
                 {t('blog.noArticlesFoundDescription')}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
-                <article key={post.id} className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-lg transition-shadow">
+                <article key={post.id} className="overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-lg">
                   {post.image && (
                     <div className="aspect-video overflow-hidden">
                       <img
                         src={post.image}
                         alt={post.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                       />
                     </div>
                   )}
@@ -287,7 +287,7 @@ const BlogPage = () => {
                     {/* Category */}
                     {post.category && typeof post.category === 'object' && (
                       <div className="mb-3">
-                        <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getCategoryColorClasses(post.category.color)}`}>
+                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getCategoryColorClasses(post.category.color)}`}>
                           {getCategoryIcon(post.category.icon)}
                           <span className="ml-2">{post.category.name}</span>
                         </span>
@@ -295,17 +295,17 @@ const BlogPage = () => {
                     )}
 
                     {/* Title */}
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">
+                    <h3 className="mb-3 line-clamp-2 text-xl font-semibold text-gray-900">
                       <Link 
                         to={`/blog/${post.slug}`}
-                        className="hover:text-blue-600 transition-colors"
+                        className="transition-colors hover:text-blue-600"
                       >
                         {post.title}
                       </Link>
                     </h3>
 
                     {/* Excerpt */}
-                    <p className="text-gray-600 mb-4 line-clamp-3">
+                    <p className="mb-4 line-clamp-3 text-gray-600">
                       {post.excerpt}
                     </p>
 
@@ -318,7 +318,7 @@ const BlogPage = () => {
                       </div>
                       {post.readTime && (
                         <span className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
+                          <Clock className="mr-1 h-4 w-4" />
                           {post.readTime}
                         </span>
                       )}
@@ -327,7 +327,7 @@ const BlogPage = () => {
                     {/* Featured Badge */}
                     {post.featured && (
                       <div className="mt-3">
-                        <span className="inline-block px-2 py-1 text-xs font-medium text-yellow-800 bg-yellow-100 rounded">
+                        <span className="inline-block rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
                           ⭐ {t('blog.featuredBadge')}
                         </span>
                       </div>
@@ -346,7 +346,7 @@ const BlogPage = () => {
               <button
                 onClick={() => setCurrentPage(pagination.page - 1)}
                 disabled={pagination.page <= 1}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t('blog.previous')}
               </button>
@@ -355,10 +355,10 @@ const BlogPage = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md ${
+                  className={`rounded-md px-3 py-2 text-sm font-medium ${
                     page === pagination.page
                       ? 'bg-blue-600 text-white'
-                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                      : 'border border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                   }`}
                 >
                   {page}
@@ -368,7 +368,7 @@ const BlogPage = () => {
               <button
                 onClick={() => setCurrentPage(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
-                className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t('blog.next')}
               </button>

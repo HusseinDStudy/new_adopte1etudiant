@@ -80,21 +80,21 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
             {selectedSkills.map((skillName) => (
               <span
                 key={skillName}
-                className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium group hover:bg-blue-200 hover:scale-105 transition-all duration-200 animate-in slide-in-from-left-2"
+                className="group inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 transition-all duration-200 animate-in slide-in-from-left-2 hover:scale-105 hover:bg-blue-200"
               >
                 {skillName}
                 <button
                   onClick={() => removeSkill(skillName)}
-                  className="ml-1 hover:bg-blue-300 rounded-full p-0.5 transition-colors"
+                  className="ml-1 rounded-full p-0.5 transition-colors hover:bg-blue-300"
                   aria-label={`Supprimer ${skillName}`}
                 >
-                  <X className="w-3 h-3" />
+                  <X className="h-3 w-3" />
                 </button>
               </span>
             ))}
             <button
               onClick={onClearAll}
-              className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 hover:bg-gray-100 rounded hover:scale-105 transition-all duration-200 transform active:scale-95"
+              className="transform rounded px-2 py-1 text-xs text-gray-500 transition-all duration-200 hover:scale-105 hover:bg-gray-100 hover:text-gray-700 active:scale-95"
             >
               Tout effacer
             </button>
@@ -105,7 +105,7 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
       {/* Dropdown Trigger */}
       <button
         onClick={handleDropdownToggle}
-        className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg bg-white hover:border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        className="flex w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-3 transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
         disabled={loading}
       >
         <span className="text-gray-700">
@@ -115,7 +115,7 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
           }
         </span>
         <ChevronDown 
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+          className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`} 
         />
@@ -123,18 +123,18 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
 
       {/* Dropdown Content */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+        <div className="absolute z-50 mt-2 max-h-80 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg duration-200 animate-in slide-in-from-top-2">
           {/* Search Input */}
-          <div className="p-3 border-b border-gray-200">
+          <div className="border-b border-gray-200 p-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Rechercher une compétence..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -143,7 +143,7 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
           <div className="max-h-60 overflow-y-auto">
             {loading ? (
               <div className="p-4 text-center text-gray-500">
-                <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <div className="mx-auto mb-2 h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
                 {t('loading.loadingSkills')}
               </div>
             ) : filteredSkills.length > 0 ? (
@@ -154,14 +154,14 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
                     <button
                       key={skill.id}
                       onClick={() => handleSkillToggle(skill.name)}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 hover:scale-[1.02] transition-all duration-200 flex items-center justify-between transform active:scale-[0.98] ${
+                      className={`flex w-full transform items-center justify-between px-4 py-2 text-left transition-all duration-200 hover:scale-[1.02] hover:bg-gray-50 active:scale-[0.98] ${
                         isSelected ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
                       }`}
                     >
                       <span className="text-sm">{skill.name}</span>
                       {isSelected && (
-                        <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        <div className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-600">
+                          <div className="h-2 w-2 rounded-full bg-white"></div>
                         </div>
                       )}
                     </button>
@@ -169,7 +169,7 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
                 })}
               </div>
             ) : (
-              <div className="p-4 text-center text-gray-500 text-sm">
+              <div className="p-4 text-center text-sm text-gray-500">
                 {searchTerm ? `Aucune compétence trouvée pour "${searchTerm}"` : 'Aucune compétence disponible'}
               </div>
             )}
@@ -177,8 +177,8 @@ const SkillSelector: React.FC<SkillSelectorProps> = ({
 
           {/* Footer with count */}
           {!loading && filteredSkills.length > 0 && (
-            <div className="p-3 border-t border-gray-200 bg-gray-50">
-              <div className="text-xs text-gray-500 text-center">
+            <div className="border-t border-gray-200 bg-gray-50 p-3">
+              <div className="text-center text-xs text-gray-500">
                 {searchTerm 
                   ? `${filteredSkills.length} compétence(s) trouvée(s)`
                   : `${skills.length} compétence(s) disponible(s)`

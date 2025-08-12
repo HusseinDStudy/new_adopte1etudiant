@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useApplications } from '../hooks/useApplications';
 import SidebarLayout from '../components/layout/SidebarLayout';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
 
 const MyApplicationsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -15,14 +17,9 @@ const MyApplicationsPage: React.FC = () => {
     deleting,
   } = useApplications();
 
+  const [confirm, setConfirm] = useState<string | null>(null);
   const handleDeleteApplication = async (applicationId: string) => {
-    if (window.confirm(t('myApplications.confirmDelete'))) {
-      try {
-        await deleteApp(applicationId);
-      } catch (err) {
-        alert(t('myApplications.deleteFailed'));
-      }
-    }
+    setConfirm(applicationId);
   };
 
   const getStatusClasses = (status: string) => {
@@ -44,7 +41,7 @@ const MyApplicationsPage: React.FC = () => {
   if (loading) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="flex justify-center items-center h-64">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-lg">{t('myApplications.loading')}</div>
         </div>
       </div>
@@ -54,12 +51,12 @@ const MyApplicationsPage: React.FC = () => {
   if (error) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong>{t('myApplications.error')}:</strong> {error}
           <div className="mt-2">
             <button
               onClick={refetch}
-              className="text-red-600 hover:text-red-800 underline"
+              className="text-red-600 underline hover:text-red-800"
             >
               {t('myApplications.tryAgain')}
             </button>
@@ -72,15 +69,15 @@ const MyApplicationsPage: React.FC = () => {
   return (
     <SidebarLayout>
       <div className="container mx-auto">
-      <h1 className="text-3xl font-bold mb-6">{t('myApplications.title')}</h1>
+      <h1 className="mb-6 text-3xl font-bold">{t('myApplications.title')}</h1>
       {!Array.isArray(applications) || applications.length === 0 ? (
-        <div className="text-center bg-white p-12 rounded-lg shadow-md">
+        <div className="rounded-lg bg-white p-12 text-center shadow-md">
           <h2 className="text-xl font-semibold">{t('myApplications.noApplications')}</h2>
           <p className="mt-2 text-gray-500">{t('myApplications.noApplicationsDescription')}</p>
           <div className="mt-6">
             <Link
               to="/offers"
-              className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-white transition-colors hover:bg-indigo-700"
             >
               {t('myApplications.browseOffers')}
             </Link>
@@ -89,17 +86,17 @@ const MyApplicationsPage: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {Array.isArray(applications) ? applications.map((app, index) => (
-            <div key={app.id || `app-${index}`} className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+            <div key={app.id || `app-${index}`} className="relative rounded-lg bg-white p-6 shadow-md">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-blue-600 hover:underline">
                     <Link to={`/offers/${app.offer.id}`}>{app.offer.title}</Link>
                   </h2>
-                  <p className="text-gray-700 mt-1">{app.offer.company.name}</p>
-                  <p className="text-gray-500 text-sm mt-2">{t('myApplications.appliedOn')}: {new Date(app.createdAt).toLocaleDateString()}</p>
+                  <p className="mt-1 text-gray-700">{app.offer.company.name}</p>
+                  <p className="mt-2 text-sm text-gray-500">{t('myApplications.appliedOn')}: {new Date(app.createdAt).toLocaleDateString()}</p>
                 </div>
-                <div className="flex flex-col md:text-right gap-2">
-                  <span className={`px-3 py-1 text-sm font-semibold rounded-full text-center ${getStatusClasses(app.status)}`}>
+                <div className="flex flex-col gap-2 md:text-right">
+                  <span className={`rounded-full px-3 py-1 text-center text-sm font-semibold ${getStatusClasses(app.status)}`}>
                     {t(`myApplications.status.${app.status.toUpperCase()}`)}
                   </span>
                   <div className="flex flex-col gap-1">
@@ -108,13 +105,16 @@ const MyApplicationsPage: React.FC = () => {
                         {t('myApplications.viewConversation')}
                       </Link>
                     )}
-                    <button
-                      onClick={() => handleDeleteApplication(app.id)}
+                    <Button
+                      type="button"
+                      onClick={() => setConfirm(app.id)}
                       disabled={deleting}
-                      className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                      variant="ghost"
+                      className="relative z-10 h-auto justify-start p-0 text-sm text-red-600 hover:bg-transparent hover:text-red-800 disabled:opacity-50"
+                      aria-label={t('myApplications.deleteApplication')}
                     >
                       {deleting ? t('myApplications.deleting') : t('myApplications.deleteApplication')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -123,6 +123,36 @@ const MyApplicationsPage: React.FC = () => {
         </div>
       )}
       </div>
+      {confirm && (
+        <Dialog open onOpenChange={(open) => { if (!open) setConfirm(null); }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('common.delete')}</DialogTitle>
+              <DialogDescription>{t('myApplications.confirmDelete')}</DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2">
+              <button type="button" className="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200" onClick={() => setConfirm(null)}>
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                onClick={async () => {
+                  try {
+                    await deleteApp(confirm);
+                    setConfirm(null);
+                    refetch();
+                  } catch (err) {
+                    alert(t('myApplications.deleteFailed'));
+                  }
+                }}
+              >
+                {t('common.confirm')}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </SidebarLayout>
   );
 };

@@ -18,8 +18,18 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["vite/client", "vitest/globals"],
+    "baseUrl": ".",
+    "paths": {
+      "@ui-theme": ["../../packages/ui-theme/dist/index.js"],
+      "@ui-theme/*": ["../../packages/ui-theme/dist/*"],
+      "@ui": ["../../packages/ui/src/index.ts"],
+      "@ui/*": ["../../packages/ui/src/*"]
+    }
   },
-  "include": ["src", "src/i18n/locales/*.json"],
+  "include": [
+    "src",
+    "src/i18n/locales/*.json"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 } 

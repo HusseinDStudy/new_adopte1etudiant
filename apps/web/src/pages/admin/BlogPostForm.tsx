@@ -279,8 +279,8 @@ const BlogPostForm: React.FC = () => {
   if (isEditing && postLoading) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
         </div>
       </AdminLayout>
     );
@@ -293,13 +293,13 @@ const BlogPostForm: React.FC = () => {
     >
       <form onSubmit={handleSubmit} className="p-6">
         {/* Header Actions */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
             <button
             type="button"
             onClick={() => navigate('/admin/blog/posts')}
-            className="inline-flex items-center px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-600 transition-colors hover:bg-gray-50"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
               {t('common.back')}
           </button>
 
@@ -308,27 +308,27 @@ const BlogPostForm: React.FC = () => {
               type="button"
               onClick={handleSaveDraft}
               disabled={mutationLoading}
-              className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
             >
               {t('forms.draft')}
             </button>
             <button
               type="submit"
               disabled={mutationLoading}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             >
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="mr-2 h-4 w-4" />
               {isEditing ? t('common.update') : t('forms.publish')}
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('forms.title')} *
               </label>
               <input
@@ -337,17 +337,17 @@ const BlogPostForm: React.FC = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                   errors.title ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder={t('forms.title')}
               />
-              {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
+              {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
             </div>
 
             {/* Slug */}
             <div>
-              <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="slug" className="mb-2 block text-sm font-medium text-gray-700">
                 Slug *
               </label>
               <div className="flex">
@@ -357,7 +357,7 @@ const BlogPostForm: React.FC = () => {
                   name="slug"
                   value={formData.slug}
                   onChange={handleInputChange}
-                  className={`flex-1 px-3 py-2 border rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`flex-1 rounded-l-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                     errors.slug ? 'border-red-300' : 'border-gray-300'
                   }`}
                 placeholder="slug-de-larticle"
@@ -365,17 +365,17 @@ const BlogPostForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleGenerateSlug}
-                  className="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200 transition-colors"
+                  className="rounded-r-lg border border-l-0 border-gray-300 bg-gray-100 px-4 py-2 transition-colors hover:bg-gray-200"
                 >
                   Générer
                 </button>
               </div>
-              {errors.slug && <p className="text-red-600 text-sm mt-1">{errors.slug}</p>}
+              {errors.slug && <p className="mt-1 text-sm text-red-600">{errors.slug}</p>}
             </div>
 
             {/* Excerpt */}
             <div>
-              <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="excerpt" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('forms.excerpt')} *
               </label>
               <textarea
@@ -384,17 +384,17 @@ const BlogPostForm: React.FC = () => {
                 rows={3}
                 value={formData.excerpt}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                   errors.excerpt ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder={t('forms.excerpt')}
               />
-              {errors.excerpt && <p className="text-red-600 text-sm mt-1">{errors.excerpt}</p>}
+              {errors.excerpt && <p className="mt-1 text-sm text-red-600">{errors.excerpt}</p>}
             </div>
 
             {/* Content */}
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="content" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('forms.content')} *
               </label>
               <textarea
@@ -403,22 +403,22 @@ const BlogPostForm: React.FC = () => {
                 rows={15}
                 value={formData.content}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                   errors.content ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder={t('forms.content')}
               />
-              {errors.content && <p className="text-red-600 text-sm mt-1">{errors.content}</p>}
+              {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Publication Settings */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">{t('forms.status') || 'Status'}</h3>
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-medium text-gray-900">{t('forms.status') || 'Status'}</h3>
               <div className="space-y-3">
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.publish')}
                 </label>
                 <select
@@ -426,7 +426,7 @@ const BlogPostForm: React.FC = () => {
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="DRAFT">{t('forms.draft')}</option>
                   <option value="PUBLISHED">{t('forms.published')}</option>
@@ -448,7 +448,7 @@ const BlogPostForm: React.FC = () => {
 
             {/* Category */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="category" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('forms.category')} *
               </label>
               <select
@@ -456,7 +456,7 @@ const BlogPostForm: React.FC = () => {
                 name="categoryId"
                 value={formData.categoryId}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                   errors.categoryId ? 'border-red-300' : 'border-gray-300'
                 }`}
               >
@@ -467,12 +467,12 @@ const BlogPostForm: React.FC = () => {
                   </option>
                 ))}
               </select>
-              {errors.categoryId && <p className="text-red-600 text-sm mt-1">{errors.categoryId}</p>}
+              {errors.categoryId && <p className="mt-1 text-sm text-red-600">{errors.categoryId}</p>}
             </div>
 
             {/* Author */}
             <div>
-              <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="author" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('blog.author')} *
               </label>
               <input
@@ -481,17 +481,17 @@ const BlogPostForm: React.FC = () => {
                 name="author"
                 value={formData.author}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                   errors.author ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder={t('blog.author')}
               />
-              {errors.author && <p className="text-red-600 text-sm mt-1">{errors.author}</p>}
+              {errors.author && <p className="mt-1 text-sm text-red-600">{errors.author}</p>}
             </div>
 
             {/* Read Time */}
             <div>
-              <label htmlFor="readTime" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="readTime" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('blog.readTime') || 'Read time'} *
               </label>
               <input
@@ -500,17 +500,17 @@ const BlogPostForm: React.FC = () => {
                 name="readTime"
                 value={formData.readTime}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 ${
                   errors.readTime ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="5 min"
               />
-              {errors.readTime && <p className="text-red-600 text-sm mt-1">{errors.readTime}</p>}
+              {errors.readTime && <p className="mt-1 text-sm text-red-600">{errors.readTime}</p>}
             </div>
 
             {/* Featured Image */}
             <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="image" className="mb-2 block text-sm font-medium text-gray-700">
                 {t('blog.featuredImage') || 'Featured image'}
               </label>
               <input
@@ -519,17 +519,17 @@ const BlogPostForm: React.FC = () => {
                 name="image"
                 value={formData.image}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 placeholder="https://example.com/image.jpg"
               />
             </div>
 
             {/* SEO */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">SEO</h3>
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-medium text-gray-900">SEO</h3>
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="metaTitle" className="block text-xs font-medium text-gray-700 mb-1">
+                  <label htmlFor="metaTitle" className="mb-1 block text-xs font-medium text-gray-700">
                     {t('blog.seoTitle') || 'SEO Title'}
                   </label>
                   <input
@@ -538,12 +538,12 @@ const BlogPostForm: React.FC = () => {
                     name="metaTitle"
                     value={formData.metaTitle}
                     onChange={handleInputChange}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     placeholder={t('blog.seoTitle') || 'SEO Title'}
                   />
                 </div>
                 <div>
-                  <label htmlFor="metaDescription" className="block text-xs font-medium text-gray-700 mb-1">
+                  <label htmlFor="metaDescription" className="mb-1 block text-xs font-medium text-gray-700">
                     {t('blog.seoDescription') || 'SEO Description'}
                   </label>
                   <textarea
@@ -552,7 +552,7 @@ const BlogPostForm: React.FC = () => {
                     rows={2}
                     value={formData.metaDescription}
                     onChange={handleInputChange}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     placeholder={t('blog.seoDescription') || 'SEO Description'}
                   />
                 </div>

@@ -73,7 +73,7 @@ const OfferDetailsPage = () => {
 
   if (loading) return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-center items-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-lg">{t('loading.loadingOfferDetails')}</div>
       </div>
     </div>
@@ -81,10 +81,10 @@ const OfferDetailsPage = () => {
 
   if (error) return (
     <div className="container mx-auto p-4">
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
         <strong>{t('errors.error')}:</strong> {error}
         <div className="mt-2">
-          <Link to="/offers" className="text-blue-600 hover:text-blue-800 underline">
+          <Link to="/offers" className="text-blue-600 underline hover:text-blue-800">
             ← {t('navigation.backToOffers')}
           </Link>
         </div>
@@ -94,10 +94,10 @@ const OfferDetailsPage = () => {
 
   if (!offer) return (
     <div className="container mx-auto p-4">
-      <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+      <div className="rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700">
         <strong>{t('offers.notFound')}:</strong> {t('offers.offerNotFound')}.
         <div className="mt-2">
-          <Link to="/offers" className="text-blue-600 hover:text-blue-800 underline">
+          <Link to="/offers" className="text-blue-600 underline hover:text-blue-800">
             ← {t('navigation.backToOffers')}
           </Link>
         </div>
@@ -109,7 +109,7 @@ const OfferDetailsPage = () => {
     <div className="container mx-auto p-4">
       {/* Back Navigation */}
       <div className="mb-4">
-        <Link to="/offers" className="text-blue-600 hover:text-blue-800 flex items-center">
+        <Link to="/offers" className="flex items-center text-blue-600 hover:text-blue-800">
           {t('offerDetails.backToOffers')}
         </Link>
       </div>
@@ -122,14 +122,14 @@ const OfferDetailsPage = () => {
             </span>
           </div>
         )}
-        <h1 className="text-3xl font-bold break-words">{offer.title}</h1>
+        <h1 className="break-words text-3xl font-bold">{offer.title}</h1>
         <p className="mt-2 text-xl text-gray-700">{offer.company.name}</p>
         <div className="mt-4 flex flex-wrap gap-4 text-gray-600">
           {offer.location && <span>📍 {offer.location}</span>}
           {offer.duration && <span>⏰ {offer.duration}</span>}
         </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             {Array.isArray(offer.skills) ? offer.skills.map((skill, index) => (
               <span key={`detail-skill-${index}`} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-800">
@@ -141,7 +141,7 @@ const OfferDetailsPage = () => {
             <div className="flex items-center gap-4">
               {appliedOfferIds.has(offer.id) ? (
                 <div className="text-center">
-                  <div className="bg-green-100 text-green-800 px-6 py-3 rounded-lg font-medium mb-2">
+                  <div className="mb-2 rounded-lg bg-green-100 px-6 py-3 font-medium text-green-800">
                     {t('offerDetails.applicationSubmitted')}
                   </div>
                   <p className="text-xs text-gray-600">
@@ -152,14 +152,14 @@ const OfferDetailsPage = () => {
                 <button
                   onClick={handleApply}
                   disabled={applicationLoading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+                  className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
                 >
                   {applicationLoading ? t('offerDetails.submitting') : t('offerDetails.applyNow')}
                 </button>
               )}
               <button
                 onClick={refreshAppliedOffers}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
                 title={t('offerDetails.refreshApplicationStatus')}
               >
                 🔄
@@ -168,7 +168,7 @@ const OfferDetailsPage = () => {
           )}
         </div>
         {applyMessage && (
-          <div className={`mt-4 p-3 rounded-md ${applyMessage.includes('successful') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          <div className={`mt-4 rounded-md p-3 ${applyMessage.includes('successful') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
             {applyMessage}
           </div>
         )}
@@ -176,8 +176,8 @@ const OfferDetailsPage = () => {
         <hr className="my-6" />
 
         <div>
-          <h3 className="text-xl font-semibold mb-4">{t('offerDetails.jobDescription')}</h3>
-          <div className="prose max-w-none text-gray-700 leading-relaxed">
+          <h3 className="mb-4 text-xl font-semibold">{t('offerDetails.jobDescription')}</h3>
+          <div className="prose max-w-none leading-relaxed text-gray-700">
             {offer.description && offer.description.split('\n').map((paragraph, index) => (
               <p key={index} className="mb-3">{paragraph}</p>
             ))}

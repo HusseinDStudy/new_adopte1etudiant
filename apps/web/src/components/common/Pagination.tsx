@@ -64,14 +64,14 @@ const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+          className="relative inline-flex transform items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('common.previous')}
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+          className="relative ml-3 inline-flex transform items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('common.next')}
         </button>
@@ -90,7 +90,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-medium text-gray-500 bg-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+              className="relative inline-flex transform items-center rounded-l-md bg-white px-3 py-2 text-sm font-medium text-gray-500 ring-1 ring-inset ring-gray-300 transition-all duration-300 hover:scale-105 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               title={t('common.firstPage')}
             >
               {t('common.first')}
@@ -100,7 +100,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+              className="relative inline-flex transform items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 transition-all duration-300 hover:scale-105 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               title={t('common.previousPage')}
             >
                               <span className="sr-only">{t('common.previous')}</span>
@@ -119,7 +119,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 ) : (
                   <button
                     onClick={() => onPageChange(page as number)}
-                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 transform active:scale-95 ${
+                    className={`relative inline-flex transform items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 transition-all duration-300 hover:scale-105 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 active:scale-95 ${
                       currentPage === page
                         ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
                         : 'text-gray-900'
@@ -136,7 +136,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+              className="relative inline-flex transform items-center px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 transition-all duration-300 hover:scale-105 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               title={t('common.nextPage')}
             >
                               <span className="sr-only">{t('common.next')}</span>
@@ -149,7 +149,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <button
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages}
-              className="relative inline-flex items-center rounded-r-md px-3 py-2 text-sm font-medium text-gray-500 bg-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:scale-105 transition-all duration-300 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+              className="relative inline-flex transform items-center rounded-r-md bg-white px-3 py-2 text-sm font-medium text-gray-500 ring-1 ring-inset ring-gray-300 transition-all duration-300 hover:scale-105 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               title={t('common.lastPage')}
             >
               {t('common.last')}

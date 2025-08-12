@@ -142,39 +142,39 @@ const AdminMessagesPage: React.FC = () => {
     >
       <div className="p-6">
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="mb-6 border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('send')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium ${
                 activeTab === 'send'
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              <Send className="w-4 h-4 inline mr-2" />
+              <Send className="mr-2 inline h-4 w-4" />
               {t('admin.sendMessage')}
             </button>
             <button
               onClick={() => setActiveTab('broadcast')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium ${
                 activeTab === 'broadcast'
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              <Globe className="w-4 h-4 inline mr-2" />
+              <Globe className="mr-2 inline h-4 w-4" />
               {t('admin.broadcastMessage')}
             </button>
             <button
               onClick={() => setActiveTab('conversations')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium ${
                 activeTab === 'conversations'
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              <MessageSquare className="w-4 h-4 inline mr-2" />
+              <MessageSquare className="mr-2 inline h-4 w-4" />
               {t('admin.conversations')}
             </button>
           </nav>
@@ -186,18 +186,18 @@ const AdminMessagesPage: React.FC = () => {
             <form onSubmit={handleSendMessage} className="space-y-6">
               {/* Recipient Selection */}
               <div>
-                <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="recipient" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.recipient')} *
                 </label>
                 <div className="space-y-3">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                     <input
                       type="text"
                       placeholder={t('adminUsers.searchPlaceholder')}
                       value={searchUsers}
                       onChange={(e) => setSearchUsers(e.target.value)}
-                      className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   
@@ -205,7 +205,7 @@ const AdminMessagesPage: React.FC = () => {
                     id="recipient"
                     value={selectedUser}
                     onChange={(e) => setSelectedUser(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">{t('common.all')}</option>
@@ -223,7 +223,7 @@ const AdminMessagesPage: React.FC = () => {
 
               {/* Subject */}
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="subject" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.subject')} *
                 </label>
                 <input
@@ -231,7 +231,7 @@ const AdminMessagesPage: React.FC = () => {
                   id="subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder={t('forms.subject')}
                   required
                 />
@@ -239,7 +239,7 @@ const AdminMessagesPage: React.FC = () => {
 
               {/* Content */}
               <div>
-                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="content" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.message')} *
                 </label>
                 <textarea
@@ -247,7 +247,7 @@ const AdminMessagesPage: React.FC = () => {
                   rows={6}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder={t('forms.message')}
                   required
                 />
@@ -260,11 +260,11 @@ const AdminMessagesPage: React.FC = () => {
                   id="isReadOnly"
                   checked={isReadOnly}
                   onChange={(e) => setIsReadOnly(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <label htmlFor="isReadOnly" className="ml-2 block text-sm text-gray-700">
                   <div className="flex items-center">
-                    <Lock className="w-4 h-4 mr-1" />
+                    <Lock className="mr-1 h-4 w-4" />
                     {t('forms.isReadOnly')}
                   </div>
                 </label>
@@ -273,9 +273,9 @@ const AdminMessagesPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={messagingLoading}
-                className="w-full flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
               >
-                <Send className="w-4 h-4 mr-2" />
+                <Send className="mr-2 h-4 w-4" />
                 {messagingLoading ? t('loading.loading') : t('forms.send')}
               </button>
             </form>
@@ -285,8 +285,8 @@ const AdminMessagesPage: React.FC = () => {
         {/* Broadcast Tab */}
         {activeTab === 'broadcast' && (
           <div className="max-w-2xl">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <h3 className="text-sm font-medium text-yellow-800 mb-2">{t('admin.broadcastMessage')}</h3>
+            <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+              <h3 className="mb-2 text-sm font-medium text-yellow-800">{t('admin.broadcastMessage')}</h3>
               <p className="text-sm text-yellow-700">
                 {t('conversations.broadcastMessage')}
               </p>
@@ -295,14 +295,14 @@ const AdminMessagesPage: React.FC = () => {
             <form onSubmit={handleSendBroadcast} className="space-y-6">
               {/* Target Group */}
               <div>
-                <label htmlFor="targetGroup" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="targetGroup" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.targetRole')}
                 </label>
                 <select
                   id="targetGroup"
                   value={broadcastRole || ''}
                   onChange={(e) => setBroadcastRole(e.target.value as 'STUDENT' | 'COMPANY' | 'ALL' | undefined)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="ALL">{t('forms.allUsers')}</option>
                   <option value="STUDENT">{t('forms.students')}</option>
@@ -312,7 +312,7 @@ const AdminMessagesPage: React.FC = () => {
 
               {/* Subject */}
               <div>
-                <label htmlFor="broadcastSubject" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="broadcastSubject" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.subject')} *
                 </label>
                 <input
@@ -320,7 +320,7 @@ const AdminMessagesPage: React.FC = () => {
                   id="broadcastSubject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder={t('forms.subject')}
                   required
                 />
@@ -328,7 +328,7 @@ const AdminMessagesPage: React.FC = () => {
 
               {/* Content */}
               <div>
-                <label htmlFor="broadcastContent" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="broadcastContent" className="mb-2 block text-sm font-medium text-gray-700">
                   {t('forms.message')} *
                 </label>
                 <textarea
@@ -336,7 +336,7 @@ const AdminMessagesPage: React.FC = () => {
                   rows={6}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder={t('forms.message')}
                   required
                 />
@@ -345,9 +345,9 @@ const AdminMessagesPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={messagingLoading}
-                className="w-full flex items-center justify-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
+                className="flex w-full items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-white transition-colors hover:bg-orange-700 disabled:opacity-50"
               >
-                <Globe className="w-4 h-4 mr-2" />
+                <Globe className="mr-2 h-4 w-4" />
                 {messagingLoading ? t('loading.loading') : t('forms.broadcast')}
               </button>
             </form>
@@ -360,25 +360,25 @@ const AdminMessagesPage: React.FC = () => {
             {/* Search Conversations */}
             <div className="mb-6">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                 <input
                   type="text"
                   placeholder={t('conversations.searchPosts') || t('common.search')}
                   value={searchConversations}
                   onChange={(e) => setSearchConversations(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             {conversationsLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="py-12 text-center">
+                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                 <p className="text-gray-600">{t('loading.loadingConversations')}</p>
               </div>
             ) : conversations.length === 0 ? (
-              <div className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <div className="py-12 text-center">
+                <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                 <p className="text-gray-600">{t('noData.noResultsFound')}</p>
               </div>
             ) : (
@@ -387,30 +387,30 @@ const AdminMessagesPage: React.FC = () => {
                   <Link
                     to={`/admin/conversations/${conversation.id}`}
                     key={conversation.id}
-                    className="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    className="block rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="mb-2 flex items-center gap-2">
                           <h3 className="text-lg font-medium text-gray-900">
                             {conversation.topic}
                           </h3>
                           {conversation.isReadOnly && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              <Lock className="w-3 h-3 mr-1" />
+                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
+                              <Lock className="mr-1 h-3 w-3" />
                               {t('conversations.status.readOnly')}
                             </span>
                           )}
                           {conversation.isBroadcast && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                              <Globe className="w-3 h-3 mr-1" />
+                            <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800">
+                              <Globe className="mr-1 h-3 w-3" />
                               {t('conversations.context.broadcast')}
                             </span>
                           )}
                         </div>
                         
                         {/* Participants */}
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="mb-2 text-sm text-gray-600">
                           <span className="font-medium">{t('conversationDetail.participants')}:</span>{' '}
                           {conversation.participants?.map((participant: ConversationParticipant, index: number) => (
                             <span key={participant.id}>
@@ -421,7 +421,7 @@ const AdminMessagesPage: React.FC = () => {
                         </div>
 
                         {conversation.lastMessage && (
-                          <p className="text-gray-600 text-sm mb-2">
+                          <p className="mb-2 text-sm text-gray-600">
                             {typeof conversation.lastMessage === 'string' 
                               ? conversation.lastMessage 
                               : truncateText(conversation.lastMessage.content, 100)

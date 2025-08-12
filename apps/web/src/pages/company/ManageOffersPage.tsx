@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { listMyOffers, deleteOffer } from '../../services/offerService';
 import { Link } from 'react-router-dom';
 import SidebarLayout from '../../components/layout/SidebarLayout';
+import ConfirmDialog from '../../components/ui/confirm-dialog';
 
 interface Offer {
   id: string;
@@ -40,21 +41,13 @@ const ManageOffersPage = () => {
     fetchOffers();
   }, [t]);
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm(t('companyOffers.confirmDelete'))) {
-      try {
-        await deleteOffer(id);
-        fetchOffers(); // Refresh the list after deletion
-      } catch (err) {
-        alert(t('companyOffers.failedToDelete'));
-        console.error(err);
-      }
-    }
-  };
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState('');
+  const handleDelete = (id: string) => setConfirmDeleteId(id);
 
   if (loading) return (
     <SidebarLayout>
-      <div className="flex justify-center items-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-lg">{t('companyOffers.loadingOffers')}</div>
       </div>
     </SidebarLayout>
@@ -63,12 +56,12 @@ const ManageOffersPage = () => {
   return (
     <SidebarLayout>
       {error && (
-        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong>{t('companyOffers.error')}:</strong> {error}
           <div className="mt-2">
             <button
               onClick={fetchOffers}
-              className="text-red-600 hover:text-red-800 underline"
+              className="text-red-600 underline hover:text-red-800"
             >
               {t('companyOffers.tryAgain')}
             </button>
@@ -76,29 +69,29 @@ const ManageOffersPage = () => {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-3xl font-bold break-words">{t('companyOffers.title')}</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="break-words text-3xl font-bold">{t('companyOffers.title')}</h1>
+          <p className="mt-1 text-gray-600">
             {offers.length} {offers.length !== 1 ? t('companyOffers.subtitle') : t('companyOffers.subtitle').replace('offres', 'offre').replace('offers', 'offer')}
           </p>
         </div>
         <Link
           to="/company/offers/new"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium hover:scale-105 hover:shadow-lg transition-all duration-300 transform active:scale-95"
+          className="transform rounded-lg bg-indigo-600 px-6 py-3 font-medium text-white transition-all duration-300 hover:scale-105 hover:bg-indigo-700 hover:shadow-lg active:scale-95"
         >
           {t('companyOffers.createNewOffer')}
         </Link>
       </div>
 
       {offers.length === 0 ? (
-        <div className="text-center bg-white p-12 rounded-lg shadow-md">
+        <div className="rounded-lg bg-white p-12 text-center shadow-md">
           <h2 className="text-xl font-semibold">{t('companyOffers.noOffersYet')}</h2>
           <p className="mt-2 text-gray-500">{t('companyOffers.noOffersDescription')}</p>
           <div className="mt-6">
             <Link
               to="/company/offers/new"
-              className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-white transition-colors hover:bg-indigo-700"
             >
               {t('companyOffers.createFirstOffer')}
             </Link>
@@ -107,12 +100,12 @@ const ManageOffersPage = () => {
       ) : (
         <div className="space-y-6">
           {offers.map(offer => (
-            <div key={offer.id} className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <div key={offer.id} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md">
               <div className="p-6">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2 break-words">{offer.title}</h2>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
+                    <h2 className="mb-2 break-words text-xl font-semibold text-gray-900">{offer.title}</h2>
+                    <div className="mb-3 flex flex-wrap gap-4 text-sm text-gray-600">
                       {offer.location && (
                         <span className="flex items-center">
                           📍 {offer.location}
@@ -128,7 +121,7 @@ const ManageOffersPage = () => {
                       </span>
                     </div>
 
-                    <p className="text-gray-700 mb-4 line-clamp-2">
+                    <p className="mb-4 line-clamp-2 text-gray-700">
                       {offer.description.length > 150
                         ? `${offer.description.substring(0, 150)}...`
                         : offer.description
@@ -137,12 +130,12 @@ const ManageOffersPage = () => {
 
                     {offer.skills && offer.skills.length > 0 && (
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">{t('companyOffers.requiredSkills')}</h4>
+                        <h4 className="mb-2 text-sm font-medium text-gray-700">{t('companyOffers.requiredSkills')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {offer.skills.map((skill, index) => (
                             <span
                               key={`skill-${index}`}
-                              className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                              className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
                             >
                               {skill}
                             </span>
@@ -152,7 +145,7 @@ const ManageOffersPage = () => {
                     )}
 
                     <div className="flex items-center gap-4">
-                      <div className="bg-gray-50 px-3 py-2 rounded-lg">
+                      <div className="rounded-lg bg-gray-50 px-3 py-2">
                         <span className="text-sm font-medium text-gray-700">
                           {offer._count.applications} {offer._count.applications !== 1 ? t('companyOffers.applicationsPlural') : t('companyOffers.applications')}
                         </span>
@@ -166,22 +159,22 @@ const ManageOffersPage = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap gap-3 border-t border-gray-200 pt-4">
                   <Link
                     to={`/company/offers/${offer.id}/applications`}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
+                    className="transform rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:scale-105 hover:bg-blue-700 hover:shadow-md active:scale-95"
                   >
                     {t('companyOffers.viewApplicants')} ({offer._count.applications})
                   </Link>
                   <Link
                     to={`/company/offers/edit/${offer.id}`}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
+                    className="transform rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-200 hover:shadow-md active:scale-95"
                   >
                     {t('companyOffers.edit')}
                   </Link>
                   <button
                     onClick={() => handleDelete(offer.id)}
-                    className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
+                    className="transform rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 transition-all duration-300 hover:scale-105 hover:bg-red-200 hover:shadow-md active:scale-95"
                   >
                     {t('companyOffers.delete')}
                   </button>
@@ -190,6 +183,30 @@ const ManageOffersPage = () => {
             </div>
           ))}
         </div>
+      )}
+      {/* Confirm delete offer */}
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onOpenChange={(open) => !open && setConfirmDeleteId(null)}
+        title={t('companyOffers.confirmDelete')}
+        description={t('companyOffers.confirmDeleteDescription') as string}
+        confirmText={t('common.delete') as string}
+        cancelText={t('common.cancel') as string}
+        onConfirm={async () => {
+          if (!confirmDeleteId) return;
+          try {
+            setDeleteError('');
+            await deleteOffer(confirmDeleteId);
+            setConfirmDeleteId(null);
+            fetchOffers();
+          } catch (err) {
+            setDeleteError(t('companyOffers.failedToDelete'));
+          }
+        }}
+      />
+
+      {deleteError && (
+        <div className="mt-4 text-red-600">{deleteError}</div>
       )}
     </SidebarLayout>
   );

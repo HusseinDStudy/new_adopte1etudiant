@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Users, Building2, Shield, Ban, Trash2, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../../components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../components/ui/dialog';
 import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { useAdminUsers, useAdminUserMutations } from '../../hooks/useAdmin';
@@ -20,6 +22,7 @@ const AdminUsersPage: React.FC = () => {
   });
 
   const { updateStatus, updateRole, deleteUser } = useAdminUserMutations();
+  const [confirm, setConfirm] = useState<{ action: 'role' | 'delete' | null; userId?: string; info?: string; newRole?: string }>({ action: null });
 
   const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
     try {
@@ -31,25 +34,11 @@ const AdminUsersPage: React.FC = () => {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
-    if (window.confirm(t('adminUsers.confirmChangeRole', { role: newRole }))) {
-      try {
-        await updateRole(userId, newRole);
-        refetch();
-      } catch (error) {
-        console.error('Error updating user role:', error);
-      }
-    }
+    setConfirm({ action: 'role', userId, newRole, info: t('adminUsers.confirmChangeRole', { role: newRole }) });
   };
 
   const handleDeleteUser = async (userId: string, userEmail: string) => {
-    if (window.confirm(t('adminUsers.confirmDeleteUser', { email: userEmail }))) {
-      try {
-        await deleteUser(userId);
-        refetch();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    }
+    setConfirm({ action: 'delete', userId, info: t('adminUsers.confirmDeleteUser', { email: userEmail }) });
   };
 
   const formatDate = (dateString: string) => {
@@ -78,13 +67,13 @@ const AdminUsersPage: React.FC = () => {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'ADMIN':
-        return <Shield className="w-4 h-4" />;
+        return <Shield className="h-4 w-4" />;
       case 'COMPANY':
-        return <Building2 className="w-4 h-4" />;
+        return <Building2 className="h-4 w-4" />;
       case 'STUDENT':
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />;
       default:
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />;
     }
   };
 
@@ -95,17 +84,17 @@ const AdminUsersPage: React.FC = () => {
     >
       <div className="p-6">
         {/* Header with Filters */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-6 gap-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 min-w-0">
+        <div className="mb-6 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 flex-col items-stretch gap-4 sm:flex-row sm:items-center">
             {/* Search */}
-            <div className="relative min-w-0 sm:min-w-[16rem] flex-1 sm:flex-none">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="relative min-w-0 flex-1 sm:min-w-[16rem] sm:flex-none">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <input
                 type="text"
                 placeholder={t('adminUsers.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:w-64"
               />
             </div>
 
@@ -113,7 +102,7 @@ const AdminUsersPage: React.FC = () => {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:w-auto"
             >
               <option value="">{t('adminUsers.allRoles')}</option>
               <option value="STUDENT">{t('forms.students')}</option>
@@ -125,7 +114,7 @@ const AdminUsersPage: React.FC = () => {
             <select
               value={statusFilter === undefined ? '' : statusFilter.toString()}
               onChange={(e) => setStatusFilter(e.target.value === '' ? undefined : e.target.value === 'true')}
-              className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:w-auto"
             >
               <option value="">{t('adminUsers.allStatuses')}</option>
               <option value="true">{t('adminUsers.active')}</option>
@@ -140,54 +129,54 @@ const AdminUsersPage: React.FC = () => {
 
         {/* Users Table */}
           {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="py-12 text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
               <p className="text-gray-600">{t('loading.loadingUsers')}</p>
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-              <p className="text-red-600 mb-4">{t('errors.loadingUsersError')}</p>
+          <div className="py-12 text-center">
+              <p className="mb-4 text-red-600">{t('errors.loadingUsersError')}</p>
             <button
               onClick={refetch}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
             >
                 {t('common.retry')}
             </button>
           </div>
         ) : users.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <div className="py-12 text-center">
+            <Users className="mx-auto mb-4 h-12 w-12 text-gray-400" />
               <p className="text-gray-600">{t('noData.noResultsFound')}</p>
           </div>
         ) : (
           <>
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
               {/* Mobile stacked cards */}
-              <div className="sm:hidden divide-y divide-gray-200">
+              <div className="divide-y divide-gray-200 sm:hidden">
                 {users.map((u) => (
                   <div key={u.id} className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-300">
                         {getRoleIcon(u.role)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <div className="text-sm font-medium text-gray-900 break-words">
+                          <div className="break-words text-sm font-medium text-gray-900">
                             {u.profile?.firstName && u.profile?.lastName
                               ? `${u.profile.firstName} ${u.profile.lastName}`
                               : u.profile?.companyName || u.email.split('@')[0]}
                           </div>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(u.role)}`}>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeColor(u.role)}`}>
                             {getRoleIcon(u.role)}
                             <span className="ml-1">{u.role}</span>
                           </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                           }`}>
                             {u.isActive ? t('adminUsers.active') : t('adminUsers.inactive')}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-500 mt-1 break-words">{u.email}</div>
+                        <div className="mt-1 break-words text-sm text-gray-500">{u.email}</div>
                         <div className="mt-2 text-xs text-gray-600">
                           <span className="mr-2">{t('adminUsers.table.registeredAt')}: {formatDate(u.createdAt)}</span>
                           <span>{t('adminUsers.table.lastLogin')}: {u.lastLoginAt ? formatDate(u.lastLoginAt) : t('adminUsers.never')}</span>
@@ -195,33 +184,33 @@ const AdminUsersPage: React.FC = () => {
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           <button
                             onClick={() => handleToggleStatus(u.id, u.isActive)}
-                            className={`p-2 rounded-lg transition-colors ${
+                            className={`rounded-lg p-2 transition-colors ${
                               u.isActive ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'
                             }`}
                             title={u.isActive ? t('adminUsers.deactivate') : t('adminUsers.activate')}
                           >
-                            <Ban className="w-4 h-4" />
+                            <Ban className="h-4 w-4" />
                           </button>
-                          <div className="relative group">
-                            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                              <Shield className="w-4 h-4" />
+                          <div className="group relative">
+                            <button className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50">
+                              <Shield className="h-4 w-4" />
                             </button>
-                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                            <div className="invisible absolute right-0 top-full z-10 mt-1 w-48 rounded-lg border border-gray-200 bg-white opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
                               <div className="py-1">
-                                <button onClick={() => handleRoleChange(u.id, 'STUDENT')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'STUDENT'}>
+                                <button onClick={() => handleRoleChange(u.id, 'STUDENT')} className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'STUDENT'}>
                                   {t('forms.students')}
                                 </button>
-                                <button onClick={() => handleRoleChange(u.id, 'COMPANY')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'COMPANY'}>
+                                <button onClick={() => handleRoleChange(u.id, 'COMPANY')} className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'COMPANY'}>
                                   {t('forms.companies')}
                                 </button>
-                                <button onClick={() => handleRoleChange(u.id, 'ADMIN')} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'ADMIN'}>
+                                <button onClick={() => handleRoleChange(u.id, 'ADMIN')} className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100" disabled={u.role === 'ADMIN'}>
                                   {t('adminUsers.admin')}
                                 </button>
                               </div>
                             </div>
                           </div>
-                          <button onClick={() => handleDeleteUser(u.id, u.email)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title={t('common.delete')}>
-                            <Trash2 className="w-4 h-4" />
+                          <button onClick={() => handleDeleteUser(u.id, u.email)} className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50" title={t('common.delete')}>
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
@@ -231,42 +220,42 @@ const AdminUsersPage: React.FC = () => {
               </div>
 
               {/* Desktop table */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden overflow-x-auto sm:block">
                 <table className="min-w-[1000px] divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       {t('adminUsers.table.user')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                         {t('adminUsers.table.role')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                         {t('adminUsers.table.status')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                         {t('adminUsers.table.registeredAt')}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                         {t('adminUsers.table.lastLogin')}
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                         {t('adminUsers.table.actions')}
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200 bg-white">
                     {users.map((user) => (
                       <tr key={user.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="flex-shrink-0">
-                              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
                                 {getRoleIcon(user.role)}
                               </div>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900 break-words">
+                              <div className="break-words text-sm font-medium text-gray-900">
                                 {user.profile?.firstName && user.profile?.lastName
                                   ? `${user.profile.firstName} ${user.profile.lastName}`
                                   : user.profile?.companyName || user.email.split('@')[0]
@@ -282,16 +271,16 @@ const AdminUsersPage: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="whitespace-nowrap px-6 py-4">
                           <div className="flex items-center">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
                               {getRoleIcon(user.role)}
                               <span className="ml-1">{user.role}</span>
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             user.isActive
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
@@ -299,66 +288,54 @@ const AdminUsersPage: React.FC = () => {
                               {user.isActive ? t('adminUsers.active') : t('adminUsers.inactive')}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                           {formatDate(user.createdAt)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                               {user.lastLoginAt ? formatDate(user.lastLoginAt) : t('adminUsers.never')}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                           <div className="flex items-center justify-end space-x-2">
                             {/* Toggle Status */}
                             <button
                               onClick={() => handleToggleStatus(user.id, user.isActive)}
-                              className={`p-2 rounded-lg transition-colors ${
+                              className={`rounded-lg p-2 transition-colors ${
                                 user.isActive
                                   ? 'text-red-600 hover:bg-red-50'
                                   : 'text-green-600 hover:bg-green-50'
                               }`}
                               title={user.isActive ? t('adminUsers.deactivate') : t('adminUsers.activate')}
                             >
-                              <Ban className="w-4 h-4" />
+                              <Ban className="h-4 w-4" />
                             </button>
 
                             {/* Role Dropdown */}
-                            <div className="relative group">
-                              <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                <Shield className="w-4 h-4" />
-                              </button>
-                              <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                                <div className="py-1">
-                                  <button
-                                    onClick={() => handleRoleChange(user.id, 'STUDENT')}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    disabled={user.role === 'STUDENT'}
-                                  >
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <button className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50">
+                                    <Shield className="h-4 w-4" />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-48">
+                                  <DropdownMenuItem inset onSelect={() => handleRoleChange(user.id, 'STUDENT')}>
                                     {t('forms.students')}
-                                  </button>
-                                  <button
-                                    onClick={() => handleRoleChange(user.id, 'COMPANY')}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    disabled={user.role === 'COMPANY'}
-                                  >
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem inset onSelect={() => handleRoleChange(user.id, 'COMPANY')}>
                                     {t('forms.companies')}
-                                  </button>
-                                  <button
-                                    onClick={() => handleRoleChange(user.id, 'ADMIN')}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                    disabled={user.role === 'ADMIN'}
-                                  >
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem inset onSelect={() => handleRoleChange(user.id, 'ADMIN')}>
                                     {t('adminUsers.admin')}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
 
                             {/* Delete User */}
                             <button
                               onClick={() => handleDeleteUser(user.id, user.email)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
                               title={t('common.delete')}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         </td>
@@ -371,7 +348,7 @@ const AdminUsersPage: React.FC = () => {
 
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6">
+              <div className="mt-6 flex items-center justify-between">
                 <div className="text-sm text-gray-700">
                   {t('common.showingResults', {
                     start: ((currentPage - 1) * 15) + 1,
@@ -383,7 +360,7 @@ const AdminUsersPage: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('common.previous')}
                   </button>
@@ -394,10 +371,10 @@ const AdminUsersPage: React.FC = () => {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-3 py-2 text-sm font-medium rounded-md ${
+                        className={`rounded-md px-3 py-2 text-sm font-medium ${
                           currentPage === page
                             ? 'bg-blue-600 text-white'
-                            : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                            : 'border border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                         }`}
                       >
                         {page}
@@ -408,7 +385,7 @@ const AdminUsersPage: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage(Math.min(pagination.totalPages, currentPage + 1))}
                     disabled={currentPage === pagination.totalPages}
-                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('common.next')}
                   </button>
@@ -418,6 +395,37 @@ const AdminUsersPage: React.FC = () => {
           </>
         )}
       </div>
+      {/* Confirmation Dialog */}
+      {confirm.action && (
+        <Dialog open={!!confirm.action} onOpenChange={(open) => !open && setConfirm({ action: null })}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirm.action === 'delete' ? t('common.delete') : t('adminUsers.changeRole')}</DialogTitle>
+              <DialogDescription>{confirm.info}</DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setConfirm({ action: null })} className="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200">
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={async () => {
+                  if (!confirm.userId) return;
+                  if (confirm.action === 'delete') {
+                    await deleteUser(confirm.userId);
+                  } else if (confirm.action === 'role' && confirm.newRole) {
+                    await updateRole(confirm.userId, confirm.newRole);
+                  }
+                  setConfirm({ action: null });
+                  refetch();
+                }}
+                className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+              >
+                {t('common.confirm')}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </AdminLayout>
   );
 };

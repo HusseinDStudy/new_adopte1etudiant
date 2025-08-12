@@ -3,6 +3,7 @@ import { Search, Filter, Briefcase, Building2, MapPin, Clock, Eye, Ban, Trash2, 
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AdminLayout from '../../components/admin/AdminLayout';
+import ConfirmDialog from '../../components/ui/confirm-dialog';
 import { useAdminOffers, useAdminOfferMutations } from '../../hooks/useAdmin';
 import { getMe } from '../../services/authService';
 
@@ -38,6 +39,7 @@ const AdminOffersPage: React.FC = () => {
   });
 
   const { updateStatus, deleteOffer } = useAdminOfferMutations();
+  const [confirm, setConfirm] = useState<{ id: string; title: string } | null>(null);
 
   const handleToggleStatus = async (offerId: string, currentStatus: boolean) => {
     try {
@@ -49,14 +51,7 @@ const AdminOffersPage: React.FC = () => {
   };
 
   const handleDeleteOffer = async (offerId: string, offerTitle: string) => {
-    if (window.confirm(t('adminOffers.confirmDelete', { title: offerTitle }))) {
-      try {
-        await deleteOffer(offerId);
-        refetch();
-      } catch (error) {
-        console.error('Error deleting offer:', error);
-      }
-    }
+    setConfirm({ id: offerId, title: offerTitle });
   };
 
   const formatDate = (dateString: string) => {
@@ -79,17 +74,17 @@ const AdminOffersPage: React.FC = () => {
     >
       <div className="p-6">
         {/* Header with Filters */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
               <input
                 type="text"
                 placeholder={t('offers.searchByTitleOrDescription')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+                className="w-64 rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -101,7 +96,7 @@ const AdminOffersPage: React.FC = () => {
                 // Filter value updated
                 setStatusFilter(newValue);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
             >
               <option value="">{t('adminOffers.allStatuses')}</option>
               <option value="true">{t('adminOffers.active')}</option>
@@ -116,55 +111,55 @@ const AdminOffersPage: React.FC = () => {
 
         {/* Offers Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="py-12 text-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
             <p className="text-gray-600">{t('loading.loadingOffers')}</p>
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-600 mb-4">{t('errors.loadingOffersError')}</p>
+          <div className="py-12 text-center">
+            <p className="mb-4 text-red-600">{t('errors.loadingOffersError')}</p>
             <button
               onClick={refetch}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
             >
               {t('common.retry')}
             </button>
           </div>
         ) : offers.length === 0 ? (
-          <div className="text-center py-12">
-            <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <div className="py-12 text-center">
+            <Briefcase className="mx-auto mb-4 h-12 w-12 text-gray-400" />
             <p className="text-gray-600">{t('offers.noOffersFound')}</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
               {offers.map((offer) => (
                 <div
                   key={offer.id}
-                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                  className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
                 >
                   {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="mb-4 flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
                         {truncateText(offer.title, 50)}
                       </h3>
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <Building2 className="w-4 h-4 mr-2" />
+                      <div className="mb-2 flex items-center text-sm text-gray-600">
+                        <Building2 className="mr-2 h-4 w-4" />
                         <span>{offer.company.companyName}</span>
                       </div>
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <MapPin className="w-4 h-4 mr-2" />
+                      <div className="mb-2 flex items-center text-sm text-gray-600">
+                        <MapPin className="mr-2 h-4 w-4" />
                         <span>{offer.location}</span>
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
-                        <Clock className="w-4 h-4 mr-2" />
+                        <Clock className="mr-2 h-4 w-4" />
                         <span>{offer.duration}</span>
                       </div>
                     </div>
                     
                     <div className="flex items-center space-x-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         offer.isActive
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
@@ -175,14 +170,14 @@ const AdminOffersPage: React.FC = () => {
                   </div>
 
                   {/* Description */}
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                  <p className="mb-4 line-clamp-3 text-sm text-gray-600">
                     {truncateText(offer.description, 150)}
                   </p>
 
                   {/* Stats */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2" />
+                      <Users className="mr-2 h-4 w-4" />
                       <span>{offer._count.applications} {offer._count.applications === 1 ? t('companyOffers.applications') : t('companyOffers.applicationsPlural')}</span>
                     </div>
                     <div className="text-xs text-gray-500">
@@ -197,30 +192,30 @@ const AdminOffersPage: React.FC = () => {
                         to={`/offers/${offer.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50"
                         title={t('offers.viewDetails')}
                       >
-                        <Eye className="w-4 h-4" />
+                        <Eye className="h-4 w-4" />
                       </Link>
                       
                       <button
                         onClick={() => handleToggleStatus(offer.id, offer.isActive)}
-                        className={`p-2 rounded-lg transition-colors ${
+                        className={`rounded-lg p-2 transition-colors ${
                           offer.isActive
                             ? 'text-red-600 hover:bg-red-50'
                             : 'text-green-600 hover:bg-green-50'
                         }`}
                         title={offer.isActive ? t('adminOffers.deactivate') : t('adminOffers.activate')}
                       >
-                        <Ban className="w-4 h-4" />
+                        <Ban className="h-4 w-4" />
                       </button>
 
                       <button
                         onClick={() => handleDeleteOffer(offer.id, offer.title)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
                         title={t('common.delete')}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
 
@@ -234,7 +229,7 @@ const AdminOffersPage: React.FC = () => {
 
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between mt-8">
+              <div className="mt-8 flex items-center justify-between">
                 <div className="text-sm text-gray-700">
                   {t('common.showingResults', { start: ((currentPage - 1) * 15) + 1, end: Math.min(currentPage * 15, pagination.total), total: pagination.total })}
                 </div>
@@ -243,7 +238,7 @@ const AdminOffersPage: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage === 1}
-                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     title={t('common.firstPage')}
                   >
                     «
@@ -253,7 +248,7 @@ const AdminOffersPage: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('common.previous')}
                   </button>
@@ -274,10 +269,10 @@ const AdminOffersPage: React.FC = () => {
                         <button
                           key={i}
                           onClick={() => setCurrentPage(i)}
-                          className={`px-3 py-2 text-sm font-medium rounded-md ${
+                          className={`rounded-md px-3 py-2 text-sm font-medium ${
                             currentPage === i
                               ? 'bg-blue-600 text-white'
-                              : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                              : 'border border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                           }`}
                         >
                           {i}
@@ -291,7 +286,7 @@ const AdminOffersPage: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage(Math.min(pagination.totalPages, currentPage + 1))}
                     disabled={currentPage === pagination.totalPages}
-                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('common.next')}
                   </button>
@@ -300,7 +295,7 @@ const AdminOffersPage: React.FC = () => {
                   <button
                     onClick={() => setCurrentPage(pagination.totalPages)}
                     disabled={currentPage === pagination.totalPages}
-                    className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                     title={t('common.lastPage')}
                   >
                     »
@@ -311,6 +306,13 @@ const AdminOffersPage: React.FC = () => {
           </>
         )}
       </div>
+      <ConfirmDialog
+        open={!!confirm}
+        title={t('common.delete')}
+        description={confirm ? (t('adminOffers.confirmDelete', { title: confirm.title }) as string) : ''}
+        onConfirm={async () => { if (confirm) { await deleteOffer(confirm.id); refetch(); } }}
+        onOpenChange={(open) => { if (!open) setConfirm(null); }}
+      />
     </AdminLayout>
   );
 };

@@ -126,7 +126,7 @@ const OfferApplicantsPage = () => {
   if (loading) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="flex justify-center items-center h-64">
+        <div className="flex h-64 items-center justify-center">
           <div className="text-lg">{t('offerApplicants.loadingApplicants')}</div>
         </div>
       </div>
@@ -136,12 +136,12 @@ const OfferApplicantsPage = () => {
   if (error) return (
     <SidebarLayout>
       <div className="container mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong>{t('offerApplicants.error')}:</strong> {error}
           <div className="mt-2">
             <button
               onClick={() => window.location.reload()}
-              className="text-red-600 hover:text-red-800 underline"
+              className="text-red-600 underline hover:text-red-800"
             >
               {t('offerApplicants.tryAgain')}
             </button>
@@ -158,37 +158,37 @@ const OfferApplicantsPage = () => {
       <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/company/offers"
-            className="text-indigo-600 hover:text-indigo-800 flex items-center"
+            className="flex items-center text-indigo-600 hover:text-indigo-800"
           >
             {t('offerApplicants.backToOffers')}
           </Link>
           <Link
             to={`/company/offers/${id}/invite-students`}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="rounded-lg bg-green-600 px-4 py-2 font-medium text-white transition-colors hover:bg-green-700"
           >
             {t('offerApplicants.inviteStudents')}
           </Link>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 break-words">{t('offerApplicants.title')} {offer?.title}</h1>
+        <h1 className="break-words text-3xl font-bold text-gray-900">{t('offerApplicants.title')} {offer?.title}</h1>
         {offer?.description && (
-          <p className="text-gray-600 mt-2">{offer.description}</p>
+          <p className="mt-2 text-gray-600">{offer.description}</p>
         )}
-        <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-600">
+        <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
           {offer?.location && <span>📍 {offer.location}</span>}
           {offer?.duration && <span>⏰ {offer.duration}</span>}
         </div>
       </div>
 
       {/* Status Filter */}
-      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border">
-        <h3 className="text-lg font-medium mb-3">{t('offerApplicants.filterByStatus')}</h3>
+      <div className="mb-6 rounded-lg border bg-white p-4 shadow-sm">
+        <h3 className="mb-3 text-lg font-medium">{t('offerApplicants.filterByStatus')}</h3>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setStatusFilter('ALL')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               statusFilter === 'ALL'
                 ? 'bg-indigo-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -200,7 +200,7 @@ const OfferApplicantsPage = () => {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 statusFilter === status
                   ? 'bg-indigo-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -214,7 +214,7 @@ const OfferApplicantsPage = () => {
 
       {/* Applications List */}
       {filteredApplications.length === 0 ? (
-        <div className="text-center bg-white p-12 rounded-lg shadow-md">
+        <div className="rounded-lg bg-white p-12 text-center shadow-md">
           <h2 className="text-xl font-semibold">
             {statusFilter === 'ALL'
               ? t('offerApplicants.noApplicationsYet')
@@ -231,23 +231,23 @@ const OfferApplicantsPage = () => {
       ) : (
         <div className="space-y-4">
           {filteredApplications.map(app => (
-            <div key={app.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div key={app.id} className="rounded-lg border border-gray-200 bg-white p-6 shadow-md">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 {/* Student Info */}
                 <div className="flex-1">
-                <div className="flex items-start justify-between mb-3">
+                <div className="mb-3 flex items-start justify-between">
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">
                         {app.student?.firstName || ''} {app.student?.lastName || ''}
                       </h3>
                       <p className="text-gray-600">{t('offerApplicants.studentId')}: {app.studentId}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[app.status]}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusColors[app.status]}`}>
                       {app.status}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                       <p className="text-sm text-gray-600">
                         <strong>{t('offerApplicants.school')}:</strong> {app.student?.school || t('offerApplicants.na')}
@@ -271,12 +271,12 @@ const OfferApplicantsPage = () => {
                   {/* Skills */}
                   {app.student?.skills && app.student.skills.length > 0 && (
                     <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">{t('offerApplicants.skills')}:</h4>
+                      <h4 className="mb-2 text-sm font-medium text-gray-700">{t('offerApplicants.skills')}:</h4>
                       <div className="flex flex-wrap gap-2">
                         {app.student.skills.map((skill, index) => (
                           <span
                             key={`skill-${index}`}
-                            className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                            className="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
                           >
                             {skill}
                           </span>
@@ -292,7 +292,7 @@ const OfferApplicantsPage = () => {
                         href={app.student.cvUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
                       >
                         📄 {t('offerApplicants.viewCv')}
                       </a>
@@ -303,12 +303,12 @@ const OfferApplicantsPage = () => {
                 {/* Actions */}
                 <div className="flex flex-col gap-3 lg:w-64">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('offerApplicants.applicationStatus')}</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('offerApplicants.applicationStatus')}</label>
                     <select
                       value={app.status}
                       onChange={(e) => handleStatusChange(app.id, e.target.value)}
                       disabled={updating === app.id}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
                     >
                       {applicationStatuses.map((status) => (
                         <option key={status} value={status}>
@@ -321,7 +321,7 @@ const OfferApplicantsPage = () => {
                   {app.conversation && (
                     <Link
                       to={`/conversations/${app.conversation.id}`}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition-colors"
+                      className="rounded-lg bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-indigo-700"
                     >
                       {t('offerApplicants.viewConversation')}
                     </Link>
@@ -330,7 +330,7 @@ const OfferApplicantsPage = () => {
                   {app.student?.userId && (
                     <Link
                       to={`/students?highlight=${app.student.userId}`}
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium text-center transition-colors"
+                      className="rounded-lg bg-gray-100 px-4 py-2 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200"
                     >
                       {t('offerApplicants.requestAdoption')}
                     </Link>

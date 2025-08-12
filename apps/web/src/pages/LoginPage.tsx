@@ -7,6 +7,9 @@ import * as authService from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
+import { Field, Label, useField } from '../components/form/Field';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
 
 const LoginPage = () => {
   const { setCurrentUser } = useAuth();
@@ -66,16 +69,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] min-h-[100svh] flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="flex min-h-[100dvh] min-h-[100svh] items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
         {!isTwoFactorStep ? (
           <div>
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Adopte un Étudiant</h1>
+            <div className="mb-8 text-center">
+              <h1 className="mb-2 text-3xl font-bold text-gray-900">Adopte un Étudiant</h1>
               <p className="text-gray-600">{t('auth.signInToYourAccount')}</p>
             </div>
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <h2 className="text-center text-2xl font-bold text-gray-900 mb-6">
+            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
+            <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
               {t('auth.login')}
             </h2>
             {from !== '/' && (
@@ -83,53 +86,47 @@ const LoginPage = () => {
                 {t('auth.pleaseSignInToAccess')}
               </p>
             )}
-            <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit(onSubmit)}>
-              <input type="hidden" name="remember" value="true" />
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="email-address" className="sr-only">{t('auth.emailAddress')}</label>
-                  <input
-                    id="email-address"
+            <form className="mt-8 space-y-4" onSubmit={handleLoginSubmit(onSubmit)}>
+              <Field error={loginErrors.email?.message} className="space-y-1">{({ id, errorId }) => (
+                <>
+                  <Label>{t('auth.emailAddress')}</Label>
+                  <Input
+                    id={id}
                     type="email"
                     autoComplete="email"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder={t('auth.enterYourEmail')}
+                    aria-invalid={!!loginErrors.email}
+                    aria-describedby={[errorId].filter(Boolean).join(' ')}
+                    placeholder={t('auth.enterYourEmail') as string}
+                    uiSize="lg"
                     {...registerLogin('email')}
                   />
-                </div>
-                <div>
-                  <label htmlFor="password" className="sr-only">{t('auth.password')}</label>
-                  <input
-                    id="password"
+                </>
+              )}</Field>
+
+              <Field error={loginErrors.password?.message} className="space-y-1">{({ id, errorId }) => (
+                <>
+                  <Label>{t('auth.password')}</Label>
+                  <Input
+                    id={id}
                     type="password"
                     autoComplete="current-password"
-                    required
-                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder={t('auth.enterYourPassword')}
+                    aria-invalid={!!loginErrors.password}
+                    aria-describedby={[errorId].filter(Boolean).join(' ')}
+                    placeholder={t('auth.enterYourPassword') as string}
+                    uiSize="lg"
                     {...registerLogin('password')}
                   />
-                </div>
-              </div>
+                </>
+              )}</Field>
 
               {loginErrors.root && (
                 <p className="mt-2 text-sm text-red-600">{loginErrors.root.message}</p>
               )}
-               {loginErrors.email && (
-                <p className="mt-2 text-sm text-red-600">{loginErrors.email.message}</p>
-              )}
-               {loginErrors.password && (
-                <p className="mt-2 text-sm text-red-600">{loginErrors.password.message}</p>
-              )}
 
               <div>
-                <button
-                  type="submit"
-                  disabled={isLoginSubmitting}
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
+                <Button type="submit" disabled={isLoginSubmitting} size="lg" className="w-full">
                   {isLoginSubmitting ? t('loading.loading') : t('auth.signIn')}
-                </button>
+                </Button>
               </div>
             </form>
 
@@ -147,7 +144,7 @@ const LoginPage = () => {
                 <div>
                   <a
                     href={`${import.meta.env.VITE_API_URL}/auth/google`}
-                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
+                    className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
                   >
                     <span className="sr-only">{t('auth.loginWithGoogle')}</span>
                     <svg className="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
@@ -165,48 +162,44 @@ const LoginPage = () => {
           </div>
         ) : (
           <div>
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Adopte un Étudiant</h1>
+            <div className="mb-8 text-center">
+              <h1 className="mb-2 text-3xl font-bold text-gray-900">Adopte un Étudiant</h1>
               <p className="text-gray-600">{t('auth.twoFactorAuthentication')}</p>
             </div>
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <h2 className="text-center text-2xl font-bold text-gray-900 mb-6">
+            <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
+            <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
               {t('auth.enterVerificationCode')}
             </h2>
-            <form className="space-y-6" onSubmit={handle2faSubmit(onTwoFactorSubmit)}>
-              <div className="rounded-md shadow-sm -space-y-px">
-                <div>
-                  <label htmlFor="token" className="sr-only">{t('auth.verificationCode')}</label>
-                  <input
-                    id="token"
+            <form className="space-y-4" onSubmit={handle2faSubmit(onTwoFactorSubmit)}>
+              <Field error={twoFactorErrors.token?.message} className="space-y-1">{({ id, errorId }) => (
+                <>
+                  <Label>{t('auth.verificationCode')}</Label>
+                  <Input
+                    id={id}
                     type="text"
-                    required
-                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder={t('twoFactorAuth.sixDigitCode')}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    aria-invalid={!!twoFactorErrors.token}
+                    aria-describedby={[errorId].filter(Boolean).join(' ')}
+                    placeholder={t('twoFactorAuth.sixDigitCode') as string}
+                    uiSize="lg"
                     {...register2fa('token')}
                   />
-                </div>
-              </div>
-               {twoFactorErrors.root && (
+                </>
+              )}</Field>
+              {twoFactorErrors.root && (
                 <p className="mt-2 text-sm text-red-600">{twoFactorErrors.root.message}</p>
               )}
-              {twoFactorErrors.token && (
-                <p className="mt-2 text-sm text-red-600">{twoFactorErrors.token.message}</p>
-              )}
               <div>
-                <button
-                  type="submit"
-                  disabled={is2faSubmitting}
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
+                <Button type="submit" disabled={is2faSubmitting} size="lg" className="w-full">
                   {is2faSubmitting ? t('loading.loading') : t('auth.verify')}
-                </button>
+                </Button>
               </div>
             </form>
             </div>
           </div>
         )}
-        <div className="text-sm text-center">
+        <div className="text-center text-sm">
             <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700">
               {t('auth.dontHaveAccountYet')} {t('auth.createAccount')}
             </Link>

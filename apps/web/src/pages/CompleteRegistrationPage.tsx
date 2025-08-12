@@ -50,9 +50,9 @@ const CompleteRegistrationPage = () => {
 
   if (!token) {
     return (
-      <div className="container mx-auto p-4 max-w-md text-center">
-        <h1 className="text-2xl font-bold mb-4">Registration Error</h1>
-        <p className="text-red-500 bg-red-100 p-3 rounded">
+      <div className="container mx-auto max-w-md p-4 text-center">
+        <h1 className="mb-4 text-2xl font-bold">Registration Error</h1>
+        <p className="rounded bg-red-100 p-3 text-red-500">
           Registration token is missing or has expired. Please try signing up again.
         </p>
       </div>
@@ -68,7 +68,7 @@ const CompleteRegistrationPage = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="rounded-lg bg-white py-8 px-4 shadow sm:px-10">
+        <div className="rounded-lg bg-white px-4 py-8 shadow sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {errors.root?.serverError && (
               <p className="mb-4 text-center text-sm text-red-500">{errors.root.serverError.message}</p>

@@ -27,23 +27,23 @@ const MyConversationsPage = () => {
   const getContextIcon = (context?: string) => {
     switch (context) {
       case 'ADOPTION_REQUEST':
-        return <Users className="w-4 h-4" />;
+        return <Users className="h-4 w-4" />;
       case 'OFFER':
-        return <Briefcase className="w-4 h-4" />;
+        return <Briefcase className="h-4 w-4" />;
       case 'ADMIN_MESSAGE':
-        return <MessageSquare className="w-4 h-4" />;
+        return <MessageSquare className="h-4 w-4" />;
       case 'BROADCAST':
-        return <Building2 className="w-4 h-4" />;
+        return <Building2 className="h-4 w-4" />;
       default:
-        return <MessageSquare className="w-4 h-4" />;
+        return <MessageSquare className="h-4 w-4" />;
     }
   };
 
   const getStatusBadge = (conversation: Conversation) => {
     if (conversation.isReadOnly) {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          <Lock className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
+          <Lock className="mr-1 h-3 w-3" />
           {t('conversations.status.readOnly')}
         </span>
       );
@@ -51,8 +51,8 @@ const MyConversationsPage = () => {
 
     if (conversation.status === 'ARCHIVED') {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          <Archive className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
+          <Archive className="mr-1 h-3 w-3" />
           {t('conversations.status.archived')}
         </span>
       );
@@ -60,8 +60,8 @@ const MyConversationsPage = () => {
 
     if (conversation.status === 'EXPIRED') {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          <Clock className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
+          <Clock className="mr-1 h-3 w-3" />
           {t('conversations.status.expired')}
         </span>
       );
@@ -69,8 +69,8 @@ const MyConversationsPage = () => {
 
     if (conversation.status === 'PENDING_APPROVAL') {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          <AlertCircle className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+          <AlertCircle className="mr-1 h-3 w-3" />
           {t('conversations.status.pendingApproval')}
         </span>
       );
@@ -141,33 +141,33 @@ const MyConversationsPage = () => {
   return (
     <SidebarLayout>
       <div className="container mx-auto p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold">{t('conversations.title')}</h1>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6 overflow-x-auto">
-          <nav className="-mb-px flex space-x-8 min-w-max">
+        <div className="mb-6 overflow-x-auto border-b border-gray-200">
+          <nav className="-mb-px flex min-w-max space-x-8">
             <button
               onClick={() => setActiveTab('conversations')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium ${
                 activeTab === 'conversations'
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              <MessageSquare className="w-4 h-4 inline mr-2" />
+              <MessageSquare className="mr-2 inline h-4 w-4" />
               {t('conversations.conversationsTab')}
             </button>
             <button
               onClick={() => setActiveTab('broadcasts')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`border-b-2 px-1 py-2 text-sm font-medium ${
                 activeTab === 'broadcasts'
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
             >
-              <Building2 className="w-4 h-4 inline mr-2" />
+              <Building2 className="mr-2 inline h-4 w-4" />
               {t('conversations.broadcastsTab')}
             </button>
           </nav>
@@ -176,13 +176,13 @@ const MyConversationsPage = () => {
         {activeTab === 'conversations' && (
           <>
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center mb-6">
+            <div className="mb-6 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
               <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-500" />
+                <Filter className="h-4 w-4 text-gray-500" />
                 <select
                   value={contextFilter}
                   onChange={(e) => setContextFilter(e.target.value)}
-                  className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:w-auto"
                 >
                   <option value="">{t('conversations.filters.allContexts')}</option>
                   <option value="ADOPTION_REQUEST">{t('conversations.filters.adoptionRequests')}</option>
@@ -195,7 +195,7 @@ const MyConversationsPage = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:w-auto"
               >
                 <option value="">{t('conversations.filters.allStatuses')}</option>
                 <option value="ACTIVE">{t('conversations.filters.active')}</option>
@@ -209,34 +209,34 @@ const MyConversationsPage = () => {
 
         {activeTab === 'conversations' && (
           <>
-            <div className="bg-white shadow rounded-lg">
+            <div className="rounded-lg bg-white shadow">
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                   <p className="text-gray-600">{t('conversations.loading')}</p>
                 </div>
               ) : error ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <div className="py-12 text-center">
+                  <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
                   <p className="text-red-600">{error}</p>
                 </div>
               ) : conversations.length > 0 ? (
                 <ul className="divide-y divide-gray-200">
                   {conversations.map(conversation => (
-                    <li key={conversation.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <li key={conversation.id} className="p-4 transition-colors hover:bg-gray-50">
                       <Link to={`/conversations/${conversation.id}`} className="block">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="mb-2 flex items-center gap-2">
                               {getContextIcon(conversation.context)}
-                              <h3 className="font-semibold text-lg text-gray-900">
+                              <h3 className="text-lg font-semibold text-gray-900">
                                 {getContextLabel(conversation.contextDetails)}
                               </h3>
                               {getStatusBadge(conversation)}
                             </div>
                             
                             {/* Participants or Broadcast Target */}
-                            <div className="text-sm text-gray-600 mb-2">
+                            <div className="mb-2 text-sm text-gray-600">
                               {conversation.isBroadcast ? (
                                 <>
                                   <span className="font-medium">{t('conversations.recipients')}:</span>{' '}
@@ -259,15 +259,15 @@ const MyConversationsPage = () => {
 
                             {/* Last Message */}
                             {conversation.lastMessage && (
-                              <p className="text-gray-600 text-sm mb-2">
+                              <p className="mb-2 text-sm text-gray-600">
                                 {conversation.lastMessage.content}
                               </p>
                             )}
 
                             {/* Expiration Warning */}
                             {conversation.expiresAt && (
-                              <div className="text-xs text-orange-600 mb-2">
-                                <Clock className="w-3 h-3 inline mr-1" />
+                              <div className="mb-2 text-xs text-orange-600">
+                                <Clock className="mr-1 inline h-3 w-3" />
                                 {t('conversations.expiresOn')} {formatDate(conversation.expiresAt)}
                               </div>
                             )}
@@ -282,8 +282,8 @@ const MyConversationsPage = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="text-center py-12">
-                  <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <div className="py-12 text-center">
+                  <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                   <p className="text-gray-600">
                     {contextFilter || statusFilter 
                       ? t('conversations.noConversationsWithFilters')
@@ -301,7 +301,7 @@ const MyConversationsPage = () => {
                   {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
                     <button
                       key={page}
-                      className={`px-3 py-2 rounded-lg ${
+                      className={`rounded-lg px-3 py-2 ${
                         page === pagination.page
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -318,34 +318,34 @@ const MyConversationsPage = () => {
 
         {activeTab === 'broadcasts' && (
           <>
-            <div className="bg-white shadow rounded-lg">
+            <div className="rounded-lg bg-white shadow">
               {broadcastLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                   <p className="text-gray-600">{t('conversations.loadingBroadcasts')}</p>
                 </div>
               ) : broadcastError ? (
-                <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <div className="py-12 text-center">
+                  <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
                   <p className="text-red-600">{broadcastError}</p>
                 </div>
               ) : broadcastConversations.length > 0 ? (
                 <ul className="divide-y divide-gray-200">
                   {broadcastConversations.map(conversation => (
-                    <li key={conversation.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <li key={conversation.id} className="p-4 transition-colors hover:bg-gray-50">
                       <Link to={`/conversations/${conversation.id}`} className="block">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Building2 className="w-4 h-4" />
-                              <h3 className="font-semibold text-lg text-gray-900">
+                            <div className="mb-2 flex items-center gap-2">
+                              <Building2 className="h-4 w-4" />
+                              <h3 className="text-lg font-semibold text-gray-900">
                                 {t('conversations.broadcastMessage')}
                               </h3>
                               {getStatusBadge(conversation)}
                             </div>
                             
                             {/* Broadcast Target */}
-                            <div className="text-sm text-gray-600 mb-2">
+                            <div className="mb-2 text-sm text-gray-600">
                               <span className="font-medium">{t('conversations.recipients')}:</span>{' '}
                               {conversation.broadcastTarget === 'ALL' ? t('conversations.allUsers') :
                                conversation.broadcastTarget === 'STUDENTS' ? t('conversations.studentsOnly') :
@@ -354,7 +354,7 @@ const MyConversationsPage = () => {
 
                             {/* Last Message */}
                             {conversation.lastMessage && (
-                              <p className="text-gray-600 text-sm mb-2">
+                              <p className="mb-2 text-sm text-gray-600">
                                 {conversation.lastMessage.content}
                               </p>
                             )}
@@ -369,8 +369,8 @@ const MyConversationsPage = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="text-center py-12">
-                  <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <div className="py-12 text-center">
+                  <Building2 className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                   <p className="text-gray-600">
                     {t('conversations.noBroadcasts')}
                   </p>
@@ -385,7 +385,7 @@ const MyConversationsPage = () => {
                   {Array.from({ length: broadcastPagination.totalPages }, (_, i) => i + 1).map(page => (
                     <button
                       key={page}
-                      className={`px-3 py-2 rounded-lg ${
+                      className={`rounded-lg px-3 py-2 ${
                         page === broadcastPagination.page
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-200 text-gray-700 hover:bg-gray-300'

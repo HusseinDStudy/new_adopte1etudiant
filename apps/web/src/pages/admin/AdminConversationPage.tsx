@@ -63,15 +63,15 @@ const AdminConversationPage: React.FC = () => {
   const getContextIcon = (context?: string) => {
     switch (context) {
       case 'ADOPTION_REQUEST':
-        return <Users className="w-5 h-5" />;
+        return <Users className="h-5 w-5" />;
       case 'OFFER':
-        return <Briefcase className="w-5 h-5" />;
+        return <Briefcase className="h-5 w-5" />;
       case 'ADMIN_MESSAGE':
-        return <MessageSquare className="w-5 h-5" />;
+        return <MessageSquare className="h-5 w-5" />;
       case 'BROADCAST':
-        return <Building2 className="w-5 h-5" />;
+        return <Building2 className="h-5 w-5" />;
       default:
-        return <MessageSquare className="w-5 h-5" />;
+        return <MessageSquare className="h-5 w-5" />;
     }
   };
 
@@ -80,8 +80,8 @@ const AdminConversationPage: React.FC = () => {
 
     if (conversation.isReadOnly) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-          <Lock className="w-4 h-4 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800">
+          <Lock className="mr-1 h-4 w-4" />
           Lecture seule
         </span>
       );
@@ -89,8 +89,8 @@ const AdminConversationPage: React.FC = () => {
 
     if (conversation.status === 'ARCHIVED') {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-          <Archive className="w-4 h-4 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800">
+          <Archive className="mr-1 h-4 w-4" />
           Archivée
         </span>
       );
@@ -98,8 +98,8 @@ const AdminConversationPage: React.FC = () => {
 
     if (conversation.status === 'EXPIRED') {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-          <Clock className="w-4 h-4 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
+          <Clock className="mr-1 h-4 w-4" />
           Expirée
         </span>
       );
@@ -107,8 +107,8 @@ const AdminConversationPage: React.FC = () => {
 
     if (conversation.status === 'PENDING_APPROVAL') {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-          <AlertCircle className="w-4 h-4 mr-1" />
+        <span className="inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
+          <AlertCircle className="mr-1 h-4 w-4" />
           En attente
         </span>
       );
@@ -125,17 +125,17 @@ const AdminConversationPage: React.FC = () => {
     switch (contextDetails.type) {
       case 'adoption_request':
         return (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-blue-900 mb-2">
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <h3 className="mb-2 font-semibold text-blue-900">
               Demande d'adoption - {contextDetails.companyName}
             </h3>
-            <p className="text-blue-700 text-sm mb-2">
+            <p className="mb-2 text-sm text-blue-700">
               Statut: {contextDetails.status === 'PENDING' ? 'En attente de réponse' : 
                        contextDetails.status === 'ACCEPTED' ? 'Acceptée' : 
                        contextDetails.status === 'REJECTED' ? 'Rejetée' : contextDetails.status}
             </p>
             {contextDetails.initialMessage && (
-              <div className="text-blue-600 text-sm">
+              <div className="text-sm text-blue-600">
                 <strong>Message initial:</strong> {contextDetails.initialMessage}
               </div>
             )}
@@ -143,14 +143,14 @@ const AdminConversationPage: React.FC = () => {
         );
       case 'offer':
         return (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-green-900 mb-2">
+          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
+            <h3 className="mb-2 font-semibold text-green-900">
               Candidature - {contextDetails.offerTitle}
             </h3>
-            <p className="text-green-700 text-sm mb-2">
+            <p className="mb-2 text-sm text-green-700">
               Entreprise: {contextDetails.companyName}
             </p>
-            <p className="text-green-700 text-sm">
+            <p className="text-sm text-green-700">
               Statut: {contextDetails.status === 'NEW' ? 'Nouvelle' : 
                        contextDetails.status === 'SEEN' ? 'Vue' : 
                        contextDetails.status === 'INTERVIEW' ? 'Entretien' : 
@@ -216,8 +216,8 @@ const AdminConversationPage: React.FC = () => {
     return (
       <AdminLayout title="Conversation" subtitle="Chargement...">
         <div className="p-6">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="flex h-64 items-center justify-center">
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
             <p className="text-gray-600">Chargement de la conversation...</p>
           </div>
         </div>
@@ -229,12 +229,12 @@ const AdminConversationPage: React.FC = () => {
     return (
       <AdminLayout title="Erreur" subtitle="Impossible de charger la conversation">
         <div className="p-6">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
             <strong>Erreur:</strong> {error}
             <div className="mt-2">
               <button
                 onClick={() => window.location.reload()}
-                className="text-red-600 hover:text-red-800 underline"
+                className="text-red-600 underline hover:text-red-800"
               >
                 Réessayer
               </button>
@@ -250,15 +250,15 @@ const AdminConversationPage: React.FC = () => {
       title="Conversation"
       subtitle={conversation?.topic || 'Détails de la conversation'}
     >
-      <div className="p-6 flex flex-col min-h-[100dvh] min-h-[100svh] pb-[env(safe-area-inset-bottom)]">
+      <div className="flex min-h-[100dvh] min-h-[100svh] flex-col p-6 pb-[env(safe-area-inset-bottom)]">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 border-b pb-4">
+        <div className="mb-6 flex items-center justify-between border-b pb-4">
           <div className="flex items-center gap-4">
             <Link
               to="/admin/messages"
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
               {getContextIcon(conversation?.context)}
@@ -286,9 +286,9 @@ const AdminConversationPage: React.FC = () => {
 
         {/* Expiration Warning */}
         {conversation?.expiresAt && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+          <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-3">
             <div className="flex items-center text-orange-800">
-              <Clock className="w-4 h-4 mr-2" />
+              <Clock className="mr-2 h-4 w-4" />
               <span className="text-sm">
                 Cette conversation expire le {formatDate(conversation.expiresAt)}
               </span>
@@ -297,7 +297,7 @@ const AdminConversationPage: React.FC = () => {
         )}
 
         {/* Messages */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-4 bg-gray-50 rounded-lg">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain rounded-lg bg-gray-50 p-4">
           {Array.isArray(messages) ? messages.map((msg, index) => {
             if (!msg || !msg.id || !msg.sender || !msg.sender.id) {
               return null;
@@ -311,21 +311,21 @@ const AdminConversationPage: React.FC = () => {
                 className={`flex items-end gap-2 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`rounded-lg px-4 py-2 max-w-lg ${
+                  className={`max-w-lg rounded-lg px-4 py-2 ${
                     isOwnMessage
                       ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-800 border border-gray-200'
+                      : 'border border-gray-200 bg-white text-gray-800'
                   }`}
                 >
                   <p className="text-sm">{msg.content || 'No content'}</p>
-                  <p className={`text-xs mt-1 ${isOwnMessage ? 'text-blue-100' : 'text-gray-500'}`}>
+                  <p className={`mt-1 text-xs ${isOwnMessage ? 'text-blue-100' : 'text-gray-500'}`}>
                     {msg.createdAt ? formatDate(msg.createdAt) : 'Unknown time'}
                   </p>
                 </div>
               </div>
             );
           }) : (
-            <div className="text-center text-gray-500 py-8">
+            <div className="py-8 text-center text-gray-500">
               Aucun message dans cette conversation.
             </div>
           )}
@@ -335,7 +335,7 @@ const AdminConversationPage: React.FC = () => {
         {/* Message Input */}
         <div className="mt-4 border-t pt-4">
           {!canSendMessage() ? (
-            <div className="text-center text-gray-500 italic p-4 bg-gray-50 rounded-lg">
+            <div className="rounded-lg bg-gray-50 p-4 text-center italic text-gray-500">
               {conversation?.status === 'ARCHIVED' || conversation?.status === 'EXPIRED' 
                 ? 'Cette conversation a été fermée et est maintenant en lecture seule.'
                 : 'Vous ne pouvez pas envoyer de messages dans cette conversation.'
@@ -347,16 +347,16 @@ const AdminConversationPage: React.FC = () => {
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-grow rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Tapez votre message..."
                 disabled={sending}
               />
               <button
                 type="submit"
                 disabled={sending || !newMessage.trim()}
-                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-3 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
+                <Send className="h-4 w-4" />
                 {sending ? 'Envoi...' : 'Envoyer'}
               </button>
             </form>

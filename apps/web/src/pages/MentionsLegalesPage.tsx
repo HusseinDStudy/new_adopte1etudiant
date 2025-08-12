@@ -15,21 +15,21 @@ const MentionsLegalesPage: React.FC = () => {
       />
 
       <div className="min-h-[100dvh] bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="bg-white rounded-2xl shadow-lg p-8 space-y-10">
+        <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="space-y-10 rounded-2xl bg-white p-8 shadow-lg">
             <div className="flex items-center justify-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                <File className="w-8 h-8 text-blue-600" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                <File className="h-8 w-8 text-blue-600" />
               </div>
             </div>
 
             <section className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-6 h-6 text-blue-600" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                  <Building2 className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('legalNotice.editor.title')}</h2>
+                  <h2 className="mb-2 text-xl font-semibold text-gray-900">{t('legalNotice.editor.title')}</h2>
                   <div className="space-y-2 text-gray-600">
                     <p><strong>{t('legalNotice.editor.companyName')}</strong></p>
                     <p>{t('legalNotice.editor.legalForm')}</p>
@@ -57,12 +57,12 @@ const MentionsLegalesPage: React.FC = () => {
 
             <section className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-6 h-6 text-blue-600" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                  <User className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('legalNotice.publication.title')}</h2>
-                  <div className="text-gray-600 space-y-1">
+                  <h2 className="mb-2 text-xl font-semibold text-gray-900">{t('legalNotice.publication.title')}</h2>
+                  <div className="space-y-1 text-gray-600">
                     <p>{t('legalNotice.publication.director')}</p>
                     <p>{t('legalNotice.publication.editorialManager')}</p>
                     <p>
@@ -78,11 +78,11 @@ const MentionsLegalesPage: React.FC = () => {
 
             <section className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Server className="w-6 h-6 text-blue-600" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                  <Server className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('legalNotice.hosting.title')}</h2>
+                  <h2 className="mb-2 text-xl font-semibold text-gray-900">{t('legalNotice.hosting.title')}</h2>
                   <div className="space-y-4 text-gray-600">
                     <div>
                       <p className="font-medium">{t('legalNotice.hosting.mainHostTitle')}</p>
@@ -103,11 +103,11 @@ const MentionsLegalesPage: React.FC = () => {
 
             <section className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Copyright className="w-6 h-6 text-blue-600" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                  <Copyright className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('legalNotice.intellectualProperty.title')}</h2>
+                  <h2 className="mb-2 text-xl font-semibold text-gray-900">{t('legalNotice.intellectualProperty.title')}</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>{t('legalNotice.intellectualProperty.p1')}</p>
                     <p>{t('legalNotice.intellectualProperty.p2')}</p>
@@ -119,15 +119,15 @@ const MentionsLegalesPage: React.FC = () => {
 
             <section className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-blue-600" />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                  <Shield className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('legalNotice.dataProtection.title')}</h2>
+                  <h2 className="mb-2 text-xl font-semibold text-gray-900">{t('legalNotice.dataProtection.title')}</h2>
                   <div className="space-y-4 text-gray-600">
                     <p>{t('legalNotice.dataProtection.p1')}</p>
                     <p>{t('legalNotice.dataProtection.p2')}</p>
-                    <ul className="list-disc pl-6 space-y-1">
+                    <ul className="list-disc space-y-1 pl-6">
                       <li>
                         {t('legalNotice.dataProtection.contactEmail')}
                       </li>
@@ -147,9 +147,9 @@ const MentionsLegalesPage: React.FC = () => {
             </section>
 
             <section>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">{t('legalNotice.additionalInfoTitle')}</h3>
-                <p className="text-blue-700 text-sm">{t('legalNotice.additionalInfoText')}</p>
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 text-center">
+                <h3 className="mb-2 text-lg font-semibold text-blue-900">{t('legalNotice.additionalInfoTitle')}</h3>
+                <p className="text-sm text-blue-700">{t('legalNotice.additionalInfoText')}</p>
               </div>
             </section>
           </div>

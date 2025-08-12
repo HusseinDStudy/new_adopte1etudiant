@@ -156,9 +156,9 @@ const StudentDirectoryPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">{t('studentDirectory.loadingStudents')}</p>
         </div>
       </div>
@@ -166,21 +166,21 @@ const StudentDirectoryPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl">
       {/* Page Header */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{t('studentDirectory.title')}</h1>
-            <p className="text-gray-600 mt-2">{t('studentDirectory.subtitle')}</p>
+            <p className="mt-2 text-gray-600">{t('studentDirectory.subtitle')}</p>
           </div>
           {user?.role === 'COMPANY' && (
             <button
               onClick={refreshRequestedStudents}
-              className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:scale-105 transition-all duration-300 transform active:scale-95"
+              className="flex transform items-center space-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-50 active:scale-95"
               title={t('studentDirectory.refreshTooltip')}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>{t('studentDirectory.refresh')}</span>

@@ -110,6 +110,7 @@ dist/
 # Production build outputs
 /apps/api/dist
 /apps/web/dist
+/apps/web/storybook-static
 /dist
 /out
 

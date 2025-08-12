@@ -26,19 +26,19 @@ const DashboardCompanyPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-900">
           {t('dashboardCompany.title')}
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="mt-2 text-gray-600">
           {t('dashboardCompany.welcome')} {user?.email}, {t('dashboardCompany.welcomeDescription')}
         </p>
       </div>
 
           {/* Dashboard Metrics */}
           {statsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                <div key={i} className="animate-pulse rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-2 h-4 w-3/4 rounded bg-gray-200"></div>
+                  <div className="mb-2 h-8 w-1/2 rounded bg-gray-200"></div>
+                  <div className="h-3 w-1/4 rounded bg-gray-200"></div>
                 </div>
               ))}
             </div>
@@ -47,32 +47,32 @@ const DashboardCompanyPage: React.FC = () => {
           )}
 
           {/* Main Content Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Active Offers */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">{t('dashboardCompany.activeOffers')}</h3>
-                <a href="/company/offers" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                <a href="/company/offers" className="text-sm font-medium text-blue-600 hover:text-blue-700">
                   {t('dashboardCompany.manage')} →
                 </a>
               </div>
               <div className="space-y-4">
                 {offersLoading ? (
                   [...Array(3)].map((_, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg animate-pulse">
+                    <div key={i} className="flex animate-pulse items-center justify-between rounded-lg bg-gray-50 p-3">
                       <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                        <div className="mb-2 h-4 w-3/4 rounded bg-gray-200"></div>
+                        <div className="h-3 w-1/2 rounded bg-gray-200"></div>
                       </div>
                       <div className="text-right">
-                        <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-3 bg-gray-200 rounded w-12"></div>
+                        <div className="mb-1 h-4 w-16 rounded bg-gray-200"></div>
+                        <div className="h-3 w-12 rounded bg-gray-200"></div>
                       </div>
                     </div>
                   ))
                 ) : offers.length > 0 ? (
                   offers.slice(0, 3).map((offer) => (
-                    <div key={offer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={offer.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
                       <div>
                         <p className="font-medium text-gray-900">{offer.title}</p>
                         <p className="text-sm text-gray-600">{offer._count.applications} {t('dashboardCompany.applications')}</p>
@@ -86,9 +86,9 @@ const DashboardCompanyPage: React.FC = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="py-8 text-center text-gray-500">
                     <p>{t('dashboardCompany.noActiveOffers')}</p>
-                    <a href="/company/offers/new" className="text-blue-600 hover:text-blue-700 text-sm">
+                    <a href="/company/offers/new" className="text-sm text-blue-600 hover:text-blue-700">
                       {t('dashboardCompany.createFirstOffer')} →
                     </a>
                   </div>
@@ -100,15 +100,15 @@ const DashboardCompanyPage: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboardCompany.quickActions')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('dashboardCompany.quickActions')}</h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <a
                 href="/company/offers/new"
-                className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex items-center space-x-3 rounded-lg bg-blue-50 p-4 transition-colors hover:bg-blue-100"
               >
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 </div>
@@ -120,10 +120,10 @@ const DashboardCompanyPage: React.FC = () => {
 
               <a
                 href="/students"
-                className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                className="flex items-center space-x-3 rounded-lg bg-green-50 p-4 transition-colors hover:bg-green-100"
               >
-                <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                 </div>
@@ -135,10 +135,10 @@ const DashboardCompanyPage: React.FC = () => {
 
               <a
                 href="/conversations"
-                className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                className="flex items-center space-x-3 rounded-lg bg-purple-50 p-4 transition-colors hover:bg-purple-100"
               >
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>

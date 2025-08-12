@@ -11,15 +11,15 @@ const I18nDemo: React.FC = () => {
   const sampleNumber = 1234.56;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-4xl rounded-lg bg-white p-6 shadow-md">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">
           {t('navigation.home')} - i18n Demo
         </h2>
         <LanguageSwitcher />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Basic Translations */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-800">Basic Translations</h3>
@@ -61,16 +61,16 @@ const I18nDemo: React.FC = () => {
       </div>
 
       {/* Current Language Info */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Current Language</h3>
+      <div className="mt-6 rounded-lg bg-gray-50 p-4">
+        <h3 className="mb-2 text-lg font-semibold text-gray-800">Current Language</h3>
         <p><strong>Language:</strong> {i18n.language}</p>
         <p><strong>Locale:</strong> {i18n.language === 'fr' ? 'fr-FR' : 'en-US'}</p>
         <p><strong>Direction:</strong> {i18n.dir()}</p>
       </div>
 
       {/* Translation Keys */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Available Translation Keys</h3>
+      <div className="mt-6 rounded-lg bg-blue-50 p-4">
+        <h3 className="mb-2 text-lg font-semibold text-gray-800">Available Translation Keys</h3>
         <div className="text-sm text-gray-600">
           <p><code>navigation.home</code> → {t('navigation.home')}</p>
           <p><code>navigation.offers</code> → {t('navigation.offers')}</p>

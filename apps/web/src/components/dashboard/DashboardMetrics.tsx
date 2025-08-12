@@ -24,24 +24,24 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, subtitle, icon, c
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
           {subtitle && (
-            <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+            <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
           )}
           {trend && (
-            <div className="flex items-center mt-2">
+            <div className="mt-2 flex items-center">
               <span className={`text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
                 {trend.isPositive ? '+' : ''}{trend.value}%
               </span>
-              <span className="text-gray-500 text-sm ml-1">{t('dashboardStudent.metrics.vsLastMonth')}</span>
+              <span className="ml-1 text-sm text-gray-500">{t('dashboardStudent.metrics.vsLastMonth')}</span>
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+        <div className={`rounded-lg p-3 ${colorClasses[color]}`}>
           {icon}
         </div>
       </div>
@@ -70,7 +70,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       value: metrics.myApplications || 0,
       subtitle: t('dashboardStudent.metrics.applicationsSentSubtitle'),
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       ),
@@ -83,7 +83,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       value: metrics.adoptionRequests || 0,
       subtitle: t('dashboardStudent.metrics.adoptionRequestsSubtitle'),
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       ),
@@ -95,7 +95,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       value: metrics.profileViews || 0,
       subtitle: t('dashboardStudent.metrics.profileViewsSubtitle'),
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
         </svg>
@@ -111,7 +111,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       value: metrics.totalOffers || 0,
       subtitle: t('dashboardCompany.metrics.activeOffersSubtitle'),
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
         </svg>
       ),
@@ -123,7 +123,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       value: metrics.newApplications || 0,
       subtitle: t('dashboardCompany.metrics.newApplicationsSubtitle'),
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
         </svg>
       ),
@@ -136,7 +136,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
       value: metrics.activeContracts || 0,
       subtitle: t('dashboardCompany.metrics.hiredCandidatesSubtitle'),
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
         </svg>
       ),
@@ -148,7 +148,7 @@ const DashboardMetrics: React.FC<DashboardMetricsProps> = ({ userRole, metrics }
   const metricsToShow = userRole === 'STUDENT' ? studentMetrics : companyMetrics;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       {metricsToShow.map((metric, index) => (
         <MetricCard
           key={index}

@@ -26,19 +26,19 @@ const DashboardStudentPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-900">
           {t('dashboardStudent.title')}
         </h1>
-        <p className="text-gray-600 mt-2">
+        <p className="mt-2 text-gray-600">
           {t('dashboardStudent.welcome', { email: user?.email })}
         </p>
       </div>
 
           {/* Dashboard Metrics */}
           {statsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                <div key={i} className="animate-pulse rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="mb-2 h-4 w-3/4 rounded bg-gray-200"></div>
+                  <div className="mb-2 h-8 w-1/2 rounded bg-gray-200"></div>
+                  <div className="h-3 w-1/4 rounded bg-gray-200"></div>
                 </div>
               ))}
             </div>
@@ -47,35 +47,35 @@ const DashboardStudentPage: React.FC = () => {
           )}
 
           {/* Recent Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Recent Applications */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">{t('dashboardStudent.recentApplications')}</h3>
-                <a href="/my-applications" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                <a href="/my-applications" className="text-sm font-medium text-blue-600 hover:text-blue-700">
                   {t('dashboardStudent.viewAll')}
                 </a>
               </div>
               <div className="space-y-4">
                 {applicationsLoading ? (
                   [...Array(3)].map((_, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg animate-pulse">
+                    <div key={i} className="flex animate-pulse items-center justify-between rounded-lg bg-gray-50 p-3">
                       <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                        <div className="mb-2 h-4 w-3/4 rounded bg-gray-200"></div>
+                        <div className="h-3 w-1/2 rounded bg-gray-200"></div>
                       </div>
-                      <div className="w-16 h-6 bg-gray-200 rounded"></div>
+                      <div className="h-6 w-16 rounded bg-gray-200"></div>
                     </div>
                   ))
                 ) : applications.length > 0 ? (
                   applications.slice(0, 3).map((app) => (
-                    <div key={app.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={app.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
                       <div>
                         <p className="font-medium text-gray-900">{app.offer.title}</p>
                         <p className="text-sm text-gray-600">{app.offer.company.name}</p>
                       </div>
                       <div className="text-right">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                           app.status === 'NEW' ? 'bg-blue-100 text-blue-800' :
                           app.status === 'REVIEWED' ? 'bg-yellow-100 text-yellow-800' :
                           app.status === 'INTERVIEW' ? 'bg-green-100 text-green-800' :
@@ -84,16 +84,16 @@ const DashboardStudentPage: React.FC = () => {
                         }`}>
                           {t(`dashboardStudent.applicationStatus.${app.status}`)}
                         </span>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="mt-1 text-xs text-gray-500">
                           {new Date(app.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="py-8 text-center text-gray-500">
                     <p>{t('dashboardStudent.noRecentApplications')}</p>
-                    <a href="/offers" className="text-blue-600 hover:text-blue-700 text-sm">
+                    <a href="/offers" className="text-sm text-blue-600 hover:text-blue-700">
                       {t('dashboardStudent.discoverOffers')}
                     </a>
                   </div>
@@ -105,15 +105,15 @@ const DashboardStudentPage: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboardStudent.quickActions')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('dashboardStudent.quickActions')}</h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <a
                 href="/offers"
-                className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex items-center space-x-3 rounded-lg bg-blue-50 p-4 transition-colors hover:bg-blue-100"
               >
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
                   </svg>
                 </div>
@@ -125,10 +125,10 @@ const DashboardStudentPage: React.FC = () => {
 
               <a
                 href="/profile"
-                className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                className="flex items-center space-x-3 rounded-lg bg-green-50 p-4 transition-colors hover:bg-green-100"
               >
-                <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
@@ -140,10 +140,10 @@ const DashboardStudentPage: React.FC = () => {
 
               <a
                 href="/conversations"
-                className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                className="flex items-center space-x-3 rounded-lg bg-purple-50 p-4 transition-colors hover:bg-purple-100"
               >
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600">
+                  <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>

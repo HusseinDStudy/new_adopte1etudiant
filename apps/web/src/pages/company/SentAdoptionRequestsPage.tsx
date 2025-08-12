@@ -50,42 +50,42 @@ const SentAdoptionRequestsPage: React.FC = () => {
     const getStatusPill = (status: string) => {
         switch (status) {
             case 'PENDING':
-                return <span className="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-200 text-yellow-800">{t('adoptionRequests.pending')}</span>;
+                return <span className="rounded-full bg-yellow-200 px-3 py-1 text-sm font-semibold text-yellow-800">{t('adoptionRequests.pending')}</span>;
             case 'ACCEPTED':
-                return <span className="px-3 py-1 text-sm font-semibold rounded-full bg-green-200 text-green-800">{t('adoptionRequests.accepted')}</span>;
+                return <span className="rounded-full bg-green-200 px-3 py-1 text-sm font-semibold text-green-800">{t('adoptionRequests.accepted')}</span>;
             case 'REJECTED':
-                return <span className="px-3 py-1 text-sm font-semibold rounded-full bg-red-200 text-red-800">{t('adoptionRequests.rejected')}</span>;
+                return <span className="rounded-full bg-red-200 px-3 py-1 text-sm font-semibold text-red-800">{t('adoptionRequests.rejected')}</span>;
             default:
-                return <span className="px-3 py-1 text-sm font-semibold rounded-full bg-gray-200 text-gray-800">{status}</span>;
+                return <span className="rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-800">{status}</span>;
         }
     }
 
-    if (loading) return <div className="text-center p-8">{t('adoptionRequests.loadingRequests')}</div>;
+    if (loading) return <div className="p-8 text-center">{t('adoptionRequests.loadingRequests')}</div>;
 
     return (
         <SidebarLayout>
             <div className="container mx-auto">
                 {error && (
-                    <div className="mb-4 text-center bg-red-100 p-4 rounded-lg shadow-md">
+                    <div className="mb-4 rounded-lg bg-red-100 p-4 text-center shadow-md">
                         <h2 className="text-xl font-semibold text-red-800">{t('adoptionRequests.errorOccurred')}</h2>
                         <p className="mt-2 text-red-600">{error}</p>
                     </div>
                 )}
-                <h1 className="text-3xl font-bold mb-6">{t('adoptionRequests.sentRequestsTitle')}</h1>
+                <h1 className="mb-6 text-3xl font-bold">{t('adoptionRequests.sentRequestsTitle')}</h1>
                 {requests.length === 0 && !error ? (
-                     <div className="text-center bg-white p-12 rounded-lg shadow-md">
+                     <div className="rounded-lg bg-white p-12 text-center shadow-md">
                         <h2 className="text-xl font-semibold">{t('adoptionRequests.noSentRequestsYet')}</h2>
                         <p className="mt-2 text-gray-500">{t('adoptionRequests.noSentRequestsDescription')}</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {requests.map(req => (
-                            <div key={req.id} className="bg-white p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                            <div key={req.id} className="flex flex-col gap-3 rounded-lg bg-white p-6 shadow-md sm:flex-row sm:items-center sm:justify-between">
                                 <div className="min-w-0">
                                     <h2 className="text-xl font-semibold">
                                         {req.student.studentProfile ? `${req.student.studentProfile.firstName} ${req.student.studentProfile.lastName}` : t('adoptionRequests.aStudent')}
                                     </h2>
-                                    <p className="text-gray-500 text-sm mt-2">{t('adoptionRequests.sentOn')}: {new Date(req.createdAt).toLocaleDateString()}</p>
+                                    <p className="mt-2 text-sm text-gray-500">{t('adoptionRequests.sentOn')}: {new Date(req.createdAt).toLocaleDateString()}</p>
                                 </div>
                                  <div className="text-left sm:text-right">
                                     {getStatusPill(req.status)}

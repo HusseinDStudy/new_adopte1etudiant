@@ -113,21 +113,21 @@ const OfferListPage = () => {
   // Remove the mock metrics - we don't need them on this page
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl">
       {/* Page Header */}
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <h1 className="text-3xl font-bold text-gray-900 break-words">{t('offers.internshipAndApprenticeshipOffers')}</h1>
-            <p className="text-gray-600 mt-2">{t('offers.findTalentForYourNeeds')}</p>
+            <h1 className="break-words text-3xl font-bold text-gray-900">{t('offers.internshipAndApprenticeshipOffers')}</h1>
+            <p className="mt-2 text-gray-600">{t('offers.findTalentForYourNeeds')}</p>
           </div>
           {user?.role === 'STUDENT' && (
             <button
               onClick={refreshAppliedOffers}
-              className="flex items-center space-x-2 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:scale-105 hover:shadow-md transition-all duration-300 transform active:scale-95"
+              className="flex transform items-center space-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-50 hover:shadow-md active:scale-95"
               title={t('offers.refreshApplicationStatus')}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>{t('offers.refresh')}</span>
@@ -162,30 +162,30 @@ const OfferListPage = () => {
 
       {/* Results Section */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
+        <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
             <p className="mt-4 text-gray-600">{t('offers.loadingOffers')}</p>
           </div>
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <svg className="w-12 h-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+          <svg className="mx-auto mb-4 h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="text-lg font-medium text-red-800 mb-2">{t('offers.loadingError')}</h3>
+          <h3 className="mb-2 text-lg font-medium text-red-800">{t('offers.loadingError')}</h3>
           <p className="text-red-600">{error}</p>
         </div>
       ) : (
         <>
           {/* Results Header */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
                 {t('offers.foundOffers', { count: pagination?.total || 0 })}
               </h2>
               {displayedOffers.length > 0 && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="mt-1 text-sm text-gray-500">
                   {getSortDescription()}
                 </p>
               )}
@@ -193,7 +193,7 @@ const OfferListPage = () => {
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <span>{t('offers.sortBy')}:</span>
               <select
-                className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="rounded-lg border border-gray-300 bg-white px-3 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
               >
@@ -229,15 +229,15 @@ const OfferListPage = () => {
 
           {/* Empty State */}
           {displayedOffers.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="py-12 text-center">
+              <svg className="mx-auto mb-4 h-16 w-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
               </svg>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">{t('offers.noOffersFound')}</h3>
-              <p className="text-gray-500 mb-4">{t('offers.tryModifyingSearchCriteria')}</p>
+              <h3 className="mb-2 text-lg font-medium text-gray-900">{t('offers.noOffersFound')}</h3>
+              <p className="mb-4 text-gray-500">{t('offers.tryModifyingSearchCriteria')}</p>
               <button
                 onClick={clearFilters}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
               >
                 {t('offers.clearFilters')}
               </button>

@@ -69,9 +69,9 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="mt-4 text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -83,7 +83,7 @@ function App() {
       {/* Only show header for non-sidebar pages (public pages) */}
       {!isSidebarPage && <Header />}
 
-      <main className={isSidebarPage ? "" : "pt-4 px-4 pb-8 max-w-7xl mx-auto"}>
+      <main className={isSidebarPage ? "" : "mx-auto max-w-7xl px-4 pb-8 pt-4"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/offers" element={<OfferListPage />} />

@@ -1,0 +1,40 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  web:
+    name: Lint, Test, Build (Web)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared packages
+        run: npm run -w packages/shared-types build && npm run -w packages/ui-theme build
+
+      - name: Lint (apps/web)
+        run: npm run -w apps/web lint
+
+      - name: Unit tests (apps/web)
+        run: npm run -w apps/web test:no-coverage
+
+      - name: Build web app
+        run: npm run -w apps/web build
+
+      - name: Build Storybook (apps/web)
+        run: npm run -w apps/web storybook:build
+
+
