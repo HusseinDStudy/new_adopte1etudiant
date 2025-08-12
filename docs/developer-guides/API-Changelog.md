@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Admin-only metrics endpoint `GET /metrics`
+- Frontend propagates `X-Request-Id` header on all API requests; API uses and echoes it for cross-tier tracing
 - Enhanced Swagger UI with professional styling and examples
 - Comprehensive API integration guide
 - API troubleshooting documentation

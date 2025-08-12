@@ -1,12 +1,7 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 import { LoginInput, RegisterInput, CompleteOauthInput } from 'shared-types';
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-const apiClient = axios.create({
-  baseURL: API_URL,
-  withCredentials: true, // Important for sending cookies
-});
+// apiClient already configured with baseURL, credentials and X-Request-Id
 
 export const login = async (credentials: LoginInput) => {
   const { data } = await apiClient.post('/auth/login', credentials);

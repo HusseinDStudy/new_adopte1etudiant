@@ -45,7 +45,9 @@ const server = Fastify({
     const headerId = (req.headers['x-request-id'] || req.headers['x-correlation-id']) as string | undefined;
     return headerId || randomUUID();
   },
-  requestIdHeader: 'x-request-id'
+  requestIdHeader: 'x-request-id',
+  // Avoid default per-request logs; we log explicitly in hooks
+  disableRequestLogging: true
 });
 
 // Register Swagger documentation
@@ -61,7 +63,9 @@ const allowedOrigins = [
 
 server.register(cors, {
   origin: allowedOrigins,
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+  exposedHeaders: ['X-Request-Id']
 });
 server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
 server.register(cookie);

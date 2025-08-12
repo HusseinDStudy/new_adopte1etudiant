@@ -1,12 +1,5 @@
-import axios from 'axios';
+import apiClient from './apiClient';
 import { CreateOfferInput, UpdateOfferInput } from 'shared-types';
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-const apiClient = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-});
 
 export const listOffers = async (filters: { 
   search?: string, 

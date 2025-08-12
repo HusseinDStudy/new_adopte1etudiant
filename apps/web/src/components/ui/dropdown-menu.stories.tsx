@@ -28,7 +28,7 @@ export const LongList: StoryObj = {
       <DropdownMenuTrigger asChild>
         <button className="rounded bg-neutral-200 px-4 py-2">Open</button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 max-h-60 overflow-auto">
+      <DropdownMenuContent className="max-h-60 w-56 overflow-auto">
         {Array.from({ length: 30 }).map((_, i) => (
           <DropdownMenuItem key={i}>Item {i + 1}</DropdownMenuItem>
         ))}
