@@ -23,8 +23,36 @@ import { authSanitizationMiddleware } from '../middleware/sanitizationMiddleware
 import oauthPlugin from '@fastify/oauth2';
 import { prisma } from 'db-postgres';
 import jwt from 'jsonwebtoken';
+import rateLimit from '@fastify/rate-limit';
 
 async function authRoutes(server: FastifyInstance) {
+  // Tighter rate limits for sensitive endpoints
+  const loginLimiter = {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '1 minute',
+      },
+    },
+  } as const;
+
+  const verify2faLimiter = {
+    config: {
+      rateLimit: {
+        max: 6,
+        timeWindow: '10 minutes',
+      },
+    },
+  } as const;
+
+  const registerLimiter = {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '1 minute',
+      },
+    },
+  } as const;
   // Google OAuth2
   server.register(oauthPlugin, {
     name: 'google',
@@ -480,6 +508,7 @@ async function authRoutes(server: FastifyInstance) {
   server.post(
     '/register',
     {
+      ...(process.env.NODE_ENV !== 'test' ? registerLimiter : {}),
       preHandler: [authSanitizationMiddleware],
       schema: {
         description: 'Register a new user account. Use role "STUDENT" for students or "COMPANY" for companies. The request body structure changes based on the role.',
@@ -520,6 +549,7 @@ async function authRoutes(server: FastifyInstance) {
   server.post(
     '/login',
     {
+      ...(process.env.NODE_ENV !== 'test' ? loginLimiter : {}),
       schema: {
         description: 'Authenticate user and create session',
         tags: ['Authentication'],
@@ -557,6 +587,7 @@ async function authRoutes(server: FastifyInstance) {
   server.post(
     '/login/verify-2fa',
     {
+      ...(process.env.NODE_ENV !== 'test' ? verify2faLimiter : {}),
       schema: {
         description: 'Verify two-factor authentication code',
         tags: ['Authentication'],

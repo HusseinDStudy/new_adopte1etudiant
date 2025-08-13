@@ -1,6 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import cookie from '@fastify/cookie';
 import addFormats from 'ajv-formats';
 import { errorHandler } from '../middleware/errorHandler.js';
@@ -40,6 +41,12 @@ export async function buildTestApp(): Promise<FastifyInstance> {
   });
   await app.register(helmet);
   await app.register(cookie);
+  // Mirror production rate-limit plugin but disabled caps in tests
+  await app.register(rateLimit, {
+    global: true,
+    max: 1000, // effectively disabled for unit tests
+    timeWindow: '1 minute',
+  });
 
   // Register global error handler
   app.setErrorHandler(errorHandler);

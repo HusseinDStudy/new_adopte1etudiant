@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import { randomUUID } from 'node:crypto';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import cookie from '@fastify/cookie';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
@@ -67,8 +68,20 @@ server.register(cors, {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
   exposedHeaders: ['X-Request-Id']
 });
-server.register(helmet, { xssFilter: false }); // Disable XSS filter to prevent HTML encoding
+// Security headers
+server.register(helmet, {
+  // Disable CSP to avoid breaking Swagger UI; can be enabled with a tailored policy later
+  contentSecurityPolicy: false,
+});
 server.register(cookie);
+
+// Global rate limiting (disabled in tests)
+server.register(rateLimit, {
+  global: true,
+  max: 100,
+  timeWindow: '1 minute',
+  allowList: () => process.env.NODE_ENV === 'test',
+});
 
 // Register global error handler
 server.setErrorHandler(errorHandler);
