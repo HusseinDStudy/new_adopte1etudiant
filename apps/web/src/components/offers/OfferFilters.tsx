@@ -47,7 +47,7 @@ const OfferFilters: React.FC<OfferFiltersProps> = ({
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-gray-900">{t('offers.searchFilters')}</h3>
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">{t('offers.searchFilters')}</h2>
       
       {/* Search, Location and Company Row */}
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -98,8 +98,9 @@ const OfferFilters: React.FC<OfferFiltersProps> = ({
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Type Filter */}
         <div>
-          <h4 className="mb-3 font-medium text-gray-900">{t('offers.offerType')}</h4>
+          <label htmlFor="offer-type" className="mb-3 block font-medium text-gray-900">{t('offers.offerType')}</label>
           <select
+            id="offer-type"
             value={selectedType}
             onChange={(e) => onTypeChange(e.target.value)}
             disabled={offerTypesLoading}
@@ -109,7 +110,7 @@ const OfferFilters: React.FC<OfferFiltersProps> = ({
               <option value="">{t('loading.loadingTypes')}</option>
             ) : (
               typeOptions.map((type) => (
-                <option key={type} value={type === 'Tous les types' ? '' : type}>
+                <option key={type} value={type === t('common.all') ? '' : type}>
                   {type}
                 </option>
               ))
@@ -119,7 +120,7 @@ const OfferFilters: React.FC<OfferFiltersProps> = ({
 
         {/* Skills Filter */}
         <div>
-          <h4 className="mb-3 font-medium text-gray-900">{t('offers.filterBySkills')}</h4>
+          <h3 className="mb-3 font-medium text-gray-900">{t('offers.filterBySkills')}</h3>
           <SkillSelector
             skills={allSkills}
             selectedSkills={selectedSkills}

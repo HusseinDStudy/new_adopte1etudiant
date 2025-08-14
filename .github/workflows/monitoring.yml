@@ -8,6 +8,9 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    env:
+      MONITORING_BASE_URL: ${{ secrets.MONITORING_BASE_URL }}
+      MONITORING_WEB_URL: ${{ secrets.MONITORING_WEB_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,9 +24,18 @@ jobs:
         run: npm ci
 
       - name: Run monitoring checks (API + Performance)
-        env:
-          MONITORING_BASE_URL: ${{ secrets.MONITORING_BASE_URL }}
         run: npm run monitor:all:ci | cat
+
+      - name: Lighthouse (Web) — performance & a11y
+        if: env.MONITORING_WEB_URL != ''
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            ${{ env.MONITORING_WEB_URL }}
+          uploadArtifacts: true
+          configPath: ''
+          runs: 1
+          temporaryPublicStorage: true
 
       - name: Notify Slack on failure
         if: failure()

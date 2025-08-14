@@ -191,8 +191,12 @@ const OfferListPage = () => {
               )}
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span>{t('offers.sortBy')}:</span>
+              <label htmlFor="sort-by" className="shrink-0">
+                {t('offers.sortBy')}:
+              </label>
               <select
+                id="sort-by"
+                aria-label={t('offers.sortBy') || 'Sort by'}
                 className="rounded-lg border border-gray-300 bg-white px-3 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}

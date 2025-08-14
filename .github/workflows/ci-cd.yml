@@ -64,6 +64,11 @@ jobs:
           echo "Scanning for security vulnerabilities..."
           trivy fs --severity HIGH,CRITICAL . || echo "Security scan completed with findings"
 
+      - name: Lint API and Web
+        run: |
+          npm run lint --workspace=apps/api
+          npm run lint --workspace=apps/web
+
       - name: Setup Environment Variables
         run: |
           cd apps/api
@@ -82,14 +87,58 @@ jobs:
           npx prisma generate
           npx prisma migrate deploy
 
+      - name: Build dependent packages for API runtime
+        run: |
+          npm run build --workspace=packages/shared-types
+          npm run build --workspace=packages/core
+          npm run build --workspace=packages/db-postgres
+
+      - name: Start API server (background via tsx)
+        run: |
+          nohup npx tsx apps/api/src/index.ts > api_ci.log 2>&1 &
+          echo $! > api_server.pid
+          sleep 5
+
+      - name: Wait for API to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/health >/dev/null; then
+              echo "API is up"
+              exit 0
+            fi
+            echo "Waiting for API ($i/30)..."
+            sleep 2
+          done
+          echo "API did not start" >&2
+          tail -n 200 api_ci.log || true
+          exit 1
+
+      - name: Export OpenAPI Spec (JSON/YAML)
+        run: npm run docs:generate --workspace=apps/api || true
+
+      - name: Validate API documentation against implementation
+        run: npm run docs:validate --workspace=apps/api
+
+      - name: Stop API server
+        if: always()
+        run: |
+          if [ -f api_server.pid ]; then
+            kill $(cat api_server.pid) || true
+            sleep 2
+          fi
+
       - name: Run Linter
         run: npm run lint
 
       - name: Build Workspace Packages
         run: npm run build
 
+
       - name: Run Tests with Coverage
         run: npm run test:coverage --workspace=apps/api
+
+      - name: Run Web tests (no coverage)
+        run: npm run test:no-coverage --workspace=apps/web
 
       - name: Check Coverage Thresholds
         run: |

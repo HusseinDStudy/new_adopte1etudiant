@@ -11,6 +11,8 @@ vi.mock('../../context/AuthContext', () => ({
 // Mock i18n instance to silence init warnings
 vi.mock('../../i18n/index.ts', () => ({}));
 import { MemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '../../theme/ThemeProvider';
+import { A11yProvider } from '../../theme/A11yProvider';
 
 describe('ProfilePage a11y', () => {
   it('has no obvious a11y violations in student profile form layout', async () => {
@@ -21,7 +23,11 @@ describe('ProfilePage a11y', () => {
     }));
     const { container } = render(
       <MemoryRouter>
-        <ProfilePage />
+        <ThemeProvider>
+          <A11yProvider>
+            <ProfilePage />
+          </A11yProvider>
+        </ThemeProvider>
       </MemoryRouter>
     );
     expect(screen.getAllByRole('main')).toHaveLength(1);

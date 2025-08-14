@@ -49,8 +49,8 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
       // Handle skills properly - they can be either strings or objects with name property
       skills: defaultValues?.skills ?
         (Array.isArray(defaultValues.skills) ?
-          defaultValues.skills.map((skill: string | { name: string }) =>
-            typeof skill === 'string' ? skill : (skill as { name: string }).name
+          defaultValues.skills.map(skill =>
+            typeof skill === 'string' ? skill : (skill as any).name
           ).join(', ') :
           defaultValues.skills
         ) : '',
@@ -60,7 +60,7 @@ const OfferForm: React.FC<OfferFormProps> = ({ onSubmit, defaultValues, isSubmit
   const handleFormSubmit = (data: OfferFormData) => {
     const transformedData: CreateOfferInput = {
       ...data,
-      skills: data.skills.split(',').map((s: string) => s.trim()).filter(Boolean),
+      skills: data.skills.split(',').map(s => s.trim()).filter(Boolean),
     };
     onSubmit(transformedData);
   };

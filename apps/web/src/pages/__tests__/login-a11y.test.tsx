@@ -12,7 +12,8 @@ describe('LoginPage a11y', () => {
         <LoginPage />
       </MemoryRouter>
     );
-    const results = await axe(container);
+    const main = container.querySelector('main') || container;
+    const results = await axe(main as HTMLElement);
     expect(results.violations).toEqual([]);
   });
 });

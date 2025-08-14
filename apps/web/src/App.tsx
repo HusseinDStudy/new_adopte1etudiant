@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Header from './components/layout/Header';
@@ -53,12 +54,14 @@ import MissionsPage from './pages/MissionsPage';
 import PartnersPage from './pages/PartnersPage';
 import BlogPage from './pages/blog/BlogPage';
 import BlogPostPage from './pages/blog/BlogPostPage';
+import AccessibilityPage from './pages/AccessibilityPage';
 
 
 
 function App() {
   const { isLoading } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   // Check if we're on a page that uses SidebarLayout (authenticated pages)
   const isSidebarPage = location.pathname.startsWith('/dashboard-') ||
@@ -70,9 +73,9 @@ function App() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Chargement...</p>
+        <div className="text-center" role="status" aria-live="polite" aria-busy="true">
+          <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600 motion-reduce:animate-none"></div>
+          <p className="mt-4 text-gray-600">{t('loading.loading')}</p>
         </div>
       </div>
     );
@@ -83,7 +86,7 @@ function App() {
       {/* Only show header for non-sidebar pages (public pages) */}
       {!isSidebarPage && <Header />}
 
-      <main className={isSidebarPage ? "" : "mx-auto max-w-7xl px-4 pb-8 pt-4"}>
+      <main id="main-content" role="main" tabIndex={-1} className={isSidebarPage ? "" : "mx-auto max-w-7xl px-4 pb-8 pt-4"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/offers" element={<OfferListPage />} />
@@ -101,6 +104,7 @@ function App() {
           <Route path="/rgpd" element={<RGPDPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
+          <Route path="/accessibility" element={<AccessibilityPage />} />
 
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />

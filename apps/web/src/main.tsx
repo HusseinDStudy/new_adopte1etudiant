@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App.tsx';
 import { ThemeProvider } from './theme/ThemeProvider';
+import { A11yProvider } from './theme/A11yProvider';
 import './index.css';
 // tokens.css is imported in index.css
 import { AuthProvider } from './context/AuthContext.tsx';
@@ -18,7 +19,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     >
       <AuthProvider>
         <ThemeProvider>
-          <App />
+          <A11yProvider>
+            <App />
+          </A11yProvider>
         </ThemeProvider>
       </AuthProvider>
     </Router>

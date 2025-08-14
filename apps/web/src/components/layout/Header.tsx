@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import AccessibilityPanel from '../common/AccessibilityPanel';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 
 const Header: React.FC = () => {
@@ -73,7 +74,7 @@ const Header: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white pt-[env(safe-area-inset-top)] shadow-sm">
       <a href="#main-content" className="sr-only focus:not-sr-only">
-        Skip to main content
+        {t('a11y.skipToContent', { defaultValue: 'Skip to main content' })}
       </a>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
@@ -139,10 +140,11 @@ const Header: React.FC = () => {
           {/* Right side actions */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <LanguageSwitcher />
+            <AccessibilityPanel />
             {/* Mobile menu button */}
             <button
               className="rounded-md p-2 hover:bg-gray-100 md:hidden"
-              aria-label="Open menu"
+              aria-label={t('navigation.openMenu', { defaultValue: 'Open menu' })}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((v) => !v)}
             >
@@ -161,7 +163,7 @@ const Header: React.FC = () => {
                       ? 'bg-blue-50 text-blue-600'
                       : 'text-gray-400 hover:text-gray-500'
                   }`}
-                  title="Dashboard"
+                  title={t('dashboard.dashboard') || 'Dashboard'}
                   aria-label={t('dashboard.dashboard') || 'Dashboard'}
                 >
                   <svg className="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,7 +173,7 @@ const Header: React.FC = () => {
                 </Link>
 
                 {/* Notifications */}
-                <button className="relative p-2 text-gray-400 hover:text-gray-500" type="button" aria-label={t('notifications') || 'Notifications'}>
+                <button className="relative p-2 text-gray-400 hover:text-gray-500" type="button" aria-label={t('dashboard.notifications') || 'Notifications'}>
                   <svg className="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v2.25l2.25 2.25v2.25H2.25v-2.25L4.5 12V9.75a6 6 0 0 1 6-6z" />
                   </svg>
@@ -226,7 +228,7 @@ const Header: React.FC = () => {
                 </DropdownMenu>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="hidden items-center space-x-2 md:flex">
                 <Link
                   to="/login"
                   className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
@@ -253,7 +255,7 @@ const Header: React.FC = () => {
             aria-hidden="true"
             onClick={closeMobile}
           />
-          <div className="relative z-40 border-t border-gray-200 bg-white shadow-sm md:hidden" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+          <div className="relative z-40 border-t border-gray-200 bg-white shadow-sm md:hidden" role="dialog" aria-modal="true" aria-label={t('navigation.mobileNavigation', { defaultValue: 'Mobile navigation' })}>
           <nav ref={mobileMenuRef} className="mx-auto max-w-7xl space-y-1 px-4 py-3" aria-label="Mobile">
             <Link
               to="/offers"
@@ -291,7 +293,7 @@ const Header: React.FC = () => {
             >
               {t('navigation.contact')}
             </Link>
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <>
                 <Link to="/dashboard" onClick={closeMobile} className={`block rounded-md px-3 py-2 text-sm font-medium ${isActive('/dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`}>
                   {t('navigation.dashboard')}
@@ -305,6 +307,23 @@ const Header: React.FC = () => {
                 <button onClick={() => { closeMobile(); logout(); }} className="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-red-700 hover:bg-red-50">
                   {t('navigation.logout')}
                 </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={closeMobile}
+                  className={`block rounded-md px-3 py-2 text-sm font-medium ${isActive('/login') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                >
+                  {t('navigation.login')}
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={closeMobile}
+                  className={`block rounded-md px-3 py-2 text-sm font-medium ${isActive('/register') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                >
+                  {t('navigation.register')}
+                </Link>
               </>
             )}
           </nav>

@@ -8,7 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: ButtonSize;
 }
 
-const base = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+const base = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900';
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: 'bg-[color:var(--color-primary)] text-[color:var(--color-primary-foreground)] hover:brightness-110 focus-visible:ring-[color:var(--color-primary)]',

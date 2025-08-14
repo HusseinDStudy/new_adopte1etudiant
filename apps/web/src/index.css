@@ -28,6 +28,16 @@
 
 /* Custom utilities for blog */
 @layer utilities {
+  /* A11y global preference utility classes (toggled on html element) */
+  .a11y-font-lg { font-size: 112.5%; }
+  .a11y-font-xl { font-size: 125%; }
+  .a11y-underline-links a { text-decoration: underline; }
+  .a11y-grayscale img,
+  .a11y-grayscale video { filter: grayscale(100%); }
+  .a11y-reduce-motion *,
+  .a11y-reduce-motion *::before,
+  .a11y-reduce-motion *::after { transition: none !important; animation: none !important; }
+  .a11y-dyslexia body { letter-spacing: 0.02em; line-height: 1.7; }
   /* Ensure images/embeds in prose scale with container */
   .prose img,
   .prose video,

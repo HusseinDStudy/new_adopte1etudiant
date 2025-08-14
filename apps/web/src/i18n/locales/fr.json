@@ -189,7 +189,37 @@
     "settings": "Paramètres",
     "logout": "Déconnexion",
     "messages": "Messages",
-    "backToOffers": "Retour aux offres"
+    "backToOffers": "Retour aux offres",
+    "openMenu": "Ouvrir le menu",
+    "mobileNavigation": "Navigation mobile",
+    "accessibility": "Accessibilité"
+  },
+  "accessibilityPage": {
+    "title": "Accessibilité",
+    "intro": "Nous voulons que chacun puisse utiliser notre plateforme confortablement. Cette page explique les fonctionnalités d'accessibilité disponibles et comment les utiliser.",
+    "howToUseTitle": "Comment utiliser",
+    "howToUseText": "Utilisez le bouton ci-dessous ou celui de l'en-tête pour ouvrir le panneau d'accessibilité et définir vos préférences. Vos choix sont enregistrés dans votre navigateur.",
+    "featuresTitle": "Ce que vous pouvez ajuster",
+    "features": {
+      "textSize": "Augmentez la taille globale du texte pour une meilleure lisibilité.",
+      "reduceMotion": "Réduisez les animations et transitions non essentielles.",
+      "dyslexia": "Activez un réglage facilitant la lecture, avec plus d'espacement et une hauteur de ligne accrue.",
+      "underlineLinks": "Forcez le soulignement des liens pour une meilleure visibilité.",
+      "grayscale": "Affichez les images et vidéos en niveaux de gris pour réduire la fatigue visuelle."
+    },
+    "builtInTitle": "Accessibilité intégrée",
+    "builtIn": {
+      "keyboard": "Navigation complète au clavier avec styles de focus visibles.",
+      "skipLink": "Lien d'évitement pour aller directement au contenu principal.",
+      "contrast": "Contrastes de couleurs visant la conformité WCAG 2.2 AA.",
+      "semantic": "HTML sémantique et ARIA lorsque approprié.",
+      "focus": "Gestion du focus dans les boîtes de dialogue et menus.",
+      "responsive": "Interfaces responsives qui respectent les préférences système.",
+      "i18n": "Internationalisation avec contenus en français et anglais."
+    },
+    "standardsText": "Nous visons la conformité WCAG 2.2 AA. Si vous rencontrez un obstacle, merci de nous le signaler pour que nous puissions améliorer la plateforme.",
+    "contactTitle": "Besoin d'aide ou avez-vous trouvé un problème ?",
+    "contactText": "Contactez-nous à {{email}}. Nous répondons généralement sous 24 heures ouvrées."
   },
   "auth": {
     "login": "Connexion",
@@ -1206,6 +1236,47 @@
     "cookies": "Cookies",
     "legalNotice": "Mentions légales",
     "gdpr": "RGPD"
+  },
+  "language": {
+    "switchToEnglish": "Passer en anglais",
+    "switchToFrench": "Passer en français"
+  },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal",
+    "openPanel": "Accessibilité",
+    "title": "Préférences d'accessibilité",
+    "description": "Ajustez la taille du texte, les animations et d'autres préférences.",
+    "textSize": {
+      "label": "Taille du texte",
+      "normal": "Normale",
+      "large": "Grande",
+      "xlarge": "Très grande"
+    },
+    "motion": {
+      "label": "Mouvements",
+      "reduce": "Réduire les animations"
+    },
+    "reading": {
+      "label": "Lecture",
+      "dyslexiaFont": "Police adaptée à la dyslexie",
+      "underlineLinks": "Souligner les liens",
+      "grayscaleMedia": "Images et médias en niveaux de gris"
+    },
+    "reset": "Réinitialiser par défaut",
+    "sr": {
+      "textSizeSetNormal": "Taille du texte définie sur normale",
+      "textSizeSetLarge": "Taille du texte définie sur grande",
+      "textSizeSetXlarge": "Taille du texte définie sur très grande",
+      "reduceMotionEnabled": "Réduction des animations activée",
+      "reduceMotionDisabled": "Réduction des animations désactivée",
+      "dyslexiaEnabled": "Police adaptée à la dyslexie activée",
+      "dyslexiaDisabled": "Police adaptée à la dyslexie désactivée",
+      "underlineLinksEnabled": "Soulignement des liens activé",
+      "underlineLinksDisabled": "Soulignement des liens désactivé",
+      "grayscaleEnabled": "Médias en niveaux de gris activés",
+      "grayscaleDisabled": "Médias en niveaux de gris désactivés",
+      "reset": "Préférences d'accessibilité réinitialisées"
+    }
   },
   "companyOffers": {
     "title": "Gérer vos offres",

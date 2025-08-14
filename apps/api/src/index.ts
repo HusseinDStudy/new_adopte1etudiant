@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import Fastify from 'fastify';
 import { randomUUID } from 'node:crypto';
 import cors from '@fastify/cors';
@@ -153,7 +154,7 @@ server.get('/health', {
     return { status: 'ok', timestamp: new Date().toISOString(), database: 'connected' };
   } catch (error) {
     // Return unhealthy status if database is not accessible
-    server.log.error('Health check failed:', error);
+    server.log.error({ err: error }, 'Health check failed');
     return _reply.code(503).send({ 
       status: 'error', 
       timestamp: new Date().toISOString(), 
@@ -299,7 +300,7 @@ const start = async () => {
       }
     }, 5000);
   } catch (err) {
-    server.log.error('💥 Server startup failed:', err);
+    server.log.error({ err }, '💥 Server startup failed');
     console.error('💥 Detailed startup error:', err);
     process.exit(1);
   }

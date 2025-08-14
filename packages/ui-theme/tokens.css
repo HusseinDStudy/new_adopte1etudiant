@@ -50,17 +50,6 @@
   --color-error: #f87171;
 }
 
-[data-theme='high-contrast'] {
-  --color-primary: #0000ff;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #ffff00;
-  --color-neutral-50: #000000;
-  --color-neutral-100: #0d0d0d;
-  --color-neutral-200: #1a1a1a;
-  --color-neutral-700: #e5e5e5;
-  --color-neutral-900: #ffffff;
-  --color-success: #00ff00;
-  --color-error: #ff0000;
-}
+/* High-contrast theme removed; ensure default tokens meet WCAG AA */
 
 

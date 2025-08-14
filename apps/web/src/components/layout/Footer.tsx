@@ -128,6 +128,9 @@ const Footer: React.FC = () => {
               {t('footer.copyright')}
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-sm md:justify-end">
+              <Link to="/accessibility" className="text-gray-400 transition-colors hover:text-white">
+                {t('navigation.accessibility', { defaultValue: 'Accessibility' })}
+              </Link>
               <Link to="/privacy" className="text-gray-400 transition-colors hover:text-white">
                 {t('footer.privacyPolicy')}
               </Link>

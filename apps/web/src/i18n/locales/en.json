@@ -136,7 +136,37 @@
     "settings": "Settings",
     "logout": "Logout",
     "messages": "Messages",
-    "backToOffers": "Back to offers"
+    "backToOffers": "Back to offers",
+    "openMenu": "Open menu",
+    "mobileNavigation": "Mobile navigation",
+    "accessibility": "Accessibility"
+  },
+  "accessibilityPage": {
+    "title": "Accessibility",
+    "intro": "We want everyone to use our platform comfortably. This page explains the accessibility features available and how to use them.",
+    "howToUseTitle": "How to use",
+    "howToUseText": "Use the button below or the header button to open the accessibility panel and set your preferences. Your choices are saved in your browser.",
+    "featuresTitle": "What you can adjust",
+    "features": {
+      "textSize": "Increase overall text size for better readability.",
+      "reduceMotion": "Reduce non-essential animations and transitions.",
+      "dyslexia": "Enable a reading-friendly setting that increases spacing and line-height.",
+      "underlineLinks": "Force underlines on links to improve visibility.",
+      "grayscale": "Display images and videos in grayscale to reduce visual fatigue."
+    },
+    "builtInTitle": "Built-in accessibility",
+    "builtIn": {
+      "keyboard": "Full keyboard navigation with visible focus styles.",
+      "skipLink": "Skip link to jump directly to the main content.",
+      "contrast": "Color contrast aiming to meet WCAG 2.2 AA.",
+      "semantic": "Semantic HTML and ARIA where appropriate.",
+      "focus": "Managed focus in dialogs and menus.",
+      "responsive": "Responsive layouts that respect system preferences.",
+      "i18n": "Internationalization with English and French content."
+    },
+    "standardsText": "We aim to meet WCAG 2.2 AA. If you encounter a barrier, please let us know so we can improve.",
+    "contactTitle": "Need help or found an issue?",
+    "contactText": "Contact us at {{email}}. We aim to respond within 24 business hours."
   },
   "auth": {
     "login": "Login",
@@ -1249,6 +1279,47 @@
     "cookies": "Cookies",
     "legalNotice": "Legal Notice",
     "gdpr": "GDPR"
+  },
+  "language": {
+    "switchToEnglish": "Switch to English",
+    "switchToFrench": "Switch to French"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "openPanel": "Accessibility",
+    "title": "Accessibility preferences",
+    "description": "Adjust text size, motion and other preferences.",
+    "textSize": {
+      "label": "Text size",
+      "normal": "Normal",
+      "large": "Large",
+      "xlarge": "Extra-large"
+    },
+    "motion": {
+      "label": "Motion",
+      "reduce": "Reduce motion"
+    },
+    "reading": {
+      "label": "Reading",
+      "dyslexiaFont": "Dyslexia-friendly font",
+      "underlineLinks": "Underline links",
+      "grayscaleMedia": "Grayscale images and media"
+    },
+    "reset": "Reset to defaults",
+    "sr": {
+      "textSizeSetNormal": "Text size set to normal",
+      "textSizeSetLarge": "Text size set to large",
+      "textSizeSetXlarge": "Text size set to extra large",
+      "reduceMotionEnabled": "Reduced motion enabled",
+      "reduceMotionDisabled": "Reduced motion disabled",
+      "dyslexiaEnabled": "Dyslexia-friendly font enabled",
+      "dyslexiaDisabled": "Dyslexia-friendly font disabled",
+      "underlineLinksEnabled": "Underline links enabled",
+      "underlineLinksDisabled": "Underline links disabled",
+      "grayscaleEnabled": "Grayscale media enabled",
+      "grayscaleDisabled": "Grayscale media disabled",
+      "reset": "Accessibility preferences reset to defaults"
+    }
   },
   "editOffer": {
     "title": "Edit Offer",
