@@ -19,16 +19,16 @@ We believe that **quality is everyone's responsibility** and that automated test
 Our testing strategy follows the testing pyramid principle:
 
 ```
-                    /\
-                   /  \
+                    / \
+                   /   \
                   / E2E \
-                 /______\
-                /        \
+                 /_______\
+                /         \
                /Integration\
-              /__________\
-             /            \
-            /     Unit      \
-           /________________\
+              /_____________\
+             /               \
+            /       Unit      \
+           /___________________\
 ```
 
 1. **Unit Tests (Foundation)**: Fast, isolated tests for business logic

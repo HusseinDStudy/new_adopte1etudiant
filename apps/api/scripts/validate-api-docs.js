@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const API_BASE_URL = process.env.API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.API_URL;
 const DOCS_PATH = path.join(__dirname, '../docs');
 const SPEC_URL = `${API_BASE_URL}/docs/json`;
 

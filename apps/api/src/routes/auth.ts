@@ -65,7 +65,7 @@ async function authRoutes(server: FastifyInstance) {
       auth: oauthPlugin.GOOGLE_CONFIGURATION,
     },
     startRedirectPath: '/google',
-    callbackUri: `${process.env.API_URL}:${process.env.PORT}/auth/google/callback`,
+    callbackUri: `${process.env.API_URL}:${process.env.API_PORT}/auth/google/callback`,
   });
 
   server.register(oauthPlugin, {
@@ -79,7 +79,7 @@ async function authRoutes(server: FastifyInstance) {
       auth: oauthPlugin.GOOGLE_CONFIGURATION,
     },
     startRedirectPath: '/google/delete',
-    callbackUri: `${process.env.API_URL}:${process.env.PORT}/auth/google/delete-callback`,
+    callbackUri: `${process.env.API_URL}:${process.env.API_PORT}/auth/google/delete-callback`,
   });
 
   server.get('/google/callback', {
@@ -751,12 +751,38 @@ async function authRoutes(server: FastifyInstance) {
     {
       onRequest: [authMiddleware],
       schema: {
+        description: 'Change the current user\'s password. Requires the current password for verification.',
+        tags: ['Authentication'],
+        summary: 'Change user password',
+        security: [{ cookieAuth: [] }],
         body: {
           type: 'object',
           required: ['currentPassword', 'newPassword'],
           properties: {
-            currentPassword: { type: 'string' },
-            newPassword: { type: 'string', minLength: 8 }
+            currentPassword: { type: 'string', example: 'OldSecurePassword123' },
+            newPassword: { type: 'string', minLength: 8, example: 'NewSecurePassword456' }
+          }
+        },
+        response: {
+          200: {
+            description: 'Password changed successfully',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          401: {
+            description: 'Not authenticated or invalid current password',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          400: {
+            description: 'Invalid new password format',
+            type: 'object',
+            properties: { message: { type: 'string' } }
+          },
+          500: {
+            description: 'Internal server error',
+            type: 'object',
+            properties: { message: { type: 'string' } }
           }
         }
       }

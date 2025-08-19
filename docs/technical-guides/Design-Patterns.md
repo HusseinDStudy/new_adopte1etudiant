@@ -1,6 +1,6 @@
 # Software Design Patterns
 
-This document describes the key software design patterns used in the "AdopteUnEtudiant" project. These patterns provide proven solutions to common problems, helping to ensure the codebase is scalable, maintainable, and robust.
+This document describes the key software design patterns used in the `Adopte1Etudiant` project. These patterns provide proven solutions to common problems, helping to ensure the codebase is scalable, maintainable, and robust.
 
 ---
 
@@ -95,3 +95,29 @@ This is the core pattern of **React**.
 
 *   **What it is**: A fundamental pattern where you render different UI elements or components based on the current state of the application.
 *   **Example**: Displaying a "Loading..." message while data is being fetched, showing user-specific controls if `user` exists in the `AuthContext`, or rendering an error message if an API call fails.
+
+---
+
+## 4. Key Frameworks Used
+
+This section summarizes the main frameworks and libraries used across the project.
+
+### a. Backend Frameworks
+
+- **Fastify**: High-performance, low-overhead web framework for Node.js.
+- **Prisma**: Next-generation ORM for Node.js and TypeScript.
+- **Zod**: TypeScript-first schema declaration and validation library.
+- **Swagger**: For automatic API documentation generation (via `@fastify/swagger`).
+- **Vitest**: Testing framework for Node.js and browsers.
+- **Supertest**: Library for testing HTTP servers.
+
+### b. Frontend Frameworks
+
+- **React**: JavaScript library for building user interfaces.
+- **Vite**: Next-generation frontend tooling for fast development.
+- **React Router**: Declarative routing for React.
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development.
+
+### c. Monorepo Tooling
+
+- **Turborepo**: High-performance build system for JavaScript and TypeScript monorepos.

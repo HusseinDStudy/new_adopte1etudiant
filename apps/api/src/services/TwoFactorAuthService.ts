@@ -4,7 +4,7 @@ import qrcode from 'qrcode';
 import bcrypt from 'bcryptjs';
 import { ValidationError, NotFoundError } from '../errors/AppError.js';
 
-const APP_NAME = 'AdopteUnEtudiant';
+const APP_NAME = 'Adopte1Etudiant';
 
 export interface TwoFactorSetupResult {
   secret: string;
