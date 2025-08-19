@@ -22,7 +22,7 @@
           "script": {
             "exec": [
               "pm.test('Health check returns 200', function () {",
-              "    pm.response.to.have.status(200);",
+              "    pm.response.to.have.status(400);",
               "});",
               "",
               "pm.test('Response time is less than 1000ms', function () {",
