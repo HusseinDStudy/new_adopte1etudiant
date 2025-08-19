@@ -28,7 +28,7 @@ import { Role } from '@prisma/client';
 
 const server = Fastify({
   logger: {
-    level: process.env.LOG_LEVEL || 'info',
+    level: process.env.LOG_LEVEL,
     // Redact sensitive fields from logs
     redact: {
       paths: [
@@ -49,7 +49,8 @@ const server = Fastify({
   },
   requestIdHeader: 'x-request-id',
   // Avoid default per-request logs; we log explicitly in hooks
-  disableRequestLogging: true
+  disableRequestLogging: true,
+  ajv: { customOptions: { strict: false } }
 });
 
 // Register Swagger documentation
@@ -59,8 +60,6 @@ server.register(swaggerUi, swaggerUiConfig);
 // Register plugins
 const allowedOrigins = [
   process.env.WEB_APP_URL,
-  'http://localhost:5173',
-  'http://localhost:5174'
 ].filter(Boolean) as string[];
 
 server.register(cors, {
@@ -211,7 +210,7 @@ server.get('/metrics', {
 console.log('Starting Adopte1Etudiant API Server...');
 console.log('Environment:', {
   NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT || 8080,
+  PORT: process.env.API_PORT,
   DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
   JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET'
 });
@@ -285,8 +284,9 @@ const start = async () => {
     
     // Then start the server
     console.log('🚀 Starting Fastify server...');
-    await server.listen({ port: 8080, host: '0.0.0.0' });
-    console.log('✅ Server started successfully on port 8080');
+    const listenPort = process.env.API_PORT ? Number(process.env.API_PORT) : 8080;
+    await server.listen({ port: listenPort, host: '0.0.0.0' });
+    console.log(`✅ Server started successfully on port ${listenPort}`);
     console.log('🔍 Health check endpoint available at: http://localhost:8080/health');
     
     // Test health check endpoint immediately
