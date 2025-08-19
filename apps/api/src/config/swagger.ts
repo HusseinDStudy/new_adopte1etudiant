@@ -1,4 +1,8 @@
 import { FastifyDynamicSwaggerOptions } from '@fastify/swagger';
+import { FastifyRequest, FastifyReply } from 'fastify';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+const baseDocUrl = isDevelopment ? 'http://localhost:8080' : 'https://api.adopte1etudiant.com';
 
 export const swaggerConfig: FastifyDynamicSwaggerOptions = {
   openapi: {
@@ -121,13 +125,11 @@ Check out the endpoint examples below to see how to:
       contact: {
         name: 'API Support',
         email: 'support@adopte1etudiant.com',
-        url: 'https://adopte1etudiant.com/support'
       },
       license: {
         name: 'MIT',
         url: 'https://opensource.org/licenses/MIT'
       },
-      termsOfService: 'https://adopte1etudiant.com/terms'
     },
     servers: [
       {
@@ -634,83 +636,43 @@ Check out the endpoint examples below to see how to:
     tags: [
       {
         name: 'Authentication',
-        description: '🔐 **User Authentication & Account Management**\n\nComplete authentication system with JWT tokens, OAuth integration, and two-factor authentication support. Manage user accounts, passwords, and security settings.',
-        externalDocs: {
-          description: 'Authentication Guide',
-          url: 'https://docs.adopte1etudiant.com/auth'
-        }
+        description: '🔐 **User Authentication & Account Management**\n\nComplete authentication system with JWT tokens, OAuth integration, and two-factor authentication support. Manage user accounts, passwords, and security settings.'
       },
       {
         name: 'Profile',
-        description: '👤 **User Profile Management**\n\nManage student and company profiles with role-specific data structures. Handle personal information, skills, CV uploads, and profile visibility settings.',
-        externalDocs: {
-          description: 'Profile Management Guide',
-          url: 'https://docs.adopte1etudiant.com/profiles'
-        }
+        description: '👤 **User Profile Management**\n\nManage student and company profiles with role-specific data structures. Handle personal information, skills, CV uploads, and profile visibility settings.'
       },
       {
         name: 'Offers',
-        description: '💼 **Job & Internship Offers**\n\nComplete CRUD operations for job offers. Companies can create, update, and manage their job postings while students can browse and search available opportunities.',
-        externalDocs: {
-          description: 'Offers Management Guide',
-          url: 'https://docs.adopte1etudiant.com/offers'
-        }
+        description: '💼 **Job & Internship Offers**\n\nComplete CRUD operations for job offers. Companies can create, update, and manage their job postings while students can browse and search available opportunities.'
       },
       {
         name: 'Applications',
-        description: '📝 **Job Applications Management**\n\nHandle the complete application lifecycle from submission to hiring. Students can apply to offers and track their application status, while companies can review and update application statuses.',
-        externalDocs: {
-          description: 'Applications Guide',
-          url: 'https://docs.adopte1etudiant.com/applications'
-        }
+        description: '📝 **Job Applications Management**\n\nHandle the complete application lifecycle from submission to hiring. Students can apply to offers and track their application status, while companies can review and update application statuses.'
       },
       {
         name: 'Messages',
-        description: '💬 **Real-time Messaging System**\n\nSecure messaging platform enabling direct communication between students and companies. Manage conversations, send messages, and maintain communication history.',
-        externalDocs: {
-          description: 'Messaging Guide',
-          url: 'https://docs.adopte1etudiant.com/messaging'
-        }
+        description: '💬 **Real-time Messaging System**\n\nSecure messaging platform enabling direct communication between students and companies. Manage conversations, send messages, and maintain communication history.'
       },
       {
         name: 'Students',
-        description: '🎓 **Student Discovery & Management**\n\nCompany-exclusive endpoints for discovering and browsing available students. Filter by skills, education, and availability status to find the perfect candidates.',
-        externalDocs: {
-          description: 'Student Discovery Guide',
-          url: 'https://docs.adopte1etudiant.com/students'
-        }
+        description: '🎓 **Student Discovery & Management**\n\nCompany-exclusive endpoints for discovering and browsing available students. Filter by skills, education, and availability status to find the perfect candidates.'
       },
       {
         name: 'Companies',
-        description: '🏢 **Company Directory & Information**\n\nPublic directory of companies with their active job offers. Browse company profiles, sectors, and available opportunities.',
-        externalDocs: {
-          description: 'Company Directory Guide',
-          url: 'https://docs.adopte1etudiant.com/companies'
-        }
+        description: '🏢 **Company Directory & Information**\n\nPublic directory of companies with their active job offers. Browse company profile  s, sectors, and available opportunities.'
       },
       {
         name: 'Skills',
-        description: '🛠️ **Skills Database & Management**\n\nComprehensive skills database for autocomplete and filtering. Manage skill categories, popularity, and usage statistics across the platform.',
-        externalDocs: {
-          description: 'Skills Management Guide',
-          url: 'https://docs.adopte1etudiant.com/skills'
-        }
+        description: '🛠️ **Skills Database & Management**\n\nComprehensive skills database for autocomplete and filtering. Manage skill categories, popularity, and usage statistics across the platform.'
       },
       {
         name: 'Adoption Requests',
-        description: '🤝 **Direct Student Adoption System**\n\nUnique feature allowing companies to directly reach out to students with personalized opportunities. Manage adoption requests and responses.',
-        externalDocs: {
-          description: 'Adoption Requests Guide',
-          url: 'https://docs.adopte1etudiant.com/adoption-requests'
-        }
+        description: '🤝 **Direct Student Adoption System**\n\nUnique feature allowing companies to directly reach out to students with personalized opportunities. Manage adoption requests and responses.'
       },
       {
         name: '2FA',
-        description: '🔒 **Two-Factor Authentication**\n\nAdvanced security features with TOTP-based two-factor authentication. Generate QR codes, manage backup codes, and enhance account security.',
-        externalDocs: {
-          description: '2FA Setup Guide',
-          url: 'https://docs.adopte1etudiant.com/2fa'
-        }
+        description: '🔒 **Two-Factor Authentication**\n\nAdvanced security features with TOTP-based two-factor authentication. Generate QR codes, manage backup codes, and enhance account security.'
       }
     ]
   }
@@ -736,12 +698,12 @@ export const swaggerUiConfig = {
     validatorUrl: null
   },
   uiHooks: {
-    onRequest: function (_request: any, _reply: any, next: any) { next() },
-    preHandler: function (_request: any, _reply: any, next: any) { next() }
+    onRequest: function (_request: FastifyRequest, _reply: FastifyReply, next: () => void) { next() },
+    preHandler: function (_request: FastifyRequest, _reply: FastifyReply, next: () => void) { next() }
   },
   staticCSP: true,
   transformStaticCSP: (header: string) => header,
-  transformSpecification: (swaggerObject: any, _request: any, _reply: any) => {
+  transformSpecification: (swaggerObject: Record<string, any>, _request: FastifyRequest, _reply: FastifyReply) => {
     // Add custom branding and additional info
     swaggerObject.info.title = '🎓 ' + swaggerObject.info.title;
     return swaggerObject;
