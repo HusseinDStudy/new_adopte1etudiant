@@ -16,7 +16,7 @@ To ensure optimal application performance and reliability, we track the followin
 We leverage a combination of automated probes and specialized tools for continuous monitoring:
 
 ### Automated Probes
-- **Health Checks**: The `/health` endpoint on the API (`http://localhost:8080/health` or `http://your-domain.com/api/health`) provides a simple status check, returning `status=ok` on success.
+- **Health Checks**: The `/health` endpoint on the API (`http://localhost:8080/health` or `https://your-domain.com/api/health`) provides a simple status check, returning `status=ok` on success.
 - **Metrics Endpoint**: An admin-only `GET /metrics` endpoint provides detailed application metrics for Prometheus scraping (see section 3.2).
 
 ### Dedicated Monitoring Tools
