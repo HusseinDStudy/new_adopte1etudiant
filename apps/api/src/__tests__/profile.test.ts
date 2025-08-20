@@ -82,7 +82,7 @@ describe('Profile Routes', () => {
         expect(response.status).toBe(200);
         expect(response.body.school).toBe(profileData.school);
         expect(response.body.skills.length).toBe(3);
-        expect(response.body.skills.map((s: any) => s.skill.name).sort()).toEqual(['Node.js', 'React', 'TypeScript']);
+        expect(response.body.skills.sort()).toEqual(['Node.js', 'React', 'TypeScript']);
 
         // Verify skills were created in the DB
         const skills = await prisma.skill.findMany();
@@ -115,7 +115,7 @@ describe('Profile Routes', () => {
         expect(response.status).toBe(200);
         expect(response.body.school).toBe(updatedProfileData.school);
         expect(response.body.skills.length).toBe(2);
-        expect(response.body.skills.map((s: any) => s.skill.name).sort()).toEqual(['Django', 'Python']);
+        expect(response.body.skills.sort()).toEqual(['Django', 'Python']);
 
         // Verify old skill connection is gone and new ones are there
         const dbProfile = await prisma.studentProfile.findUnique({

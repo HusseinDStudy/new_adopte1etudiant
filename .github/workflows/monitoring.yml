@@ -24,7 +24,7 @@ jobs:
         run: npm ci
 
       - name: Run monitoring checks (API + Performance)
-        run: npm run monitor:all:ci | cat
+        run: npm run monitor:all:ci
 
       - name: Lighthouse (Web) — performance & a11y
         if: env.MONITORING_WEB_URL != ''

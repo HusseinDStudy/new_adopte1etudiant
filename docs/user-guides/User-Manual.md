@@ -41,6 +41,24 @@ A complete profile is key to attracting companies.
 *   **Match Score**: When you are logged in, each offer will display a `matchScore`. This score is calculated based on how well the skills required for the offer match the skills on your profile. Offers are sorted with the highest match score first, helping you see the most relevant opportunities at a glance.
 *   **Applying**: Click on an offer to see the details. If you are interested, click the "Apply" button. Your application will be sent to the company.
 
+### d. Two-Factor Authentication (2FA)
+
+For enhanced security, you can enable Two-Factor Authentication (2FA) for your account.
+
+1.  **Generate Secret**: Go to your profile settings and find the 2FA section. Click to generate a new secret. A QR code and a secret key will be displayed.
+2.  **Scan with Authenticator App**: Use an authenticator app (e.g., Google Authenticator, Authy) on your smartphone to scan the QR code or manually enter the secret key.
+3.  **Verify Setup**: Enter the 6-digit code displayed in your authenticator app into the verification field on the platform.
+4.  **Save Backup Codes**: Once verified, you will be provided with backup codes. **It is crucial to save these codes in a secure place**, as they are the only way to access your account if you lose your authenticator device.
+
+### e. Google Account Integration
+
+You can link your Google account for easier login and registration.
+
+1.  **Link Account**: From the login or registration page, click "Sign in with Google".
+2.  **Authorize**: You will be redirected to Google to authorize the connection. Follow the prompts.
+3.  **Complete Registration**: If you are a new user, you will be prompted to complete any missing profile details (e.g., choosing a student or company role).
+4.  **Seamless Login**: Once linked, you can log in using your Google account directly.
+
 ### c. Managing Your Activities
 
 *   **My Applications**: On this page, you can track the status of all the applications you have sent. You will see if they are pending, accepted, or rejected by the company.
@@ -82,3 +100,9 @@ A direct line of communication is opened when:
 *   A student **accepts** a company's adoption request.
 
 Once a connection is made, a conversation thread will appear in the messaging interface, allowing the student and company to chat directly, schedule interviews, and discuss further details. 
+
+---
+
+## 5. Admin Functionalities (Internal Use Only)
+
+This section is for internal administrators only and describes features related to user management, content moderation, and system analytics. Access to these features requires specific administrative roles and is not available to regular student or company users.

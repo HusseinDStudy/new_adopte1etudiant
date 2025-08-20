@@ -19,7 +19,7 @@ async function companyRoutes(server: FastifyInstance) {
           sector: { type: 'string', description: 'Filter by company sector' },
           size: { type: 'string', description: 'Filter by company size' },
           hasOffers: { type: 'boolean', description: 'Filter companies that have active offers', default: true }
-        }
+        },
       },
       response: {
         200: {

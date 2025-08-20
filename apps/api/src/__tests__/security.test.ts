@@ -431,14 +431,14 @@ describe('Security Tests', () => {
 
             // Company2 tries to access the conversation
             const unauthorizedResponse = await supertest(app.server)
-                .get(`/api/messages/conversations/${conversationId}/messages`)
+                .get(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${company2.authToken}`);
 
             expect(unauthorizedResponse.status).toBe(403);
 
             // Company2 tries to send a message
             const unauthorizedMessageResponse = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${company2.authToken}`)
                 .send({ content: 'Unauthorized message' });
 

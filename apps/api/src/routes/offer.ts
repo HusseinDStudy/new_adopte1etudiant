@@ -23,7 +23,7 @@ async function offerRoutes(server: FastifyInstance) {
       description: 'Get all available job offers with optional filtering',
       tags: ['Offers'],
       summary: 'List all offers',
-              querystring: {
+      querystring: {
           type: 'object',
           properties: {
             page: { type: 'integer', minimum: 1, default: 1 },
@@ -34,7 +34,7 @@ async function offerRoutes(server: FastifyInstance) {
             companyName: { type: 'string', description: 'Filter by company name' },
             type: { type: 'string', description: 'Filter by offer type (duration)' },
             sortBy: { type: 'string', enum: ['recent', 'relevance', 'location'], description: 'Sort order for offers' }
-          }
+          },
         },
       response: {
         200: {
@@ -198,7 +198,7 @@ async function offerRoutes(server: FastifyInstance) {
             properties: { message: { type: 'string' } }
           }
         }
-      },
+      }
     },
     listMyOffers
   );
@@ -298,7 +298,7 @@ async function offerRoutes(server: FastifyInstance) {
             properties: { message: { type: 'string' } }
           }
         }
-      },
+      }
     },
     getOfferApplications as any
   );
@@ -350,7 +350,7 @@ async function offerRoutes(server: FastifyInstance) {
             }
           }
         }
-      },
+      }
     },
     createOffer as any
   );
@@ -407,7 +407,7 @@ async function offerRoutes(server: FastifyInstance) {
             properties: { message: { type: 'string' } }
           }
         }
-      },
+      }
     },
     updateOffer as any
   );
@@ -464,7 +464,7 @@ async function offerRoutes(server: FastifyInstance) {
             properties: { message: { type: 'string' } }
           }
         }
-      },
+      }
     },
     updateOffer as any
   );
@@ -509,7 +509,7 @@ async function offerRoutes(server: FastifyInstance) {
             properties: { message: { type: 'string' } }
           }
         }
-      },
+      }
     },
     deleteOffer as any
   );

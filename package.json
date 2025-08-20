@@ -1,5 +1,6 @@
 {
   "name": "adopte1etudiant-mvp",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "packageManager": "npm@10.8.2",
@@ -79,8 +80,10 @@
   ],
   "dependencies": {
     "@eslint-community/regexpp": "^4.12.1",
+    "@oclif/errors": "^1.3.6",
     "@prisma/client": "^6.12.0",
-    "artillery": "^2.0.15",
+    "artillery": "^2.0.24",
+    "dir-glob": "^3.0.1",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
     "validator": "^13.15.15"

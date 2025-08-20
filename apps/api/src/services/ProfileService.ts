@@ -65,7 +65,7 @@ export class ProfileService {
 
     // Handle student-specific fields
     if (role === 'STUDENT' && 'skills' in profile) {
-      flattenedProfile.skills = (profile.skills as any) || [];
+      flattenedProfile.skills = (profile.skills as any[]).map((s: any) => s.skill.name) || [];
 
       // Handle cvUrl - only include if it's a valid string
       if ('cvUrl' in profileData && (profileData as any).cvUrl) {

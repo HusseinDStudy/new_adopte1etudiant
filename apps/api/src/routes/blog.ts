@@ -36,7 +36,7 @@ async function blogRoutes(server: FastifyInstance) {
           featured: { type: 'boolean', description: 'Filter featured posts' },
           page: { type: 'integer', minimum: 1, default: 1 },
           limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
-        }
+        },
       },
       response: {
         200: {
@@ -60,8 +60,8 @@ async function blogRoutes(server: FastifyInstance) {
                   featured: { type: 'boolean' },
                   publishedAt: { type: 'string', format: 'date-time' },
                   createdAt: { type: 'string', format: 'date-time' },
-                }
-              }
+                },
+              },
             },
             pagination: {
               type: 'object',
@@ -70,12 +70,12 @@ async function blogRoutes(server: FastifyInstance) {
                 limit: { type: 'integer' },
                 total: { type: 'integer' },
                 totalPages: { type: 'integer' },
-              }
-            }
-          }
-        }
-      }
-    }
+              },
+            },
+          },
+        },
+      },
+    },
   }, getPublishedPosts);
 
   server.get('/posts/:slug', {
@@ -88,7 +88,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           slug: { type: 'string', description: 'Blog post slug' }
         },
-        required: ['slug']
+        required: ['slug'],
       },
       response: {
         200: {
@@ -107,13 +107,13 @@ async function blogRoutes(server: FastifyInstance) {
             publishedAt: { type: 'string', format: 'date-time' },
             metaTitle: { type: 'string' },
             metaDescription: { type: 'string' },
-          }
+          },
         },
         404: {
           description: 'Blog post not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, getPostBySlug);
@@ -128,13 +128,13 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           slug: { type: 'string', description: 'Blog post slug' }
         },
-        required: ['slug']
+        required: ['slug'],
       },
       querystring: {
         type: 'object',
         properties: {
           limit: { type: 'integer', minimum: 1, maximum: 10, default: 3 }
-        }
+        },
       },
       response: {
         200: {
@@ -152,10 +152,10 @@ async function blogRoutes(server: FastifyInstance) {
               author: { type: 'string' },
               readTime: { type: 'string' },
               publishedAt: { type: 'string', format: 'date-time' },
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     }
   }, getRelatedPosts);
 
@@ -177,10 +177,10 @@ async function blogRoutes(server: FastifyInstance) {
               description: { type: 'string' },
               icon: { type: 'string' },
               color: { type: 'string' },
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     }
   }, getCategories);
 
@@ -201,27 +201,55 @@ async function blogRoutes(server: FastifyInstance) {
           featured: { type: 'boolean', description: 'Filter featured posts' },
           page: { type: 'integer', minimum: 1, default: 1 },
           limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
-        }
+        },
       },
       response: {
         200: {
           description: 'List of all blog posts',
           type: 'object',
           properties: {
-            posts: { type: 'array' },
-            pagination: { type: 'object' }
-          }
+            posts: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  title: { type: 'string' },
+                  slug: { type: 'string' },
+                  excerpt: { type: 'string' },
+                  image: { type: 'string' },
+                  category: { type: 'string' },
+                  author: { type: 'string' },
+                  readTime: { type: 'string' },
+                  published: { type: 'boolean' },
+                  featured: { type: 'boolean' },
+                  publishedAt: { type: 'string', format: 'date-time' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                },
+              },
+            },
+            pagination: {
+              type: 'object',
+              properties: {
+                page: { type: 'integer' },
+                limit: { type: 'integer' },
+                total: { type: 'integer' },
+                totalPages: { type: 'integer' },
+              },
+            },
+          },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminGetAllPosts);
@@ -238,7 +266,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Blog post ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       response: {
         200: {
@@ -250,29 +278,32 @@ async function blogRoutes(server: FastifyInstance) {
             slug: { type: 'string' },
             excerpt: { type: 'string' },
             content: { type: 'string' },
+            image: { type: 'string' },
             category: { type: 'string' },
             author: { type: 'string' },
             published: { type: 'boolean' },
             featured: { type: 'boolean' },
             createdAt: { type: 'string' },
-            updatedAt: { type: 'string' }
-          }
+            updatedAt: { type: 'string' },
+            metaTitle: { type: 'string' },
+            metaDescription: { type: 'string' },
+          },
         },
         404: {
           description: 'Blog post not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminGetPostById);
@@ -305,7 +336,7 @@ async function blogRoutes(server: FastifyInstance) {
           featured: { type: 'boolean', default: false },
           metaTitle: { type: 'string', maxLength: 60 },
           metaDescription: { type: 'string', maxLength: 160 },
-        }
+        },
       },
       response: {
         201: {
@@ -318,23 +349,23 @@ async function blogRoutes(server: FastifyInstance) {
             published: { type: 'boolean' },
             featured: { type: 'boolean' },
             createdAt: { type: 'string' }
-          }
+          },
         },
         400: {
           description: 'Invalid input data',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminCreatePost);
@@ -351,7 +382,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Blog post ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       body: {
         type: 'object',
@@ -373,7 +404,7 @@ async function blogRoutes(server: FastifyInstance) {
           featured: { type: 'boolean' },
           metaTitle: { type: 'string', maxLength: 60 },
           metaDescription: { type: 'string', maxLength: 160 },
-        }
+        },
       },
       response: {
         200: {
@@ -386,28 +417,28 @@ async function blogRoutes(server: FastifyInstance) {
             published: { type: 'boolean' },
             featured: { type: 'boolean' },
             updatedAt: { type: 'string' }
-          }
+          },
         },
         404: {
           description: 'Blog post not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         400: {
           description: 'Invalid input data',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminUpdatePost);
@@ -424,7 +455,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Blog post ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       response: {
         204: {
@@ -434,18 +465,18 @@ async function blogRoutes(server: FastifyInstance) {
         404: {
           description: 'Blog post not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminDeletePost);
@@ -462,7 +493,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Blog post ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       response: {
         200: {
@@ -472,23 +503,23 @@ async function blogRoutes(server: FastifyInstance) {
             id: { type: 'string' },
             published: { type: 'boolean' },
             publishedAt: { type: 'string' }
-          }
+          },
         },
         404: {
           description: 'Blog post not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminTogglePublished);
@@ -505,7 +536,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Blog post ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       response: {
         200: {
@@ -514,23 +545,23 @@ async function blogRoutes(server: FastifyInstance) {
           properties: {
             id: { type: 'string' },
             featured: { type: 'boolean' }
-          }
+          },
         },
         404: {
           description: 'Blog post not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminToggleFeatured);
@@ -552,7 +583,7 @@ async function blogRoutes(server: FastifyInstance) {
           description: { type: 'string', maxLength: 500 },
           icon: { type: 'string' },
           color: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
-        }
+        },
       },
       response: {
         201: {
@@ -562,23 +593,23 @@ async function blogRoutes(server: FastifyInstance) {
             id: { type: 'string' },
             name: { type: 'string' },
             slug: { type: 'string' }
-          }
+          },
         },
         400: {
           description: 'Invalid input data',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminCreateCategory);
@@ -595,7 +626,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Category ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       body: {
         type: 'object',
@@ -605,7 +636,7 @@ async function blogRoutes(server: FastifyInstance) {
           description: { type: 'string', maxLength: 500 },
           icon: { type: 'string' },
           color: { type: 'string', pattern: '^#[0-9A-Fa-f]{6}$' },
-        }
+        },
       },
       response: {
         200: {
@@ -615,28 +646,28 @@ async function blogRoutes(server: FastifyInstance) {
             id: { type: 'string' },
             name: { type: 'string' },
             slug: { type: 'string' }
-          }
+          },
         },
         404: {
           description: 'Category not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         400: {
           description: 'Invalid input data',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminUpdateCategory);
@@ -653,7 +684,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           id: { type: 'string', description: 'Category ID' }
         },
-        required: ['id']
+        required: ['id'],
       },
       response: {
         204: {
@@ -663,18 +694,18 @@ async function blogRoutes(server: FastifyInstance) {
         404: {
           description: 'Category not found',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         401: {
           description: 'Not authenticated',
           type: 'object',
-          properties: { message: { type: 'string' } }
+          properties: { message: { type: 'string' } },
         },
         403: {
           description: 'Access denied - Admin role required',
           type: 'object',
-          properties: { message: { type: 'string' } }
-        }
+          properties: { message: { type: 'string' } },
+        },
       }
     }
   }, adminDeleteCategory);
@@ -692,7 +723,7 @@ async function blogRoutes(server: FastifyInstance) {
         required: ['title'],
         properties: {
           title: { type: 'string', minLength: 1 }
-        }
+        },
       },
       response: {
         200: {
@@ -700,8 +731,8 @@ async function blogRoutes(server: FastifyInstance) {
           type: 'object',
           properties: {
             slug: { type: 'string' }
-          }
-        }
+          },
+        },
       }
     }
   }, generateSlug);

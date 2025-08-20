@@ -37,21 +37,21 @@ async function twoFactorAuthRoutes(server: FastifyInstance) {
               backupCodes: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Backup codes for account recovery'
+                description: 'Backup codes for account recovery',
               }
-            }
+            },
           },
           401: {
-            description: 'Not authenticated',
+            description: 'Unauthorized',
             type: 'object',
-            properties: { message: { type: 'string' } }
+            properties: { message: { type: 'string' } },
           },
           409: {
-            description: '2FA is already enabled for this user',
+            description: 'Conflict, 2FA already enabled',
             type: 'object',
-            properties: { message: { type: 'string' } }
-          }
-        }
+            properties: { message: { type: 'string' } },
+          },
+        },
       },
     },
     generateTwoFactorSecret
@@ -69,34 +69,34 @@ async function twoFactorAuthRoutes(server: FastifyInstance) {
         body: zodToJsonSchema(verifyBodySchema),
         response: {
           200: {
-            description: '2FA enabled successfully',
+            description: '2FA successfully verified and enabled',
             type: 'object',
             properties: {
               message: { type: 'string' },
               recoveryCodes: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Recovery codes for account recovery'
-              }
-            }
+                description: 'Recovery codes for account recovery',
+              },
+            },
           },
           400: {
-            description: 'Invalid or expired token',
+            description: 'Invalid or expired 2FA token',
             type: 'object',
-            properties: { message: { type: 'string' } }
+            properties: { message: { type: 'string' } },
           },
           401: {
-            description: 'Not authenticated',
+            description: 'Unauthorized',
             type: 'object',
-            properties: { message: { type: 'string' } }
+            properties: { message: { type: 'string' } },
           },
           409: {
-            description: '2FA is already enabled',
+            description: '2FA already enabled',
             type: 'object',
-            properties: { message: { type: 'string' } }
-          }
-        }
-      }
+            properties: { message: { type: 'string' } },
+          },
+        },
+      },
     },
     verifyTwoFactorToken
   );
@@ -113,30 +113,33 @@ async function twoFactorAuthRoutes(server: FastifyInstance) {
         body: zodToJsonSchema(disableBodySchema),
         response: {
           200: {
-            description: '2FA disabled successfully',
+            description: '2FA successfully disabled',
             type: 'object',
             properties: {
               message: { type: 'string' },
-              enabled: { type: 'boolean', enum: [false] }
-            }
+            },
           },
           400: {
-            description: 'Invalid or expired token',
+            description: 'Invalid 2FA token provided',
             type: 'object',
-            properties: { message: { type: 'string' } }
+            properties: { message: { type: 'string' } },
           },
           401: {
-            description: 'Not authenticated',
+            description: 'Unauthorized',
             type: 'object',
-            properties: { message: { type: 'string' } }
+            properties: {
+              message: { type: 'string' },
+            },
           },
           409: {
-            description: '2FA is not enabled for this user',
+            description: '2FA not enabled',
             type: 'object',
-            properties: { message: { type: 'string' } }
-          }
-        }
-      }
+            properties: {
+              message: { type: 'string' },
+            },
+          },
+        },
+      },
     },
     disableTwoFactor
   );

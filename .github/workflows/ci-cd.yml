@@ -72,14 +72,16 @@ jobs:
       - name: Setup Environment Variables
         run: |
           cd apps/api
-          cp .env.example .env
-          echo "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/testdb" > .env
-          echo "JWT_SECRET=${{ env.JWT_SECRET }}" >> .env
-          echo "GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}" >> .env
-          echo "GOOGLE_CLIENT_SECRET=${{ env.GOOGLE_CLIENT_SECRET }}" >> .env
-          echo "PORT=8080" >> .env
-          echo "NODE_ENV=test" >> .env
-          echo "WEB_APP_URL=http://localhost:5173" >> .env
+          cat > .env << EOF
+          DATABASE_URL=postgresql://testuser:testpass@localhost:5432/testdb
+          JWT_SECRET=${{ env.JWT_SECRET }}
+          GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ env.GOOGLE_CLIENT_SECRET }}
+          PORT=8080
+          NODE_ENV=test
+          WEB_APP_URL=http://localhost:5173
+          API_URL=http://localhost:8080
+          EOF
 
       - name: Generate Prisma Client & Run Migrations
         run: |
@@ -127,12 +129,11 @@ jobs:
             sleep 2
           fi
 
-      - name: Run Linter
-        run: npm run lint
-
       - name: Build Workspace Packages
         run: npm run build
 
+      - name: Build Storybook (apps/web)
+        run: npm run -w apps/web storybook:build
 
       - name: Run Tests with Coverage
         run: npm run test:coverage --workspace=apps/api

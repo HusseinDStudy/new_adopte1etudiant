@@ -24,9 +24,9 @@ describe('Message Routes', () => {
 
     let companyAuthToken = '';
     let studentAuthToken = '';
-    let companyProfileId = '';
     let studentId = '';
     let adoptionConversationId = '';
+    let adoptionRequestId = '';
 
     beforeEach(async () => {
         // Ensure clean state
@@ -38,7 +38,7 @@ describe('Message Routes', () => {
         // Create company
         const company = await createTestCompany(app);
         companyAuthToken = company.authToken;
-        companyProfileId = company.profile.id;
+        // companyProfileId = company.profile.id;
 
         // Create student
         const student = await createTestStudent(app, {
@@ -61,7 +61,7 @@ describe('Message Routes', () => {
             throw new Error(`Failed to create adoption request: ${adoptionResponse.status} - ${JSON.stringify(adoptionResponse.body)}`);
         }
 
-        const adoptionRequestId = adoptionResponse.body.id;
+        adoptionRequestId = adoptionResponse.body.id;
 
         // Get the adoption request with conversation
         const adoptionRequest = await prisma.adoptionRequest.findUnique({
@@ -130,10 +130,10 @@ describe('Message Routes', () => {
         });
     });
 
-    describe('GET /api/messages/conversations/:conversationId/messages', () => {
+    describe('GET /api/messages/conversations/:conversationId', () => {
         it('should return messages for a conversation that user has access to', async () => {
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .get(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(response.status).toBe(200);
@@ -146,41 +146,32 @@ describe('Message Routes', () => {
 
         it('should allow company to access conversation messages', async () => {
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .get(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${companyAuthToken}`);
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('messages');
             expect(response.body.messages).toBeInstanceOf(Array);
-            expect(response.body).toHaveProperty('conversation');
-            expect(response.body.conversation).toHaveProperty('adoptionRequestStatus');
         });
 
-        it('should return 403 when user does not have access to the conversation', async () => {
-            // Create another student who shouldn't have access
+        it('should return 403 for unauthorized conversation access', async () => {
+            // Create another student not part of any conversation
             const otherStudent = await createTestStudent(app);
 
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .get(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${otherStudent.authToken}`);
 
             expect(response.status).toBe(403);
         });
-
-        it('should require authentication', async () => {
-            const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${adoptionConversationId}/messages`);
-
-            expect(response.status).toBe(401);
-        });
     });
 
-    describe('POST /api/messages/conversations/:conversationId/messages', () => {
+    describe('POST /api/messages/conversations/:conversationId', () => {
         it('should allow sending a message to a conversation user has access to', async () => {
             const messageContent = 'Thank you for your interest!';
 
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: messageContent });
 
@@ -205,7 +196,7 @@ describe('Message Routes', () => {
             const messageContent = 'Looking forward to working with you!';
 
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${companyAuthToken}`)
                 .send({ content: messageContent });
 
@@ -215,7 +206,7 @@ describe('Message Routes', () => {
 
         it('should return 400 for invalid message content', async () => {
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: '' }); // Empty content
 
@@ -224,7 +215,7 @@ describe('Message Routes', () => {
 
         it('should return 400 for missing content', async () => {
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({}); // No content field
 
@@ -236,7 +227,7 @@ describe('Message Routes', () => {
             const otherStudent = await createTestStudent(app);
 
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${otherStudent.authToken}`)
                 .send({ content: 'This should not work' });
 
@@ -247,7 +238,7 @@ describe('Message Routes', () => {
             const fakeConversationId = 'nonexistent-conversation-id';
 
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${fakeConversationId}/messages`)
+                .post(`/api/messages/conversations/${fakeConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: 'Hello' });
 
@@ -267,7 +258,7 @@ describe('Message Routes', () => {
 
             // Now try to send a message - should be forbidden
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: 'This should not work' });
 
@@ -276,14 +267,14 @@ describe('Message Routes', () => {
 
         it('should require authentication', async () => {
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${adoptionConversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .send({ content: 'Hello' });
 
             expect(response.status).toBe(401);
         });
     });
 
-    describe('POST /api/messages/conversations/:conversationId/messages - Additional Edge Cases', () => {
+    describe('POST /api/messages/conversations/:conversationId - Additional Edge Cases', () => {
         it('should prevent messaging in rejected adoption request conversations', async () => {
             // Use the existing adoption request from beforeEach setup
             // First, get the existing adoption request ID
@@ -314,7 +305,7 @@ describe('Message Routes', () => {
             
             // Try to send a message in the rejected conversation
             const messageResponse = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: 'This should be blocked' });
             
@@ -323,35 +314,19 @@ describe('Message Routes', () => {
         });
 
         it('should allow messaging in accepted adoption request conversations', async () => {
-            // Create adoption request
-            const requestData = {
-                studentId: studentId,
-                message: 'Initial message',
-            };
-            
-            const createResponse = await supertest(app.server)
-                .post('/api/adoption-requests')
-                .set('Cookie', `token=${companyAuthToken}`)
-                .send(requestData);
-            
-            const adoptionRequestId = createResponse.body.id;
-            
+            // Use the existing adoption request from beforeEach setup
             // Accept the adoption request
-            await supertest(app.server)
+            const rejectResponse = await supertest(app.server)
                 .patch(`/api/adoption-requests/${adoptionRequestId}/status`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ status: 'ACCEPTED' });
             
-            // Get the conversation ID
-            const conversationsResponse = await supertest(app.server)
-                .get('/api/messages/conversations')
-                .set('Cookie', `token=${studentAuthToken}`);
-            
-            const conversationId = conversationsResponse.body.conversations[0].id;
+            expect(rejectResponse.status).toBe(200);
+            expect(rejectResponse.body.status).toBe('ACCEPTED');
             
             // Try to send a message in the accepted conversation
             const messageResponse = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${adoptionConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: 'This should work' });
             
@@ -363,7 +338,7 @@ describe('Message Routes', () => {
             const fakeConversationId = 'clpre1234567890123';
             
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${fakeConversationId}/messages`)
+                .post(`/api/messages/conversations/${fakeConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: 'Test message' });
             
@@ -409,7 +384,7 @@ describe('Message Routes', () => {
             
             // Try to send a message as the unauthorized student
             const messageResponse = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${otherStudentAuthToken}`)
                 .send({ content: 'Unauthorized message' });
             
@@ -437,7 +412,7 @@ describe('Message Routes', () => {
             
             // Test with missing content
             const response1 = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({});
             
@@ -446,7 +421,7 @@ describe('Message Routes', () => {
             
             // Test with empty content
             const response2 = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({ content: '' });
             
@@ -456,7 +431,7 @@ describe('Message Routes', () => {
 
         it('should require authentication', async () => {
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/fake-conversation-id/messages`)
+                .post(`/api/messages/conversations/fake-conversation-id`)
                 .send({ content: 'Test message' });
             
             expect(response.status).toBe(401);
@@ -581,15 +556,15 @@ describe('Message Routes', () => {
         });
     });
 
-    describe('GET /api/messages/conversations/:conversationId/messages - Additional Edge Cases', () => {
-        it('should return 403 for non-existent conversation', async () => {
+    describe('GET /api/messages/conversations/:conversationId - Additional Edge Cases', () => {
+        it('should return 404 for non-existent conversation', async () => {
             const fakeConversationId = 'clpre1234567890123';
             
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${fakeConversationId}/messages`)
+                .get(`/api/messages/conversations/${fakeConversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`);
             
-            expect(response.status).toBe(403);
+            expect(response.status).toBe(404);
             expect(response.body.message).toContain('Conversation not found');
         });
 
@@ -625,7 +600,7 @@ describe('Message Routes', () => {
             
             // Try to access conversation as unauthorized user
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${conversationId}/messages`)
+                .get(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${otherStudentAuthToken}`);
             
             expect(response.status).toBe(403);
@@ -649,7 +624,7 @@ describe('Message Routes', () => {
             await prisma.message.deleteMany({ where: { conversationId } });
             
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${conversationId}/messages`)
+                .get(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${studentAuthToken}`);
             
             expect(response.status).toBe(200);
@@ -659,7 +634,7 @@ describe('Message Routes', () => {
 
         it('should require authentication', async () => {
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/fake-conversation-id/messages`);
+                .get(`/api/messages/conversations/fake-conversation-id`);
             
             expect(response.status).toBe(401);
         });

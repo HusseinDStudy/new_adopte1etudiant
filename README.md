@@ -7,14 +7,26 @@ This project is a modern web platform designed to bridge the gap between student
 This project is fully documented. All documentation is organized in the `/docs` directory and serves as the project's official wiki.
 
 - **[📖 Documentation Home](docs/Home.md)**: Complete documentation map and navigation
+  
+  **Docs canonical location:** See `docs/INVENTORY.md` for a short inventory and pointers to canonical documentation files.
 - **[👥 User Guides](docs/user-guides/)**: End-user documentation and manuals
 - **[💻 Developer Guides](docs/developer-guides/)**: API documentation, development setup, and contribution guidelines
 - **[🏗️ Technical Guides](docs/technical-guides/)**: Architecture, database, security, and implementation details
-- **[📋 Project Management](docs/project-management/)**: CI/CD, testing strategies, and process documentation
+- **[📋 Project Management](docs/project-management/)**: CI/CD, quality assurance strategies, and process documentation
+- **[🐛 Issue Tracker](https://github.com/HusseinDStudy/new_adopte1etudiant/issues)**: Report bugs, request features, and track project progress.
 
 ## 🚀 Getting Started: Local Development
 
 This is the recommended way to run the project locally. You will run the database in a Docker container and the application services directly on your host machine.
+
+Dev quickstart checklist (fast path):
+
+- Run `npm run setup` to install deps and create example `.env` files if missing.
+- Start the database: `docker compose -f docker-compose.db.yml up -d`.
+- Apply migrations: `npm run db:migrate:dev` (or `npm run db:push` in dev).
+- Seed the database (optional): `npm run db:seed`.
+- Start development servers: `npm run dev` (web: `http://localhost:5173`, api: `http://localhost:8080`).
+
 
 ### Prerequisites
 
@@ -22,7 +34,10 @@ This is the recommended way to run the project locally. You will run the databas
 - Docker and Docker Compose
 
 ### Setup
-
+0. **Clean Up**
+    ```bash
+    npm run clean
+    ```
 1.  **Install Dependencies**
     ```bash
     npm install
@@ -65,7 +80,7 @@ This is the recommended way to run the project locally. You will run the databas
 - **Access the application:**
   - **Web App**: `http://localhost:5173`
   - **API**: `http://localhost:8080`
-  - **API Documentation**: `http://localhost:8080/docs` (Interactive Swagger UI)
+  - **API Documentation**: `/docs` (Interactive Swagger UI)
 
 ## Project Commands
 
@@ -85,7 +100,7 @@ Here are all available commands you can run from the root directory:
 ### Testing Commands
 | Command                   | Description                                                               |
 | ------------------------- | ------------------------------------------------------------------------- |
-| `npm test`                | Runs all tests across the project with coverage.                         |
+| `npm test`                | Runs all tests across the project with coverage, as defined in the Quality Assurance Guide.                         |
 | `npm run test:watch`      | Runs tests in watch mode for all packages.                               |
 | `npm run test:specific`   | Runs tests with verbose output for all packages.                         |
 | `npm run test:coverage`   | Runs tests with coverage reports for all packages.                       |

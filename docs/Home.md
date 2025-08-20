@@ -5,28 +5,22 @@ Welcome to the project wiki! This documentation provides a comprehensive overvie
 ## 📖 Quick Navigation
 
 - **[README](../README.md)**: Main project overview and getting started guide
-- **[Interactive API Documentation](http://localhost:8080/docs)**: Live Swagger UI for API testing
 
 ## 👥 User Guides
 
 Documentation for end users of the platform:
 
 - **[User Manual](user-guides/User-Manual.md)**: Step-by-step guides for Students and Companies
-- **[Bloc 2 - Récapitulatif](user-guides/BLOC2-Referentiel.md)**: Synthèse en français du référentiel
 
 ## 💻 Developer Guides
 
 Essential documentation for developers working on the project:
 
 - **[Development Guide](developer-guides/Development-Guide.md)**: Local setup, conventions, and contribution guidelines
-- **[API Documentation](developer-guides/API-Documentation.md)**: Comprehensive API usage guide with examples
-- **[API Integration Guide](developer-guides/API-Integration-Guide.md)**: Complete integration examples and best practices
-- **[API Troubleshooting](developer-guides/API-Troubleshooting.md)**: Common issues and debugging techniques
-- **[API Changelog](developer-guides/API-Changelog.md)**: Version history and breaking changes
-- **[API Testing Guide](developer-guides/API-Testing-Guide.md)**: Comprehensive API testing and validation
+- **[API Documentation](developer-guides/API-Guide.md)**: Comprehensive API usage guide with examples
+- **[API Troubleshooting](developer-guides/API-Guide.md#troubleshooting)**: Common issues and debugging techniques
 - **[API Maintenance Guide](developer-guides/API-Maintenance-Guide.md)**: Complete maintenance procedures and schedules
 - **[Authentication Flow](developer-guides/Authentication.md)**: JWT, OAuth, and role-based access control
-- **[Testing Guide](developer-guides/Testing-Guide.md)**: Testing strategy, tools, and instructions
 
 ## 🏗️ Technical Guides
 
@@ -36,18 +30,14 @@ Deep technical documentation for system architecture and implementation:
 - **[Database Guide](technical-guides/Database-Guide.md)**: Schema, migrations, and seeding processes
 - **[Security Measures](technical-guides/Security.md)**: Security implementation mapped to OWASP Top 10
 - **[Design Patterns](technical-guides/Design-Patterns.md)**: Key software design patterns used
-- **[API Setup Summary](technical-guides/API-Setup-Summary.md)**: Technical implementation of API documentation
+- **[Monitoring & Alerting](technical-guides/Monitoring-And-Alerting.md)**: Indicators, probes, and alerting
 
 ## 📋 Project Management
 
 Process documentation and quality assurance:
 
 - **[CI/CD Pipeline](project-management/CI-CD.md)**: Continuous integration and deployment with GitHub Actions
-- **[CI/CD Optimization](project-management/CI-CD-Optimization.md)**: Performance improvements and best practices
-- **[Test Plan](project-management/Test-Plan.md)**: Manual acceptance testing scenarios
-- **[Test Strategy](project-management/Test-Strategy.md)**: Overall testing approach and methodology
-- **[Bug Tracking Process](project-management/Bug-Tracking-Process.md)**: Bug reporting and resolution workflow
-- **[Troubleshooting](project-management/Troubleshooting.md)**: Common issues and solutions
+- **[Issue Management Guide](project-management/Issue-Management-Guide.md)**: Bug reporting, tracking, and resolution processes
 
 ## 🚀 Quick Reference
 
@@ -70,7 +60,7 @@ npm run test --workspace=apps/api   # Run tests
 ```
 
 ### **Key Resources**
-- **📊 API Documentation**: [http://localhost:8080/docs](http://localhost:8080/docs)
+- **📊 API Documentation**: [/docs](/docs)
 - **🔍 API Monitoring**: [monitoring/README.md](monitoring/README.md)
 - **📈 GitHub Actions**: Repository Actions tab
 

@@ -35,26 +35,15 @@ async function profileRoutes(server: FastifyInstance) {
                   degree: { type: ['string', 'null'] },
                   skills: {
                     type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        skill: {
-                          type: 'object',
-                          properties: {
-                            id: { type: 'string' },
-                            name: { type: 'string' }
-                          }
-                        }
-                      }
-                    }
+                    items: { type: 'string' }
                   },
                   isOpenToOpportunities: { type: 'boolean' },
-                  cvUrl: { type: ['string', 'null'] },
+                  cvUrl: { type: ['string', 'null'], format: 'uri' },
                   isCvPublic: { type: 'boolean' },
                   email: { type: 'string', format: 'email' },
                   createdAt: { type: 'string', format: 'date-time' },
                   updatedAt: { type: 'string', format: 'date-time' }
-                }
+                },
               },
               {
                 type: 'object',
@@ -66,11 +55,11 @@ async function profileRoutes(server: FastifyInstance) {
                   size: { type: ['string', 'null'] },
                   sector: { type: ['string', 'null'] },
                   contactEmail: { type: 'string', format: 'email' },
-                  logoUrl: { type: ['string', 'null'] },
+                  logoUrl: { type: ['string', 'null'], format: 'uri' },
                   email: { type: 'string', format: 'email' },
                   createdAt: { type: 'string', format: 'date-time' },
                   updatedAt: { type: 'string', format: 'date-time' }
-                }
+                },
               }
             ]
               }
@@ -130,7 +119,8 @@ async function profileRoutes(server: FastifyInstance) {
                 name: { type: 'string', minLength: 1 },
                 size: { type: 'string' },
                 sector: { type: 'string' },
-                contactEmail: { type: 'string', format: 'email' }
+                contactEmail: { type: 'string', format: 'email' },
+                logoUrl: { type: ['string', 'null'], format: 'uri' }
               },
               required: ['name', 'contactEmail'],
               description: 'Company profile data'
@@ -152,26 +142,10 @@ async function profileRoutes(server: FastifyInstance) {
                   lastName: { type: 'string' },
                   school: { type: ['string', 'null'] },
                   degree: { type: ['string', 'null'] },
-                  skills: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        studentProfileId: { type: 'string' },
-                        skillId: { type: 'string' },
-                        skill: {
-                          type: 'object',
-                          properties: {
-                            id: { type: 'string' },
-                            name: { type: 'string' }
-                          }
-                        }
-                      }
-                    }
-                  },
+                  skills: { type: 'array', items: { type: 'string' } },
                   isOpenToOpportunities: { type: 'boolean' },
                   isCvPublic: { type: 'boolean' },
-                  cvUrl: { type: ['string', 'null'] },
+                  cvUrl: { type: ['string', 'null'], format: 'uri' },
                   email: { type: 'string', format: 'email' }
                 },
                 description: 'Student profile'
@@ -186,7 +160,7 @@ async function profileRoutes(server: FastifyInstance) {
                   size: { type: 'string' },
                   sector: { type: 'string' },
                   contactEmail: { type: 'string', format: 'email' },
-                  logoUrl: { type: ['string', 'null'] },
+                  logoUrl: { type: ['string', 'null'], format: 'uri' },
                   email: { type: 'string', format: 'email' }
                 },
                 description: 'Company profile'
@@ -241,7 +215,8 @@ async function profileRoutes(server: FastifyInstance) {
                 name: { type: 'string', minLength: 1 },
                 size: { type: 'string' },
                 sector: { type: 'string' },
-                contactEmail: { type: 'string', format: 'email' }
+                contactEmail: { type: 'string', format: 'email' },
+                logoUrl: { type: ['string', 'null'], format: 'uri' }
               },
               description: 'Company profile data (all fields optional for PATCH)'
             }
@@ -253,7 +228,11 @@ async function profileRoutes(server: FastifyInstance) {
             type: 'object',
             properties: {
               message: { type: 'string' },
-              profile: { type: 'object' }
+              profile: {
+                type: 'object'
+                // Assuming the structure is similar to the GET /profile response, can be refined.
+                // For simplicity, we'll provide a generic object example here.
+              }
             }
           },
           400: {

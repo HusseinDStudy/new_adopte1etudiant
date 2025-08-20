@@ -201,7 +201,7 @@ describe('End-to-End User Workflows', () => {
 
             // Step 13: Student views messages in conversation
             const messagesResponse = await supertest(app.server)
-                .get(`/api/messages/conversations/${conversation.id}/messages`)
+                .get(`/api/messages/conversations/${conversation.id}`)
                 .set('Cookie', `token=${studentAuthToken}`);
 
             expect(messagesResponse.status).toBe(200);
@@ -210,7 +210,7 @@ describe('End-to-End User Workflows', () => {
 
             // Step 14: Student replies to message
             const replyResponse = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversation.id}/messages`)
+                .post(`/api/messages/conversations/${conversation.id}`)
                 .set('Cookie', `token=${studentAuthToken}`)
                 .send({
                     content: 'Thank you for your interest! I would love to discuss this opportunity.',
@@ -294,12 +294,14 @@ describe('End-to-End User Workflows', () => {
 
             const conversationId = conversationsResponse.body.conversations[0].id;
 
+            // Student replies to message (should be blocked as conversation is rejected)
             const tryMessageResponse = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${studentToken}`)
                 .send({ content: 'This should be blocked' });
 
             expect(tryMessageResponse.status).toBe(403);
+            expect(tryMessageResponse.body.message).toContain('read-only');
         });
     });
 

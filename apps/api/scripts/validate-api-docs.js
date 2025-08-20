@@ -47,6 +47,7 @@ class APIValidator {
 
   async validateAPI() {
     this.log('\n🔍 Starting API Documentation Validation\n', 'bold');
+    this.log(`Using API Base URL: ${API_BASE_URL}`, 'blue');
 
     try {
       // Step 1: Check API health

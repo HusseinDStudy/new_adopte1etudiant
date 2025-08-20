@@ -53,7 +53,7 @@ export const upsertProfile = asyncHandler(async (
 
   // Handle student-specific fields
   if (role === 'STUDENT' && 'skills' in profile) {
-    (flattenedProfile as any).skills = (profile as any).skills || [];
+    (flattenedProfile as any).skills = (profile.skills as any[]).map((s: any) => s.skill.name) || [];
   }
 
   // Remove null fields that have format constraints

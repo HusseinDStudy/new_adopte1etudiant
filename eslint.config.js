@@ -10,11 +10,11 @@ export default [
   {
     files: ['**/*.{js,ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: 'module',
       parser: tsparser,
       parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: 2022,
         sourceType: 'module',
       },
     },
@@ -32,16 +32,16 @@ export default [
       'tailwindcss/no-custom-classname': 'off',
     },
   },
-  
+
   // React-specific configuration for web app
   {
     files: ['apps/web/src/**/*.{ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: 'module',
       parser: tsparser,
       parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: 2022,
         sourceType: 'module',
         ecmaFeatures: {
           jsx: true,
@@ -96,18 +96,19 @@ export default [
       'jsx-a11y/label-has-associated-control': 'warn',
       'jsx-a11y/click-events-have-key-events': 'warn',
       'jsx-a11y/no-static-element-interactions': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn', // Enable ban-ts-comment for web app
     },
   },
-  
+
   // API-specific configuration
   {
     files: ['apps/api/src/**/*.ts'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: 'module',
       parser: tsparser,
       parserOptions: {
-        ecmaVersion: 2020,
+        ecmaVersion: 2022,
         sourceType: 'module',
       },
       globals: {
@@ -140,7 +141,7 @@ export default [
       'no-undef': 'off', // Turn off since we're defining globals
       'no-prototype-builtins': 'warn',
       'no-useless-escape': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'error',
       '@typescript-eslint/no-unsafe-function-type': 'warn',
     },
   },

@@ -214,3 +214,70 @@ This monorepo architecture provides several key advantages:
 *   **Role-Based Access Control (RBAC)**: Authorization is managed through roles (`STUDENT`, `COMPANY`). Middleware checks the user's role before granting access to certain endpoints.
 *   **Service Layer Pattern**: API logic is separated into services (e.g., `authService`, `offerService` on the frontend; controllers act as services on the backend) to encapsulate business logic and data access.
 *   **Monorepo**: Centralizes code management, simplifies dependency management, and promotes code sharing.
+
+---
+
+## Application Prototype
+
+This section outlines the key aspects of the "Adopte1Etudiant" application prototype, including its goal, key journeys, UX/UI, and target devices.
+
+### Goal
+
+The prototype aims to validate the core concept of the application: connecting students seeking university accommodation with companies offering student housing. It focuses on the essential features and user flows that demonstrate the application's viability.
+
+### Key Journeys
+
+1. **Student Registration**:
+   - Student fills out a form to register as a user.
+   - System verifies email and password.
+   - Student is redirected to login page.
+
+2. **Company Registration**:
+   - Company fills out a form to register as a user.
+   - System verifies email and password.
+   - Company is redirected to login page.
+
+3. **Student Login**:
+   - Student enters email and password.
+   - System validates credentials and issues JWT.
+   - Student is redirected to dashboard.
+
+4. **Company Login**:
+   - Company enters email and password.
+   - System validates credentials and issues JWT.
+   - Company is redirected to dashboard.
+
+5. **Student Dashboard**:
+   - Student views available offers.
+   - Student can filter offers by location, price, type, etc.
+   - Student can apply for offers.
+
+6. **Company Dashboard**:
+   - Company views applications for their offers.
+   - Company can manage their offers.
+   - Company can communicate with applicants.
+
+### UX/UI
+
+The prototype uses a modern, responsive design.
+
+- **Header**: Contains navigation links (Home, Login, Register).
+- **Main Content**:
+  - **Home Page**: Landing page with a brief description and call-to-action.
+  - **Login/Register Pages**: Clean, user-friendly forms.
+  - **Dashboard**:
+    - **Student Dashboard**: Offers list, filters, application status.
+    - **Company Dashboard**: Offers list, applications, communication tools.
+- **Footer**: Basic links.
+
+### Target Devices
+
+The prototype is designed to be accessible across devices:
+
+- **Desktop**:
+  - Modern browsers (Chrome, Firefox, Safari).
+  - Responsive design for larger screens.
+- **Mobile**:
+  - Modern mobile browsers (Chrome, Safari, Firefox).
+  - Touch-friendly interface.
+  - Responsive navigation.

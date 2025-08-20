@@ -7,44 +7,26 @@ import { FastifyInstance } from 'fastify';
  * Comprehensive database cleanup that respects foreign key constraints
  */
 export async function cleanupDatabase() {
+  console.log('Starting database cleanup...');
   try {
-    // Ensure database connection is healthy before cleanup
-    await prisma.$connect();
-    
     // Delete in correct order to respect foreign key constraints
-    await safeDbOperation(() => prisma.message.deleteMany());
-    await safeDbOperation(() => prisma.conversation.deleteMany());
-    await safeDbOperation(() => prisma.application.deleteMany());
-    await safeDbOperation(() => prisma.adoptionRequest.deleteMany());
-    await safeDbOperation(() => prisma.offer.deleteMany());
-    await safeDbOperation(() => prisma.studentSkill.deleteMany());
-    await safeDbOperation(() => prisma.skill.deleteMany());
-    await safeDbOperation(() => prisma.studentProfile.deleteMany());
-    await safeDbOperation(() => prisma.companyProfile.deleteMany());
-    await safeDbOperation(() => prisma.account.deleteMany());
-    await safeDbOperation(() => prisma.user.deleteMany());
+    await safeDbOperation(() => prisma.message.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.conversation.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.application.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.adoptionRequest.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.offer.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.studentSkill.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.skill.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.studentProfile.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.companyProfile.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.account.deleteMany(), 10, 500);
+    await safeDbOperation(() => prisma.user.deleteMany(), 10, 500);
+    console.log('Database cleanup complete.');
   } catch (error) {
     console.error('Database cleanup failed:', error);
     // Don't throw error to prevent test suite failures
     // Just log and continue
-  } finally {
-    // Always disconnect to free up connections
-    try {
-      await prisma.$disconnect();
-    } catch (disconnectError) {
-      console.warn('Failed to disconnect from database:', disconnectError);
-    }
   }
-}
-
-/**
- * Reset database to a clean state before each test
- */
-export async function resetDatabase() {
-  await cleanupDatabase();
-  
-  // Optional: Add any seed data that all tests need
-  // For now, we'll keep it clean
 }
 
 /**
@@ -56,6 +38,7 @@ export async function createTestCompany(app: FastifyInstance, overrides: Partial
   name: string;
   contactEmail: string;
 }> = {}) {
+  console.log('Creating test company...');
   const companyData = {
     email: faker.internet.email(),
     password: faker.internet.password(),
@@ -73,7 +56,7 @@ export async function createTestCompany(app: FastifyInstance, overrides: Partial
   if (registerResponse.status !== 201) {
     throw new Error(`Company registration failed: ${registerResponse.status} - ${JSON.stringify(registerResponse.body)}`);
   }
-
+  console.log('Company registered.');
   // Login company
   const loginResponse = await supertest(app.server)
     .post('/api/auth/login')
@@ -85,7 +68,7 @@ export async function createTestCompany(app: FastifyInstance, overrides: Partial
   if (loginResponse.status !== 200 || !loginResponse.headers['set-cookie']) {
     throw new Error(`Company login failed: ${loginResponse.status} - ${JSON.stringify(loginResponse.body)}`);
   }
-
+  console.log('Company logged in.');
   const cookie = loginResponse.headers['set-cookie'][0];
   const authToken = cookie.split(';')[0].replace('token=', '');
 
@@ -98,7 +81,7 @@ export async function createTestCompany(app: FastifyInstance, overrides: Partial
   if (!user || !user.companyProfile) {
     throw new Error('Company user or profile not found after registration');
   }
-
+  console.log('Company profile retrieved.');
   return {
     user,
     profile: user.companyProfile,
@@ -115,14 +98,20 @@ export async function createTestStudent(app: FastifyInstance, overrides: Partial
   password: string;
   firstName: string;
   lastName: string;
+  school?: string;
+  degree?: string;
+  skills?: string[];
+  isOpenToOpportunities?: boolean;
+  cvUrl?: string;
+  isCvPublic?: boolean;
 }> = {}) {
+  console.log('Creating test student...');
   const studentData = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
+    email: overrides.email || faker.internet.email(),
+    password: overrides.password || faker.internet.password(),
     role: 'STUDENT' as const,
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    ...overrides
+    firstName: overrides.firstName || faker.person.firstName(),
+    lastName: overrides.lastName || faker.person.lastName(),
   };
 
   // Register student
@@ -133,7 +122,7 @@ export async function createTestStudent(app: FastifyInstance, overrides: Partial
   if (registerResponse.status !== 201) {
     throw new Error(`Student registration failed: ${registerResponse.status} - ${JSON.stringify(registerResponse.body)}`);
   }
-
+  console.log('Student registered.');
   // Login student
   const loginResponse = await supertest(app.server)
     .post('/api/auth/login')
@@ -145,7 +134,7 @@ export async function createTestStudent(app: FastifyInstance, overrides: Partial
   if (loginResponse.status !== 200 || !loginResponse.headers['set-cookie']) {
     throw new Error(`Student login failed: ${loginResponse.status} - ${JSON.stringify(loginResponse.body)}`);
   }
-
+  console.log('Student logged in.');
   const cookie = loginResponse.headers['set-cookie'][0];
   const authToken = cookie.split(';')[0].replace('token=', '');
 
@@ -157,9 +146,36 @@ export async function createTestStudent(app: FastifyInstance, overrides: Partial
   if (!user) {
     throw new Error('Student user not found after registration');
   }
+  console.log('Student user retrieved.');
+  // Create student profile if profile data is provided in overrides
+  let studentProfile = null;
+  if (overrides.school !== undefined || overrides.degree !== undefined || overrides.skills !== undefined || overrides.isOpenToOpportunities !== undefined || overrides.cvUrl !== undefined || overrides.isCvPublic !== undefined) {
+    console.log('Creating student profile with overrides...');
+    const profileData = {
+      firstName: studentData.firstName,
+      lastName: studentData.lastName,
+      school: overrides.school || faker.commerce.department(), // Default to a valid string if not provided
+      degree: overrides.degree || faker.person.jobArea(), // Default to a valid string if not provided
+      skills: overrides.skills || [],
+      isOpenToOpportunities: overrides.isOpenToOpportunities !== undefined ? overrides.isOpenToOpportunities : false,
+      cvUrl: overrides.cvUrl !== undefined ? overrides.cvUrl : faker.internet.url(), // Default to a valid URL or empty string
+      isCvPublic: overrides.isCvPublic !== undefined ? overrides.isCvPublic : false,
+    };
+    const profileResponse = await supertest(app.server)
+      .post('/api/profile')
+      .set('Cookie', `token=${authToken}`)
+      .send(profileData);
+
+    if (profileResponse.status !== 200) {
+      throw new Error(`Student profile creation failed: ${profileResponse.status} - ${JSON.stringify(profileResponse.body)}`);
+    }
+    studentProfile = profileResponse.body;
+    console.log('Student profile created.');
+  }
 
   return {
     user,
+    profile: studentProfile,
     authToken,
     credentials: studentData
   };
@@ -169,14 +185,20 @@ export async function createTestStudent(app: FastifyInstance, overrides: Partial
  * Create test skills for use in tests
  */
 export async function createTestSkills(skillNames: string[] = ['React', 'Node.js', 'Python', 'Java']) {
-  await prisma.skill.createMany({
-    data: skillNames.map(name => ({ name })),
-    skipDuplicates: true,
-  });
+  console.log('Creating test skills...');
+  await safeDbOperation(async () => {
+    await prisma.skill.createMany({
+      data: skillNames.map(name => ({ name })),
+      skipDuplicates: true,
+    });
+  }, 10, 500); // Increased retries and delay
+  console.log('Test skills created.');
 
-  return await prisma.skill.findMany({
-    where: { name: { in: skillNames } }
-  });
+  return await safeDbOperation(async () => {
+    return await prisma.skill.findMany({
+      where: { name: { in: skillNames } }
+    });
+  }, 10, 500); // Increased retries and delay
 }
 
 /**
@@ -261,7 +283,8 @@ export async function safeDbOperation<T>(
           errorMessage.includes('ECONNREFUSED') ||
           errorMessage.includes('Connection terminated') ||
           errorMessage.includes('Connection closed') ||
-          errorMessage.includes('Server has closed the connection')) {
+          errorMessage.includes('Server has closed the connection') ||
+          errorMessage.includes('Engine is not yet connected')) { // Added this line to retry on "Engine is not yet connected" error
         
         if (attempt < maxRetries - 1) {
           await waitForDb(delayMs * Math.pow(2, attempt)); // Exponential backoff
