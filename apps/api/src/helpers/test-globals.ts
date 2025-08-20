@@ -1,17 +1,17 @@
 import { beforeAll, afterAll, beforeEach } from 'vitest';
-import { resetDatabase, safeDbOperation } from './test-setup';
+import { cleanupDatabase, safeDbOperation } from './test-setup';
 import { prisma } from 'db-postgres';
 
 // Global test setup
 beforeAll(async () => {
   console.log('🧪 Starting test suite - setting up global environment...');
   
-  // Wait for database to be ready
+  // Wait for database to be ready and connect prisma once globally
   await waitForDatabaseReady();
   
   // Ensure we start with a clean database
   await safeDbOperation(async () => {
-    await resetDatabase();
+    await cleanupDatabase(); // This will no longer call prisma.$connect internally
   });
 });
 
@@ -19,9 +19,9 @@ beforeEach(async () => {
   // Add a small delay to reduce database load
   await new Promise(resolve => setTimeout(resolve, 100));
   
-  // Reset database before each test to ensure isolation
+  // Reset database before each test to ensure isolation, relying on existing connection
   await safeDbOperation(async () => {
-    await resetDatabase();
+    await cleanupDatabase();
   });
 });
 
@@ -30,14 +30,16 @@ afterAll(async () => {
   
   // Final cleanup with error handling
   await safeDbOperation(async () => {
-    await resetDatabase();
+    await cleanupDatabase();
   });
   
-  // Ensure clean disconnection
+  // Ensure clean disconnection once at the end of all tests
   try {
+    console.log('Attempting final database disconnect...');
     await prisma.$disconnect();
+    console.log('Final database disconnected.');
   } catch (error) {
-    console.warn('Failed to disconnect from database during cleanup:', error);
+    console.warn('Failed to disconnect from database during final cleanup:', error);
   }
 });
 

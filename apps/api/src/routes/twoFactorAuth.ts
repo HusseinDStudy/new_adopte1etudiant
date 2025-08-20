@@ -32,33 +32,26 @@ async function twoFactorAuthRoutes(server: FastifyInstance) {
             description: '2FA secret and QR code generated successfully',
             type: 'object',
             properties: {
-              secret: { type: 'string', description: 'Base32 encoded secret for manual entry', example: 'JBSWY3DPEHPK3PXP' },
-              qrCodeUrl: { type: 'string', description: 'Data URL for QR code image', example: 'otpauth://totp/Adopte1Etudiant:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Adopte1Etudiant' },
+              secret: { type: 'string', description: 'Base32 encoded secret for manual entry' },
+              qrCodeUrl: { type: 'string', description: 'Data URL for QR code image' },
               backupCodes: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Backup codes for account recovery', example: ['CODE1234', 'CODE5678', 'CODE9012']
+                description: 'Backup codes for account recovery',
               }
             },
-            example: {
-              secret: 'JBSWY3DPEHPK3PXP',
-              qrCodeUrl: 'otpauth://totp/Adopte1Etudiant:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Adopte1Etudiant',
-              backupCodes: ['CODE1234', 'CODE5678', 'CODE9012']
-            }
           },
           401: {
-            description: 'Not authenticated',
+            description: 'Unauthorized',
             type: 'object',
             properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
           },
           409: {
-            description: '2FA is already enabled for this user',
+            description: 'Conflict, 2FA already enabled',
             type: 'object',
             properties: { message: { type: 'string' } },
-            example: { message: 'Two-factor authentication is already enabled for this user' }
-          }
-        }
+          },
+        },
       },
     },
     generateTwoFactorSecret
@@ -74,44 +67,36 @@ async function twoFactorAuthRoutes(server: FastifyInstance) {
         summary: 'Verify and enable 2FA',
         security: [{ cookieAuth: [] }],
         body: zodToJsonSchema(verifyBodySchema),
-        example: { token: '123456' },
         response: {
           200: {
-            description: '2FA enabled successfully',
+            description: '2FA successfully verified and enabled',
             type: 'object',
             properties: {
               message: { type: 'string' },
               recoveryCodes: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'Recovery codes for account recovery', example: ['REC-ABCD-1234', 'REC-EFGH-5678']
-              }
+                description: 'Recovery codes for account recovery',
+              },
             },
-            example: {
-              message: 'Two-factor authentication enabled successfully',
-              recoveryCodes: ['REC-ABCD-1234', 'REC-EFGH-5678']
-            }
           },
           400: {
-            description: 'Invalid or expired token',
+            description: 'Invalid or expired 2FA token',
             type: 'object',
             properties: { message: { type: 'string' } },
-            example: { message: 'Invalid or expired 2FA token' }
           },
           401: {
-            description: 'Not authenticated',
+            description: 'Unauthorized',
             type: 'object',
             properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
           },
           409: {
-            description: '2FA is already enabled',
+            description: '2FA already enabled',
             type: 'object',
             properties: { message: { type: 'string' } },
-            example: { message: 'Two-factor authentication is already enabled' }
-          }
-        }
-      }
+          },
+        },
+      },
     },
     verifyTwoFactorToken
   );
@@ -126,40 +111,35 @@ async function twoFactorAuthRoutes(server: FastifyInstance) {
         summary: 'Disable 2FA',
         security: [{ cookieAuth: [] }],
         body: zodToJsonSchema(disableBodySchema),
-        example: { token: '654321' },
         response: {
           200: {
-            description: '2FA disabled successfully',
+            description: '2FA successfully disabled',
             type: 'object',
             properties: {
               message: { type: 'string' },
-              enabled: { type: 'boolean', enum: [false] }
             },
-            example: {
-              message: 'Two-factor authentication disabled successfully',
-              enabled: false
-            }
           },
           400: {
-            description: 'Invalid or expired token',
+            description: 'Invalid 2FA token provided',
             type: 'object',
             properties: { message: { type: 'string' } },
-            example: { message: 'Invalid 2FA token provided' }
           },
           401: {
-            description: 'Not authenticated',
+            description: 'Unauthorized',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: {
+              message: { type: 'string' },
+            },
           },
           409: {
-            description: '2FA is not enabled for this user',
+            description: '2FA not enabled',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Two-factor authentication is not enabled for this user' }
-          }
-        }
-      }
+            properties: {
+              message: { type: 'string' },
+            },
+          },
+        },
+      },
     },
     disableTwoFactor
   );

@@ -25,53 +25,41 @@ async function applicationRoutes(server: FastifyInstance) {
           properties: {
             offerId: {
               type: 'string',
-              description: 'ID of the job offer to apply to', example: 'clp9876543210fedcba'
+              description: 'ID of the job offer to apply to'
             }
-          },
-          example: { offerId: 'clp9876543210fedcba' }
+          }
         },
         response: {
           201: {
             description: 'Application created successfully',
             type: 'object',
             properties: {
-              id: { type: 'string', example: 'clp_new_application_id' },
-              offerId: { type: 'string', example: 'clp9876543210fedcba' },
-              studentId: { type: 'string', example: 'clp1234567890abcdef' },
-              status: { type: 'string', enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'], example: 'NEW' },
-              createdAt: { type: 'string', format: 'date-time', example: '2024-03-10T09:00:00Z' }
-            },
-            example: {
-              id: 'clp_new_application_id',
-              offerId: 'clp9876543210fedcba',
-              studentId: 'clp1234567890abcdef',
-              status: 'NEW',
-              createdAt: '2024-03-10T09:00:00Z'
+              id: { type: 'string' },
+              offerId: { type: 'string' },
+              studentId: { type: 'string' },
+              status: { type: 'string', enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'] },
+              createdAt: { type: 'string', format: 'date-time' }
             }
           },
           400: {
             description: 'Invalid input data',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Invalid offer ID' }
+            properties: { message: { type: 'string' } }
           },
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           },
           403: {
             description: 'Access denied - Student role required',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Forbidden: Only students can apply to offers' }
+            properties: { message: { type: 'string' } }
           },
           409: {
             description: 'Already applied to this offer',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Student has already applied to this offer' }
+            properties: { message: { type: 'string' } }
           }
         }
       },
@@ -91,18 +79,13 @@ async function applicationRoutes(server: FastifyInstance) {
         querystring: {
           type: 'object',
           properties: {
-            page: { type: 'integer', minimum: 1, default: 1, example: 1 },
-            limit: { type: 'integer', minimum: 1, maximum: 100, default: 10, example: 5 },
+            page: { type: 'integer', minimum: 1, default: 1 },
+            limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
             status: {
               type: 'string',
               enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'],
-              description: 'Filter by application status', example: 'NEW'
+              description: 'Filter by application status'
             }
-          },
-          example: {
-            page: 1,
-            limit: 5,
-            status: 'NEW'
           }
         },
         response: {
@@ -115,123 +98,52 @@ async function applicationRoutes(server: FastifyInstance) {
                 items: {
                   type: 'object',
                   properties: {
-                    id: { type: 'string', example: 'clp_my_app_id' },
-                    studentId: { type: 'string', example: 'clp1234567890abcdef' },
-                    offerId: { type: 'string', example: 'clp9876543210fedcba' },
-                    status: { type: 'string', enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'], example: 'NEW' },
+                    id: { type: 'string' },
+                    studentId: { type: 'string' },
+                    offerId: { type: 'string' },
+                    status: { type: 'string', enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'] },
                     offer: {
                       type: 'object',
                       properties: {
-                        id: { type: 'string', example: 'clp9876543210fedcba_offer' },
-                        title: { type: 'string', example: 'Frontend Developer Internship' },
-                        description: { type: 'string', example: 'Develop user interfaces with modern React.' },
-                        location: { type: 'string', example: 'San Francisco, CA' },
-                        duration: { type: 'string', enum: ['INTERNSHIP', 'APPRENTICESHIP', 'FULL_TIME'], example: 'INTERNSHIP' },
+                        id: { type: 'string' },
+                        title: { type: 'string' },
+                        description: { type: 'string' },
+                        location: { type: 'string' },
+                        duration: { type: 'string', enum: ['INTERNSHIP', 'APPRENTICESHIP', 'FULL_TIME'] },
                         company: {
                           type: 'object',
                           properties: {
-                            name: { type: 'string', example: 'InnovateTech' },
-                            sector: { type: 'string', example: 'Technology' }
-                          },
-                          example: {
-                            name: 'InnovateTech',
-                            sector: 'Technology'
+                            name: { type: 'string' },
+                            sector: { type: 'string' }
                           }
                         }
-                      },
-                      example: {
-                        id: 'clp9876543210fedcba_offer',
-                        title: 'Frontend Developer Internship',
-                        description: 'Develop user interfaces with modern React.',
-                        location: 'San Francisco, CA',
-                        duration: 'INTERNSHIP',
-                        company: {
-                          name: 'InnovateTech',
-                          sector: 'Technology'
-                        }
                       }
                     },
-                    createdAt: { type: 'string', format: 'date-time', example: '2024-03-10T09:00:00Z' },
-                    updatedAt: { type: 'string', format: 'date-time', example: '2024-03-12T10:00:00Z' }
-                  },
-                  example: {
-                    id: 'clp_my_app_id',
-                    studentId: 'clp1234567890abcdef',
-                    offerId: 'clp9876543210fedcba',
-                    status: 'NEW',
-                    offer: {
-                      id: 'clp9876543210fedcba_offer',
-                      title: 'Frontend Developer Internship',
-                      description: 'Develop user interfaces with modern React.',
-                      location: 'San Francisco, CA',
-                      duration: 'INTERNSHIP',
-                      company: {
-                        name: 'InnovateTech',
-                        sector: 'Technology'
-                      }
-                    },
-                    createdAt: '2024-03-10T09:00:00Z',
-                    updatedAt: '2024-03-12T10:00:00Z'
+                    createdAt: { type: 'string', format: 'date-time' },
+                    updatedAt: { type: 'string', format: 'date-time' }
                   }
                 }
               },
               pagination: {
                 type: 'object',
                 properties: {
-                  page: { type: 'integer', example: 1 },
-                  limit: { type: 'integer', example: 5 },
-                  total: { type: 'integer', example: 10 },
-                  totalPages: { type: 'integer', example: 2 }
-                },
-                example: {
-                  page: 1,
-                  limit: 5,
-                  total: 10,
-                  totalPages: 2
+                  page: { type: 'integer' },
+                  limit: { type: 'integer' },
+                  total: { type: 'integer' },
+                  totalPages: { type: 'integer' }
                 }
-              }
-            },
-            example: {
-              applications: [
-                {
-                  id: 'clp_my_app_id',
-                  studentId: 'clp1234567890abcdef',
-                  offerId: 'clp9876543210fedcba',
-                  status: 'NEW',
-                  offer: {
-                    id: 'clp9876543210fedcba_offer',
-                    title: 'Frontend Developer Internship',
-                    description: 'Develop user interfaces with modern React.',
-                    location: 'San Francisco, CA',
-                    duration: 'INTERNSHIP',
-                    company: {
-                      name: 'InnovateTech',
-                      sector: 'Technology'
-                    }
-                  },
-                  createdAt: '2024-03-10T09:00:00Z',
-                  updatedAt: '2024-03-12T10:00:00Z'
-                }
-              ],
-              pagination: {
-                page: 1,
-                limit: 5,
-                total: 10,
-                totalPages: 2
               }
             }
           },
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           },
           403: {
             description: 'Access denied - Student role required',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Forbidden: Only students can view their applications' }
+            properties: { message: { type: 'string' } }
           }
         }
       },
@@ -251,10 +163,9 @@ async function applicationRoutes(server: FastifyInstance) {
         params: {
           type: 'object',
           properties: {
-            id: { type: 'string', description: 'Application ID', example: 'clp_app_id_to_update' }
+            id: { type: 'string', description: 'Application ID' }
           },
-          required: ['id'],
-          example: { id: 'clp_app_id_to_update' }
+          required: ['id']
         },
         body: {
           type: 'object',
@@ -263,49 +174,39 @@ async function applicationRoutes(server: FastifyInstance) {
             status: {
               type: 'string',
               enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'],
-              description: 'New application status', example: 'INTERVIEW'
+              description: 'New application status'
             }
-          },
-          example: { status: 'INTERVIEW' }
+          }
         },
         response: {
           200: {
             description: 'Application status updated successfully',
             type: 'object',
             properties: {
-              id: { type: 'string', example: 'clp_app_id_to_update' },
-              status: { type: 'string', enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'], example: 'INTERVIEW' },
-              updatedAt: { type: 'string', format: 'date-time', example: '2024-03-15T14:30:00Z' }
-            },
-            example: {
-              id: 'clp_app_id_to_update',
-              status: 'INTERVIEW',
-              updatedAt: '2024-03-15T14:30:00Z'
+              id: { type: 'string' },
+              status: { type: 'string', enum: ['NEW', 'SEEN', 'INTERVIEW', 'REJECTED', 'HIRED'] },
+              updatedAt: { type: 'string', format: 'date-time' }
             }
           },
           400: {
             description: 'Invalid input data',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Invalid status provided' }
+            properties: { message: { type: 'string' } }
           },
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           },
           403: {
             description: 'Access denied - Company role required or not your application',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Forbidden: You do not own this application or are not a company' }
+            properties: { message: { type: 'string' } }
           },
           404: {
             description: 'Application not found',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Application with ID clp_app_id_to_update not found' }
+            properties: { message: { type: 'string' } }
           }
         }
       },
@@ -325,10 +226,9 @@ async function applicationRoutes(server: FastifyInstance) {
         params: {
           type: 'object',
           properties: {
-            id: { type: 'string', description: 'Application ID', example: 'clp_app_id_to_delete' }
+            id: { type: 'string', description: 'Application ID' }
           },
-          required: ['id'],
-          example: { id: 'clp_app_id_to_delete' }
+          required: ['id']
         },
         response: {
           200: {
@@ -336,26 +236,22 @@ async function applicationRoutes(server: FastifyInstance) {
             type: 'object',
             properties: {
               message: { type: 'string' }
-            },
-            example: { message: 'Application deleted successfully' }
+            }
           },
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           },
           403: {
             description: 'Access denied - Student role required or not your application',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Forbidden: You do not own this application or are not a student' }
+            properties: { message: { type: 'string' } }
           },
           404: {
             description: 'Application not found',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Application with ID clp_app_id_to_delete not found' }
+            properties: { message: { type: 'string' } }
           }
         }
       },

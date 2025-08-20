@@ -82,6 +82,9 @@ export const getMessagesForConversation = async (
     // Use ConversationService to check access (handles both regular and broadcast conversations)
     const accessCheck = await conversationService.isConversationAccessible(conversationId, userId);
     if (!accessCheck.accessible) {
+      if (accessCheck.reason === 'Conversation not found') {
+        return reply.code(404).send({ message: accessCheck.reason });
+      }
       return reply.code(403).send({ message: accessCheck.reason || 'You do not have permission to view these messages.' });
     }
 
@@ -154,15 +157,8 @@ export const getMessagesForConversation = async (
     });
 
     if (!conversationDetails) {
-      console.error('Conversation not found for ID:', conversationId);
       return reply.code(404).send({ message: 'Conversation not found.' });
     }
-
-    console.log('Found conversation details:', {
-      id: conversationDetails.id,
-      context: conversationDetails.context,
-      status: conversationDetails.status
-    });
 
     const response = {
       messages,

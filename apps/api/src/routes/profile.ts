@@ -26,72 +26,40 @@ async function profileRoutes(server: FastifyInstance) {
               {
                 type: 'object',
                 properties: {
-                  id: { type: 'string', example: 'clp1234567890abcdef' },
-                  userId: { type: 'string', example: 'clp1234567890abcdef' },
-                  role: { type: 'string', enum: ['STUDENT'], example: 'STUDENT' },
-                  firstName: { type: 'string', example: 'John' },
-                  lastName: { type: 'string', example: 'Doe' },
-                  school: { type: ['string', 'null'], example: 'University of Technology' },
-                  degree: { type: ['string', 'null'], example: 'Computer Science' },
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['STUDENT'] },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  school: { type: ['string', 'null'] },
+                  degree: { type: ['string', 'null'] },
                   skills: {
                     type: 'array',
-                    items: {
-                      type: 'string'
-                    },
-                    example: ['JavaScript', 'React', 'Python']
+                    items: { type: 'string' }
                   },
-                  isOpenToOpportunities: { type: 'boolean', example: true },
-                  cvUrl: { type: ['string', 'null'], format: 'uri', example: 'https://example.com/cv/john-doe.pdf' },
-                  isCvPublic: { type: 'boolean', example: true },
-                  email: { type: 'string', format: 'email', example: 'john.doe@university.edu' },
-                  createdAt: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00Z' },
-                  updatedAt: { type: 'string', format: 'date-time', example: '2024-01-20T14:45:00Z' }
+                  isOpenToOpportunities: { type: 'boolean' },
+                  cvUrl: { type: ['string', 'null'], format: 'uri' },
+                  isCvPublic: { type: 'boolean' },
+                  email: { type: 'string', format: 'email' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' }
                 },
-                example: {
-                  id: 'clp1234567890abcdef',
-                  userId: 'clp1234567890abcdef',
-                  role: 'STUDENT',
-                  firstName: 'John',
-                  lastName: 'Doe',
-                  school: 'University of Technology',
-                  degree: 'Computer Science',
-                  skills: ['JavaScript', 'React', 'Python'],
-                  isOpenToOpportunities: true,
-                  cvUrl: 'https://example.com/cv/john-doe.pdf',
-                  isCvPublic: true,
-                  email: 'john.doe@university.edu',
-                  createdAt: '2024-01-15T10:30:00Z',
-                  updatedAt: '2024-01-20T14:45:00Z'
-                }
               },
               {
                 type: 'object',
                 properties: {
-                  id: { type: 'string', example: 'clp1111222233334444' },
-                  userId: { type: 'string', example: 'clp1111222233334444' },
-                  role: { type: 'string', enum: ['COMPANY'], example: 'COMPANY' },
-                  name: { type: 'string', example: 'TechCorp Solutions' },
-                  size: { type: ['string', 'null'], example: '50-100 employees' },
-                  sector: { type: ['string', 'null'], example: 'Software Development' },
-                  contactEmail: { type: 'string', format: 'email', example: 'contact@techcorp.com' },
-                  logoUrl: { type: ['string', 'null'], format: 'uri', example: 'https://example.com/logo.png' },
-                  email: { type: 'string', format: 'email', example: 'hr@techcorp.com' },
-                  createdAt: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00Z' },
-                  updatedAt: { type: 'string', format: 'date-time', example: '2024-01-20T14:45:00Z' }
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['COMPANY'] },
+                  name: { type: 'string' },
+                  size: { type: ['string', 'null'] },
+                  sector: { type: ['string', 'null'] },
+                  contactEmail: { type: 'string', format: 'email' },
+                  logoUrl: { type: ['string', 'null'], format: 'uri' },
+                  email: { type: 'string', format: 'email' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' }
                 },
-                example: {
-                  id: 'clp1111222233334444',
-                  userId: 'clp1111222233334444',
-                  role: 'COMPANY',
-                  name: 'TechCorp Solutions',
-                  size: '50-100 employees',
-                  sector: 'Software Development',
-                  contactEmail: 'contact@techcorp.com',
-                  logoUrl: 'https://example.com/logo.png',
-                  email: 'hr@techcorp.com',
-                  createdAt: '2024-01-15T10:30:00Z',
-                  updatedAt: '2024-01-20T14:45:00Z'
-                }
               }
             ]
               }
@@ -100,14 +68,12 @@ async function profileRoutes(server: FastifyInstance) {
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           },
           404: {
             description: 'Profile not found',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Profile not found for current user' }
+            properties: { message: { type: 'string' } }
           }
         }
       },
@@ -130,51 +96,34 @@ async function profileRoutes(server: FastifyInstance) {
             {
               type: 'object',
               properties: {
-                firstName: { type: 'string', minLength: 1, example: 'Jane' },
-                lastName: { type: 'string', minLength: 1, example: 'Doe' },
-                school: { type: 'string', example: 'ENS Paris' },
-                degree: { type: 'string', example: 'Data Science' },
-                skills: { type: 'array', items: { type: 'string' }, example: ['Python', 'SQL', 'Machine Learning'] },
-                isOpenToOpportunities: { type: 'boolean', example: true },
+                firstName: { type: 'string', minLength: 1 },
+                lastName: { type: 'string', minLength: 1 },
+                school: { type: 'string' },
+                degree: { type: 'string' },
+                skills: { type: 'array', items: { type: 'string' } },
+                isOpenToOpportunities: { type: 'boolean' },
                 cvUrl: {
                   anyOf: [
-                    { type: 'string', format: 'uri', example: 'https://example.com/cv/jane-doe.pdf' },
+                    { type: 'string', format: 'uri' },
                     { type: 'string', maxLength: 0 }
                   ]
                 },
-                isCvPublic: { type: 'boolean', example: true }
+                isCvPublic: { type: 'boolean' }
               },
               required: ['firstName', 'lastName'],
-              description: 'Student profile data',
-              example: {
-                firstName: 'Jane',
-                lastName: 'Doe',
-                school: 'ENS Paris',
-                degree: 'Data Science',
-                skills: ['Python', 'SQL', 'Machine Learning'],
-                isOpenToOpportunities: true,
-                cvUrl: 'https://example.com/cv/jane-doe.pdf',
-                isCvPublic: true
-              }
+              description: 'Student profile data'
             },
             {
               type: 'object',
               properties: {
-                name: { type: 'string', minLength: 1, example: 'Global Innovations Inc.' },
-                size: { type: 'string', example: '1000+ employees' },
-                sector: { type: 'string', example: 'Fintech' },
-                contactEmail: { type: 'string', format: 'email', example: 'hr@globalinnovations.com' },
-                logoUrl: { type: ['string', 'null'], format: 'uri', example: 'https://example.com/global-logo.png' }
+                name: { type: 'string', minLength: 1 },
+                size: { type: 'string' },
+                sector: { type: 'string' },
+                contactEmail: { type: 'string', format: 'email' },
+                logoUrl: { type: ['string', 'null'], format: 'uri' }
               },
               required: ['name', 'contactEmail'],
-              description: 'Company profile data',
-              example: {
-                name: 'Global Innovations Inc.',
-                size: '1000+ employees',
-                sector: 'Fintech',
-                contactEmail: 'hr@globalinnovations.com',
-                logoUrl: 'https://example.com/global-logo.png'
-              }
+              description: 'Company profile data'
             }
           ]
         },
@@ -186,78 +135,47 @@ async function profileRoutes(server: FastifyInstance) {
               {
                 type: 'object',
                 properties: {
-                  id: { type: 'string', example: 'clp1234567890abcde_student' },
-                  userId: { type: 'string', example: 'clp1234567890abcde_user' },
-                  role: { type: 'string', enum: ['STUDENT'], example: 'STUDENT' },
-                  firstName: { type: 'string', example: 'Jane' },
-                  lastName: { type: 'string', example: 'Doe' },
-                  school: { type: ['string', 'null'], example: 'ENS Paris' },
-                  degree: { type: ['string', 'null'], example: 'Data Science' },
-                  skills: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    example: ['Python', 'SQL', 'Machine Learning']
-                  },
-                  isOpenToOpportunities: { type: 'boolean', example: true },
-                  isCvPublic: { type: 'boolean', example: true },
-                  cvUrl: { type: ['string', 'null'], format: 'uri', example: 'https://example.com/cv/jane-doe.pdf' },
-                  email: { type: 'string', format: 'email', example: 'jane.doe@university.edu' }
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['STUDENT'] },
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  school: { type: ['string', 'null'] },
+                  degree: { type: ['string', 'null'] },
+                  skills: { type: 'array', items: { type: 'string' } },
+                  isOpenToOpportunities: { type: 'boolean' },
+                  isCvPublic: { type: 'boolean' },
+                  cvUrl: { type: ['string', 'null'], format: 'uri' },
+                  email: { type: 'string', format: 'email' }
                 },
-                description: 'Student profile',
-                example: {
-                  id: 'clp1234567890abcde_student',
-                  userId: 'clp1234567890abcde_user',
-                  role: 'STUDENT',
-                  firstName: 'Jane',
-                  lastName: 'Doe',
-                  school: 'ENS Paris',
-                  degree: 'Data Science',
-                  skills: ['Python', 'SQL', 'Machine Learning'],
-                  isOpenToOpportunities: true,
-                  isCvPublic: true,
-                  cvUrl: 'https://example.com/cv/jane-doe.pdf',
-                  email: 'jane.doe@university.edu'
-                }
+                description: 'Student profile'
               },
               {
                 type: 'object',
                 properties: {
-                  id: { type: 'string', example: 'clp1111222233334444_company' },
-                  userId: { type: 'string', example: 'clp1111222233334444_user' },
-                  role: { type: 'string', enum: ['COMPANY'], example: 'COMPANY' },
-                  name: { type: 'string', example: 'Global Innovations Inc.' },
-                  size: { type: 'string', example: '1000+ employees' },
-                  sector: { type: 'string', example: 'Fintech' },
-                  contactEmail: { type: 'string', format: 'email', example: 'hr@globalinnovations.com' },
-                  logoUrl: { type: ['string', 'null'], format: 'uri', example: 'https://example.com/global-logo.png' },
-                  email: { type: 'string', format: 'email', example: 'hr@globalinnovations.com' }
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  role: { type: 'string', enum: ['COMPANY'] },
+                  name: { type: 'string' },
+                  size: { type: 'string' },
+                  sector: { type: 'string' },
+                  contactEmail: { type: 'string', format: 'email' },
+                  logoUrl: { type: ['string', 'null'], format: 'uri' },
+                  email: { type: 'string', format: 'email' }
                 },
-                description: 'Company profile',
-                example: {
-                  id: 'clp1111222233334444_company',
-                  userId: 'clp1111222233334444_user',
-                  role: 'COMPANY',
-                  name: 'Global Innovations Inc.',
-                  size: '1000+ employees',
-                  sector: 'Fintech',
-                  contactEmail: 'hr@globalinnovations.com',
-                  logoUrl: 'https://example.com/global-logo.png',
-                  email: 'hr@globalinnovations.com'
-                }
+                description: 'Company profile'
               }
             ]
           },
           400: {
             description: 'Invalid input data',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Invalid profile data provided' }
+            properties: { message: { type: 'string' } }
           },
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           }
         }
       },
@@ -280,36 +198,27 @@ async function profileRoutes(server: FastifyInstance) {
             {
               type: 'object',
               properties: {
-                firstName: { type: 'string', minLength: 1, example: 'Jane' },
-                lastName: { type: 'string', minLength: 1, example: 'Doe' },
-                school: { type: 'string', example: 'ENS Paris' },
-                degree: { type: 'string', example: 'Data Science' },
-                skills: { type: 'array', items: { type: 'string' }, example: ['Python', 'SQL'] },
-                isOpenToOpportunities: { type: 'boolean', example: false },
-                cvUrl: { type: 'string', format: 'uri', example: 'https://example.com/cv/jane-doe-updated.pdf' },
-                isCvPublic: { type: 'boolean', example: false }
+                firstName: { type: 'string', minLength: 1 },
+                lastName: { type: 'string', minLength: 1 },
+                school: { type: 'string' },
+                degree: { type: 'string' },
+                skills: { type: 'array', items: { type: 'string' } },
+                isOpenToOpportunities: { type: 'boolean' },
+                cvUrl: { type: 'string', format: 'uri' },
+                isCvPublic: { type: 'boolean' }
               },
-              description: 'Student profile data (all fields optional for PATCH)',
-              example: {
-                firstName: 'Jane',
-                school: 'ENS Paris',
-                skills: ['Python', 'SQL']
-              }
+              description: 'Student profile data (all fields optional for PATCH)'
             },
             {
               type: 'object',
               properties: {
-                name: { type: 'string', minLength: 1, example: 'Global Innovations Inc.' },
-                size: { type: 'string', example: '500-1000 employees' },
-                sector: { type: 'string', example: 'AI Solutions' },
-                contactEmail: { type: 'string', format: 'email', example: 'info@globalinnovations.com' },
-                logoUrl: { type: ['string', 'null'], format: 'uri', example: 'https://example.com/global-logo-new.png' }
+                name: { type: 'string', minLength: 1 },
+                size: { type: 'string' },
+                sector: { type: 'string' },
+                contactEmail: { type: 'string', format: 'email' },
+                logoUrl: { type: ['string', 'null'], format: 'uri' }
               },
-              description: 'Company profile data (all fields optional for PATCH)',
-              example: {
-                sector: 'AI Solutions',
-                contactEmail: 'info@globalinnovations.com'
-              }
+              description: 'Company profile data (all fields optional for PATCH)'
             }
           ]
         },
@@ -318,32 +227,23 @@ async function profileRoutes(server: FastifyInstance) {
             description: 'Profile updated successfully',
             type: 'object',
             properties: {
-              message: { type: 'string', example: 'Profile updated successfully' },
+              message: { type: 'string' },
               profile: {
-                type: 'object',
+                type: 'object'
                 // Assuming the structure is similar to the GET /profile response, can be refined.
                 // For simplicity, we'll provide a generic object example here.
-                example: {
-                  id: 'clp_updated_profile_id',
-                  userId: 'clp_updated_user_id',
-                  email: 'updated.email@example.com',
-                  role: 'STUDENT', // or COMPANY
-                  // ... other updated profile fields based on role
-                }
               }
             }
           },
           400: {
             description: 'Invalid input data',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Invalid profile data for update' }
+            properties: { message: { type: 'string' } }
           },
           401: {
             description: 'Not authenticated',
             type: 'object',
-            properties: { message: { type: 'string' } },
-            example: { message: 'Unauthorized' }
+            properties: { message: { type: 'string' } }
           }
         }
       },

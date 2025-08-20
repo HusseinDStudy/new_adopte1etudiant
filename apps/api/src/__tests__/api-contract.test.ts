@@ -49,10 +49,10 @@ describe('API Contract Tests', () => {
         expect(profile).toHaveProperty('firstName');
         expect(profile).toHaveProperty('lastName');
         // Note: API responses may not always include all fields
-        if (profile.hasOwnProperty('school')) {
+        if (Object.prototype.hasOwnProperty.call(profile, 'school')) {
             expect(profile.school === null || typeof profile.school === 'string').toBe(true);
         }
-        if (profile.hasOwnProperty('degree')) {
+        if (Object.prototype.hasOwnProperty.call(profile, 'degree')) {
             expect(profile.degree === null || typeof profile.degree === 'string').toBe(true);
         }
         expect(profile).toHaveProperty('isOpenToOpportunities');
@@ -62,12 +62,10 @@ describe('API Contract Tests', () => {
         expect(profile).toHaveProperty('skills');
         expect(Array.isArray(profile.skills)).toBe(true);
 
-        // Validate skills structure if present
+        // Validate skills structure as array of strings
         if (profile.skills.length > 0) {
-            profile.skills.forEach((skillRelation: any) => {
-                expect(skillRelation).toHaveProperty('skill');
-                expect(skillRelation.skill).toHaveProperty('id');
-                expect(skillRelation.skill).toHaveProperty('name');
+            profile.skills.forEach((skillName: string) => {
+                expect(typeof skillName).toBe('string');
             });
         }
     };
@@ -89,6 +87,12 @@ describe('API Contract Tests', () => {
         // Skills may be an array of skill objects or skill IDs depending on endpoint
         if (offer.hasOwnProperty('skills')) {
             expect(Array.isArray(offer.skills)).toBe(true);
+            // Ensure skills are strings if present in the response
+            if (offer.skills.length > 0) {
+                offer.skills.forEach((skill: any) => {
+                    expect(typeof skill).toBe('string');
+                });
+            }
         }
 
         // Company info may not always be included
@@ -235,22 +239,11 @@ describe('API Contract Tests', () => {
 
     describe('Profile Endpoints', () => {
         it('GET /api/profile should return correct profile schema for student', async () => {
-            const student = await createTestStudent(app);
+            const student = await createTestStudent(app, {
+                skills: ['React', 'Node.js']
+            });
 
-            // Create profile
-            await supertest(app.server)
-                .post('/api/profile')
-                .set('Cookie', `token=${student.authToken}`)
-                .send({
-                    firstName: 'Test',
-                    lastName: 'Student',
-                    school: 'University',
-                    degree: 'Computer Science',
-                    skills: ['React', 'Node.js'],
-                    isOpenToOpportunities: true,
-                    cvUrl: 'https://example.com/cv.pdf',
-                    isCvPublic: true,
-                });
+            // No need to create profile explicitly here, as createTestStudent can now handle skills
 
             const response = await supertest(app.server)
                 .get('/api/profile')
@@ -259,6 +252,9 @@ describe('API Contract Tests', () => {
             expect(response.status).toBe(200);
             if (response.body) {
                 validateStudentProfile(response.body);
+                // Ensure skills are returned as simple strings
+                expect(response.body.skills[0]).not.toHaveProperty('skill');
+                expect(typeof response.body.skills[0]).toBe('string');
             }
         });
 
@@ -298,6 +294,9 @@ describe('API Contract Tests', () => {
             validateStudentProfile(response.body);
             expect(response.body.firstName).toBe(profileData.firstName);
             expect(response.body.skills).toHaveLength(2);
+            // Ensure skills are returned as simple strings
+            expect(response.body.skills[0]).not.toHaveProperty('skill');
+            expect(typeof response.body.skills[0]).toBe('string');
         });
     });
 
@@ -615,7 +614,7 @@ describe('API Contract Tests', () => {
             validateConversation(response.body.conversations[0]);
         });
 
-        it('GET /api/messages/conversations/:id/messages should return messages with adoption status', async () => {
+        it('GET /api/messages/conversations/:id should return messages with adoption status', async () => {
             const company = await createTestCompany(app);
             const student = await createTestStudent(app);
 
@@ -634,7 +633,7 @@ describe('API Contract Tests', () => {
             const conversationId = conversationsResponse.body.conversations[0].id;
 
             const response = await supertest(app.server)
-                .get(`/api/messages/conversations/${conversationId}/messages`)
+                .get(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${student.authToken}`);
 
             expect(response.status).toBe(200);
@@ -646,7 +645,7 @@ describe('API Contract Tests', () => {
             response.body.messages.forEach(validateMessage);
         });
 
-        it('POST /api/messages/conversations/:id/messages should create and return message', async () => {
+        it('POST /api/messages/conversations/:id should create and return message', async () => {
             const company = await createTestCompany(app);
             const student = await createTestStudent(app);
 
@@ -665,7 +664,7 @@ describe('API Contract Tests', () => {
             const conversationId = conversationsResponse.body.conversations[0].id;
 
             const response = await supertest(app.server)
-                .post(`/api/messages/conversations/${conversationId}/messages`)
+                .post(`/api/messages/conversations/${conversationId}`)
                 .set('Cookie', `token=${student.authToken}`)
                 .send({
                     content: 'Thank you for your interest!',

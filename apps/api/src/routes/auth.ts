@@ -111,7 +111,6 @@ async function authRoutes(server: FastifyInstance) {
       }
     }
   }, async function (request, reply) {
-    // @ts-ignore
     const { token } = await this.google.getAccessTokenFromAuthorizationCodeFlow(request);
     
     // Fetch user profile from Google
@@ -173,7 +172,7 @@ async function authRoutes(server: FastifyInstance) {
     if (user) {
         // --- 2FA Check for existing OAuth user ---
         if (user.isTwoFactorEnabled) {
-            const tempPayload = { id: user.id, email: user.email, '2fa_in_progress': true };
+            const tempPayload = { id: user.id, email: user.email, '2f-in_progress': true };
             const tempToken = jwt.sign(tempPayload, process.env.JWT_SECRET!, { expiresIn: '5m' });
 
             reply.setCookie('2fa_token', tempToken, {
@@ -265,7 +264,6 @@ async function authRoutes(server: FastifyInstance) {
     if (!request.user) {
       return reply.status(401).send({ message: 'You must be logged in to delete your account.' });
     }
-    // @ts-ignore
     const { token } = await this.googleDelete.getAccessTokenFromAuthorizationCodeFlow(request);
     const googleUser = await fetch(
       'https://www.googleapis.com/oauth2/v2/userinfo',
@@ -759,8 +757,8 @@ async function authRoutes(server: FastifyInstance) {
           type: 'object',
           required: ['currentPassword', 'newPassword'],
           properties: {
-            currentPassword: { type: 'string', example: 'OldSecurePassword123' },
-            newPassword: { type: 'string', minLength: 8, example: 'NewSecurePassword456' }
+            currentPassword: { type: 'string' },
+            newPassword: { type: 'string', minLength: 8 }
           }
         },
         response: {

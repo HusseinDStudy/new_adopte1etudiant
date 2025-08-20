@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const API_BASE_URL = process.env.API_URL;
+const API_BASE_URL = process.env.API_URL || 'http://localhost:8080';
 const DOCS_PATH = path.join(__dirname, '../docs');
 const SPEC_URL = `${API_BASE_URL}/docs/json`;
 
@@ -47,6 +47,7 @@ class APIValidator {
 
   async validateAPI() {
     this.log('\n🔍 Starting API Documentation Validation\n', 'bold');
+    this.log(`Using API Base URL: ${API_BASE_URL}`, 'blue');
 
     try {
       // Step 1: Check API health

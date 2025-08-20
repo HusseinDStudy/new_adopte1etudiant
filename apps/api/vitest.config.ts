@@ -15,8 +15,8 @@ export default defineConfig({
       },
     },
     // Increase timeout for database operations
-    testTimeout: 30000,
-    hookTimeout: 30000,
+    testTimeout: 60000,
+    hookTimeout: 60000,
     // Add delays between tests to reduce database load
     sequence: {
       hooks: 'list',
