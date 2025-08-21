@@ -39,9 +39,11 @@ The API collects various metrics to provide insights into its performance and he
 These metrics are exposed via the `/metrics` endpoint (admin only) and are designed to be scraped by monitoring systems like Prometheus.
 
 ### 3.2. CloudWatch Integration
-In production, application logs and custom metrics are streamed to AWS CloudWatch. This provides:
+In production, application logs and custom metrics are streamed to AWS CloudWatch, utilizing the `awslogs` driver. This integration requires the `AWS_REGION` environment variable to be configured.
 
-- **Centralized Logging**: All application and system logs are aggregated for easy searching and analysis.
+This provides:
+
+- **Centralized Logging**: All application and system logs are aggregated into specific log groups: `/adopte1etudiant/api` for the backend API and `/adopte1etudiant/web` for the frontend web application. This allows for easy searching and analysis.
 - **Custom Metrics**: Key performance indicators (e.g., unique active users, offer creation rate) are extracted from logs and published as CloudWatch Metrics.
 - **Dashboards**: Customizable dashboards visualize trends, anomalies, and overall system health over time.
 - **Alarms**: Automated alarms trigger alerts based on predefined thresholds (e.g., high error rates, low availability).

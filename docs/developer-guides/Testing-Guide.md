@@ -455,7 +455,7 @@ CI fails if coverage drops below:
 
 ## Conclusion
 
-The test suite provides comprehensive coverage of the application's functionality, ensuring reliability and maintainability. With 302 tests achieving high coverage standards, the codebase is well-protected against regressions and provides confidence for ongoing development.
+The test suite provides comprehensive coverage of the application's functionality, ensuring reliability and maintainability. With 460 tests achieving high coverage standards, the codebase is well-protected against regressions and provides confidence for ongoing development.
 
 Regular test maintenance and continuous improvement of coverage ensure the application remains robust and reliable as it evolves. 
 
@@ -1262,9 +1262,9 @@ Artifacts: ...
 ### Document Information
 - **Project**: Adopte1Etudiant
 - **Version**: 2.0
-- **Last Updated**: January 2025
+- **Last Updated**: August 2025
 - **Test Environment**: Automated + Manual
-- **Total Test Cases**: 302 automated tests
+- **Total Test Cases**: 460 automated tests
 
 ### Test Scope
 
