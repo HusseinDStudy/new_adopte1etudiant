@@ -58,7 +58,7 @@
     "alert:slack": "node scripts/notify-slack.js",
     "alert:slack:failure": "node scripts/notify-slack.js '⚠️ Monitoring failed'",
     "monitor:ci": "npm run monitor:all:ci || npm run alert:slack:failure",
-    "setup": "npm install && cp apps/api/.env.example apps/api/.env && cp apps/web/.env.example apps/web/.env && cp .env.example .env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: npm run docker:dev'"
+    "setup": "npm install && cp apps/api/.env.example apps/api/.env && cp apps/web/.env.example apps/web/.env && cp .env.example .env && echo '✅ Setup complete! Update apps/api/.env with your values, then run: docker compose -f docker-compose.db.yml up -d && npm run dev'"
   },
   "devDependencies": {
     "@oclif/core": "^4.5.2",

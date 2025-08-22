@@ -30,26 +30,23 @@ Dev quickstart checklist (fast path):
 
 ### Prerequisites
 
-- Node.js (v20 or later)
+- Node.js (v20 or later) [Nvm For managing Node Versions]
 - Docker and Docker Compose
+- System Linux 
 
 ### Setup
 0. **Clean Up**
     ```bash
     npm run clean
     ```
-1.  **Install Dependencies**
-    ```bash
-    npm install
-    ```
 
-2.  **Initialize Environment Variables**
-    This command copies the example `.env` files for you.
+1.  **SetUp Environment Variables and Install Dependencies**
+    This command install dependencies (`npm install`) and copies the example `.env` files for you.
     ```bash
     npm run setup
     ```
 
-3.  **Configure Your Environment**
+2.  **Configure Your Environment**
     Manually edit the following files and fill in the required values (database credentials, OAuth keys, etc.):
     - `.env`
     - `apps/api/.env`
@@ -80,7 +77,8 @@ Dev quickstart checklist (fast path):
 - **Access the application:**
   - **Web App**: `http://localhost:5173`
   - **API**: `http://localhost:8080`
-  - **API Documentation**: `/docs` (Interactive Swagger UI)
+  - **API Documentation**: `http://localhost:8080/docs` (Interactive Swagger UI)
+  - **API Health Check EndPoint**: `http://localhost:8080/health`
 
 ## Project Commands
 
@@ -126,6 +124,18 @@ Here are all available commands you can run from the root directory:
 | `npm run web:test:watch`  | Runs web tests in watch mode.                                            |
 | `npm run web:test:coverage`| Runs web tests with coverage.                                           |
 
+### Web E2E Testing Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run test:e2e --workspace=apps/web` | Runs Playwright E2E tests for the web app.                    |
+| `npm run test:e2e:ui --workspace=apps/web` | Runs Playwright E2E tests with UI mode.                    |
+
+### Web Development Tools Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run storybook --workspace=apps/web` | Starts Storybook development server.                          |
+| `npm run storybook:build --workspace=apps/web` | Builds Storybook for production.                        |
+
 ### Database Commands
 | Command                   | Description                                                               |
 | ------------------------- | ------------------------------------------------------------------------- |
@@ -136,6 +146,7 @@ Here are all available commands you can run from the root directory:
 | `npm run db:generate`     | Generates Prisma client.                                                 |
 | `npm run db:seed`         | Seeds the database with initial data.                                    |
 | `npm run db:clean`        | Resets the database (removes all data and recreates schema).             |
+| `npm run db:reset`        | Resets the database with force flag (alternative to db:clean).           |
 
 ### Documentation Commands
 | Command                   | Description                                                               |

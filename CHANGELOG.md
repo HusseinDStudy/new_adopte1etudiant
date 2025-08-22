@@ -337,7 +337,7 @@ No deprecated endpoints in this release.
 ## Monitoring
 - Health check endpoint: `GET /health`
 - Metrics endpoint: `GET /metrics` (admin only)
-- API status page: [YOUR_STATUS_PAGE_URL](YOUR_STATUS_PAGE_URL)
+- API status: Check health endpoint for current status
 
 ---
 

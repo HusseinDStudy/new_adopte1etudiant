@@ -110,9 +110,9 @@ newman run monitoring/postman-collection.json \
 ## CI/CD Integration
 
 ### GitHub Actions
-The monitoring is integrated into `.github/workflows/api-docs-validation.yml`:
-- Runs Newman tests on every push/PR
-- Executes Artillery performance tests
+The monitoring is integrated into `.github/workflows/monitoring.yml`:
+- Runs Newman tests on hourly schedule and manual dispatch
+- Executes Artillery performance tests  
 - Generates reports as artifacts
 - Fails build if tests don't pass
 

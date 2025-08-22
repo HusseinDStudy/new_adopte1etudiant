@@ -108,7 +108,7 @@ git push origin feature/update-yyyy-mm-dd
 After deployment, perform immediate checks to verify the application's health and monitor its performance in the live environment.
 
 *   **Health Checks**: Verify that the API and web application health endpoints return `ok`.
-    *   API Health: `http://your-domain.com/api/health`
+    *   API Health: `http://your-domain.com/health`
     *   Web Health: `http://your-domain.com`
 *   **Monitoring Dashboards**: Check monitoring tools (e.g., Prometheus, Grafana, CloudWatch) for any unusual spikes in error rates, CPU/memory usage, or response times.
 *   **Smoke Tests**: Perform a quick round of essential user flows to ensure core functionalities are working as expected.
