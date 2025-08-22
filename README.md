@@ -33,6 +33,8 @@ Dev quickstart checklist (fast path):
 - Node.js (v20 or later)
 - Docker and Docker Compose
 
+**Note:** For monitoring tools (Artillery), Node.js v22.13.0 or later is recommended to avoid compatibility warnings. You can still use the project with Node.js v20, but monitoring tests may show deprecation warnings.
+
 ### Setup
 0. **Clean Up**
     ```bash
