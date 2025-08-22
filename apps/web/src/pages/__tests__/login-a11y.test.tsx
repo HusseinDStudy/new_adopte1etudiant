@@ -1,20 +1,24 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { axe } from 'jest-axe';
 import React from 'react';
 import LoginPage from '../LoginPage';
 import { MemoryRouter } from 'react-router-dom';
-
+import { ThemeProvider } from '../../theme/ThemeProvider';
+import { A11yProvider } from '../../theme/A11yProvider';
 
 describe('LoginPage a11y', () => {
-  it('has no obvious a11y violations', async () => {
+  it('should not have any accessibility violations', async () => {
     const { container } = render(
       <MemoryRouter>
-        <LoginPage />
+        <ThemeProvider>
+          <A11yProvider>
+            <LoginPage />
+          </A11yProvider>
+        </ThemeProvider>
       </MemoryRouter>
     );
-    const main = container.querySelector('main') || container;
-    const results = await axe(main as HTMLElement);
-    expect(results.violations).toEqual([]);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });
 

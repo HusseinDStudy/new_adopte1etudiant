@@ -7,14 +7,24 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "lint": {},
-    "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
-    },
     "dev": {
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test:watch": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   }
 } 
