@@ -30,28 +30,23 @@ Dev quickstart checklist (fast path):
 
 ### Prerequisites
 
-- Node.js (v20 or later)
+- Node.js (v20 or later) [Nvm For managing Node Versions]
 - Docker and Docker Compose
-
-**Note:** For monitoring tools (Artillery), Node.js v22.13.0 or later is recommended to avoid compatibility warnings. You can still use the project with Node.js v20, but monitoring tests may show deprecation warnings.
+- System Linux 
 
 ### Setup
 0. **Clean Up**
     ```bash
     npm run clean
     ```
-1.  **Install Dependencies**
-    ```bash
-    npm install
-    ```
 
-2.  **Initialize Environment Variables**
-    This command copies the example `.env` files for you.
+1.  **SetUp Environment Variables and Install Dependencies**
+    This command install dependencies (`npm install`) and copies the example `.env` files for you.
     ```bash
     npm run setup
     ```
 
-3.  **Configure Your Environment**
+2.  **Configure Your Environment**
     Manually edit the following files and fill in the required values (database credentials, OAuth keys, etc.):
     - `.env`
     - `apps/api/.env`
@@ -82,7 +77,8 @@ Dev quickstart checklist (fast path):
 - **Access the application:**
   - **Web App**: `http://localhost:5173`
   - **API**: `http://localhost:8080`
-  - **API Documentation**: `/docs` (Interactive Swagger UI)
+  - **API Documentation**: `http://localhost:8080/docs` (Interactive Swagger UI)
+  - **API Health Check EndPoint**: `http://localhost:8080/health`
 
 ## Project Commands
 
