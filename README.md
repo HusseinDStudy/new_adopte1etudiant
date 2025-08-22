@@ -128,6 +128,18 @@ Here are all available commands you can run from the root directory:
 | `npm run web:test:watch`  | Runs web tests in watch mode.                                            |
 | `npm run web:test:coverage`| Runs web tests with coverage.                                           |
 
+### Web E2E Testing Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run test:e2e --workspace=apps/web` | Runs Playwright E2E tests for the web app.                    |
+| `npm run test:e2e:ui --workspace=apps/web` | Runs Playwright E2E tests with UI mode.                    |
+
+### Web Development Tools Commands
+| Command                   | Description                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| `npm run storybook --workspace=apps/web` | Starts Storybook development server.                          |
+| `npm run storybook:build --workspace=apps/web` | Builds Storybook for production.                        |
+
 ### Database Commands
 | Command                   | Description                                                               |
 | ------------------------- | ------------------------------------------------------------------------- |
@@ -138,6 +150,7 @@ Here are all available commands you can run from the root directory:
 | `npm run db:generate`     | Generates Prisma client.                                                 |
 | `npm run db:seed`         | Seeds the database with initial data.                                    |
 | `npm run db:clean`        | Resets the database (removes all data and recreates schema).             |
+| `npm run db:reset`        | Resets the database with force flag (alternative to db:clean).           |
 
 ### Documentation Commands
 | Command                   | Description                                                               |
