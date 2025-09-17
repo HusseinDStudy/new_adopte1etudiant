@@ -731,9 +731,10 @@
     "disable": "Disable",
     "dangerZone": "Danger Zone",
     "deleteAccountWarning": "Deleting your account is permanent and cannot be undone.",
-    "deleteWithGoogle": "Delete with Google",
-    "confirmDeletion": "Confirm Deletion",
-    "enterPasswordToDelete": "Please enter your password to delete your account."
+      "deleteWithGoogle": "Delete with Google",
+  "confirmDeletion": "Confirm Deletion",
+  "deleteOAuthWarning": "You will be redirected to Google to confirm your identity. After confirmation, your account and all associated data will be permanently deleted.",
+  "enterPasswordToDelete": "Please enter your password to delete your account."
   },
   "profileForm": {
     "studentProfile": "Student Profile",

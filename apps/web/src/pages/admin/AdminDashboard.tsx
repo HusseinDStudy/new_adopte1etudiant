@@ -196,10 +196,19 @@ const AdminDashboard: React.FC = () => {
                         className={`rounded-full px-2 py-1 ${
                           post.status === 'PUBLISHED'
                             ? 'bg-green-100 text-green-800'
+                            : post.status === 'DRAFT'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : post.status === 'SCHEDULED'
+                            ? 'bg-blue-100 text-blue-800'
+                            : post.status === 'ARCHIVED'
+                            ? 'bg-gray-100 text-gray-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}
                       >
-                        {post.status === 'PUBLISHED' ? t('forms.published') : t('forms.draft')}
+                        {post.status === 'PUBLISHED' ? t('adminBlog.status.published') :
+                         post.status === 'DRAFT' ? t('adminBlog.status.draft') :
+                         post.status === 'SCHEDULED' ? t('adminBlog.status.scheduled') :
+                         post.status === 'ARCHIVED' ? t('adminBlog.status.archived') : t('adminBlog.status.draft')}
                       </span>
                       {post.featured && (
                         <span className="rounded-full bg-blue-100 px-2 py-1 text-blue-800">

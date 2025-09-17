@@ -56,6 +56,7 @@ async function blogRoutes(server: FastifyInstance) {
                   category: { type: 'string' },
                   author: { type: 'string' },
                   readTime: { type: 'string' },
+                  status: { type: 'string', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
                   published: { type: 'boolean' },
                   featured: { type: 'boolean' },
                   publishedAt: { type: 'string', format: 'date-time' },
@@ -197,6 +198,7 @@ async function blogRoutes(server: FastifyInstance) {
         properties: {
           search: { type: 'string', description: 'Search in title, excerpt, and author' },
           category: { type: 'string', description: 'Filter by category' },
+          status: { type: 'string', enum: ['PUBLISHED', 'DRAFT', 'SCHEDULED', 'ARCHIVED'], description: 'Filter by post status' },
           published: { type: 'boolean', description: 'Filter by published status' },
           featured: { type: 'boolean', description: 'Filter featured posts' },
           page: { type: 'integer', minimum: 1, default: 1 },
@@ -212,7 +214,7 @@ async function blogRoutes(server: FastifyInstance) {
               type: 'array',
               items: {
                 type: 'object',
-                properties: {
+                                  properties: {
                   id: { type: 'string' },
                   title: { type: 'string' },
                   slug: { type: 'string' },
@@ -221,6 +223,7 @@ async function blogRoutes(server: FastifyInstance) {
                   category: { type: 'string' },
                   author: { type: 'string' },
                   readTime: { type: 'string' },
+                  status: { type: 'string', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
                   published: { type: 'boolean' },
                   featured: { type: 'boolean' },
                   publishedAt: { type: 'string', format: 'date-time' },
@@ -281,6 +284,7 @@ async function blogRoutes(server: FastifyInstance) {
             image: { type: 'string' },
             category: { type: 'string' },
             author: { type: 'string' },
+            status: { type: 'string', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
             published: { type: 'boolean' },
             featured: { type: 'boolean' },
             createdAt: { type: 'string' },
@@ -346,6 +350,7 @@ async function blogRoutes(server: FastifyInstance) {
             id: { type: 'string' },
             title: { type: 'string' },
             slug: { type: 'string' },
+            status: { type: 'string', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
             published: { type: 'boolean' },
             featured: { type: 'boolean' },
             createdAt: { type: 'string' }
@@ -414,6 +419,7 @@ async function blogRoutes(server: FastifyInstance) {
             id: { type: 'string' },
             title: { type: 'string' },
             slug: { type: 'string' },
+            status: { type: 'string', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
             published: { type: 'boolean' },
             featured: { type: 'boolean' },
             updatedAt: { type: 'string' }
@@ -501,6 +507,7 @@ async function blogRoutes(server: FastifyInstance) {
           type: 'object',
           properties: {
             id: { type: 'string' },
+            status: { type: 'string', enum: ['DRAFT', 'PUBLISHED', 'SCHEDULED', 'ARCHIVED'] },
             published: { type: 'boolean' },
             publishedAt: { type: 'string' }
           },

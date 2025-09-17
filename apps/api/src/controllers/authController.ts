@@ -58,35 +58,34 @@ export const loginUser = async (
       const tempPayload = {
         id: result.user!.id,
         email: result.user!.email,
-        '2fa_in_progress': true,
-      };
-      const tempToken = authService.generateTempJWT(tempPayload);
+        '2f-in_progress': true,
+      } as const;
+
+      const tempToken = jwt.sign(tempPayload, process.env.JWT_SECRET!, { expiresIn: '5m' });
 
       reply.setCookie('2fa_token', tempToken, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 5 * 60, // 5 minutes
+        maxAge: 5 * 60,
       });
 
       return reply.code(200).send({ twoFactorRequired: true });
     }
 
-    // Generate JWT token
-    const token = authService.generateJWT({
-      id: result.user!.id,
-      email: result.user!.email,
-      role: result.user!.role,
-    });
+    // Normal login
+    const token = jwt.sign(
+      { id: result.user!.id, email: result.user!.email, role: result.user!.role },
+      process.env.JWT_SECRET!
+    );
 
-    reply
+    return reply
       .setCookie('token', token, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
       })
       .code(200)
       .send({ message: 'Logged in successfully' });
@@ -114,7 +113,7 @@ export const verifyTwoFactorLogin = async (
       return reply.code(401).send({ message: '2FA session expired. Please login again.' });
     }
 
-    if (!tempPayload['2fa_in_progress']) {
+    if (!tempPayload['2f-in_progress']) {
       return reply.code(400).send({ message: 'Invalid 2FA session token.' });
     }
 
@@ -206,8 +205,12 @@ export const getMe = async (
   }
 };
 
-export const logoutUser = async (request: FastifyRequest, reply: FastifyReply) => {
-  const token = request.cookies.token;
+export const logoutUser = async (
+  request: FastifyRequest,
+  reply: FastifyReply
+) => {
+  // Invalidate the JWT so it cannot be reused, even if not expired
+  const token = request.cookies.token as string | undefined;
   if (token) {
     await authService.logout(token);
   }
@@ -226,8 +229,14 @@ export const logoutUser = async (request: FastifyRequest, reply: FastifyReply) =
 export const deleteUserAndData = async (userId: string) => {
     // The logic is wrapped in a transaction to ensure all or nothing is deleted.
     return prisma.$transaction(async (tx) => {
-        // Cascading deletes in the schema should handle related data.
-        // We just need to delete the user.
+        // If this user is a company, delete dependent offers first to avoid FK constraints
+        const company = await tx.companyProfile.findUnique({ where: { userId } });
+        if (company) {
+            // Delete offers for this company; applications will cascade; adoptionRequests on offers are set to null
+            await tx.offer.deleteMany({ where: { companyId: company.id } });
+        }
+
+        // Cascading deletes in the schema handle most related data. Finally, delete the user.
         await tx.user.delete({ where: { id: userId } });
     });
 };
@@ -328,39 +337,15 @@ export const changePassword = async (
       return reply.code(400).send({ message: 'This account does not have a password set' });
     }
 
-    // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
-    if (!isCurrentPasswordValid) {
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
       return reply.code(401).send({ message: 'Current password is incorrect' });
     }
 
-    // Validate new password
-    if (newPassword.length < 8) {
-      return reply.code(400).send({ message: 'New password must be at least 8 characters long' });
-    }
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: userId }, data: { passwordHash: hashed } });
 
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const newPasswordHash = await bcrypt.hash(newPassword, salt);
-
-    // Update password in database
-    await prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash: newPasswordHash },
-    });
-
-    // Invalidate current session
-    const token = request.cookies.token;
-    if (token) {
-      await authService.logout(token);
-    }
-
-    // Clear the current token cookie
-    reply.clearCookie('token', { path: '/' });
-
-    return reply.code(200).send({ 
-      message: 'Password changed successfully. Please log in again.' 
-    });
+    return reply.code(200).send({ message: 'Password changed successfully' });
   } catch (error) {
     console.error(error);
     return reply.code(500).send({ message: 'Internal Server Error' });

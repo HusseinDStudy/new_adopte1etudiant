@@ -163,8 +163,8 @@ const Header: React.FC = () => {
                       ? 'bg-blue-50 text-blue-600'
                       : 'text-gray-400 hover:text-gray-500'
                   }`}
-                  title={t('dashboard.dashboard') || 'Dashboard'}
-                  aria-label={t('dashboard.dashboard') || 'Dashboard'}
+                  title={t('navigation.dashboard') || 'Dashboard'}
+                  aria-label={t('navigation.dashboard') || 'Dashboard'}
                 >
                   <svg className="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />

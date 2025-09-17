@@ -19,35 +19,8 @@ const TwoFactorAuthSetup = () => {
     const checkStatus = async () => {
       try {
         const me = await authService.getMe();
-        const initial = (me as any)?.isTwoFactorEnabled;
-        if (initial === true) {
-          setIsTwoFactorEnabled(true);
-          return;
-        }
-
-        // Fallback: probe verify endpoint with a dummy token and infer from error message
-        try {
-          await authService.verify2fa('000000');
-          // This should not succeed; if it does, consider 2FA enabled
-          setIsTwoFactorEnabled(true);
-        } catch (e: any) {
-          const message: string | undefined = e?.response?.data?.message;
-          // When 2FA is NOT enabled (or no secret), the backend returns 400 with message '2FA not requested or secret not found'
-          // When 2FA IS enabled, the backend returns 400 with message 'Invalid token or recovery code'
-          if (typeof message === 'string') {
-            const normalized = message.toLowerCase();
-            if (normalized.includes('not requested') || normalized.includes('secret not found')) {
-              setIsTwoFactorEnabled(false);
-            } else if (normalized.includes('invalid token') || normalized.includes('recovery code')) {
-              setIsTwoFactorEnabled(true);
-            } else {
-              // Unknown message: assume disabled rather than showing wrong state
-              setIsTwoFactorEnabled(false);
-            }
-          } else {
-            setIsTwoFactorEnabled(false);
-          }
-        }
+        const initial = (me as any)?.isTwoFactorEnabled === true;
+        setIsTwoFactorEnabled(initial);
       } catch (err) {
         setError(t('twoFactorAuth.couldNotFetchStatus'));
       } finally {
@@ -118,7 +91,6 @@ const TwoFactorAuthSetup = () => {
             confirmText={t('common.confirm') as string}
             cancelText={t('common.cancel') as string}
             confirmDisabled={disableCode.length !== 6}
-            
             onConfirm={async () => {
               try {
                 setError('');
@@ -126,8 +98,9 @@ const TwoFactorAuthSetup = () => {
                 setIsTwoFactorEnabled(false);
                 setToken('');
                 setDisableCode('');
-                // Refresh current user info silently
-                try { await authService.getMe(); } catch (e) { console.warn('Silent refresh of getMe after 2FA disable failed'); }
+                setConfirmDisable(false);
+                // Hard refresh of status to avoid stale UI showing enabled
+                try { const me = await authService.getMe(); setIsTwoFactorEnabled(!!(me as any)?.isTwoFactorEnabled); } catch {}
               } catch (err) {
                 setError(t('twoFactorAuth.invalidTokenDisable'));
               }

@@ -758,9 +758,10 @@
     "disable": "Désactiver",
     "dangerZone": "Zone de danger",
     "deleteAccountWarning": "La suppression de votre compte est permanente et ne peut pas être annulée.",
-    "deleteWithGoogle": "Supprimer avec Google",
-    "confirmDeletion": "Confirmer la suppression",
-    "enterPasswordToDelete": "Veuillez saisir votre mot de passe pour supprimer votre compte."
+      "deleteWithGoogle": "Supprimer avec Google",
+  "confirmDeletion": "Confirmer la suppression",
+  "deleteOAuthWarning": "Vous serez redirigé vers Google pour confirmer votre identité. Après confirmation, votre compte et toutes les données associées seront définitivement supprimés.",
+  "enterPasswordToDelete": "Veuillez saisir votre mot de passe pour supprimer votre compte."
   },
   "profileForm": {
     "studentProfile": "Profil Étudiant",

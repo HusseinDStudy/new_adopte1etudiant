@@ -53,6 +53,17 @@ async function authRoutes(server: FastifyInstance) {
       },
     },
   } as const;
+
+  // Compute API base URL once for OAuth callback URIs
+  const apiBaseUrl = (() => {
+    if (process.env.API_BASE_URL) return process.env.API_BASE_URL;
+    const raw = process.env.API_URL || 'http://localhost';
+    // If API_URL already includes a port, don't add API_PORT
+    const hasPort = /^https?:\/\/[^/:]+:\d+/.test(raw);
+    const port = process.env.API_PORT && !hasPort ? `:${process.env.API_PORT}` : '';
+    return `${raw}${port}` || 'http://localhost:8080';
+  })();
+
   // Google OAuth2
   server.register(oauthPlugin, {
     name: 'google',
@@ -65,7 +76,7 @@ async function authRoutes(server: FastifyInstance) {
       auth: oauthPlugin.GOOGLE_CONFIGURATION,
     },
     startRedirectPath: '/google',
-    callbackUri: `${process.env.API_URL}:${process.env.API_PORT}/auth/google/callback`,
+    callbackUri: `${apiBaseUrl}/api/auth/google/callback`,
   });
 
   server.register(oauthPlugin, {
@@ -79,7 +90,7 @@ async function authRoutes(server: FastifyInstance) {
       auth: oauthPlugin.GOOGLE_CONFIGURATION,
     },
     startRedirectPath: '/google/delete',
-    callbackUri: `${process.env.API_URL}:${process.env.API_PORT}/auth/google/delete-callback`,
+    callbackUri: `${apiBaseUrl}/api/auth/google/delete-callback`,
   });
 
   server.get('/google/callback', {
@@ -309,78 +320,44 @@ async function authRoutes(server: FastifyInstance) {
           description: 'Account linking completed successfully',
           type: 'object',
           properties: {
-            message: { type: 'string' }
+            message: { type: 'string' },
           }
-        },
-        400: {
-          description: 'Invalid choice or linking data',
-          type: 'object',
-          properties: { message: { type: 'string' } }
-        },
-        401: {
-          description: 'Invalid or expired linking token',
-          type: 'object',
-          properties: { message: { type: 'string' } }
         }
       }
     }
   }, async (request, reply) => {
-    try {
-      const { choice } = completeLinkSchema.parse(request.body);
-      const authHeader = request.headers.authorization;
+    const body = completeLinkSchema.parse(request.body);
+    const token = request.headers['authorization']?.replace('Bearer ', '');
+    if (!token) return reply.status(401).send({ message: 'Missing token' });
 
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return reply.status(401).send({ message: 'Unauthorized' });
-      }
-      const linkingToken = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
-      const decoded = jwt.verify(linkingToken, process.env.JWT_SECRET!) as any;
-
-      // Ensure user exists and matches the one in the token
-      const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
-      if (!user) {
-        return reply.status(401).send({ message: 'Invalid user in token.' });
-      }
-
-      // Link the account
-      await prisma.account.upsert({
-        where: { provider_providerAccountId: { provider: decoded.provider, providerAccountId: decoded.providerAccountId } },
-        update: {
-          access_token: decoded.accessToken,
-          refresh_token: decoded.refreshToken,
-          expires_at: decoded.expiresAt,
+    if (body.choice === 'google_only') {
+      // Disable password login and keep only Google OAuth
+      await prisma.user.update({
+        where: { id: decoded.userId },
+        data: {
+          passwordHash: null,
+          isPasswordLoginDisabled: true,
         },
-        create: {
-            userId: decoded.userId,
-            type: 'oauth',
-            provider: decoded.provider,
-            providerAccountId: decoded.providerAccountId,
-            access_token: decoded.accessToken,
-            refresh_token: decoded.refreshToken,
-            expires_at: decoded.expiresAt,
-        }
       });
-
-      if (choice === 'google_only') {
-        // Remove password login
-        await prisma.user.update({
-          where: { id: decoded.userId },
-          data: { passwordHash: null, passwordLoginDisabled: true },
-        });
-      }
-
-      return reply.send({ message: 'Account linked successfully.' });
-
-    } catch (error) {
-      server.log.error(error);
-      if (error instanceof z.ZodError) {
-          return reply.status(400).send(error.flatten());
-      }
-      if (error instanceof jwt.JsonWebTokenError) {
-          return reply.status(401).send({ message: 'Invalid linking token' });
-      }
-      return reply.status(500).send({ message: 'Internal Server Error' });
     }
+
+    await prisma.account.upsert({
+      where: { provider_providerAccountId: { provider: 'google', providerAccountId: decoded.providerAccountId } },
+      update: { access_token: decoded.accessToken, refresh_token: decoded.refreshToken },
+      create: {
+        userId: decoded.userId,
+        type: 'oauth',
+        provider: 'google',
+        providerAccountId: decoded.providerAccountId,
+        access_token: decoded.accessToken,
+        refresh_token: decoded.refreshToken,
+        expires_at: decoded.expiresAt,
+      }
+    });
+
+    return reply.send({ message: 'Account linked successfully' });
   });
 
   const completeRegistrationSchema = z.object({

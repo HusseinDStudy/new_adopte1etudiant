@@ -15,9 +15,9 @@ const StudentProfileForm = () => {
   const validSkillRegex = /^[a-zA-Z0-9\s+#.-]*$/;
 
   const skillValidation = z.string().refine(
-    (value) => {
-      const skills = value.split(',').map(s => s.trim());
-      return skills.every(skill => validSkillRegex.test(skill) || skill === '');
+    (value: string) => {
+      const skills = value.split(',').map((s: string) => s.trim());
+      return skills.every((skill: string) => validSkillRegex.test(skill) || skill === '');
     },
     {
       message: t('profileForm.skillsValidationError'),
@@ -49,9 +49,16 @@ const StudentProfileForm = () => {
       try {
         const profileData = await getProfile();
         if (profileData) {
+          // Normalize skills: backend returns string[]; older shape may be [{ skill: { name } }]
+          const skillsArray = Array.isArray(profileData.skills) ? profileData.skills : [];
+          const skillsAsString = skillsArray
+            .map((s: any) => (typeof s === 'string' ? s : s?.skill?.name))
+            .filter(Boolean)
+            .join(', ');
+
           const formData = {
             ...profileData,
-            skills: profileData.skills?.map((s: any) => s.skill.name).join(', ') || '',
+            skills: skillsAsString || '',
           };
           reset(formData);
         }
@@ -63,7 +70,7 @@ const StudentProfileForm = () => {
     fetchProfile();
   }, [reset, t]);
 
-  const onSubmit: SubmitHandler<StudentProfileFormData> = async (data) => {
+  const onSubmit: SubmitHandler<StudentProfileFormData> = async (data: StudentProfileFormData) => {
     setError('');
     try {
       const transformedData: StudentProfileInput = {
@@ -74,9 +81,17 @@ const StudentProfileForm = () => {
       
       const updatedProfile = await upsertProfile(transformedData);
 
+      // Normalize returned skills (string[])
+      const updatedSkillsString = Array.isArray(updatedProfile?.skills)
+        ? updatedProfile.skills
+            .map((s: any) => (typeof s === 'string' ? s : s?.skill?.name))
+            .filter(Boolean)
+            .join(', ')
+        : '';
+
       const updatedFormData = {
         ...updatedProfile,
-        skills: updatedProfile.skills?.map((s: any) => s.skill.name).join(', ') || '',
+        skills: updatedSkillsString,
       };
       
       reset(updatedFormData);

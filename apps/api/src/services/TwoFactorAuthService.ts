@@ -31,6 +31,7 @@ export class TwoFactorAuthService {
       name: `${APP_NAME} (${user.email})`,
     });
 
+    // Important: do NOT set isTwoFactorEnabled here; only store the secret to await verification
     await prisma.user.update({
       where: { id: user.id },
       data: { twoFactorSecret: secret.base32 },
@@ -38,10 +39,7 @@ export class TwoFactorAuthService {
 
     try {
       const qrCodeUrl = await qrcode.toDataURL(secret.otpauth_url!);
-      return {
-        secret: secret.base32,
-        qrCodeUrl: qrCodeUrl,
-      };
+      return { secret: secret.base32, qrCodeUrl };
     } catch (err) {
       console.error('QR code generation failed:', err);
       throw new Error('Could not generate QR code');
@@ -94,11 +92,8 @@ export class TwoFactorAuthService {
 
     // Generate recovery codes
     const recoveryCodes = Array.from({ length: 10 }, () => Math.random().toString(36).substring(2, 10).toUpperCase());
-    
-    // Hash each code individually. bcrypt handles the salt.
-    const hashedRecoveryCodes = await Promise.all(
-      recoveryCodes.map(code => bcrypt.hash(code, 10))
-    );
+
+    const hashedRecoveryCodes = await Promise.all(recoveryCodes.map(code => bcrypt.hash(code, 10)));
 
     // Enable 2FA and save recovery codes
     await prisma.user.update({
@@ -109,16 +104,23 @@ export class TwoFactorAuthService {
       },
     });
 
-    return {
-      success: true,
-      recoveryCodes,
-    };
+    return { success: true, recoveryCodes };
   }
 
   async disableTwoFactor(userId: string, token: string): Promise<void> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundError('User not found');
+    }
+
+    // If a secret exists but isTwoFactorEnabled is false, setup was never completed.
+    // Allow clearing it without requiring a token, to avoid a stuck state in UI.
+    if (!user.isTwoFactorEnabled && user.twoFactorSecret) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { twoFactorSecret: null, twoFactorRecoveryCodes: [] },
+      });
+      return;
     }
 
     if (!user.isTwoFactorEnabled || !user.twoFactorSecret) {
@@ -145,7 +147,6 @@ export class TwoFactorAuthService {
       }
 
       if (isVerified && usedCodeHash) {
-        // Invalidate the used recovery code
         const updatedRecoveryCodes = user.twoFactorRecoveryCodes.filter(c => c !== usedCodeHash);
         await prisma.user.update({
           where: { id: userId },
@@ -188,10 +189,8 @@ export class TwoFactorAuthService {
     }
 
     const recoveryCodes = Array.from({ length: 10 }, () => Math.random().toString(36).substring(2, 10).toUpperCase());
-    
-    const hashedRecoveryCodes = await Promise.all(
-      recoveryCodes.map(code => bcrypt.hash(code, 10))
-    );
+
+    const hashedRecoveryCodes = await Promise.all(recoveryCodes.map(code => bcrypt.hash(code, 10)));
 
     await prisma.user.update({
       where: { id: userId },
